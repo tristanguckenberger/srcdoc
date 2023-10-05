@@ -1,6 +1,7 @@
 <svelte:options accessors />
 
 <script>
+	// @ts-nocheck
 	import { afterUpdate, onDestroy } from 'svelte';
 	import { clearSplit, splitInstanceStore, editorSplit } from '$lib/stores/splitStore';
 	import Split from 'split.js';
