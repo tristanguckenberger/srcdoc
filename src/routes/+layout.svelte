@@ -6,18 +6,11 @@
 </nav>
 
 <main>
-    <aside>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
-        </ul>
-    </aside>
     <slot></slot>
 </main>
 
 <style>
     :global(body > div) {
-        /* height: 100%; */
         display: flex;
         flex-direction: column;
         margin: 0;
@@ -33,12 +26,9 @@
         margin: 10px;
         height: calc(100% - 20px);
         width: calc(100% - 20px);
-        max-width: calc(100% - 100px);
+        max-width: calc(100%);
         max-height: calc(100vh - 76px);
     }
-
-   
-
     nav {
         background-color: #333;
         color: #fff;
@@ -60,8 +50,4 @@
         color: #fff;
         text-decoration: none;
     }
-
-    /* main {
-        padding: 1rem;
-    }  */
 </style>

@@ -16,7 +16,7 @@
 	$: options = {
 		theme: "omni-light",
 		language: code?.type,
-		fontSize: 16,
+		fontSize: 13,
 		padding: {top: 30},
 		showFoldingControls: "always",
 		tabCompletion: "on",
