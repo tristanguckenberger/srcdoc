@@ -145,7 +145,7 @@
         position: absolute;
         display: flex;
         align-items: center;
-        transition: background-color 300ms cubic-bezier(0.215, 0.610, 0.355, 1);
+        /* transition: background-color 300ms cubic-bezier(0.215, 0.610, 0.355, 1); */
     }
     .section-panel {
         border-radius: 6px;

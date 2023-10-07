@@ -101,7 +101,7 @@
 		background-repeat: no-repeat;
 		background-position: 50%;
 		z-index: 2147483647;
-		transition: background-color 250ms ease;
+		/* transition: background-color 250ms ease; */
 	}
 	:global(.gutter:hover) {
 		background-color: #4ca5ff;
