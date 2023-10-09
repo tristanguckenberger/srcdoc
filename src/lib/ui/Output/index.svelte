@@ -3,16 +3,16 @@
 	import buildDoc from '$lib/srcdoc';
 	import { htmlStore, cssStore, jsStore } from '$lib/stores/codeStore.js';
 	import { afterUpdate } from 'svelte';
-	
+
 	let id = 0;
 	let srcdocBuilt;
 	let iframe;
 
-	$: uid = `output-iframe-${id}` 
-	$: srcdoc = { 
+	$: uid = `output-iframe-${id}`;
+	$: srcdoc = {
 		html: $htmlStore,
 		css: $cssStore,
-		js: $jsStore,
+		js: $jsStore
 	};
 
 	afterUpdate(() => {
@@ -22,7 +22,6 @@
 			id++;
 		}
 	});
-
 </script>
 
 <div style="height: 100%; flex-grow: 1;">

@@ -1,18 +1,26 @@
 <script>
 	// @ts-nocheck
 
-	// import { default as EditorInput } from '$lib/layout/EditorLayouts/Base/Input.svelte';
-	// import SplitPane from '$lib/layout/SplitPane/index.svelte';
-	// import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
-	// import Output from '$lib/ui/Output/index.svelte';
-	// import buildDoc from '$lib/srcdoc';
-	// import {
-	// 	editorOutContainerWidth,
-	// 	editorOutContainerHeight,
-	// 	isVertical
-	// } from '$lib/stores/layoutStore';
-	// import { htmlStore, cssStore, jsStore } from '$lib/stores/codeStore.js';
-	// import { editorElement } from '$lib/stores/splitStore';
+	import { default as EditorInput } from '$lib/layout/EditorLayouts/Base/Input.svelte';
+	import SplitPane from '$lib/layout/SplitPane/index.svelte';
+	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
+	import Output from '$lib/ui/Output/index.svelte';
+	import buildDoc from '$lib/srcdoc';
+	import {
+		editorOutContainerWidth,
+		editorOutContainerHeight,
+		isVertical
+	} from '$lib/stores/layoutStore';
+	import { htmlStore, cssStore, jsStore } from '$lib/stores/codeStore.js';
+	import { editorElement } from '$lib/stores/splitStore';
+
+	// Expiremental
+	import FileTree from '$lib/ui/FileSystem/FileTree.svelte';
+	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
+
+	export let data;
+
+	$: console.log(data);
 
 	// $: srcdoc = {
 	// 	html: $htmlStore,
@@ -25,8 +33,11 @@
 
 <div class="main">
 	<!-- <SplitPane panes={['#split-2', '#split-3']} vertical={value} bind:this={$editorElement}>
-		<EditorInput />
-		<section
+		<!-- Editor Content -->
+	<!-- <EditorInput /> -->
+
+	<!-- Output Content -->
+	<!-- <section
 			id="split-3"
 			bind:clientWidth={$editorOutContainerWidth}
 			bind:clientHeight={$editorOutContainerHeight}
@@ -35,8 +46,10 @@
 				<Output slot="pane-content" srcdocBuilt={srcdocBuild} />
 			</Pane>
 		</section>
-	</SplitPane> -->
-	<a href="/games">Games</a>
+	</SplitPane>  -->
+
+	<TabContainer />
+	<FileTree files={data?.files} parentFileId={null} gameId={data?.id} userId={data?.userId} />
 </div>
 
 <style>
@@ -59,7 +72,6 @@
 	}
 	:global(.monaco-editor .overflow-guard) {
 		border-radius: 6px !important;
-		/* border: 2px solid #5c5c5c; */
 	}
 	:global(.margin-view-overlays) {
 		background-color: transparent;

@@ -9,12 +9,12 @@
 	/**
 	 * @type {any[]}
 	 */
-	 export let panes;
+	export let panes;
 	/**
 	 * @type {null}
 	 */
-	 export let sizes = null;
-	 export let vertical = false;
+	export let sizes = null;
+	export let vertical = false;
 
 	/**
 	 * @type {Split.Instance}
