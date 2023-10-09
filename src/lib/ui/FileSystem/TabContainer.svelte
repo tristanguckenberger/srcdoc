@@ -63,6 +63,8 @@
 		flex-direction: row;
 		background-color: #333;
 		overflow-x: auto;
+		height: 30px;
 		/* padding: 5px; */
+		flex-grow: 1;
 	}
 </style>

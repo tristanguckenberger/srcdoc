@@ -1,5 +1,14 @@
+<script>
+	import { fileSystemSidebarOpen } from '$lib/stores/filesStore';
+</script>
+
 <nav class="top">
 	<ul>
+		<li>
+			<button on:click={() => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen)}
+				>{$fileSystemSidebarOpen ? 'close' : 'open'}</button
+			>
+		</li>
 		<li><a href="/">Home</a></li>
 		<li><a href="/about">About</a></li>
 	</ul>

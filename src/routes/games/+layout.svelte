@@ -1,6 +1,20 @@
-<main>
+<script>
+	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
+	import { fileSystemSidebarWidth, fileSystemSidebarOpen } from '$lib/stores/filesStore.js';
+
+	$: isSideBarOpen = $fileSystemSidebarOpen;
+</script>
+
+<div
+	id="editor-layout"
+	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px;"
+>
+	<div class="sidebar-container" class:isSideBarOpen>
+		<div class="filler" />
+		<TabContainer />
+	</div>
 	<slot />
-</main>
+</div>
 
 <style>
 	:global(body > div) {
@@ -10,38 +24,21 @@
 		padding: 0;
 		background-color: #333;
 	}
-	main {
-		flex-grow: 1;
+	#editor-layout {
 		display: flex;
+		flex-direction: column;
+		height: 100%;
+		width: 100%;
+	}
+	.sidebar-container {
+		/* display: flex;
 		flex-direction: row;
-		max-width: 100%;
-	}
-	:global(.main) {
-		margin: 10px;
-		height: calc(100% - 20px);
-		width: calc(100% - 20px);
-		max-width: calc(100%);
-		max-height: calc(100vh - 76px);
-	}
-	nav {
-		background-color: #333;
-		color: #fff;
-		padding: 1rem;
-	}
-
-	nav ul {
+		height: 30px; */
+		/* width: calc(100% - (var(--sidebar-width) + 10px)); */
 		display: flex;
-		list-style: none;
-		margin: 0;
-		padding: 0;
 	}
-
-	nav ul li {
-		margin-right: 1rem;
-	}
-
-	nav ul li a {
-		color: #fff;
-		text-decoration: none;
+	.filler {
+		width: var(--sidebar-width);
+		height: 30px;
 	}
 </style>

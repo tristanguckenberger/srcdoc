@@ -6,6 +6,7 @@
 	import { clearSplit, splitInstanceStore, editorSplit } from '$lib/stores/splitStore';
 	import Split from 'split.js';
 	import { paneMinHeightModifier } from '$lib/stores/layoutStore';
+	import { fileSystemSidebarOpen } from '$lib/stores/filesStore';
 	/**
 	 * @type {any[]}
 	 */
@@ -39,6 +40,14 @@
 	 * @type {HTMLDivElement | null}
 	 */
 	let split;
+
+	// $: if ($fileSystemSidebarOpen === true) reloadSplit();
+
+	// $: $fileSystemSidebarOpen, $fileSystemSidebarOpen && clearSplit.set(true);
+
+	$: if ($fileSystemSidebarOpen !== null) {
+		clearSplit.set(true);
+	}
 
 	afterUpdate(() => {
 		if ($clearSplit) {

@@ -12,6 +12,7 @@
 		editorOutContainerHeight
 	} from '$lib/stores/layoutStore';
 	import { editorSplit } from '$lib/stores/splitStore';
+	import { codePanes } from '$lib/stores/filesStore';
 	// import {
 	// 		htmlStore,
 	// 		cssStore,
@@ -32,21 +33,29 @@
 	$editorContainerWidth;
 
 	$: editorWidth, editorContainerWidth.set(editorWidth);
+
+	$: panes = $codePanes;
 </script>
 
-<section id="split-2" bind:clientWidth={editorWidth} bind:clientHeight={$editorContainerHeight}>
-	<SplitPane panes={['#split-html', '#split-css', '#split-js']} vertical={!$isVertical}>
-		<Pane id={'split-html'} label={'html'}>
-			<Editor slot="pane-content" code={htmlBackup} />
-		</Pane>
-		<Pane id={'split-css'} label={'css'}>
-			<Editor slot="pane-content" code={cssBackup} />
-		</Pane>
-		<Pane id={'split-js'} label={'js'}>
-			<Editor slot="pane-content" code={jsBackup} />
-		</Pane>
-	</SplitPane>
-</section>
+{#if panes?.length > 0}
+	<section id="split-2" bind:clientWidth={editorWidth} bind:clientHeight={$editorContainerHeight}>
+		<SplitPane {panes} vertical={!$isVertical}>
+			{#each panes as pane}
+				<!-- {console.log('pane-split::')} -->
+				<Pane id={pane.split('#')[1]} label={pane.split('-')[1]}>
+					<Editor slot="pane-content" code={''} />
+				</Pane>
+			{/each}
+
+			<!-- <Pane id={'split-css'} label={'css'}>
+				<Editor slot="pane-content" code={cssBackup} />
+			</Pane>
+			<Pane id={'split-js'} label={'js'}>
+				<Editor slot="pane-content" code={jsBackup} />
+			</Pane> -->
+		</SplitPane>
+	</section>
+{/if}
 
 <style>
 	#split-2 {

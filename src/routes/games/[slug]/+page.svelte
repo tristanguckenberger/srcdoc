@@ -13,6 +13,11 @@
 	} from '$lib/stores/layoutStore';
 	import { htmlStore, cssStore, jsStore } from '$lib/stores/codeStore.js';
 	import { editorElement } from '$lib/stores/splitStore';
+	import {
+		fileSystemSidebarWidth,
+		fileSystemSidebarOpen,
+		codePanes
+	} from '$lib/stores/filesStore.js';
 
 	// Expiremental
 	import FileTree from '$lib/ui/FileSystem/FileTree.svelte';
@@ -20,36 +25,48 @@
 
 	export let data;
 
-	$: console.log(data);
+	// $: console.log(data);
 
 	// $: srcdoc = {
 	// 	html: $htmlStore,
 	// 	css: $cssStore,
 	// 	js: $jsStore
 	// };
-	// $: value = $isVertical;
-	// $: srcdocBuild = buildDoc(srcdoc?.html?.source, srcdoc?.css?.source, srcdoc?.js?.source);
+	$: value = $isVertical;
+	$: srcdocBuild = ''; //buildDoc(srcdoc?.html?.source, srcdoc?.css?.source, srcdoc?.js?.source);
 </script>
 
 <div class="main">
-	<!-- <SplitPane panes={['#split-2', '#split-3']} vertical={value} bind:this={$editorElement}>
-		<!-- Editor Content -->
-	<!-- <EditorInput /> -->
-
-	<!-- Output Content -->
-	<!-- <section
-			id="split-3"
-			bind:clientWidth={$editorOutContainerWidth}
-			bind:clientHeight={$editorOutContainerHeight}
+	<SplitPane
+		panes={['#split-file-explorer', '#split-input-output']}
+		vertical={false}
+		bind:this={$editorElement}
+	>
+		<div
+			id="split-file-explorer"
+			class:hidden={!$fileSystemSidebarOpen}
+			bind:clientWidth={$fileSystemSidebarWidth}
 		>
-			<Pane id={'split-output'} label={'output'}>
-				<Output slot="pane-content" srcdocBuilt={srcdocBuild} />
-			</Pane>
-		</section>
-	</SplitPane>  -->
+			<FileTree files={data?.files} parentFileId={null} gameId={data?.id} userId={data?.userId} />
+		</div>
+		<div id="split-input-output">
+			<SplitPane panes={['#split-2', '#split-3']} vertical={value} bind:this={$editorElement}>
+				<!-- Editor Content -->
+				<EditorInput />
 
-	<TabContainer />
-	<FileTree files={data?.files} parentFileId={null} gameId={data?.id} userId={data?.userId} />
+				<!-- Output Content -->
+				<section
+					id="split-3"
+					bind:clientWidth={$editorOutContainerWidth}
+					bind:clientHeight={$editorOutContainerHeight}
+				>
+					<Pane id={'split-output'} label={'output'}>
+						<Output slot="pane-content" srcdocBuilt={srcdocBuild} />
+					</Pane>
+				</section>
+			</SplitPane>
+		</div>
+	</SplitPane>
 </div>
 
 <style>
@@ -81,5 +98,12 @@
 	}
 	:global(.section-panel) {
 		flex-grow: 1;
+	}
+	#split-input-output {
+		width: 100%;
+		height: calc(100vh - 110px);
+	}
+	#split-file-explorer.hidden {
+		display: none;
 	}
 </style>

@@ -17,3 +17,12 @@ export const softSelectedFileId = writable(null);
 // file is added when a soft selection is made and then
 // the tab or file is dbclicked
 export const openFiles = writable([]);
+
+// The width of the file system sidebar
+export const fileSystemSidebarWidth = writable(300);
+
+// If the file system sidebar is open
+export const fileSystemSidebarOpen = writable(true);
+
+// Track current code panes
+export const codePanes = writable(['#split-html', '#split-css', '#split-js']);
