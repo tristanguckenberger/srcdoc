@@ -77,22 +77,14 @@
 
 			// update the focused file in the open files store
 			openFiles.update((files) => {
-				// console.log(id);
-
 				const file = files.find((file) => {
-					console.log('EditorInput::file::', file);
 					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
-					// console.log(file);
 					return newId === id;
 				});
-				// console.log('file::', file);
-				// console.log('e?.detail?.value::', e?.detail?.value);
-				if (file) {
-					file.source = e?.detail?.value;
-				}
 
-				// console.log('updatedFile::', file);
-				// console.log('updatedFiles??::', files);
+				if (file) {
+					file.content = e?.detail?.value;
+				}
 				return files;
 			});
 
