@@ -7,6 +7,7 @@
 
 <div
 	id="editor-layout"
+	class:modifiedWidth={!isSideBarOpen}
 	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px;"
 >
 	<div class="sidebar-container" class:isSideBarOpen>
@@ -29,6 +30,12 @@
 		flex-direction: column;
 		height: 100%;
 		width: 100%;
+	}
+	.modifiedWidth {
+		max-width: calc(100% + 10px) !important;
+		width: calc(100% + 10px) !important;
+		position: absolute;
+		left: -10px;
 	}
 	.sidebar-container {
 		/* display: flex;
