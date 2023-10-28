@@ -1,6 +1,6 @@
 <script>
+	// @ts-nocheck
 	import { browser } from '$app/environment';
-	// import type monaco from 'src/../monaco-editor';
 	import { afterUpdate, createEventDispatcher, onMount } from 'svelte';
 	import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 	import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
@@ -18,73 +18,61 @@
 	let container;
 	let editor;
 
-	const dispatch = createEventDispatcher();
-	function emitValue() {
-		dispatch('update', {
-			value: editor.getValue()
-		});
-	}
-
 	onMount(async () => {
-		// @ts-ignore
-		self.MonacoEnvironment = {
-			getWorker: function (_moduleId, label) {
-				if (label === 'json') {
-					return new jsonWorker();
-				}
-				if (label === 'css' || label === 'scss' || label === 'less') {
-					return new cssWorker();
-				}
-				if (label === 'html' || label === 'handlebars' || label === 'razor') {
-					return new htmlWorker();
-				}
-				if (label === 'typescript' || label === 'javascript') {
-					return new tsWorker();
-				}
-				return new editorWorker();
+		setTimeout(async () => {
+			try {
+				self.MonacoEnvironment = {
+					getWorker: function (_moduleId, label) {
+						if (label === 'json') {
+							return new jsonWorker();
+						}
+						if (label === 'css' || label === 'scss' || label === 'less') {
+							return new cssWorker();
+						}
+						if (label === 'html' || label === 'handlebars' || label === 'razor') {
+							return new htmlWorker();
+						}
+						if (label === 'typescript' || label === 'js') {
+							return new tsWorker();
+						}
+						return new editorWorker();
+					}
+				};
+				Monaco = await import('monaco-editor');
+				editor = Monaco.editor.create(container, {
+					value,
+					language: IFTitle,
+					...options
+				});
+				// This breaks the editor
+				// editor = Monaco.editor.defineTheme('omni-light', {
+				// 	base: 'vs',
+				// 	inherit: true,
+				// 	rules: [],
+				// 	colors: {
+				// 		'editor.background': '#FBFBFB'
+				// 	}
+				// });
+			} catch (error) {
+				console.log('error', error);
 			}
-		};
-		Monaco = await import('monaco-editor');
 
-		if (browser) {
-			editor = Monaco.editor.create(container, {
-				value,
-				language: IFTitle,
-				...options
-			});
+			// if (browser) {
 
-			editor = Monaco.editor.defineTheme('omni-light', {
-				base: 'vs-light',
-				inherit: true,
-				rules: [],
-				colors: {
-					'editor.background': '#FBFBFB'
-				}
-			});
-		}
+			// } else {
+			// 	console.log('Monaco', browser);
+			// }
+		}, 100);
 
 		return () => {
 			editor.dispose();
 		};
 	});
 	afterUpdate(async () => {
-		if ($changingPage === true && editor) {
-			editor.setValue(value);
-			changingPage.set(false);
-
-			// setTimeout(() => {
-			// 	changingPage.set(false);
-			// }, 100);
+		if (editor) {
+			editor?.setValue(value);
 		}
 	});
-
-	// $: if ($changingPage === true) {
-	// 		editor.setValue(value);
-
-	// 		setTimeout(() => {
-	// 			changingPage.set(false);
-	// 		}, 100);
-	// 	}
 
 	$: if ($isDarkModeStore) {
 		if (Monaco) {
@@ -99,11 +87,23 @@
 			Monaco.editor.setTheme('omni-dark');
 		}
 	} else {
-		if (Monaco) Monaco.editor.setTheme('vs-light');
+		if (Monaco) Monaco.editor.setTheme('vs');
 	}
+
+	const dispatch = createEventDispatcher();
 </script>
 
-<div id={IFTitle} bind:this={container} on:keyup={emitValue} style="height:100%;" />
+<div
+	id={IFTitle}
+	bind:this={container}
+	on:keyup={() =>
+		dispatch('update', {
+			value: editor.getValue()
+		})}
+	style="height:100%;"
+	role="textbox"
+	tabindex="0"
+/>
 
 <style>
 	:global(.view-lines.monaco-mouse-cursor-text, .active-line-number.line-numbers) {

@@ -6,15 +6,22 @@
 	import { clearSplit, splitInstanceStore, editorSplit } from '$lib/stores/splitStore';
 	import Split from 'split.js';
 	import { paneMinHeightModifier } from '$lib/stores/layoutStore';
-	import { fileSystemSidebarOpen } from '$lib/stores/filesStore';
+	import { fileSystemSidebarOpen, openInNewPane } from '$lib/stores/filesStore';
+	import { splitStore } from '$lib/stores/splitStore';
+
 	/**
 	 * @type {any[]}
 	 */
 	export let panes;
+
 	/**
 	 * @type {null}
 	 */
 	export let sizes = null;
+
+	/**
+	 * @type {boolean}
+	 */
 	export let vertical = false;
 
 	/**
@@ -22,18 +29,24 @@
 	 */
 	let splitInstance;
 
+	$: paneIDs = panes?.map((pane) => (typeof pane === 'string' ? pane : pane?.paneID));
+
 	const reloadSplit = () => {
 		// Destory existing splitInstance
-		if (splitInstance) splitInstance?.destroy(false, false);
+		if (splitInstance) splitInstance?.destroy(true, false);
+
+		if (!paneIDs || paneIDs?.length === 0) return;
 
 		// Init a new split instance
-		splitInstance = Split(panes, {
+		splitInstance = Split(paneIDs, {
 			direction: vertical ? 'vertical' : 'horizontal',
 			gutterSize: 10,
 			// @ts-ignore
 			sizes,
 			minSize: $paneMinHeightModifier
 		});
+
+		splitStore.set(splitInstance);
 	};
 
 	/**
@@ -41,25 +54,19 @@
 	 */
 	let split;
 
-	// $: if ($fileSystemSidebarOpen === true) reloadSplit();
-
-	// $: $fileSystemSidebarOpen, $fileSystemSidebarOpen && clearSplit.set(true);
-
-	$: if ($fileSystemSidebarOpen !== null) {
-		clearSplit.set(true);
-	}
+	$: $fileSystemSidebarOpen,
+		(() => {
+			clearSplit.set(true);
+		})();
 
 	afterUpdate(() => {
 		if ($clearSplit) {
 			reloadSplit();
 			setTimeout(() => {
 				clearSplit?.set(false);
+				openInNewPane.set(false);
 			}, 100);
 		}
-
-		// if (!$splitInstanceStore && splitInstance) {
-		// 	splitInstanceStore.set(splitInstance);
-		// }
 	});
 
 	onDestroy(() => {
@@ -70,7 +77,12 @@
 	// Replaces functionality found in onMount
 	$: if (split) {
 		panes?.map(async (query) => {
-			await split?.querySelector(query).classList.add('pane');
+			const queryString = typeof query === 'string' ? query : query?.paneID;
+			console.log('split::', split);
+			console.log('split::query::', typeof query);
+			console.log(typeof query === 'string' ? query : query?.paneID);
+			console.log('split::query::', split?.querySelector(queryString));
+			await split?.querySelector(queryString).classList.add('pane');
 		});
 
 		// Init Split.js

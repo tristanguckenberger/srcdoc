@@ -8,16 +8,9 @@
 	let srcdocBuilt;
 	let iframe;
 
-	$: uid = `output-iframe-${id}`;
-	$: srcdoc = {
-		html: $htmlStore,
-		css: $cssStore,
-		js: $jsStore
-	};
-
 	afterUpdate(() => {
 		if (iframe) {
-			srcdocBuilt = buildDoc(srcdoc?.html?.source, srcdoc?.css?.source, srcdoc?.js?.source);
+			srcdocBuilt = buildDoc($htmlStore, $cssStore, $jsStore);
 			iframe.srcdoc = srcdocBuilt;
 			id++;
 		}
@@ -25,9 +18,9 @@
 </script>
 
 <div style="height: 100%; flex-grow: 1;">
-	{#if uid}
+	{#if id}
 		<iframe
-			id={uid}
+			id={`output-iframe-${id}`}
 			style="border-radius: 6px; -webkit - mask - image: -webkit - radial - gradient(white, black);"
 			title="result"
 			bind:this={iframe}

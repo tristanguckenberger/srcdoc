@@ -130,7 +130,9 @@
 			on:hovered={() => (showPaneOptions = !(splitClientWidth <= 30) ? true : false)}
 			on:mouseleave={() => (showPaneOptions = false)}
 		>
-			{label}
+			{#if label}
+				{label}
+			{/if}
 			{#if showOptionsObserved}
 				<div
 					class="pane-options"

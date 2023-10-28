@@ -1,61 +1,52 @@
 <script>
+	// THIS IS THE INPUT COMPONENT FOR THE EDITOR LAYOUT
 	//@ts-nocheck
 	import SplitPane from '$lib/layout/SplitPane/index.svelte';
 	import Editor from '$lib/ui/Editor/index.svelte';
 	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
-	import {
-		clientWidth,
-		isVertical,
-		editorContainerHeight,
-		editorContainerWidth,
-		editorOutContainerWidth,
-		editorOutContainerHeight
-	} from '$lib/stores/layoutStore';
-	import { editorSplit } from '$lib/stores/splitStore';
-	import { codePanes } from '$lib/stores/filesStore';
-	// import {
-	// 		htmlStore,
-	// 		cssStore,
-	// 		jsStore,
-	// 	} from '$lib/stores/codeStore.js';
-	// import { onDestroy, onMount, tick } from 'svelte';
-	// import { currentPost, currentPostPageId } from '$lib/stores/postStore';
-	// import { postHydrator, projectsHydrator } from '$lib/stores/hydrator';
+	import { isVertical, editorContainerHeight, editorContainerWidth } from '$lib/stores/layoutStore';
+	import { codePanes2, openFiles, focusedFileId } from '$lib/stores/filesStore';
 
-	const htmlBackup = { source: '', type: 'html' };
-	const cssBackup = { source: '', type: 'css' };
-	const jsBackup = { source: '', type: 'typescript' };
-	let editorWidth = 0;
-	let html = '<div></div>';
-	let css = 'div { color: red; }';
-	let js = 'console.log("hello world")';
+	function getFocusedFile(paneArr) {
+		return paneArr?.find((file) => {
+			return file?.paneID === `#split-${file.fileName}-${file.type}-${$focusedFileId}`;
+		});
+	}
 
-	$editorContainerWidth;
+	$: $codePanes2,
+		(() => {
+			const focusedFile = getFocusedFile($codePanes2);
+			if (!focusedFile && $focusedFileId !== null) {
+				const fileIsOpen = $openFiles?.find((file) => file?.fileId === $focusedFileId);
 
-	$: editorWidth, editorContainerWidth.set(editorWidth);
-
-	$: panes = $codePanes;
+				if (fileIsOpen) {
+					$codePanes2.filter;
+					$codePanes2 = [
+						...$codePanes2,
+						{
+							paneID: `#split-${fileIsOpen?.name}-${fileIsOpen?.type}-${fileIsOpen?.id}`,
+							source: fileIsOpen?.source,
+							type: fileIsOpen?.type
+						}
+					];
+				}
+			}
+		})();
 </script>
 
-{#if panes?.length > 0}
-	<section id="split-2" bind:clientWidth={editorWidth} bind:clientHeight={$editorContainerHeight}>
-		<SplitPane {panes} vertical={!$isVertical}>
-			{#each panes as pane}
-				<!-- {console.log('pane-split::')} -->
-				<Pane id={pane.split('#')[1]} label={pane.split('-')[1]}>
-					<Editor slot="pane-content" code={''} />
-				</Pane>
-			{/each}
-
-			<!-- <Pane id={'split-css'} label={'css'}>
-				<Editor slot="pane-content" code={cssBackup} />
+<section
+	id="split-2"
+	bind:clientWidth={$editorContainerWidth}
+	bind:clientHeight={$editorContainerHeight}
+>
+	<SplitPane panes={$codePanes2} vertical={!$isVertical}>
+		{#each $codePanes2 as pane}
+			<Pane id={pane.paneID.split('#')[1]}>
+				<Editor slot="pane-content" code={pane.source} type={pane.type} id={pane.paneID} />
 			</Pane>
-			<Pane id={'split-js'} label={'js'}>
-				<Editor slot="pane-content" code={jsBackup} />
-			</Pane> -->
-		</SplitPane>
-	</section>
-{/if}
+		{/each}
+	</SplitPane>
+</section>
 
 <style>
 	#split-2 {

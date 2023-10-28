@@ -41,4 +41,9 @@
 		width: var(--sidebar-width);
 		height: 30px;
 	}
+
+	/* :global(.section-panel) {
+		border-radius: 6px;
+		border: 2px solid #5c5c5c;
+	} */
 </style>

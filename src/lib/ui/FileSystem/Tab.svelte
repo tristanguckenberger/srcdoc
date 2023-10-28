@@ -1,6 +1,12 @@
 <script>
 	// @ts-nocheck
-	import { focusedFileId, softSelectedFileId, openFiles } from '$lib/stores/filesStore.js';
+	import {
+		focusedFileId,
+		softSelectedFileId,
+		openFiles,
+		codePanes2
+	} from '$lib/stores/filesStore.js';
+	import { clearSplit } from '$lib/stores/splitStore';
 
 	export let file;
 	export let closeTab;
@@ -11,13 +17,31 @@
 	$: isFocused = file?.id === $focusedFileId;
 	$: isSoftSelected = file?.id === $softSelectedFileId;
 
-	function handleClose() {
+	function handleClose(file) {
 		closeTab(file.id);
+
+		// If the file is open in a pane, close it.
+		const paneID = `#split-${file?.name}-${file?.type}-${file?.id}`;
+
+		if ($softSelectedFileId === file.id) {
+			softSelectedFileId.set(null);
+		}
+
+		if ($focusedFileId === file.id) {
+			focusedFileId.set(null);
+		}
+
+		const paneCopy = [...$codePanes2];
+
+		codePanes2.set(
+			paneCopy?.filter((pane) => {
+				return pane.paneID !== paneID;
+			})
+		);
 	}
 
 	// Handle File Double Click
 	function handleFileDBClick(file) {
-		console.log('handleFileDBClick::Tab', file);
 		// If the file is not already open, is not a folder, AND is soft selected, then open it.
 		if (!$openFiles?.some((openFile) => openFile.id === file.id) && file.type !== 'folder') {
 			$openFiles = [...$openFiles, file];
@@ -29,6 +53,7 @@
 
 		// set the focused file to the file that was double clicked.
 		focusedFileId.set(file.id);
+		clearSplit.set(true);
 	}
 
 	// Handle File Single Click
@@ -62,6 +87,7 @@
 
 		// Finally, focus on the clicked file.
 		focusedFileId.set(file.id);
+		clearSplit.set(true);
 	}
 </script>
 
@@ -78,7 +104,10 @@
 		on:click={() => HandleFileSingleClick(file)}
 		on:dblclick={() => handleFileDBClick(file)}>{file.name}.{file.type}</span
 	>
-	<button class="tab-close" on:click={handleClose}>X</button>
+	{#if $openFiles.find((openFile) => openFile.id === file.id)?.needsSave}
+		<span class="white-dot" />
+	{/if}
+	<button class="tab-close" on:click={() => handleClose(file)}>X</button>
 </div>
 
 <style>
@@ -118,5 +147,13 @@
 	}
 	.tab span.isSoftSelected {
 		font-style: italic;
+	}
+	.white-dot {
+		display: inline-block;
+		width: 8px;
+		height: 8px;
+		background-color: white;
+		border-radius: 50%;
+		margin-left: 5px;
 	}
 </style>

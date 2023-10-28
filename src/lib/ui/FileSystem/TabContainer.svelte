@@ -6,33 +6,32 @@
 	let draggedItem = null;
 
 	function closeTab(id) {
+		const tabIndex = $openFiles.findIndex((file) => file.id === id);
 		$openFiles = $openFiles.filter((file) => file.id !== id);
 		if ($focusedFileId === id) {
 			focusedFileId.set(null);
 		}
+		// If there are still open files, focus the next one.
+		if ($openFiles?.length > 0) {
+			const nextFile = $openFiles[tabIndex] || $openFiles[tabIndex - 1];
+			focusedFileId.set(nextFile.id);
+		}
 	}
 
 	function dragStart(e, file) {
-		console.log('dragStart');
 		draggedItem = file;
 	}
 
 	function dragOver(e, file) {
-		console.log('dragOver');
-		console.log('draggedItem: ', draggedItem);
-		console.log('file: ', file);
 		e.preventDefault();
 	}
 
 	function dragEnd() {
-		console.log('dragEnd');
 		draggedItem = null;
 	}
 
 	function drop(e, file) {
-		console.log('drop');
 		e.preventDefault();
-		console.log('draggedItem: ', draggedItem);
 		if (draggedItem === null) return;
 
 		const draggedIndex = $openFiles.findIndex((f) => f.id === draggedItem.id);
@@ -57,14 +56,12 @@
 </div>
 
 <style>
-	/* Style your tab container here */
 	.tab-container {
 		display: flex;
 		flex-direction: row;
 		background-color: #333;
 		overflow-x: auto;
 		height: 30px;
-		/* padding: 5px; */
 		flex-grow: 1;
 	}
 </style>

@@ -16,7 +16,8 @@
 	import {
 		fileSystemSidebarWidth,
 		fileSystemSidebarOpen,
-		codePanes
+		codePanes,
+		baseDataStore
 	} from '$lib/stores/filesStore.js';
 
 	// Expiremental
@@ -24,6 +25,12 @@
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
 
 	export let data;
+
+	$: if (data) {
+		// this will be our data's starting point
+		// We will need to update this data on every keystroke
+		baseDataStore.set(data);
+	}
 
 	// $: console.log(data);
 
@@ -34,11 +41,13 @@
 	// };
 	$: value = $isVertical;
 	$: srcdocBuild = ''; //buildDoc(srcdoc?.html?.source, srcdoc?.css?.source, srcdoc?.js?.source);
+	$: isSideBarOpen = $fileSystemSidebarOpen;
 </script>
 
 <div class="main">
 	<SplitPane
 		panes={['#split-file-explorer', '#split-input-output']}
+		sizes={[20, 80]}
 		vertical={false}
 		bind:this={$editorElement}
 	>
@@ -49,7 +58,7 @@
 		>
 			<FileTree files={data?.files} parentFileId={null} gameId={data?.id} userId={data?.userId} />
 		</div>
-		<div id="split-input-output">
+		<div id="split-input-output" class:fullwidth={!$fileSystemSidebarOpen} class:isSideBarOpen>
 			<SplitPane panes={['#split-2', '#split-3']} vertical={value} bind:this={$editorElement}>
 				<!-- Editor Content -->
 				<EditorInput />
@@ -103,7 +112,26 @@
 		width: 100%;
 		height: calc(100vh - 110px);
 	}
+	#split-input-output.isSideBarOpen {
+		min-width: 874.63px;
+	}
+	#split-input-output.fullwidth {
+		width: 100% !important;
+		min-width: 874.63px;
+	}
+	#split-file-explorer {
+		padding: 10px;
+		border-radius: 6px;
+		border: 2px solid #5c5c5c;
+		overflow: hidden;
+		max-width: 245px;
+	}
+
 	#split-file-explorer.hidden {
 		display: none;
+	}
+	#split-3 {
+		height: 100%;
+		width: 100%;
 	}
 </style>

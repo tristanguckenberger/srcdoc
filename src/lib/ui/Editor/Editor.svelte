@@ -1,13 +1,35 @@
 <script>
+	// THIS IS THE NEW EDITOR??
 	// @ts-nocheck
 	import { htmlStore, cssStore, jsStore } from '$lib/stores/codeStore.js';
 	import { openFiles } from '$lib/stores/filesStore.js';
 	import MonacoEditorScripts from './MonacoEditorScripts.svelte';
 	import { baseDataStore } from '$lib/stores/filesStore.js';
-
-	export let id;
+	import { saveFile, focusedFileId } from '$lib/stores/filesStore.js';
 	export let code;
-	export let type;
+
+	// Add this in the onMount lifecycle hook or another suitable place
+	onMount(() => {
+		function handleKeyDown(event) {
+			// Check for Ctrl or Cmd key
+			if (event.ctrlKey || event.metaKey) {
+				// Check for 'S' key
+				if (event.key === 's' || event.keyCode === 83) {
+					// Prevent default save dialog
+					event.preventDefault();
+					saveFile(focusedFileId); // Assuming 'focusedFileId' is the ID of the currently focused file
+				}
+			}
+		}
+
+		// Attach event listener
+		window.addEventListener('keydown', handleKeyDown);
+
+		// Cleanup
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	});
 
 	$: codeType = type;
 
@@ -15,7 +37,7 @@
 
 	$: options = {
 		theme: 'omni-light',
-		language: codeType,
+		language: code?.type,
 		fontSize: 13,
 		padding: { top: 30 },
 		showFoldingControls: 'always',
@@ -46,7 +68,6 @@
 		bind:value={code}
 		{options}
 		on:update={(e) => {
-			// console.log('e::', e);
 			// Planning to have up to 3 stores for each code type
 			// and 3 stores max
 			// The stores need to be updated frequently, hence the use of the on:update event
@@ -73,26 +94,14 @@
 			// if the user is editing a file, the file will need to be
 			// updated on every keystroke as will the full srcdoc store (combined project code)
 
-			// console.log('baseDataStore::Editor', $baseDataStore);
+			console.log('baseDataStore::Editor', $baseDataStore);
 
 			// update the focused file in the open files store
-			openFiles.update((files) => {
-				// console.log(id);
-
-				const file = files.find((file) => {
-					console.log('EditorInput::file::', file);
-					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
-					// console.log(file);
-					return newId === id;
-				});
-				// console.log('file::', file);
-				// console.log('e?.detail?.value::', e?.detail?.value);
+			$openFiles.update((files) => {
+				const file = files.find((file) => file.id === code?.id);
 				if (file) {
 					file.source = e?.detail?.value;
 				}
-
-				// console.log('updatedFile::', file);
-				// console.log('updatedFiles??::', files);
 				return files;
 			});
 
