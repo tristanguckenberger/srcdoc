@@ -10,7 +10,7 @@
 	class:modifiedWidth={!isSideBarOpen}
 	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px;"
 >
-	<div class="sidebar-container" class:isSideBarOpen>
+	<div class="sidebar-container" class:modifiedTabBarWidth={!isSideBarOpen} class:isSideBarOpen>
 		<div class="filler" />
 		<TabContainer />
 	</div>
@@ -43,6 +43,9 @@
 		height: 30px; */
 		/* width: calc(100% - (var(--sidebar-width) + 10px)); */
 		display: flex;
+	}
+	.modifiedTabBarWidth {
+		padding-left: 20px;
 	}
 	.filler {
 		width: var(--sidebar-width);
