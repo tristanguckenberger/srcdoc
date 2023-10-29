@@ -11,6 +11,9 @@ export const fileSystemMetaDataStore = writable({
 // The file that is currently focused, nullable
 export const focusedFileId = writable(null);
 
+// The file that was previously focused, nullable
+export const previouslyFocusedFileId = writable(null);
+
 // The file that is currently soft selected, nullable
 export const softSelectedFileId = writable(null);
 

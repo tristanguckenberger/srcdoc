@@ -1,7 +1,7 @@
 <script>
 	// @ts-nocheck
 	import Tab from './Tab.svelte';
-	import { openFiles, focusedFileId } from '$lib/stores/filesStore.js';
+	import { openFiles, focusedFileId, previouslyFocusedFileId } from '$lib/stores/filesStore.js';
 
 	let draggedItem = null;
 
@@ -14,6 +14,7 @@
 		// If there are still open files, focus the next one.
 		if ($openFiles?.length > 0) {
 			const nextFile = $openFiles[tabIndex] || $openFiles[tabIndex - 1];
+			previouslyFocusedFileId.set($focusedFileId);
 			focusedFileId.set(nextFile.id);
 		}
 	}

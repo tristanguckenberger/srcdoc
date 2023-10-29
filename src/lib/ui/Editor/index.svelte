@@ -3,13 +3,113 @@
 	import { htmlStore, cssStore, jsStore } from '$lib/stores/codeStore.js';
 	import { openFiles } from '$lib/stores/filesStore.js';
 	import MonacoEditorScripts from './MonacoEditorScripts.svelte';
-	import { baseDataStore } from '$lib/stores/filesStore.js';
+	import {
+		baseDataStore,
+		derivedCodeData,
+		codePanes2,
+		focusedFileId,
+		previouslyFocusedFileId
+	} from '$lib/stores/filesStore.js';
+	import { onMount } from 'svelte';
 
 	export let id;
 	export let code;
 	export let type;
 
+	// Add this in the onMount lifecycle hook or another suitable place
+	onMount(() => {
+		function handleKeyDown(event) {
+			// Check for Ctrl or Cmd key
+			if (event.ctrlKey || event.metaKey) {
+				// Check for 'S' key
+				if (event.key === 's' || event.keyCode === 83) {
+					// Prevent default save dialog
+					event.preventDefault();
+					saveFile(focusedFileId); // Assuming 'focusedFileId' is the ID of the currently focused file
+				}
+			}
+		}
+
+		// Attach event listener
+		window.addEventListener('keydown', handleKeyDown);
+
+		// Cleanup
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	});
+
 	$: codeType = type;
+
+	$: $derivedCodeData,
+		(() => {
+			// console.log('derivedCodeData::index', $derivedCodeData);
+			// console.log('code::', code);
+			// console.log('type::', type);
+			// console.log('id::', id);
+			// console.log('derivedCodeData::index', $derivedCodeData);
+
+			const fileIsInCodePanes2 = $codePanes2.some((pane) => pane.fileId === $focusedFileId);
+			const previouslyFocusedFileIsInCodePanes2 = $codePanes2.some(
+				(pane) => pane.fileId === $previouslyFocusedFileId
+			);
+
+			const derivedCodeDataId = `#split-${$derivedCodeData?.fileName}-${$derivedCodeData?.type}-${$derivedCodeData?.fileId}`;
+			const idStringSplit = id.split('-');
+			// console.log(
+			// 	'$previouslyFocusedFileId === idStringSplit[idStringSplit?.length - 1]::',
+			// 	$previouslyFocusedFileId.toString() === idStringSplit[idStringSplit?.length - 1]
+			// );
+			// console.log('$previouslyFocusedFileId::', $previouslyFocusedFileId);
+			// console.log(
+			// 	'idStringSplit[idStringSplit?.length - 1]::',
+			// 	idStringSplit[idStringSplit?.length - 1]
+			// );
+			// console.log('codePanes2', $codePanes2);
+			// console.log('focusedFileId', $focusedFileId);
+			// console.log('fileIsInCodePanes2', fileIsInCodePanes2);
+			if ($codePanes2?.length < 2) {
+				if (derivedCodeDataId !== id) {
+					code = $derivedCodeData?.source;
+					type = $derivedCodeData?.type;
+					id = derivedCodeDataId;
+				}
+			} else if (!fileIsInCodePanes2 && previouslyFocusedFileIsInCodePanes2) {
+				// get the current focused file
+				// if the current focused file is not the same as the derived code data
+				// update the code and type
+
+				// console.log('previouslyFocusedFileId::', $previouslyFocusedFileId);
+				// console.log('focusedFileId::', $focusedFileId);
+				// console.log('derivedCodeData::', $derivedCodeData);
+				// console.log('openFiles', $openFiles);
+				console.log($derivedCodeData);
+				if ($previouslyFocusedFileId.toString() === idStringSplit[idStringSplit?.length - 1]) {
+					// 					{
+					//     "fileId": 3,
+					//     "fileName": "index",
+					//     "source": "<div>Hello, World!</div>",
+					//     "type": "html",
+					//     "openInNewPane": false,
+					//     "softSelected": false
+					// }
+					const codePaneFile = {
+						paneID: derivedCodeDataId,
+						label: $derivedCodeData?.fileName,
+						...$derivedCodeData
+					};
+					console.log('$derivedCodeData::', $derivedCodeData);
+					$codePanes2 = $codePanes2.filter((pane) => pane.fileId !== $previouslyFocusedFileId);
+					$codePanes2 = [...$codePanes2, codePaneFile];
+					// code = $derivedCodeData?.source;
+					// type = $derivedCodeData?.type;
+					// id = derivedCodeDataId;
+				}
+			}
+		})();
+	// $: console.log('code::', code);
+
+	// $:
 
 	let options;
 

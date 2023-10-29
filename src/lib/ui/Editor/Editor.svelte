@@ -4,7 +4,7 @@
 	import { htmlStore, cssStore, jsStore } from '$lib/stores/codeStore.js';
 	import { openFiles } from '$lib/stores/filesStore.js';
 	import MonacoEditorScripts from './MonacoEditorScripts.svelte';
-	import { baseDataStore } from '$lib/stores/filesStore.js';
+	import { baseDataStore, derivedCodeData } from '$lib/stores/filesStore.js';
 	import { saveFile, focusedFileId } from '$lib/stores/filesStore.js';
 	export let code;
 
@@ -32,6 +32,8 @@
 	});
 
 	$: codeType = type;
+
+	$: console.log('derivedCodeData::', $derivedCodeData);
 
 	let options;
 
@@ -94,7 +96,7 @@
 			// if the user is editing a file, the file will need to be
 			// updated on every keystroke as will the full srcdoc store (combined project code)
 
-			console.log('baseDataStore::Editor', $baseDataStore);
+			// console.log('baseDataStore::Editor', $baseDataStore);
 
 			// update the focused file in the open files store
 			$openFiles.update((files) => {

@@ -9,7 +9,8 @@
 		softSelectedFileId,
 		openInNewPane,
 		codePanes2,
-		derivedCodeData
+		derivedCodeData,
+		previouslyFocusedFileId
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { onMount, tick } from 'svelte';
@@ -46,6 +47,7 @@
 			softSelectedFileId.set(null);
 		}
 
+		previouslyFocusedFileId.set($focusedFileId);
 		// set the focused file to the file that was double clicked.
 		focusedFileId.set(file.id);
 		clearSplit.set(true);
@@ -71,19 +73,25 @@
 			$codePanes2 = $codePanes2.filter((pane) => pane.fileId !== $softSelectedFileId);
 			// set $softSelectedFileId to null
 			softSelectedFileId.set(null);
-			// set $focusedFileId to null
-			focusedFileId.set(null);
+			// // set $focusedFileId to null
+			// focusedFileId.set(null);
 			// set the new soft selected file to the clicked file.
 			softSelectedFileId.set(file.id);
 			// set the new focused file to the clicked file.
+			previouslyFocusedFileId.set($focusedFileId);
 			focusedFileId.set(file.id);
 		} else if ($softSelectedFileId === file.id) {
+			previouslyFocusedFileId.set($focusedFileId);
 			focusedFileId.set(file.id);
 		}
 
 		if (!isFileAlreadyOpen && file.type !== 'folder') {
 			$openFiles = [...$openFiles, file];
 			if (!isFileInCodePanes2) {
+				const theresAnExistingSoftSelection = $codePanes2.some(
+					(pane) => pane.softSelected === true
+				);
+
 				const codePaneFile = {
 					paneID: `#split-${file?.name}-${file?.type}-${file?.id}`,
 					label: file?.name,
@@ -94,10 +102,16 @@
 					openInNewPane: false,
 					softSelected: true
 				};
-				$codePanes2 = [...$codePanes2, codePaneFile];
+
+				if (theresAnExistingSoftSelection) {
+					// $codePanes2 = [...$codePanes2, codePaneFile];
+					// } else {
+					$codePanes2 = [codePaneFile];
+				}
 			}
 		}
 		softSelectedFileId.set(file.id);
+		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
 		clearSplit.set(true);
 	}

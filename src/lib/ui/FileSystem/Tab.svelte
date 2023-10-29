@@ -4,7 +4,8 @@
 		focusedFileId,
 		softSelectedFileId,
 		openFiles,
-		codePanes2
+		codePanes2,
+		previouslyFocusedFileId
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 
@@ -52,6 +53,7 @@
 		}
 
 		// set the focused file to the file that was double clicked.
+		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
 		clearSplit.set(true);
 	}
@@ -62,6 +64,7 @@
 
 		// If the clicked file is already open and not soft-selected, focus it and return.
 		if (isFileAlreadyOpen && $softSelectedFileId !== file.id) {
+			previouslyFocusedFileId.set($focusedFileId);
 			focusedFileId.set(file.id);
 			return;
 		}
@@ -86,6 +89,7 @@
 		}
 
 		// Finally, focus on the clicked file.
+		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
 		clearSplit.set(true);
 	}
