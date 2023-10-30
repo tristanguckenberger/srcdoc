@@ -86,7 +86,6 @@
 	$: fileId = idSplit[idSplit?.length - 1];
 	$: isFocused =
 		$focusedFileId?.toString() === fileId || ($codePanes2?.length < 2 && id !== 'split-output');
-	$: console.log('codePanes2::', $codePanes2);
 	$: focusedPane = $codePanes2?.find((pane) => pane.fileId === $focusedFileId);
 	$: focusedLabel =
 		focusedPane?.fileName && focusedPane?.type && $codePanes2?.length < 2
@@ -158,7 +157,10 @@
 			on:mouseleave={() => (showPaneOptions = false)}
 		>
 			{#if label}
-				{focusedLabel ?? label}
+				{label}
+			{/if}
+			{#if focusedFileId && $codePanes2?.length > 1}
+				{focusedLabel}
 			{/if}
 			{#if showOptionsObserved}
 				<div

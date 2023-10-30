@@ -40,7 +40,6 @@
 	});
 
 	$: codeType = type;
-	$: console.log('codeType::', codeType);
 
 	$: $derivedCodeData,
 		(() => {

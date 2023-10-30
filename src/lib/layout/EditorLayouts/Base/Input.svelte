@@ -6,7 +6,6 @@
 	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
 	import { isVertical, editorContainerHeight, editorContainerWidth } from '$lib/stores/layoutStore';
 	import { codePanes2, openFiles, focusedFileId } from '$lib/stores/filesStore';
-	import { tick } from 'svelte';
 
 	function getFocusedFile(paneArr) {
 		return paneArr?.find((file) => {
@@ -34,7 +33,6 @@
 		})();
 
 	const makePaneLabel = (pane) => {
-		tick();
 		return pane?.label && pane?.type ? `${pane?.label}.${pane?.type}` : '';
 	};
 </script>
@@ -46,7 +44,10 @@
 >
 	<SplitPane panes={$codePanes2} vertical={!$isVertical}>
 		{#each $codePanes2 as pane}
-			<Pane id={pane.paneID.split('#')[1]} label={makePaneLabel(pane)}>
+			<Pane
+				id={pane.paneID.split('#')[1]}
+				label={$codePanes2?.length > 1 ? `${pane?.label}.${pane?.type}` : makePaneLabel(pane)}
+			>
 				<Editor slot="pane-content" code={pane.source} type={pane.type} id={pane.paneID} />
 			</Pane>
 		{/each}
