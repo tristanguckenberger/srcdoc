@@ -81,10 +81,22 @@
 			Monaco.editor.setTheme('omni-dark');
 		}
 	} else {
-		if (Monaco) Monaco.editor.setTheme('vs');
+		// if (Monaco) {
+		// 	Monaco.editor.defineTheme('omni-light', {
+		// 		base: 'vs',
+		// 		inherit: true,
+		// 		rules: [],
+		// 		colors: {
+		// 			'editor.background': '#FBFBFB'
+		// 		}
+		// 	});
+		// 	Monaco.editor.setTheme('vs');
+		// }
 	}
 
 	const dispatch = createEventDispatcher();
+
+	// TODO: Investigate monaco editor bugs
 </script>
 
 <div
