@@ -40,76 +40,42 @@
 	});
 
 	$: codeType = type;
+	$: console.log('codeType::', codeType);
 
 	$: $derivedCodeData,
 		(() => {
-			// console.log('derivedCodeData::index', $derivedCodeData);
-			// console.log('code::', code);
-			// console.log('type::', type);
-			// console.log('id::', id);
-			// console.log('derivedCodeData::index', $derivedCodeData);
-
 			const fileIsInCodePanes2 = $codePanes2.some((pane) => pane.fileId === $focusedFileId);
 			const previouslyFocusedFileIsInCodePanes2 = $codePanes2.some(
 				(pane) => pane.fileId === $previouslyFocusedFileId
 			);
 
+			if (!$derivedCodeData?.fileId) {
+				return;
+			}
 			const derivedCodeDataId = `#split-${$derivedCodeData?.fileName}-${$derivedCodeData?.type}-${$derivedCodeData?.fileId}`;
 			const idStringSplit = id.split('-');
-			// console.log(
-			// 	'$previouslyFocusedFileId === idStringSplit[idStringSplit?.length - 1]::',
-			// 	$previouslyFocusedFileId.toString() === idStringSplit[idStringSplit?.length - 1]
-			// );
-			// console.log('$previouslyFocusedFileId::', $previouslyFocusedFileId);
-			// console.log(
-			// 	'idStringSplit[idStringSplit?.length - 1]::',
-			// 	idStringSplit[idStringSplit?.length - 1]
-			// );
-			// console.log('codePanes2', $codePanes2);
-			// console.log('focusedFileId', $focusedFileId);
-			// console.log('fileIsInCodePanes2', fileIsInCodePanes2);
+			const codePaneFile = {
+				paneID: derivedCodeDataId,
+				label: $derivedCodeData?.fileName,
+				...$derivedCodeData
+			};
+
 			if ($codePanes2?.length < 2) {
 				if (derivedCodeDataId !== id) {
-					code = $derivedCodeData?.source;
-					type = $derivedCodeData?.type;
-					id = derivedCodeDataId;
-				}
-			} else if (!fileIsInCodePanes2 && previouslyFocusedFileIsInCodePanes2) {
-				// get the current focused file
-				// if the current focused file is not the same as the derived code data
-				// update the code and type
-
-				// console.log('previouslyFocusedFileId::', $previouslyFocusedFileId);
-				// console.log('focusedFileId::', $focusedFileId);
-				// console.log('derivedCodeData::', $derivedCodeData);
-				// console.log('openFiles', $openFiles);
-				console.log($derivedCodeData);
-				if ($previouslyFocusedFileId.toString() === idStringSplit[idStringSplit?.length - 1]) {
-					// 					{
-					//     "fileId": 3,
-					//     "fileName": "index",
-					//     "source": "<div>Hello, World!</div>",
-					//     "type": "html",
-					//     "openInNewPane": false,
-					//     "softSelected": false
-					// }
-					const codePaneFile = {
-						paneID: derivedCodeDataId,
-						label: $derivedCodeData?.fileName,
-						...$derivedCodeData
-					};
-					console.log('$derivedCodeData::', $derivedCodeData);
-					$codePanes2 = $codePanes2.filter((pane) => pane.fileId !== $previouslyFocusedFileId);
-					$codePanes2 = [...$codePanes2, codePaneFile];
 					// code = $derivedCodeData?.source;
 					// type = $derivedCodeData?.type;
 					// id = derivedCodeDataId;
+					$codePanes2 = [codePaneFile];
+				}
+			} else if (!fileIsInCodePanes2 && previouslyFocusedFileIsInCodePanes2) {
+				if ($previouslyFocusedFileId.toString() === idStringSplit[idStringSplit?.length - 1]) {
+					const oldPaneIndex = $codePanes2.findIndex(
+						(pane) => pane.fileId === $previouslyFocusedFileId
+					);
+					$codePanes2[oldPaneIndex] = codePaneFile;
 				}
 			}
 		})();
-	// $: console.log('code::', code);
-
-	// $:
 
 	let options;
 
@@ -146,36 +112,6 @@
 		bind:value={code}
 		{options}
 		on:update={(e) => {
-			// console.log('e::', e);
-			// Planning to have up to 3 stores for each code type
-			// and 3 stores max
-			// The stores need to be updated frequently, hence the use of the on:update event
-
-			// edge cases:
-
-			// I open a new file, there are no open windows:
-			// - the file will need to be added to the open files store
-			// - the file will need to be added to the code panes store
-			// - the file will need to be updated on every keystroke
-
-			// if the file is in the open files store
-			// if the file is in the code panes store
-			// if the file
-
-			// - if the user is editing a file, the file will need to be updated on every keystroke
-			// as will the full srcdoc store (combined project code)
-
-			// - if the user opens a new file,
-
-			// There will be one store that combines all project code
-			//
-			//
-			// if the user is editing a file, the file will need to be
-			// updated on every keystroke as will the full srcdoc store (combined project code)
-
-			// console.log('baseDataStore::Editor', $baseDataStore);
-
-			// update the focused file in the open files store
 			openFiles.update((files) => {
 				const file = files.find((file) => {
 					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
@@ -187,18 +123,6 @@
 				}
 				return files;
 			});
-
-			// if (code?.type === 'html') {
-			// 	htmlStore.set({ source: e?.detail?.value, type: 'html' });
-			// }
-			// if (code?.type === 'css') {
-			// 	cssStore.set({ source: e?.detail?.value, type: 'css' });
-			// }
-			// if (code?.type === 'js') {
-			// 	jsStore.set({ source: e?.detail?.value, type: 'typescript' });
-			// }
-
-			// using the file id, update the file localstorage
 		}}
 	/>
 </div>

@@ -7,7 +7,19 @@
 	} from '$lib/stores/layoutStore';
 	import { hover } from '$lib/actions/hover';
 	import { fade } from 'svelte/transition';
-	import { splitInstanceStore, editorSplit, editorElement } from '$lib/stores/splitStore';
+	import {
+		splitInstanceStore,
+		editorSplit,
+		editorElement,
+		clearSplit
+	} from '$lib/stores/splitStore';
+	import {
+		focusedFileId,
+		codePanes2,
+		previouslyFocusedFileId,
+		openFiles,
+		softSelectedFileId
+	} from '$lib/stores/filesStore';
 
 	/**
 	 * @type {string | string[]}
@@ -31,16 +43,10 @@
 	 */
 	let splitClientHeight = 0;
 	let showPaneOptions = false;
-
 	$: showOptionsObserved = showPaneOptions;
 	$: value = $isVertical;
-
-	// The editor is full and the output is closed
 	$: isOutput = $editorOutContainerHeight && $editorOutContainerHeight <= 30;
-
-	// The editor is closed and the output is full
 	$: isEditor = $editorContainerHeight && $editorContainerHeight <= 30;
-
 	$: {
 		if (split) {
 			let splitModel = split?.querySelector('.slot-control-bar .container');
@@ -76,6 +82,16 @@
 			}
 		}
 	}
+	$: idSplit = id?.split('-');
+	$: fileId = idSplit[idSplit?.length - 1];
+	$: isFocused =
+		$focusedFileId?.toString() === fileId || ($codePanes2?.length < 2 && id !== 'split-output');
+	$: console.log('codePanes2::', $codePanes2);
+	$: focusedPane = $codePanes2?.find((pane) => pane.fileId === $focusedFileId);
+	$: focusedLabel =
+		focusedPane?.fileName && focusedPane?.type && $codePanes2?.length < 2
+			? `${focusedPane?.fileName}.${focusedPane?.type}`
+			: '';
 
 	const maximize = async (
 		/** @type {MouseEvent & { currentTarget: EventTarget & HTMLDivElement; }} */ currentChild,
@@ -104,15 +120,26 @@
 				break;
 		}
 	};
+
+	const setFocused = () => {
+		if ($focusedFileId?.toString() === fileId) {
+			return;
+		}
+		previouslyFocusedFileId.set($focusedFileId);
+		focusedFileId.set(fileId);
+		clearSplit.set(true);
+	};
 </script>
 
 <section
 	{id}
+	class:isFocused
 	class="section-panel"
 	style="overflow-x: visible;"
 	bind:this={split}
 	bind:clientWidth={splitClientWidth}
 	bind:clientHeight={splitClientHeight}
+	on:click={() => setFocused()}
 >
 	<div
 		class="slot-control-bar"
@@ -131,7 +158,7 @@
 			on:mouseleave={() => (showPaneOptions = false)}
 		>
 			{#if label}
-				{label}
+				{focusedLabel ?? label}
 			{/if}
 			{#if showOptionsObserved}
 				<div
@@ -173,5 +200,8 @@
 	:global(.split.vertical) {
 		display: flex !important;
 		flex-direction: column !important;
+	}
+	section.isFocused {
+		border: 2px solid #4ca5ff;
 	}
 </style>

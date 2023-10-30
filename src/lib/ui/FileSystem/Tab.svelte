@@ -15,7 +15,7 @@
 	export let dragOver;
 	export let dragEnd;
 
-	$: isFocused = file?.id === $focusedFileId;
+	$: isFocused = file?.id.toString() === $focusedFileId.toString();
 	$: isSoftSelected = file?.id === $softSelectedFileId;
 
 	function handleClose(file) {
@@ -66,6 +66,7 @@
 		if (isFileAlreadyOpen && $softSelectedFileId !== file.id) {
 			previouslyFocusedFileId.set($focusedFileId);
 			focusedFileId.set(file.id);
+			clearSplit.set(true);
 			return;
 		}
 
@@ -73,6 +74,7 @@
 		if ($softSelectedFileId && $softSelectedFileId !== file.id) {
 			$openFiles = $openFiles.filter((openFile) => openFile.id !== $softSelectedFileId);
 			softSelectedFileId.set(file.id);
+			$openFiles = [...$openFiles, file];
 		}
 
 		// Handle the case where the clicked file is already open but not soft-selected.
@@ -88,7 +90,6 @@
 			$openFiles = [...$openFiles, file];
 		}
 
-		// Finally, focus on the clicked file.
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
 		clearSplit.set(true);

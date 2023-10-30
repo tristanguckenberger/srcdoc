@@ -31,9 +31,6 @@
 		// We will need to update this data on every keystroke
 		baseDataStore.set(data);
 	}
-
-	// $: console.log(data);
-
 	// $: srcdoc = {
 	// 	html: $htmlStore,
 	// 	css: $cssStore,
@@ -94,10 +91,10 @@
 		height: 100%;
 	}
 	:global(.monaco-editor) {
-		border-radius: 6px;
+		border-radius: 4px;
 	}
 	:global(.monaco-editor .overflow-guard) {
-		border-radius: 6px !important;
+		border-radius: 4px !important;
 	}
 	:global(.margin-view-overlays) {
 		background-color: transparent;

@@ -55,10 +55,10 @@
 		height: 100%;
 	}
 	:global(.monaco-editor) {
-		border-radius: 6px;
+		border-radius: 4px;
 	}
 	:global(.monaco-editor .overflow-guard) {
-		border-radius: 6px !important;
+		border-radius: 4px !important;
 		/* border: 2px solid #5c5c5c; */
 	}
 	:global(.margin-view-overlays) {

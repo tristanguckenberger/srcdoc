@@ -23,22 +23,7 @@
 	$: reactiveGameId = gameId;
 	$: reactiveUserId = userId;
 
-	/**
-	 * DEBUG PLAN
-	 *
-	 * handleFileDBClick
-	 *
-	 * HandleFileSingleClick
-	 *
-	 * openNewPane
-	 *
-	 *
-	 * @param file
-	 */
-
-	// Handle File Double Click
 	function handleFileDBClick(file) {
-		// If the file is not already open, is not a folder, AND is soft selected, then open it.
 		if (!$openFiles?.some((openFile) => openFile.id === file.id) && file.type !== 'folder') {
 			$openFiles = [...$openFiles, file];
 		}
@@ -48,69 +33,42 @@
 		}
 
 		previouslyFocusedFileId.set($focusedFileId);
-		// set the focused file to the file that was double clicked.
 		focusedFileId.set(file.id);
 		clearSplit.set(true);
 	}
 
-	// // Helper function to update open files
-	// function updateOpenFiles(fileId, filesArray, add = true) {
-	// 	const newArray = filesArray.filter((file) => file.id !== fileId);
-	// 	return add ? [...newArray, fileId] : newArray;
-	// }
-
 	// Handle File Single Click
 	async function HandleFileSingleClick(file) {
-		// Finally, focus on the clicked file.
 		const isFileAlreadyOpen = $openFiles?.some((openFile) => openFile.id === file.id);
-		const isFileInCodePanes2 = $codePanes2?.some((pane) => pane.fileId === file.id);
 
-		// if theres a soft selected file and its not the clicked file, remove it
+		// If the clicked file is already open and not soft-selected, focus it and return.
+		if (isFileAlreadyOpen && $softSelectedFileId !== file.id) {
+			previouslyFocusedFileId.set($focusedFileId);
+			focusedFileId.set(file.id);
+			clearSplit.set(true);
+			return;
+		}
+
+		// Handle the case where a soft-selected file exists.
 		if ($softSelectedFileId && $softSelectedFileId !== file.id) {
-			// remove the soft selected file from the open files array
 			$openFiles = $openFiles.filter((openFile) => openFile.id !== $softSelectedFileId);
-			// remove the soft selected file from the codePanes2 array
-			$codePanes2 = $codePanes2.filter((pane) => pane.fileId !== $softSelectedFileId);
-			// set $softSelectedFileId to null
-			softSelectedFileId.set(null);
-			// // set $focusedFileId to null
-			// focusedFileId.set(null);
-			// set the new soft selected file to the clicked file.
 			softSelectedFileId.set(file.id);
-			// set the new focused file to the clicked file.
-			previouslyFocusedFileId.set($focusedFileId);
-			focusedFileId.set(file.id);
-		} else if ($softSelectedFileId === file.id) {
-			previouslyFocusedFileId.set($focusedFileId);
-			focusedFileId.set(file.id);
 		}
 
-		if (!isFileAlreadyOpen && file.type !== 'folder') {
+		// Handle the case where the clicked file is already open but not soft-selected.
+		if (isFileAlreadyOpen && file.type !== 'folder') {
+			$openFiles = $openFiles.filter((openFile) => openFile.id !== file.id);
+			softSelectedFileId.set(file.id);
 			$openFiles = [...$openFiles, file];
-			if (!isFileInCodePanes2) {
-				const theresAnExistingSoftSelection = $codePanes2.some(
-					(pane) => pane.softSelected === true
-				);
-
-				const codePaneFile = {
-					paneID: `#split-${file?.name}-${file?.type}-${file?.id}`,
-					label: file?.name,
-					fileId: file?.id,
-					fileName: file?.name,
-					source: file?.content,
-					type: file?.type,
-					openInNewPane: false,
-					softSelected: true
-				};
-
-				if (theresAnExistingSoftSelection) {
-					// $codePanes2 = [...$codePanes2, codePaneFile];
-					// } else {
-					$codePanes2 = [codePaneFile];
-				}
-			}
 		}
-		softSelectedFileId.set(file.id);
+
+		// Handle the case where the clicked file is neither open nor a folder.
+		if (!isFileAlreadyOpen && file.type !== 'folder') {
+			softSelectedFileId.set(file.id);
+			$openFiles = [...$openFiles, file];
+		}
+
+		// Finally, focus on the clicked file.
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
 		clearSplit.set(true);

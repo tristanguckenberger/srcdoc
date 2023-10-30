@@ -8,6 +8,7 @@
 	import { paneMinHeightModifier } from '$lib/stores/layoutStore';
 	import { fileSystemSidebarOpen, openInNewPane } from '$lib/stores/filesStore';
 	import { splitStore } from '$lib/stores/splitStore';
+	import { clientWidth } from '$lib/stores/layoutStore copy';
 
 	/**
 	 * @type {any[]}
@@ -78,11 +79,8 @@
 	$: if (split) {
 		panes?.map(async (query) => {
 			const queryString = typeof query === 'string' ? query : query?.paneID;
-			console.log('split::', split);
-			console.log('split::query::', typeof query);
-			console.log(typeof query === 'string' ? query : query?.paneID);
-			console.log('split::query::', split?.querySelector(queryString));
-			await split?.querySelector(queryString).classList.add('pane');
+			const splitDom = await split?.querySelector(queryString);
+			splitDom?.classList?.add('pane');
 		});
 
 		// Init Split.js

@@ -1,6 +1,6 @@
+// @ts-nocheck
 import { writable } from 'svelte/store';
 import { sortComments, processPostData, pageArrBuilder } from '$lib/utilities/processing/index.js';
-import { get as getUtil } from '$lib/utils';
 
 function getComments(arg) {
 	let id = arg;
@@ -9,8 +9,6 @@ function getComments(arg) {
 		return fetch(fetchURL, {
 			method: 'GET'
 		});
-	} else {
-		// console.log('NO ID')
 	}
 }
 
@@ -21,8 +19,6 @@ function getPost(arg) {
 		return fetch(fetchURL, {
 			method: 'GET'
 		});
-	} else {
-		// console.log('NO ID')
 	}
 }
 
@@ -33,8 +29,6 @@ function getProjects(arg) {
 		return fetch(fetchURL, {
 			method: 'GET'
 		});
-	} else {
-		// console.log('NO ID')
 	}
 }
 

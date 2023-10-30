@@ -56,13 +56,7 @@
 			} catch (error) {
 				console.log('error', error);
 			}
-
-			// if (browser) {
-
-			// } else {
-			// 	console.log('Monaco', browser);
-			// }
-		}, 100);
+		}, 50);
 
 		return () => {
 			editor.dispose();
