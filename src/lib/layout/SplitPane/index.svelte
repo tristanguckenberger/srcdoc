@@ -6,7 +6,11 @@
 	import { clearSplit, splitInstanceStore, editorSplit } from '$lib/stores/splitStore';
 	import Split from 'split.js';
 	import { paneMinHeightModifier } from '$lib/stores/layoutStore';
-	import { fileSystemSidebarOpen, openInNewPane } from '$lib/stores/filesStore';
+	import {
+		fileSystemSidebarOpen,
+		fileSystemSidebarWidth,
+		openInNewPane
+	} from '$lib/stores/filesStore';
 	import { splitStore } from '$lib/stores/splitStore';
 	import { clientWidth } from '$lib/stores/layoutStore copy';
 
@@ -94,9 +98,15 @@
 	$: if (splitInstance && splitInstance?.getSizes()?.length <= 2 && !$splitInstanceStore) {
 		splitInstanceStore.set(splitInstance);
 	}
+
+	$: isSideBarOpen = $fileSystemSidebarOpen;
 </script>
 
-<div class="split {vertical ? 'vertical' : ''}" bind:this={split}>
+<div
+	class="split {vertical ? 'vertical' : ''}"
+	bind:this={split}
+	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 32 : 38}px;"
+>
 	<slot />
 </div>
 
@@ -108,6 +118,7 @@
 		height: 100%;
 		width: 100%;
 		max-width: 100vw;
+		min-width: calc(100vw - var(--sidebar-width));
 	}
 	.split.vertical {
 		display: block;

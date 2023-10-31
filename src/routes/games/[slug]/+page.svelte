@@ -55,7 +55,12 @@
 		>
 			<FileTree files={data?.files} parentFileId={null} gameId={data?.id} userId={data?.userId} />
 		</div>
-		<div id="split-input-output" class:fullwidth={!$fileSystemSidebarOpen} class:isSideBarOpen>
+		<div
+			id="split-input-output"
+			class:fullwidth={!$fileSystemSidebarOpen}
+			class:isSideBarOpen
+			style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 18 : 0}px;"
+		>
 			<SplitPane panes={['#split-2', '#split-3']} vertical={value} bind:this={$editorElement}>
 				<!-- Editor Content -->
 				<EditorInput />
@@ -110,11 +115,10 @@
 		height: calc(100vh - 110px);
 	}
 	#split-input-output.isSideBarOpen {
-		min-width: 874.63px;
+		max-width: calc(100vw - var(--sidebar-width));
 	}
 	#split-input-output.fullwidth {
 		width: 100% !important;
-		min-width: 874.63px;
 	}
 	#split-file-explorer {
 		padding: 10px;

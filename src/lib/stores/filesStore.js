@@ -11,6 +11,8 @@ export const fileSystemMetaDataStore = writable({
 // The file that is currently focused, nullable
 export const focusedFileId = writable(null);
 
+export const fileStoreFiles = writable(null);
+
 // The file that was previously focused, nullable
 export const previouslyFocusedFileId = writable(null);
 
@@ -127,4 +129,49 @@ export function saveFile(fileId) {
 			return file;
 		});
 	});
+}
+
+// creates new files or folders
+export function createFile(fileName, parentFile, files) {
+	const type = fileName.split('.')[1];
+	const name = fileName.split('.')[0];
+
+	const newFile = {
+		id: files?.length + 1,
+		name,
+		type: type ?? 'folder',
+		content: type === 'folder' ? null : '',
+		gameId: parentFile?.gameId,
+		parentFileId: parentFile?.id,
+		createdAt: '',
+		updatedAt: ''
+	};
+
+	fileStoreFiles.set([...files, newFile]);
+}
+
+// Delete a file or folder
+export function deleteFiles(targetId, files) {
+	// Set to hold all ids that should be deleted
+	const idsToDelete = new Set();
+
+	// recursively find and mark files/folders for deletion
+	function recursiveDelete(id) {
+		idsToDelete.add(id); // Mark the current id for deletion
+		files.forEach((file) => {
+			if (file.parentFileId === id) {
+				// if it's child of the folder, mark its children for deletion as well
+				recursiveDelete(file.id);
+			}
+		});
+	}
+
+	// Start the recursive delete
+	recursiveDelete(targetId);
+
+	// Now filter out the files that should be deleted
+	const updatedFiles = files.filter((file) => !idsToDelete.has(file.id));
+
+	// Update the Svelte store
+	fileStoreFiles.set(updatedFiles);
 }

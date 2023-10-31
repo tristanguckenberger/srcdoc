@@ -10,7 +10,11 @@
 		openInNewPane,
 		codePanes2,
 		derivedCodeData,
-		previouslyFocusedFileId
+		previouslyFocusedFileId,
+		createFile,
+		fileStoreFiles,
+		baseDataStore,
+		deleteFiles
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { onMount, tick } from 'svelte';
@@ -20,8 +24,31 @@
 	export let files;
 	export let parentFileId;
 
+	let creatingFile = false;
+	let newFileName = '';
+	let newFileParent = null;
+	let threadedFiles = buildItemThreads(parentFileId, files);
+
 	$: reactiveGameId = gameId;
 	$: reactiveUserId = userId;
+
+	function startCreatingFile(file) {
+		creatingFile = true;
+		newFileParent = file;
+		// TODO: focus on the input element
+	}
+
+	function confirmFileCreation() {
+		createFile(newFileName, newFileParent, files);
+		creatingFile = false;
+		newFileName = '';
+		newFileParent = null;
+	}
+
+	function cancelFileCreation() {
+		creatingFile = false;
+		newFileName = '';
+	}
 
 	function handleFileDBClick(file) {
 		if (!$openFiles?.some((openFile) => openFile.id === file.id) && file.type !== 'folder') {
@@ -145,11 +172,18 @@
 		const { clientX: x, clientY: y } = e;
 
 		// Menu items
-		const items = [
-			{ label: 'Open in New Pane', action: () => openNewPane(file) },
-			{ label: 'Delete', action: () => deleteFile(file) },
-			{ label: 'Save', action: () => saveFile(file) }
-		];
+		const items =
+			file?.type === 'folder'
+				? [
+						{ label: 'New File...', action: () => startCreatingFile(file) },
+						{ label: 'New Folder...', action: () => startCreatingFile(file) },
+						{ label: 'Delete', action: () => deleteFile(file) }
+				  ]
+				: [
+						{ label: 'Open in New Pane', action: () => openNewPane(file) },
+						{ label: 'Delete', action: () => deleteFile(file) },
+						{ label: 'Save', action: () => saveFile(file) }
+				  ];
 
 		// Populate menu items
 		items.forEach((item) => {
@@ -183,8 +217,11 @@
 		openInNewPane.set(true);
 	}
 
+	// function createFile(rootFile) {}
+
 	function deleteFile(file) {
 		// Add your logic to delete the file
+		deleteFiles(file?.id, files);
 	}
 
 	function saveFile(file) {
@@ -213,7 +250,14 @@
 		tick();
 	}
 
-	$: threadedFiles = buildItemThreads(parentFileId, files);
+	// We want to automatically thread the files when the files change (aka when a new file is created or a file is deleted)
+	$: $fileStoreFiles && $fileStoreFiles?.length > 0,
+		(() => {
+			if ($fileStoreFiles?.length > 0) {
+				threadedFiles = buildItemThreads(parentFileId, $fileStoreFiles);
+				files = $fileStoreFiles;
+			}
+		})();
 
 	onMount(() => {
 		/**
@@ -243,6 +287,7 @@
 					class="folder-button"
 					class:expanded={$fileSystemExpanderStore[file.id]}
 					on:click={() => toggleFolder(file.id)}
+					on:contextmenu={(e) => handleRightClick(e, file)}
 				>
 					{file.name}
 				</button>
@@ -255,6 +300,13 @@
 				>
 					<File {file} />
 				</button>
+			{/if}
+			{#if creatingFile && newFileParent.id === file.id}
+				<div class="newFileInput">
+					<input type="text" bind:value={newFileName} />
+					<button on:click={confirmFileCreation}>Done</button>
+					<button on:click={cancelFileCreation}>Cancel</button>
+				</div>
 			{/if}
 			{#if $fileSystemExpanderStore[file.id] && file.children && file.children.length > 0}
 				<ul class="nested">
