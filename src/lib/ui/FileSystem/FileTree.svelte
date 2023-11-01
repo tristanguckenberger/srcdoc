@@ -305,8 +305,6 @@
 			fileStoreFiles.set(files);
 		}
 	});
-
-	$: console.log('files::', files);
 </script>
 
 <ul class="file-tree">

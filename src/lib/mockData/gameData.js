@@ -28,7 +28,13 @@ export const gameData = [
 				id: 3,
 				name: 'index',
 				type: 'html',
-				content: '<div>Hello, World!</div>',
+				content: `<div id="main">
+				<div class="title-container">
+					<h1 class="title">
+						play engine
+					</h1>
+				</div> 
+			</div>`,
 				gameId: 1,
 				parentFileId: 2,
 				createdAt: '2023-10-08 00:30:43',
@@ -58,7 +64,22 @@ export const gameData = [
 				id: 6,
 				name: 'main',
 				type: 'js',
-				content: "console.log('Hello, World!');",
+				content: `document.addEventListener('DOMContentLoaded', function() {
+					let counter = 0;
+					const titleElement = document.querySelector('.title');
+					
+					setInterval(() => {
+						let newText = 'play engine';
+						
+						for (let i = 0; i < counter; i++) {
+							newText += '.';
+						}
+						
+						titleElement.textContent = newText;
+						
+						counter = (counter + 1) % 4; // Cycle counter between 0 and 3
+					}, 500); // Update every 500 milliseconds
+				});`,
 				gameId: 1,
 				parentFileId: 5,
 				createdAt: '2023-10-08 00:30:43',
@@ -78,7 +99,30 @@ export const gameData = [
 				id: 8,
 				name: 'main',
 				type: 'css',
-				content: 'body { background-color: #fff; }',
+				content: `html {
+					width: 100%;
+					height: 100%;
+				}
+				
+				body { background-color: rgba(0, 0, 255, 0.4); width: 100%; height: 100%;}
+				
+				#main {
+					width: 100%;
+					height: 100%;
+					display: flex;
+				}
+				
+				.title-container {
+					width: 100%;
+					height: 100%;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+				}
+				
+				h1 {
+					color: #fff;
+				}`,
 				gameId: 1,
 				parentFileId: 7,
 				createdAt: '2023-10-08 00:30:43',

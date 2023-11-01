@@ -112,10 +112,7 @@
 		bind:value={code}
 		{options}
 		on:update={(e) => {
-			// e.preventDefault();
 			openFiles.update((files) => {
-				// console.log('filesSt::', $fileStoreFiles);
-				// console.log('files::', files);
 				const file = files?.find((file) => {
 					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
 					return newId === id;
@@ -125,21 +122,10 @@
 					file.content = e?.detail?.value;
 				}
 
-				// if ($fileStoreFiles) {
-				// 	const fileStore = files.find((file) => {
-				// 		const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
-				// 		return newId === id;
-				// 	});
-
-				// 	return fileStore;
-				// }
-
 				return files;
 			});
-			console.log('fileStoreFiles::is cool', $fileStoreFiles);
 
 			fileStoreFiles.update((files) => {
-				console.log('fileStoreFiles::files::', files);
 				const file = files?.find((file) => {
 					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
 					return newId === id;

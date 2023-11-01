@@ -31,38 +31,29 @@ const findChildren = (files, parentId) => files.filter((file) => file.parentFile
 
 // Function to recursively collect all relevant files starting from a root file
 const collectFiles = (files, rootId, collected = []) => {
-	console.log('collectFiles::', files);
 	const rootFile = findFileById(files, rootId);
 	if (!rootFile) return;
-
-	collected = [...collected, rootFile];
 
 	if (rootFile.type === 'folder') {
 		const children = findChildren(files, rootId);
 		children.forEach((child) => collectFiles(files, child.id, collected));
 	}
 
-	console.log('collectFiles::', collected);
-
+	collected.push(rootFile);
 	return collected;
 };
 
 // Function to resolve dependencies in a file's content
 const resolveDependencies = (file, files) => {
-	// For now, we assume that files refer to other files using a simple string match.
-	// In a more advanced version, you could use regular expressions to accurately
-	// identify import or link statements.
-
-	console.log('resolveDependencies::', files);
-
 	let content = file.content;
 
-	files.forEach((dependency) => {
-		if (content.includes(dependency.name)) {
-			content = content.replace(dependency.name, dependency.content);
-		}
-	});
-
+	if (content) {
+		files.forEach((dependency) => {
+			if (content.includes(dependency.name)) {
+				content = content.replace(dependency.name, dependency.content);
+			}
+		});
+	}
 	return content;
 };
 
@@ -71,8 +62,6 @@ const generateSrcDoc = (files) => {
 	let htmlContent = '';
 	let cssContent = '';
 	let jsContent = '';
-
-	console.log('generateSrcDoc::', files);
 
 	files.forEach((file) => {
 		const resolvedContent = resolveDependencies(file, files);
@@ -102,7 +91,6 @@ const generateSrcDoc = (files) => {
 
 // Main function to build dynamic srcdoc
 const buildDynamicSrcDoc = (files, rootId) => {
-	console.log('buildDynamicSrcDoc::', files);
 	const relevantFiles = collectFiles(files, rootId);
 
 	if (!relevantFiles) return '';
