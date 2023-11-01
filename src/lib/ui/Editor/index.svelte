@@ -8,7 +8,8 @@
 		derivedCodeData,
 		codePanes2,
 		focusedFileId,
-		previouslyFocusedFileId
+		previouslyFocusedFileId,
+		fileStoreFiles
 	} from '$lib/stores/filesStore.js';
 	import { onMount } from 'svelte';
 
@@ -111,8 +112,11 @@
 		bind:value={code}
 		{options}
 		on:update={(e) => {
+			// e.preventDefault();
 			openFiles.update((files) => {
-				const file = files.find((file) => {
+				// console.log('filesSt::', $fileStoreFiles);
+				// console.log('files::', files);
+				const file = files?.find((file) => {
 					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
 					return newId === id;
 				});
@@ -120,6 +124,31 @@
 				if (file) {
 					file.content = e?.detail?.value;
 				}
+
+				// if ($fileStoreFiles) {
+				// 	const fileStore = files.find((file) => {
+				// 		const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
+				// 		return newId === id;
+				// 	});
+
+				// 	return fileStore;
+				// }
+
+				return files;
+			});
+			console.log('fileStoreFiles::is cool', $fileStoreFiles);
+
+			fileStoreFiles.update((files) => {
+				console.log('fileStoreFiles::files::', files);
+				const file = files?.find((file) => {
+					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
+					return newId === id;
+				});
+
+				if (file) {
+					file.content = e?.detail?.value;
+				}
+
 				return files;
 			});
 		}}

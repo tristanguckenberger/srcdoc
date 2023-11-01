@@ -4,7 +4,7 @@
 	import { default as EditorInput } from '$lib/layout/EditorLayouts/Base/Input.svelte';
 	import SplitPane from '$lib/layout/SplitPane/index.svelte';
 	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
-	import Output from '$lib/ui/Output/index.svelte';
+	import Output from '$lib/ui/Output/Output.svelte';
 	import buildDoc from '$lib/srcdoc';
 	import {
 		editorOutContainerWidth,

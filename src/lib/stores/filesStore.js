@@ -175,3 +175,19 @@ export function deleteFiles(targetId, files) {
 	// Update the Svelte store
 	fileStoreFiles.set(updatedFiles);
 }
+
+export function renameFile(targetId, newName, newType, files) {
+	const updatedFiles = files.map((file) => {
+		if (file.id === targetId) {
+			return {
+				...file,
+				name: newName,
+				type: newType
+			};
+		}
+
+		return file;
+	});
+
+	fileStoreFiles.set(updatedFiles);
+}
