@@ -1,8 +1,6 @@
-<script lang="ts">
+<script>
 	// @ts-nocheck
-	// import buildDoc from '$lib/srcdoc';
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
-	import { htmlStore, cssStore, jsStore } from '$lib/stores/codeStore.js';
 	import { afterUpdate } from 'svelte';
 	import { fileStoreFiles } from '$lib/stores/filesStore.js';
 

@@ -5,7 +5,8 @@
 	import SplitPane from '$lib/layout/SplitPane/index.svelte';
 	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
 	import Output from '$lib/ui/Output/Output.svelte';
-	import buildDoc from '$lib/srcdoc';
+	import buildDynamicSrcDoc from '$lib/srcdoc.js';
+	import { getRootFileId } from '$lib/utils/getter.js';
 	import {
 		editorOutContainerWidth,
 		editorOutContainerHeight,
@@ -17,7 +18,8 @@
 		fileSystemSidebarWidth,
 		fileSystemSidebarOpen,
 		codePanes,
-		baseDataStore
+		baseDataStore,
+		fileStoreFiles
 	} from '$lib/stores/filesStore.js';
 
 	// Expiremental
@@ -31,13 +33,10 @@
 		// We will need to update this data on every keystroke
 		baseDataStore.set(data);
 	}
-	// $: srcdoc = {
-	// 	html: $htmlStore,
-	// 	css: $cssStore,
-	// 	js: $jsStore
-	// };
+
 	$: value = $isVertical;
-	$: srcdocBuild = ''; //buildDoc(srcdoc?.html?.source, srcdoc?.css?.source, srcdoc?.js?.source);
+	$: srcdocBuild = (async () =>
+		buildDynamicSrcDoc($fileStoreFiles, await getRootFileId($fileStoreFiles)))();
 	$: isSideBarOpen = $fileSystemSidebarOpen;
 </script>
 

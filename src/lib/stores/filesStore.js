@@ -132,7 +132,7 @@ export function saveFile(fileId) {
 }
 
 // creates new files or folders
-export function createFile(fileName, parentFile, files) {
+export function createFile(fileName, parentFile, files, fileContent) {
 	const type = fileName.split('.')[1];
 	const name = fileName.split('.')[0];
 
@@ -140,7 +140,7 @@ export function createFile(fileName, parentFile, files) {
 		id: files?.length + 1,
 		name,
 		type: type ?? 'folder',
-		content: type === 'folder' ? null : '',
+		content: fileContent ?? (type === 'folder' ? null : ''),
 		gameId: parentFile?.gameId,
 		parentFileId: parentFile?.id,
 		createdAt: '',
@@ -191,3 +191,57 @@ export function renameFile(targetId, newName, newType, files) {
 
 	fileStoreFiles.set(updatedFiles);
 }
+
+export function uploadAndCompressAsset(file) {
+	// Assume compress() is a function that takes a File and returns a compressed File
+	const compressedFile = compress(file);
+	return compressedFile;
+}
+
+// Dummy compression function (replace with actual logic)
+function compress(file) {
+	return file; // No actual compression here
+}
+
+export function toBlobURL(file) {
+	const blob = new Blob([file], { type: file.type });
+	const blobURL = URL.createObjectURL(blob);
+	return blobURL;
+}
+
+export function storeFile(blobURL, fileType, parentFileId) {
+	const id = Math.random(); // Generate a random ID; replace with your ID logic
+	const newFile = {
+		id,
+		name: `asset-${id}`,
+		type: fileType, // 'image' or 'audio'
+		content: blobURL,
+		gameId: 1, // Replace with actual gameId
+		parentFileId,
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString()
+	};
+
+	fileStoreFiles.update((allFiles) => {
+		return [...allFiles, newFile];
+	});
+}
+
+export const base64ToBlob = (base64Data) => {
+	const fileData = base64Data.split(',');
+	const contentType = fileData[0].split(':')[1].split(';')[0];
+	console.log('contentType::', contentType);
+	const byteCharacters = atob(fileData[1]);
+
+	let byteNumbers = new Array(byteCharacters.length);
+	for (let i = 0; i < byteCharacters.length; i++) {
+		byteNumbers[i] = byteCharacters.charCodeAt(i);
+	}
+
+	const byteArray = new Uint8Array(byteNumbers);
+	const blob = new Blob([byteArray], { type: contentType });
+	const blobUrl = URL.createObjectURL(blob);
+
+	// console.log(blobUrl); // This will be the Blob URL
+	return blobUrl;
+};

@@ -15,7 +15,8 @@
 		fileStoreFiles,
 		baseDataStore,
 		deleteFiles,
-		renameFile
+		renameFile,
+		base64ToBlob
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { onMount, tick } from 'svelte';
@@ -163,6 +164,37 @@
 			return generatedPaneData;
 		})());
 
+	const reader = (file) =>
+		new Promise((resolve, reject) => {
+			const fr = new FileReader();
+			fr.onload = () => resolve(fr);
+			fr.onerror = (err) => reject(err);
+			fr.readAsDataURL(file);
+		});
+
+	async function parseFilesData(fileList) {
+		const frPromises = fileList.map((file) =>
+			reader(file).then((fr) => {
+				console.log('fr.result::', fr.result);
+				return {
+					name: file.name,
+					content: fr.result
+				};
+			})
+		);
+
+		try {
+			return Promise.all(frPromises);
+		} catch (err) {
+			// In this specific case, Promise.all() might be preferred
+			// over Promise.allSettled(), since it isn't trivial to modify
+			// a FileList to a subset of files of what the user initially
+			// selected. Therefore, let's just stash the entire operation.
+			console.error(err);
+			return;
+		}
+	}
+
 	// Handle Right Click on File (Open Context Menu for File, options include "open in new pane", "delete", "save")
 	function handleRightClick(e, file) {
 		e.preventDefault();
@@ -179,7 +211,7 @@
 		const { clientX: x, clientY: y } = e;
 
 		// Menu items
-		const items =
+		let items =
 			file?.type === 'folder'
 				? [
 						{ label: 'New File...', action: () => startCreatingFile(file) },
@@ -208,6 +240,39 @@
 						{ label: 'Delete', action: () => deleteFile(file) },
 						{ label: 'Save', action: () => saveFile(file) }
 				  ];
+
+		if (file.name === 'assets') {
+			// Create a hidden file input element for file upload
+			const fileInput = document.createElement('input');
+			fileInput.type = 'file';
+			fileInput.accept = 'image/*';
+			fileInput.multiple = true;
+			fileInput.bind = { this: fileInput };
+			fileInput.style.display = 'none';
+			fileInput.addEventListener('change', async (event) => {
+				if (!event.target.files) return;
+
+				const parsedFiles = await parseFilesData([...event.target.files]);
+				parsedFiles.forEach((fileData) => {
+					createFile(fileData.name, file, files, fileData.content);
+				});
+			});
+
+			// Add the file input to the body (or somewhere else in your DOM)
+			document.body.appendChild(fileInput);
+
+			// Add the "Upload Asset" menu item
+			items = [
+				...items,
+				{
+					label: 'Upload Asset',
+					action: () => {
+						// Trigger the hidden file input when this menu item is clicked
+						fileInput.click();
+					}
+				}
+			];
+		}
 
 		// Populate menu items
 		items.forEach((item) => {

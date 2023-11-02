@@ -155,9 +155,16 @@ export const gameData = [
 	},
 	{
 		id: 2,
-		title: 'Example Game 2',
-		description: 'A second example game project',
+		title: 'Phaser Game',
+		description: 'An example phaser game project',
 		userId: 1,
+		libraries: [
+			{
+				name: 'phaser',
+				type: 'js',
+				url: `//cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js`
+			}
+		],
 		files: [
 			{
 				id: 1,
@@ -182,7 +189,7 @@ export const gameData = [
 				id: 3,
 				name: 'index',
 				type: 'html',
-				content: '<div>Hello, World!</div>',
+				content: '<div id="game-container"></div>',
 				gameId: 1,
 				parentFileId: 2,
 				createdAt: '2023-10-08 00:30:43',
@@ -212,7 +219,50 @@ export const gameData = [
 				id: 6,
 				name: 'main',
 				type: 'js',
-				content: "console.log('Hello, World!');",
+				content: `
+				var config = {
+					type: Phaser.AUTO,
+					width: 180,
+					height: 320,
+					scale: {
+						scale: 'SHOW_ALL',
+						orientation: 'LANDSCAPE'
+					},
+					resolution: window.devicePixelRatio,
+					pixelArt: true,
+					physics: {
+						default: 'arcade',
+						arcade: {
+							debug: true,
+							gravity: {
+								y: 500
+							}
+						}
+					},
+					scene: [Intro, Level1]
+				};
+				
+				var game = new Phaser.Game(config);
+				function resize() {
+					let canvas = document.querySelector('canvas');
+					let width = window.innerWidth;
+					let height = window.innerHeight;
+					let wratio = width / height;
+					let ratio = game.config.width / game.config.height;
+					if (wratio < ratio) {
+						canvas.style.width = width + 'px';
+						canvas.style.height = width / ratio + 'px';
+					} else {
+						canvas.style.width = height * ratio + 'px';
+						canvas.style.height = height + 'px';
+					}
+				}
+				
+				window.onload = () => {
+					resize();
+					window.addEventListener('resize', resize, false);
+				};
+				`,
 				gameId: 1,
 				parentFileId: 5,
 				createdAt: '2023-10-08 00:30:43',
@@ -257,6 +307,161 @@ export const gameData = [
 				parentFileId: 9,
 				createdAt: '2023-10-08 00:30:43',
 				updatedAt: '2023-10-08 00:30:43'
+			},
+			{
+				id: 11,
+				name: 'Intro',
+				type: 'js',
+				content: `export default class Intro extends Phaser.Scene {
+					constructor() {
+						super({
+							key: 'Intro'
+						});
+					}
+					preload() {
+						var progress = this.add.graphics();
+						const self = this;
+						this.load.on('progress', function(value) {
+							progress.clear();
+							progress.fillStyle(0x42f456, 1);
+							progress.fillRect(0, 300, 800 * value, 20);
+						});
+				
+						this.load.on('complete', function() {
+							progress.destroy();
+						});
+					}
+					create() {
+				
+						/*==============================================
+						= Position GameObjects
+						================================================
+						*/
+						this.bgbox = this.add
+							.image(0, 0, 'bgbox')
+							.setOrigin(0, 0)
+							.setAlpha(0);
+				
+						this.title = this.add
+							.image(this.game.config.width / 2, 110, 'title')
+							.setAlpha(0);
+				
+						this.championships = this.add
+							.image(this.game.config.width / 2, 200, 'championships')
+							.setAlpha(0);
+				
+						this.tictactoe = this.add
+							.image(this.game.config.width / 2, 220, 'tictactoe')
+							.setAlpha(0);
+				
+						this.startbutton = this.add
+							.image(this.game.config.width / 2, 270, 'startbutton')
+							.setAlpha(0);
+						/*==============================================
+						= Animate GameObjects
+						================================================
+						*/
+						this.bgboxTween = this.tweens.timeline({
+							targets: this.bgbox,
+							ease: 'Linear',
+							loop: 0,
+							tweens: [
+								{
+									alpha: 0.5,
+									ease: 'Linear',
+									duration: 2000,
+									delay: 1000,
+									repeat: 0
+								}
+							]
+						});
+						this.titleTween = this.tweens.timeline({
+							targets: this.title,
+							ease: 'Linear',
+							loop: 0,
+							tweens: [
+								{
+									y: 100,
+									alpha: 1,
+									ease: 'Linear',
+									duration: 1000,
+									delay: 0,
+									repeat: 0
+								},
+								{
+									y: 110,
+									alpha: 1,
+									ease: 'Linear',
+									duration: 600,
+									delay: 0,
+									repeat: -1,
+									yoyo: true
+								}
+							]
+						});
+						this.championshipTween = this.tweens.timeline({
+							targets: this.championships,
+							ease: 'Linear',
+							loop: 0,
+							tweens: [
+								{
+									y: 170,
+									alpha: 1,
+									ease: 'Linear',
+									duration: 600,
+									delay: 1000,
+									repeat: 0
+								}
+							]
+						});
+						this.tictactoeTween = this.tweens.timeline({
+							targets: this.tictactoe,
+							ease: 'Linear',
+							loop: 0,
+							tweens: [
+								{
+									y: 200,
+									alpha: 1,
+									ease: 'Linear',
+									duration: 600,
+									delay: 1300,
+									repeat: 0
+								}
+							]
+						});
+						this.startbuttonTween = this.tweens.timeline({
+							targets: this.startbutton,
+							ease: 'Linear',
+							loop: 0,
+							tweens: [
+								{
+									y: 240,
+									alpha: 1,
+									ease: 'Linear',
+									duration: 500,
+									delay: 1600,
+									repeat: 0
+								}
+							]
+						});
+						/*==============================================
+						= Actions
+						================================================
+						*/
+						this.keys = this.input.keyboard.addKeys('ENTER,SPACE');
+				
+						this.startbutton.setInteractive().on('pointerdown', () => {
+							this.intro_music.stop();
+							this.scene.start('Level1');
+						});
+					}
+					update(delta) {
+						if (this.keys.SPACE.isDown || this.keys.ENTER.isDown) {
+							this.scene.start('Level1');
+						}
+					}
+				}
+				`
 			}
 		],
 		published: true,
