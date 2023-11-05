@@ -12,7 +12,6 @@
 		openInNewPane
 	} from '$lib/stores/filesStore';
 	import { splitStore } from '$lib/stores/splitStore';
-	import { clientWidth } from '$lib/stores/layoutStore copy';
 
 	/**
 	 * @type {any[]}

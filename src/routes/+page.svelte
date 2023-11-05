@@ -11,14 +11,8 @@
 	// 	editorOutContainerHeight,
 	// 	isVertical
 	// } from '$lib/stores/layoutStore';
-	// import { htmlStore, cssStore, jsStore } from '$lib/stores/codeStore.js';
 	// import { editorElement } from '$lib/stores/splitStore';
 
-	// $: srcdoc = {
-	// 	html: $htmlStore,
-	// 	css: $cssStore,
-	// 	js: $jsStore
-	// };
 	// $: value = $isVertical;
 	// $: srcdocBuild = buildDoc(srcdoc?.html?.source, srcdoc?.css?.source, srcdoc?.js?.source);
 </script>

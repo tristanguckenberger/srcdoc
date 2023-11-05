@@ -1,14 +1,14 @@
 <script>
 	// @ts-nocheck
 	import { browser } from '$app/environment';
-	import { afterUpdate, createEventDispatcher, onMount } from 'svelte';
+	import { afterUpdate, createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 	import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 	import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
 	import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 	import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
-	import { changingPage } from '$lib/stores/codeStore.js';
 	import { isDarkModeStore } from '$lib/stores/layoutStore';
+	import { editorStore } from '$lib/stores/editorStore';
 
 	export let IFTitle;
 	export let value;
@@ -16,60 +16,50 @@
 
 	let Monaco;
 	let container;
-	let editor;
+	let editor = null;
+	let models = null;
+
+	$: if (IFTitle === 'js') {
+		IFTitle = 'javascript';
+	}
+	$: model = editor?.getModel();
+	$: uri = model?.uri;
+	$: editorId = editor?._id;
 
 	onMount(async () => {
-		setTimeout(async () => {
-			try {
-				self.MonacoEnvironment = {
-					getWorker: function (_moduleId, label) {
-						if (label === 'json') {
-							return new jsonWorker();
-						}
-						if (label === 'css' || label === 'scss' || label === 'less') {
-							return new cssWorker();
-						}
-						if (label === 'html' || label === 'handlebars' || label === 'razor') {
-							return new htmlWorker();
-						}
-						if (label === 'typescript' || label === 'js') {
-							return new tsWorker();
-						}
-						return new editorWorker();
+		try {
+			self.MonacoEnvironment = {
+				getWorker: function (_moduleId, label) {
+					if (label === 'js') {
+						label = 'javascript';
 					}
-				};
-				Monaco = await import('monaco-editor');
-				editor = Monaco.editor.create(container, {
-					value,
-					language: IFTitle,
-					...options
-				});
-				// This breaks the editor
-				// editor = Monaco.editor.defineTheme('omni-light', {
-				// 	base: 'vs',
-				// 	inherit: true,
-				// 	rules: [],
-				// 	colors: {
-				// 		'editor.background': '#FBFBFB'
-				// 	}
-				// });
-			} catch (error) {
-				console.log('error', error);
-			}
-		}, 50);
+					if (label === 'json') {
+						return new jsonWorker();
+					}
+					if (label === 'css' || label === 'scss' || label === 'less') {
+						return new cssWorker();
+					}
+					if (label === 'html' || label === 'handlebars' || label === 'razor') {
+						return new htmlWorker();
+					}
+					if (label === 'typescript' || label === 'javascript') {
+						return new tsWorker();
+					}
+					return new tsWorker();
+				}
+			};
+			Monaco = await import('monaco-editor');
 
-		return () => {
-			editor.dispose();
-		};
-	});
-	afterUpdate(async () => {
-		if (editor) {
-			editor?.setValue(value);
-		}
-	});
+			// This breaks the editor
+			Monaco.editor.defineTheme('omni-light', {
+				base: 'vs',
+				inherit: true,
+				rules: [],
+				colors: {
+					'editor.background': '#FBFBFB'
+				}
+			});
 
-	$: if ($isDarkModeStore) {
-		if (Monaco) {
 			Monaco.editor.defineTheme('omni-dark', {
 				base: 'vs-dark',
 				inherit: true,
@@ -78,20 +68,77 @@
 					'editor.background': '#373638'
 				}
 			});
+
+			Monaco.editor.setTheme('omni-light');
+
+			editor = Monaco.editor.create(container, {
+				value,
+				language: IFTitle,
+				...options
+			});
+
+			model = editor.getModel();
+			Monaco.editor.setModelLanguage(model || editor.getModel(), IFTitle);
+
+			models = Monaco.editor.getModels();
+		} catch (error) {
+			console.log('error', error);
+		}
+	});
+
+	onDestroy(() => {
+		editor && editor.dispose();
+		model && model.dispose();
+	});
+
+	afterUpdate(async () => {
+		if ($editorStore === null && editor !== null) {
+			// we want to track multiple editors
+			editorStore.set([editor]);
+		} else if ($editorStore?.length > 0 && editor !== null) {
+			// if there's an editor in the editorStore
+			// check if the saved editor in the editorStore is the same as the editor variable
+			const editorMatch = $editorStore.some(({ _id }) => {
+				if (_id === editorId) {
+					return true;
+				}
+			});
+
+			// if it's not the same, then we'll add the editor to the editorStore
+			if (!editorMatch && editor?._id !== 1) {
+				editorStore.set([...$editorStore, editor]);
+			}
+		}
+
+		if ($editorStore?.length === 1) {
+			$editorStore[0]?.setValue(value);
+		}
+
+		if ($editorStore?.length > 1) {
+			$editorStore.forEach((editor) => {
+				if (editor?._id === editorId) {
+					editor?.setValue(value);
+				}
+			});
+		}
+	});
+
+	$: if ($isDarkModeStore) {
+		if (Monaco) {
 			Monaco.editor.setTheme('omni-dark');
 		}
 	} else {
-		// if (Monaco) {
-		// 	Monaco.editor.defineTheme('omni-light', {
-		// 		base: 'vs',
-		// 		inherit: true,
-		// 		rules: [],
-		// 		colors: {
-		// 			'editor.background': '#FBFBFB'
-		// 		}
-		// 	});
-		// 	Monaco.editor.setTheme('vs');
-		// }
+		if (Monaco) {
+			Monaco.editor.defineTheme('omni-light', {
+				base: 'vs',
+				inherit: true,
+				rules: [],
+				colors: {
+					'editor.background': '#FBFBFB'
+				}
+			});
+			Monaco.editor.setTheme('omni-light');
+		}
 	}
 
 	const dispatch = createEventDispatcher();

@@ -202,21 +202,26 @@ const generateSrcDoc = (files, libraries) => {
 			}
 		});
 
-		return JSON.stringify(assetLookup);
+		try {
+			const stringifiedAsset = JSON.stringify(assetLookup);
+			return stringifiedAsset;
+		} catch (error) {
+			console.log('error::', error);
+			return assetLookup;
+		}
 	};
 
-	const customLoadImageString = `
+	const getAsset = `
 	<script>
-		function customLoadImage(scene, key, url) {
+		function getAsset(url) {
 			const assetLookup = ${assetLookupString()};
-			const actualUrl = assetLookup[url] || url;
-			scene?.load?.image(key, actualUrl);
+			return assetLookup[url] || url;
 		}
 	</script>
 	`;
-
+	// 		${customLoadImageString}
 	const jsContentWithCustomLoadImage = `
-		${customLoadImageString}
+		${getAsset}
 		${jsContent}
 	`;
 
@@ -224,7 +229,8 @@ const generateSrcDoc = (files, libraries) => {
 	  <!DOCTYPE html>
 	  <html>
 	  <head>
-	  <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+	  <script src="https://pixijs.download/release/pixi.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 		${cssContent}
 	  </head>
 	  <body>

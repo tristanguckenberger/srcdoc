@@ -1,6 +1,5 @@
 <script>
 	// @ts-nocheck
-	import { htmlStore, cssStore, jsStore } from '$lib/stores/codeStore.js';
 	import { openFiles } from '$lib/stores/filesStore.js';
 	import MonacoEditorScripts from './MonacoEditorScripts.svelte';
 	import {
@@ -108,7 +107,7 @@
 
 <div style="height:100%;">
 	<MonacoEditorScripts
-		IFTitle={codeType}
+		IFTitle={codeType === 'js' ? 'javascript' : codeType}
 		bind:value={code}
 		{options}
 		on:update={(e) => {

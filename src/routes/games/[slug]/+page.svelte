@@ -12,7 +12,6 @@
 		editorOutContainerHeight,
 		isVertical
 	} from '$lib/stores/layoutStore';
-	import { htmlStore, cssStore, jsStore } from '$lib/stores/codeStore.js';
 	import { editorElement } from '$lib/stores/splitStore';
 	import {
 		fileSystemSidebarWidth,

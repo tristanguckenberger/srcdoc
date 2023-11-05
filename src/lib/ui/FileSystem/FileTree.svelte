@@ -175,7 +175,6 @@
 	async function parseFilesData(fileList) {
 		const frPromises = fileList.map((file) =>
 			reader(file).then((fr) => {
-				console.log('fr.result::', fr.result);
 				return {
 					name: file.name,
 					content: fr.result
@@ -254,7 +253,8 @@
 
 				const parsedFiles = await parseFilesData([...event.target.files]);
 				parsedFiles.forEach((fileData) => {
-					createFile(fileData.name, file, files, fileData.content);
+					const dataString = JSON.stringify(fileData?.content);
+					createFile(fileData.name, file, files, dataString);
 				});
 			});
 

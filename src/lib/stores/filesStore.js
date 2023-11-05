@@ -230,7 +230,6 @@ export function storeFile(blobURL, fileType, parentFileId) {
 export const base64ToBlob = (base64Data) => {
 	const fileData = base64Data.split(',');
 	const contentType = fileData[0].split(':')[1].split(';')[0];
-	console.log('contentType::', contentType);
 	const byteCharacters = atob(fileData[1]);
 
 	let byteNumbers = new Array(byteCharacters.length);
@@ -241,7 +240,5 @@ export const base64ToBlob = (base64Data) => {
 	const byteArray = new Uint8Array(byteNumbers);
 	const blob = new Blob([byteArray], { type: contentType });
 	const blobUrl = URL.createObjectURL(blob);
-
-	// console.log(blobUrl); // This will be the Blob URL
 	return blobUrl;
 };
