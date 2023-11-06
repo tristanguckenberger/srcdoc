@@ -81,6 +81,55 @@
 
 			Monaco.editor.setModelLanguage(model || editor.getModel(), IFTitle);
 			Monaco?.editor?.setTheme(`omni-${$themeKeyStore || 'light'}`);
+			try {
+				Monaco.languages.registerCompletionItemProvider('javascript', {
+					provideCompletionItems: (model, position) => {
+						const defaultRange = new Monaco.Range(
+							position.lineNumber,
+							position.column - 1,
+							position.lineNumber,
+							position.column
+						);
+
+						return {
+							suggestions: [
+								{
+									label: 'getAsset:: Play Engine::', // The function name you're replacing
+									kind: Monaco.languages.CompletionItemKind.Function,
+									insertText: `getAsset('')`, // The text to insert
+									sortText: '0', // A sortText that ensures it comes before the defaults
+									range: defaultRange,
+									detail: 'Loads an asset from the asset manager (.png, .mp3, etc.)',
+									documentation:
+										'getAsset(path: string): Asset Name e.g. "assets/playerSprite.png", but just pass the name: getAsset("playerSprite"), Note: path is relative to the assets folder, and should not include the file extension.'
+								},
+								{
+									label: 'getClientDimensions:: Play Engine::',
+									kind: Monaco.languages.CompletionItemKind.Function,
+									insertText: `getClientDimensions()`,
+									sortText: '0',
+									range: defaultRange,
+									detail: 'Returns the width and height of the client window in an object',
+									documentation:
+										'getClientDimensions(): { width: number, height: number }, Note: This is the size of the client window. You can use this to make your game responsive.'
+								},
+								{
+									label: 'getKeyPressEvent:: Play Engine::',
+									kind: Monaco.languages.CompletionItemKind.Function,
+									insertText: `getKeyPressEvent()`,
+									sortText: '0',
+									range: defaultRange,
+									detail: 'Returns the key press event',
+									documentation:
+										'getKeyPressEvent(): { current: null, previous: null, pressed: false } Note: This is the key press event. You can use this to check if a key is pressed.'
+								}
+							]
+						};
+					}
+				});
+			} catch (error) {
+				// console.log('error::', error);
+			}
 
 			models = Monaco.editor.getModels();
 		} catch (error) {

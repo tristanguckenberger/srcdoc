@@ -1,4 +1,5 @@
 // @ts-nocheck
+
 /**
  * @typedef {Object} FileObject
  * @property {string} name - The name of the file.
@@ -155,7 +156,7 @@ const resolveDependencies = (file, files) => {
  *
  * @returns {string|ErrorObject}
  */
-const generateSrcDoc = (files, clientDimensions) => {
+const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 	if (!files || files.length === 0) {
 		return {
 			errorMessage: 'No files provided!'
@@ -198,6 +199,8 @@ const generateSrcDoc = (files, clientDimensions) => {
 	const getWidth = () => clientDimensions.width;
 	const getHeight = () => clientDimensions.height;
 
+	const getKeyPress = () => JSON.stringify(gameControllerStore);
+
 	const getAsset = `
 	<script>
 		function getAsset(url) {
@@ -225,11 +228,51 @@ const generateSrcDoc = (files, clientDimensions) => {
 	</script>
 	`;
 
+	const getKeyPressEvent = `
+	<script>
+		function getKeyPressEvent() {
+			// return function that returns our keyPress state object
+			return ${getKeyPress()};
+		}
+	</script>
+	`;
+
 	const jsContentWithCustomLoadImage = `
 		${getClientDimensions}
 		${getAsset}
+		${getKeyPressEvent}
 		${jsContent}
 	`;
+
+	function onKeyDown(keyEvent, gameControllerStore, update) {
+		if (keyEvent.target !== document.body) return;
+
+		gameControllerStore.previous = gameControllerStore.current;
+		gameControllerStore.current = {
+			keyEvent,
+			pressedTime: Date.now(),
+			releasedTime: null
+		};
+		gameControllerStore.pressed = true;
+
+		update({ ...gameControllerStore });
+	}
+
+	// Function to handle keyup events
+	function onKeyUp(keyEvent, gameControllerStore, update) {
+		if (keyEvent.target !== document.body) return;
+
+		update({
+			current: {
+				...gameControllerStore.current,
+				releasedTime: Date.now()
+			},
+			previous: gameControllerStore.previous,
+			pressed: false
+		});
+	}
+
+	const stringifiedStore = JSON.stringify(gameControllerStore);
 
 	return `
 	  <!DOCTYPE html>
@@ -240,6 +283,28 @@ const generateSrcDoc = (files, clientDimensions) => {
 		${cssContent}
 	  </head>
 	  <body>
+		<script>
+
+		let keyState = ${stringifiedStore};
+
+		function updateParent(value) {
+			// Post a message to the parent window with the value to update the store
+			// parent.postMessage({ type: 'updateStore', value: value }, '*'); // replace '*' with your parent domain for security
+			keyState = value;
+		}
+
+			const kU = ${onKeyUp};
+			const kD = ${onKeyDown};
+			
+			// Function to handle keydown events
+			const onKeyDown = (keyEvent) => kD(keyEvent, keyState, updateParent);
+
+			// Function to handle keyup events
+			const onKeyUp = (keyEvent) => kU(keyEvent, keyState, updateParent);
+
+			window.addEventListener('keydown', onKeyDown);
+			window.addEventListener('keyup', onKeyUp);
+		</script>
 		${htmlContent}
 		${jsContentWithCustomLoadImage}
 	  </body>
@@ -257,7 +322,7 @@ const generateSrcDoc = (files, clientDimensions) => {
  * @returns {string}
  *
  */
-const buildDynamicSrcDoc = (files, rootId, clientDimensions) => {
+const buildDynamicSrcDoc = (files, rootId, clientDimensions, gameControllerStore) => {
 	if (!files || files.length === 0) {
 		return {
 			errorMessage: 'No files provided!'
@@ -277,7 +342,7 @@ const buildDynamicSrcDoc = (files, rootId, clientDimensions) => {
 		};
 	}
 
-	return generateSrcDoc(relevantFiles, clientDimensions);
+	return generateSrcDoc(relevantFiles, clientDimensions, gameControllerStore);
 };
 
 export default buildDynamicSrcDoc;

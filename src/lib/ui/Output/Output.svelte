@@ -1,9 +1,11 @@
 <script>
 	// @ts-nocheck
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
-	import { afterUpdate } from 'svelte';
+	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { fileStoreFiles } from '$lib/stores/filesStore.js';
 	import { editorOutContainerWidth, editorOutContainerHeight } from '$lib/stores/layoutStore';
+	import { gameControllerStore } from '$lib/stores/gameControllerStore';
+	import { browser } from '$app/environment';
 
 	export let relaxed = false;
 
@@ -25,22 +27,47 @@
 			}
 		})();
 
-	$: srcdoc = buildDynamicSrcDoc($fileStoreFiles, rootFileId, {
-		width: $editorOutContainerWidth,
-		height: $editorOutContainerHeight
-	});
+	$: srcdoc = buildDynamicSrcDoc(
+		$fileStoreFiles,
+		rootFileId,
+		{
+			width: $editorOutContainerWidth,
+			height: $editorOutContainerHeight
+		},
+		$gameControllerStore
+	);
 
 	afterUpdate(() => {
 		if (iframe) {
-			srcdoc = buildDynamicSrcDoc($fileStoreFiles, rootFileId, {
-				width: $editorOutContainerWidth,
-				height: $editorOutContainerHeight
-			});
+			srcdoc = buildDynamicSrcDoc(
+				$fileStoreFiles,
+				rootFileId,
+				{
+					width: $editorOutContainerWidth,
+					height: $editorOutContainerHeight
+				},
+				$gameControllerStore
+			);
 			const blob = new Blob([srcdoc], { type: 'text/html' });
 			const blobUrl = URL.createObjectURL(blob);
 			iframe.src = blobUrl;
 			id++;
 		}
+	});
+
+	function receiveMessage(event) {
+		// Check for the right message type and possibly origin for security
+		if (event.origin === 'http://127.0.0.1:5173' && event.data.type === 'updateStore') {
+			gameControllerStore.set(event.data.value);
+		}
+	}
+
+	onMount(() => {
+		if (browser) window.addEventListener('message', receiveMessage);
+	});
+
+	onDestroy(() => {
+		if (browser) window.removeEventListener('message', receiveMessage);
 	});
 </script>
 

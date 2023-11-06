@@ -24,6 +24,7 @@
 	// Expiremental
 	import FileTree from '$lib/ui/FileSystem/FileTree.svelte';
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
+	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
 
 	export let data;
 
@@ -35,10 +36,15 @@
 
 	$: value = $isVertical;
 	$: srcdocBuild = (async () =>
-		buildDynamicSrcDoc($fileStoreFiles, getRootFileId($fileStoreFiles), {
-			width: $editorOutContainerWidth,
-			height: $editorOutContainerHeight
-		}))();
+		buildDynamicSrcDoc(
+			$fileStoreFiles,
+			getRootFileId($fileStoreFiles),
+			{
+				width: $editorOutContainerWidth,
+				height: $editorOutContainerHeight
+			},
+			$gameControllerStore
+		))();
 	$: isSideBarOpen = $fileSystemSidebarOpen;
 </script>
 
