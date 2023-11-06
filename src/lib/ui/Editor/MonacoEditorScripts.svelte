@@ -9,6 +9,7 @@
 	import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 	import { isDarkModeStore } from '$lib/stores/layoutStore';
 	import { editorStore } from '$lib/stores/editorStore';
+	import { themeKeyStore } from '$lib/stores/themeStore';
 
 	export let IFTitle;
 	export let value;
@@ -50,7 +51,7 @@
 			};
 			Monaco = await import('monaco-editor');
 
-			// This breaks the editor
+			// Define light theme
 			Monaco.editor.defineTheme('omni-light', {
 				base: 'vs',
 				inherit: true,
@@ -60,6 +61,7 @@
 				}
 			});
 
+			// Define dark theme
 			Monaco.editor.defineTheme('omni-dark', {
 				base: 'vs-dark',
 				inherit: true,
@@ -69,8 +71,6 @@
 				}
 			});
 
-			Monaco.editor.setTheme('omni-light');
-
 			editor = Monaco.editor.create(container, {
 				value,
 				language: IFTitle,
@@ -78,8 +78,11 @@
 			});
 
 			model = editor.getModel();
-			Monaco.editor.setModelLanguage(model || editor.getModel(), IFTitle);
 
+			Monaco.editor.setModelLanguage(model || editor.getModel(), IFTitle);
+			// Monaco.editor.setTheme('omni-dark');
+			console.log('themeKeyStore', $themeKeyStore);
+			Monaco?.editor?.setTheme(`omni-${$themeKeyStore || 'light'}`);
 			models = Monaco.editor.getModels();
 		} catch (error) {
 			console.log('error', error);
@@ -113,33 +116,41 @@
 		if ($editorStore?.length === 1) {
 			$editorStore[0]?.setValue(value);
 		}
-
-		if ($editorStore?.length > 1) {
-			$editorStore.forEach((editor) => {
-				if (editor?._id === editorId) {
-					editor?.setValue(value);
-				}
-			});
-		}
 	});
 
-	$: if ($isDarkModeStore) {
-		if (Monaco) {
-			Monaco.editor.setTheme('omni-dark');
-		}
-	} else {
-		if (Monaco) {
-			Monaco.editor.defineTheme('omni-light', {
-				base: 'vs',
-				inherit: true,
-				rules: [],
-				colors: {
-					'editor.background': '#FBFBFB'
-				}
-			});
-			Monaco.editor.setTheme('omni-light');
-		}
-	}
+	$: $editorStore,
+		$themeKeyStore,
+		(() => {
+			if ($editorStore?.length > 1) {
+				$editorStore.forEach((editor) => {
+					if (editor?._id === editorId) {
+						Monaco?.editor?.setTheme(`omni-${$themeKeyStore}`);
+						editor?.setValue(value);
+					}
+				});
+			} else {
+				Monaco?.editor?.setTheme(`omni-${$themeKeyStore}`);
+				$editorStore?.[0]?.setValue(value);
+			}
+		})();
+
+	// $: if ($isDarkModeStore) {
+	// 	if (Monaco) {
+	// 		Monaco.editor.setTheme('omni-dark');
+	// 	}
+	// } else {
+	// 	if (Monaco) {
+	// 		Monaco.editor.defineTheme('omni-light', {
+	// 			base: 'vs',
+	// 			inherit: true,
+	// 			rules: [],
+	// 			colors: {
+	// 				'editor.background': '#FBFBFB'
+	// 			}
+	// 		});
+	// 		Monaco.editor.setTheme('omni-light');
+	// 	}
+	// }
 
 	const dispatch = createEventDispatcher();
 

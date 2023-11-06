@@ -1,8 +1,29 @@
 <script>
+	// @ts-nocheck
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
 	import { fileSystemSidebarWidth, fileSystemSidebarOpen } from '$lib/stores/filesStore.js';
+	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
+	import { onMount, onDestroy } from 'svelte';
+	import { browser } from '$app/environment';
 
+	let preferedThemeMode;
 	$: isSideBarOpen = $fileSystemSidebarOpen;
+
+	const updateTheme = (e) => {
+		themeKeyStore.set(e.matches ? 'light' : 'dark');
+	};
+
+	onMount(() => {
+		if (browser) {
+			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
+			preferedThemeMode.addEventListener('change', updateTheme);
+			updateTheme(preferedThemeMode);
+		}
+	});
+
+	onDestroy(() => {
+		preferedThemeMode?.removeListener(updateTheme);
+	});
 </script>
 
 <div
