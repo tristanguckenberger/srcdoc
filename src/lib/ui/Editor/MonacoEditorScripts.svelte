@@ -1,13 +1,10 @@
 <script>
 	// @ts-nocheck
-	import { browser } from '$app/environment';
 	import { afterUpdate, createEventDispatcher, onDestroy, onMount } from 'svelte';
-	import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 	import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 	import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
 	import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 	import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
-	import { isDarkModeStore } from '$lib/stores/layoutStore';
 	import { editorStore } from '$lib/stores/editorStore';
 	import { themeKeyStore } from '$lib/stores/themeStore';
 
@@ -70,19 +67,21 @@
 					'editor.background': '#373638'
 				}
 			});
-
+			// create editor, returns monaco editor instance
+			// not to be confused with Monaco.editor
+			// these are two different things and have
+			// different methods
+			// Check monaco editor api docs for more info
 			editor = Monaco.editor.create(container, {
 				value,
 				language: IFTitle,
 				...options
 			});
-
 			model = editor.getModel();
 
 			Monaco.editor.setModelLanguage(model || editor.getModel(), IFTitle);
-			// Monaco.editor.setTheme('omni-dark');
-			console.log('themeKeyStore', $themeKeyStore);
 			Monaco?.editor?.setTheme(`omni-${$themeKeyStore || 'light'}`);
+
 			models = Monaco.editor.getModels();
 		} catch (error) {
 			console.log('error', error);

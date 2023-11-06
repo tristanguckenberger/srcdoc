@@ -2,7 +2,7 @@
 	// @ts-nocheck
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
 	import { fileSystemSidebarWidth, fileSystemSidebarOpen } from '$lib/stores/filesStore.js';
-	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
+	import { themeKeyStore } from '$lib/stores/themeStore';
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 
@@ -59,10 +59,6 @@
 		left: -10px;
 	}
 	.sidebar-container {
-		/* display: flex;
-		flex-direction: row;
-		height: 30px; */
-		/* width: calc(100% - (var(--sidebar-width) + 10px)); */
 		display: flex;
 	}
 	.modifiedTabBarWidth {
@@ -72,9 +68,4 @@
 		width: var(--sidebar-width);
 		height: 30px;
 	}
-
-	/* :global(.section-panel) {
-		border-radius: 6px;
-		border: 2px solid #5c5c5c;
-	} */
 </style>
