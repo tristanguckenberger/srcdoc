@@ -3,6 +3,7 @@
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { afterUpdate } from 'svelte';
 	import { fileStoreFiles } from '$lib/stores/filesStore.js';
+	import { editorOutContainerWidth, editorOutContainerHeight } from '$lib/stores/layoutStore';
 
 	export let relaxed = false;
 
@@ -24,11 +25,17 @@
 			}
 		})();
 
-	$: srcdoc = buildDynamicSrcDoc($fileStoreFiles, rootFileId);
+	$: srcdoc = buildDynamicSrcDoc($fileStoreFiles, rootFileId, {
+		width: $editorOutContainerWidth,
+		height: $editorOutContainerHeight
+	});
 
 	afterUpdate(() => {
 		if (iframe) {
-			srcdoc = buildDynamicSrcDoc($fileStoreFiles, rootFileId);
+			srcdoc = buildDynamicSrcDoc($fileStoreFiles, rootFileId, {
+				width: $editorOutContainerWidth,
+				height: $editorOutContainerHeight
+			});
 			const blob = new Blob([srcdoc], { type: 'text/html' });
 			const blobUrl = URL.createObjectURL(blob);
 			iframe.src = blobUrl;

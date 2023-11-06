@@ -7,16 +7,16 @@
  * @property {number} parentFileId - The ID of the parent file.
  * @property {string} content - The content of the file.
  *
- * @typedef {Object} LibraryObject
- * @property {string} name - The name of the library.
- * @property {string} type - The type of the library (e.g., 'css', 'js').
- * @property {string} url - The hosted URL of the library.
  *
  *
  * @typedef {Object} ErrorObject
  * @property {string} errorMessage - The error message.
  *
  * <script>(function(){function handle_message(ev) {let { action, cmd_id } = ev.data;const send_message = (payload) => parent.postMessage( { ...payload }, ev.origin);const send_reply = (payload) => send_message({ ...payload, cmd_id });const send_ok = () => send_reply({ action: 'cmd_ok' });const send_error = (message, stack) => send_reply({ action: 'cmd_error', message, stack });if (action === 'eval') {try {const { script } = ev.data.args;eval(script);send_ok();} catch (e) {send_error(e.message, e.stack);}}if (action === 'catch_clicks') {try {const top_origin = ev.origin;document.body.addEventListener('click', event => {if (event.which !== 1) return;if (event.metaKey || event.ctrlKey || event.shiftKey) return;if (event.defaultPrevented) return;let el = event.target;while (el && el.nodeName !== 'A') el = el.parentNode;if (!el || el.nodeName !== 'A') return;if (el.hasAttribute('download') || el.getAttribute('rel') === 'external' || el.target) return;event.preventDefault();if (el.href.startsWith(top_origin)) {const url = new URL(el.href);if (url.hash[0] === '#') {window.location.hash = url.hash;return;}}window.open(el.href, '_blank');});send_ok();} catch(e) {send_error(e.message, e.stack);}}}window.addEventListener('message', handle_message, false);window.onerror = function (msg, url, lineNo, columnNo, error) {parent.postMessage({ action: 'error', value: error }, '*');};window.addEventListener(\"unhandledrejection\", event => {parent.postMessage({ action: 'unhandledrejection', value: event.reason }, '*');});}).call(this);let previous = { level: null, args: null };['clear', 'log', 'info', 'dir', 'warn', 'error'].forEach((level) => {const original = console[level];console[level] = (...args) => {if (previous.level === level &&previous.args.length === args.length &&previous.args.every((a, i) => a === args[i])) {parent.postMessage({ action: 'console', level, duplicate: true }, '*');} else {previous = { level, args };try {parent.postMessage({ action: 'console', level, args }, '*');} catch (err) {parent.postMessage({ action: 'console', level: 'unclonable' }, '*');}}original(...args);}})<\/script>
+ *
+ * @typedef {Object} ClientDimensionsObject
+ * @property {number} width - The width of the client.
+ * @property {number} height - The height of the client.
  *
  */
 
@@ -151,11 +151,11 @@ const resolveDependencies = (file, files) => {
  * This function generates the srcdoc
  *
  * @param {FileObject[]} files
- * @param {LibraryObject[]} libraries
+ * @param {ClientDimensionsObject} clientDimensions
  *
  * @returns {string|ErrorObject}
  */
-const generateSrcDoc = (files, libraries) => {
+const generateSrcDoc = (files, clientDimensions) => {
 	if (!files || files.length === 0) {
 		return {
 			errorMessage: 'No files provided!'
@@ -183,16 +183,6 @@ const generateSrcDoc = (files, libraries) => {
 		}
 	});
 
-	libraries?.forEach((library) => {
-		if (library.type === 'css') {
-			cssContent += `<link rel="stylesheet" href="${library.url}">`;
-		} else if (library.type === 'js') {
-			jsContent += `<script src="${library.url}"></script>`;
-		} else if (library.type === 'module') {
-			jsContent += `<script type="module" src="${library.url}"></script>`;
-		}
-	});
-
 	// get all assets and build a lookup table
 	const assetLookupString = () => {
 		const assetLookup = {};
@@ -202,25 +192,41 @@ const generateSrcDoc = (files, libraries) => {
 			}
 		});
 
-		try {
-			const stringifiedAsset = JSON.stringify(assetLookup);
-			return stringifiedAsset;
-		} catch (error) {
-			console.log('error::', error);
-			return assetLookup;
-		}
+		return JSON.stringify(assetLookup);
 	};
+
+	const getWidth = () => clientDimensions.width;
+	const getHeight = () => clientDimensions.height;
 
 	const getAsset = `
 	<script>
 		function getAsset(url) {
 			const assetLookup = ${assetLookupString()};
-			return assetLookup[url] || url;
+			try {
+				const asset = assetLookup[url] || url;
+				return JSON.parse(asset);
+			} catch (error) {
+				return assetLookup[url] || url;
+			}
 		}
 	</script>
 	`;
-	// 		${customLoadImageString}
+
+	const getClientDimensions = `
+	<script>
+		function getClientDimensions() {
+			const width = ${getWidth()};
+			const height = ${getHeight()};
+			return {
+				width,
+				height
+			} || 'nothin here';
+		}
+	</script>
+	`;
+
 	const jsContentWithCustomLoadImage = `
+		${getClientDimensions}
 		${getAsset}
 		${jsContent}
 	`;
@@ -246,11 +252,12 @@ const generateSrcDoc = (files, libraries) => {
  *
  * @param {FileObject[]} files
  * @param {number} rootId
+ * @param {ClientDimensionsObject} clientDimensions
  *
  * @returns {string}
  *
  */
-const buildDynamicSrcDoc = (files, rootId) => {
+const buildDynamicSrcDoc = (files, rootId, clientDimensions) => {
 	if (!files || files.length === 0) {
 		return {
 			errorMessage: 'No files provided!'
@@ -270,7 +277,7 @@ const buildDynamicSrcDoc = (files, rootId) => {
 		};
 	}
 
-	return generateSrcDoc(relevantFiles);
+	return generateSrcDoc(relevantFiles, clientDimensions);
 };
 
 export default buildDynamicSrcDoc;

@@ -35,7 +35,10 @@
 
 	$: value = $isVertical;
 	$: srcdocBuild = (async () =>
-		buildDynamicSrcDoc($fileStoreFiles, await getRootFileId($fileStoreFiles)))();
+		buildDynamicSrcDoc($fileStoreFiles, getRootFileId($fileStoreFiles), {
+			width: $editorOutContainerWidth,
+			height: $editorOutContainerHeight
+		}))();
 	$: isSideBarOpen = $fileSystemSidebarOpen;
 </script>
 

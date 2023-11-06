@@ -33,7 +33,6 @@ export const gameData = [
 	<head>
 	</head>
 	<body>
-		<h1>Hello PixiJS</h1>
 	</body>
 </html>`,
 				gameId: 1,
@@ -65,7 +64,9 @@ export const gameData = [
 				id: 6,
 				name: 'main',
 				type: 'js',
-				content: `let app = new PIXI.Application({ width: 640, height: 360 });
+				content: `const { width, height } = getClientDimensions();
+
+let app = new PIXI.Application({ width, height });
 
 document.body.appendChild(app.view);
 							  
@@ -106,29 +107,16 @@ app.ticker.add((delta) => {
 				name: 'main',
 				type: 'css',
 				content: `html {
-					width: 100%;
-					height: 100%;
-				}
-				
-				body { background-color: rgba(0, 0, 255, 0.4); width: 100%; height: 100%;}
-				
-				#main {
-					width: 100%;
-					height: 100%;
-					display: flex;
-				}
-				
-				.title-container {
-					width: 100%;
-					height: 100%;
-					display: flex;
-					justify-content: center;
-					align-items: center;
-				}
-				
-				h1 {
-					color: #fff;
-				}`,
+width: 100%;
+	height: 100%;
+}
+								  
+body { 
+	width: 100%; 
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
+}`,
 				gameId: 1,
 				parentFileId: 7,
 				createdAt: '2023-10-08 00:30:43',
