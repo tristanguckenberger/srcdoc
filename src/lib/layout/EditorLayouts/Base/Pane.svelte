@@ -7,19 +7,9 @@
 	} from '$lib/stores/layoutStore';
 	import { hover } from '$lib/actions/hover';
 	import { fade } from 'svelte/transition';
-	import {
-		splitInstanceStore,
-		editorSplit,
-		editorElement,
-		clearSplit
-	} from '$lib/stores/splitStore';
-	import {
-		focusedFileId,
-		codePanes2,
-		previouslyFocusedFileId,
-		openFiles,
-		softSelectedFileId
-	} from '$lib/stores/filesStore';
+	import { splitInstanceStore, editorSplit, clearSplit } from '$lib/stores/splitStore';
+	import { focusedFileId, codePanes2, previouslyFocusedFileId } from '$lib/stores/filesStore';
+	import { themeDataStore } from '$lib/stores/themeStore';
 
 	/**
 	 * @type {string | string[]}
@@ -128,13 +118,17 @@
 		focusedFileId.set(fileId);
 		clearSplit.set(true);
 	};
+
+	// pull in the theme and join it into a string
+	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
+<!-- Add the theme string to sections style -->
 <section
 	{id}
 	class:isFocused
 	class="section-panel"
-	style="overflow-x: visible;"
+	style="overflow-x: visible; {themeString}"
 	bind:this={split}
 	bind:clientWidth={splitClientWidth}
 	bind:clientHeight={splitClientHeight}
@@ -192,6 +186,7 @@
 		position: absolute;
 		display: flex;
 		align-items: center;
+		color: var(--text-color-highlight);
 		/* transition: background-color 300ms cubic-bezier(0.215, 0.610, 0.355, 1); */
 	}
 	.section-panel {

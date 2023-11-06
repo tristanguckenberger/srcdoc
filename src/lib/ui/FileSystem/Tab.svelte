@@ -150,7 +150,11 @@
 		background-color: #444;
 		border-bottom: 1px solid #ccc;
 	}
+	.tab span {
+		color: #fbfbfb;
+	}
 	.tab span.isSoftSelected {
+		color: #ffffff;
 		font-style: italic;
 	}
 	.white-dot {
