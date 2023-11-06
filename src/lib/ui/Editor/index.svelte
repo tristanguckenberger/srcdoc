@@ -97,7 +97,9 @@
 		},
 		wrappingIndent: 'same',
 		highlightActiveIndentGuide: true,
-		fontLigatures: true
+		fontLigatures: true,
+		quickSuggestions: true,
+		suggestOnTriggerCharacters: true
 		// fontWeight: "500",
 		// formatOnType: true,
 		// formatOnPaste: true,

@@ -68,4 +68,8 @@
 		width: var(--sidebar-width);
 		height: 30px;
 	}
+	:global(.monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents > .main) {
+		height: 100% !important;
+		margin: 0 !important;
+	}
 </style>
