@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
 	import { fileSystemSidebarWidth, fileSystemSidebarOpen } from '$lib/stores/filesStore.js';
-	import { themeKeyStore } from '$lib/stores/themeStore';
+	import { themeKeyStore, themeDataStore } from '$lib/stores/themeStore';
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 
@@ -27,12 +27,14 @@
 	});
 
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
+
+	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
 <div
 	id="editor-layout"
 	class:modifiedWidth={!isSideBarOpen}
-	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px;"
+	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px; {themeString}"
 >
 	<div
 		class="sidebar-container"
@@ -52,13 +54,13 @@
 		flex-direction: column;
 		margin: 0;
 		padding: 0;
-		background-color: #333;
 	}
 	#editor-layout {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
 		width: 100%;
+		background-color: var(--color-secondary);
 	}
 	.modifiedWidth {
 		max-width: calc(100% + 10px) !important;

@@ -445,7 +445,7 @@
 
 	.file-item {
 		padding: 2px 0;
-		color: #ccc;
+		color: var(--folder-button-color);
 		position: relative;
 	}
 
@@ -459,7 +459,7 @@
 	.folder-button {
 		background: none;
 		border: none;
-		color: #ccc;
+		color: var(--folder-button-color);
 		font-size: 13px;
 		cursor: pointer;
 		padding-left: 20px;
@@ -483,7 +483,7 @@
 	}
 
 	.folder-button:hover {
-		color: #fff;
+		color: var(--text-color-highlight);
 	}
 	:global(button):hover {
 		cursor: pointer;

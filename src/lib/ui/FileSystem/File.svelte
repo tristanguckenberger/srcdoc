@@ -8,6 +8,7 @@
 		softSelectedFileId,
 		renameFile
 	} from '$lib/stores/filesStore.js';
+	import { themeDataStore } from '$lib/stores/themeStore';
 
 	export let preventOpen = false;
 	export let allFiles;
@@ -17,9 +18,10 @@
 
 	let fullFileName = `${file.name}.${file.type}`;
 	$: isSoftSelected = file?.id === $softSelectedFileId;
+	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
-<div class="file-line">
+<div class="file-line" style={`${themeString}`}>
 	{#if isRenaming && editingId === file.id}
 		<input
 			type="text"
@@ -43,12 +45,12 @@
 		font-style: italic;
 	}
 	.file-line {
-		color: #ccc;
+		color: var(--folder-button-color);
 		padding-left: 20px;
 		font-size: 13px;
 	}
 	.file-line:hover {
-		color: #fff;
+		color: var(--text-color-highlight);
 		cursor: pointer;
 	}
 </style>

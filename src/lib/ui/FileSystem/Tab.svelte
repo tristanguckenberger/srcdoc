@@ -8,6 +8,7 @@
 		previouslyFocusedFileId
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
+	import { themeDataStore } from '$lib/stores/themeStore';
 
 	export let file;
 	export let closeTab;
@@ -94,9 +95,12 @@
 		focusedFileId.set(file.id);
 		clearSplit.set(true);
 	}
+
+	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
 <div
+	style={`${themeString}`}
 	class="tab"
 	class:isFocused
 	draggable="true"
@@ -119,7 +123,7 @@
 	.tab {
 		display: flex;
 		flex-direction: row;
-		background-color: #333;
+		background-color: var(--color-secondary);
 		padding: 4px 5px 4px 5px;
 	}
 
@@ -135,7 +139,7 @@
 	.tab-close {
 		background: none;
 		border: none;
-		color: #ccc;
+		color: var(--folder-button-color);
 		font-weight: bold;
 		font-size: 12px;
 		padding: 0;
@@ -147,14 +151,15 @@
 		opacity: 1;
 	}
 	.tab.isFocused {
-		background-color: #444;
-		border-bottom: 1px solid #ccc;
+		background-color: var(--color-highlight-faded);
+		border-bottom: 1px solid var(--folder-button-color);
+		color: var(--text-color-highlight);
 	}
 	.tab span {
-		color: #fbfbfb;
+		color: var(--folder-button-color);
 	}
 	.tab span.isSoftSelected {
-		color: #ffffff;
+		color: var(--text-color-highlight);
 		font-style: italic;
 	}
 	.white-dot {

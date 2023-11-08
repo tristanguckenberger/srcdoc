@@ -1,12 +1,14 @@
 <script>
 	import { page } from '$app/stores';
 	import { fileSystemSidebarOpen } from '$lib/stores/filesStore';
+	import { themeDataStore } from '$lib/stores/themeStore';
 
 	// controls file system sidebar toggle button visibility
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
+	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
-<nav class="top">
+<nav class="top" style={`${themeString}`}>
 	<ul>
 		<li class:hiddenItem={!engineInRoute}>
 			<button on:click={() => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen)}
@@ -18,7 +20,7 @@
 	</ul>
 </nav>
 
-<main class:scrollable={!engineInRoute}>
+<main class:scrollable={!engineInRoute} style={`${themeString}`}>
 	<slot />
 </main>
 
@@ -34,6 +36,7 @@
 		display: flex;
 		flex-direction: row;
 		max-width: 100%;
+		background-color: var(--color-secondary);
 	}
 	:global(.main) {
 		margin: 10px;
@@ -43,8 +46,9 @@
 		max-height: calc(100vh - 76px);
 	}
 	nav {
-		background-color: #333;
-		color: #fff;
+		/* background-color: #333; */
+		background-color: var(--color-secondary);
+		color: var(--color-primary);
 		padding: 1rem;
 	}
 
@@ -60,7 +64,7 @@
 	}
 
 	nav ul li a {
-		color: #fff;
+		color: var(--color-primary);
 		text-decoration: none;
 	}
 	.hiddenItem {

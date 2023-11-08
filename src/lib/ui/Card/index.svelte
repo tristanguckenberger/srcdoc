@@ -1,9 +1,13 @@
 <script>
 	// @ts-nocheck
+	import { themeDataStore } from '$lib/stores/themeStore';
+
 	export let game;
+
+	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
-<div class="game">
+<div class="game" style={`${themeString}`}>
 	<a href={`/games/${game?.id}/main`}>
 		<img class="card-thumbnail" src={game?.thumbnail ?? 'https://picsum.photos/300/300'} />
 	</a>
@@ -23,8 +27,8 @@
 		flex-direction: column;
 		width: calc(100% - 20px);
 		height: calc(100% - 20px);
-		border: 1px solid #fbfbfb;
-		background-color: #fbfbfb;
+		/* border: 1px solid #fbfbfb; */
+		/* background-color: #fbfbfb; */
 		border-radius: 6px;
 		margin: 0;
 		padding: 10px;
@@ -36,19 +40,24 @@
 	}
 	.card-thumbnail {
 		width: 100%;
-		height: 150px;
+		height: 250px;
 		object-fit: cover;
 		border-radius: 6px;
 	}
 	.card-info {
+		color: var(--color-primary);
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
 		height: 100%;
-		border: 2px solid #fbfbfb;
+		/* border: 2px solid #fbfbfb; */
 		border-radius: 6px;
-		background-color: #fbfbfb;
+		/* background-color: #fbfbfb; */
 		padding: 10px;
+	}
+	.card-info a {
+		color: var(--color-primary);
+		text-decoration: none;
 	}
 	.card-info:hover {
 		cursor: pointer;

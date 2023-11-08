@@ -8,6 +8,8 @@
 		codePanes2
 	} from '$lib/stores/filesStore.js';
 
+	import { themeDataStore } from '$lib/stores/themeStore';
+
 	let draggedItem = null;
 
 	function closeTab(id) {
@@ -58,9 +60,11 @@
 
 		$openFiles = newOpenFiles;
 	}
+
+	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
-<div class="tab-container">
+<div class="tab-container" style={`${themeString}`}>
 	{#each $openFiles as file}
 		<div on:drop={(e) => drop(e, file)}>
 			<Tab {file} {closeTab} {dragStart} {dragOver} {dragEnd} />
@@ -72,7 +76,7 @@
 	.tab-container {
 		display: flex;
 		flex-direction: row;
-		background-color: #333;
+		background-color: var(--color-secondary);
 		overflow-x: auto;
 		height: 30px;
 		flex-grow: 1;
