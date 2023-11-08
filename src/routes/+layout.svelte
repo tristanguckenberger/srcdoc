@@ -1,10 +1,14 @@
 <script>
+	import { page } from '$app/stores';
 	import { fileSystemSidebarOpen } from '$lib/stores/filesStore';
+
+	// controls file system sidebar toggle button visibility
+	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
 </script>
 
 <nav class="top">
 	<ul>
-		<li>
+		<li class:hiddenItem={!engineInRoute}>
 			<button on:click={() => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen)}
 				>{$fileSystemSidebarOpen ? 'close' : 'open'}</button
 			>
@@ -58,5 +62,8 @@
 	nav ul li a {
 		color: #fff;
 		text-decoration: none;
+	}
+	.hiddenItem {
+		display: none;
 	}
 </style>

@@ -5,7 +5,7 @@
 <div class="main">
 	{#each data?.games as game}
 		<div class="game">
-			<a href={`/games/${game?.id}`}>Play</a>
+			<a href={`/games/${game?.id}/engine`}>Play</a>
 			<h3>{game.title}</h3>
 			<p>{game.description}</p>
 		</div>
