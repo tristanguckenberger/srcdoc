@@ -33,6 +33,7 @@
 
 <div
 	id="editor-layout"
+	class:noSideBar={!engineInRoute}
 	class:modifiedWidth={!isSideBarOpen}
 	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px; {themeString}"
 >
@@ -81,6 +82,9 @@
 	:global(.monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents > .main) {
 		height: 100% !important;
 		margin: 0 !important;
+	}
+	.noSideBar {
+		align-items: center;
 	}
 	.hiddenContainer {
 		display: none;

@@ -27,7 +27,18 @@ export const themeDataStore = derived(
 	([$themeKeyStore, $lightTheme, $darkTheme]) => {
 		return {
 			themeKey: $themeKeyStore,
-			theme: $themeKeyStore === 'light' ? $lightTheme : $darkTheme
+			theme:
+				$themeKeyStore === 'light'
+					? [
+							...$lightTheme,
+							`--action-font: 'Questrial', sans-serif;`,
+							`--header-font: 'Geologica', sans-serif;`
+					  ]
+					: [
+							...$darkTheme,
+							`--action-font: 'Questrial', sans-serif;`,
+							`--header-font: 'Geologica', sans-serif;`
+					  ]
 		};
 	}
 );

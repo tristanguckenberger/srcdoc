@@ -91,9 +91,16 @@
 			class:isSideBarOpen
 			style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 18 : 0}px;"
 		>
-			<SplitPane panes={['#split-2', '#split-3']} vertical={value} bind:this={$editorElement}>
+			<SplitPane
+				panes={$openFiles?.length > 0 ? ['#split-2', '#split-3'] : ['#split-3']}
+				sizes={$openFiles?.length > 0 ? [50, 50] : [100]}
+				vertical={value}
+				bind:this={$editorElement}
+			>
 				<!-- Editor Content -->
-				<EditorInput />
+				{#if $openFiles?.length > 0}
+					<EditorInput />
+				{/if}
 
 				<!-- Output Content -->
 				<section
@@ -129,7 +136,7 @@
 		border-radius: 4px;
 	}
 	:global(.monaco-editor .overflow-guard) {
-		border-radius: 4px !important;
+		border-radius: 6px !important;
 	}
 	:global(.margin-view-overlays) {
 		background-color: transparent;
@@ -152,8 +159,8 @@
 	}
 	#split-file-explorer {
 		padding: 10px;
-		border-radius: 6px;
-		border: 2px solid #5c5c5c;
+		border-radius: 9px;
+		border: 3px solid #5c5c5c;
 		overflow: hidden;
 		max-width: 245px;
 	}

@@ -2,21 +2,24 @@
 	import { page } from '$app/stores';
 	import { fileSystemSidebarOpen } from '$lib/stores/filesStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
+	import Button from '$lib/ui/Button/index.svelte';
 
 	// controls file system sidebar toggle button visibility
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
 	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
-<nav class="top" style={`${themeString}`}>
+<nav class="top" style={`${themeString}`} class:hiddenItem={!engineInRoute}>
 	<ul>
 		<li class:hiddenItem={!engineInRoute}>
-			<button on:click={() => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen)}
-				>{$fileSystemSidebarOpen ? 'close' : 'open'}</button
-			>
+			<Button
+				action={() => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen)}
+				label={$fileSystemSidebarOpen ? 'close' : 'open'}
+				link={null}
+			/>
 		</li>
-		<li><a href="/">Home</a></li>
-		<li><a href="/about">About</a></li>
+		<li class="home"><Button link="/" action={null} label={'Home'} /></li>
+		<li class="browse"><Button link="/games" action={null} label={'Browse'} /></li>
 	</ul>
 </nav>
 
@@ -49,7 +52,7 @@
 		/* background-color: #333; */
 		background-color: var(--color-secondary);
 		color: var(--color-primary);
-		padding: 1rem;
+		padding: 10px;
 	}
 
 	nav ul {
@@ -57,21 +60,17 @@
 		list-style: none;
 		margin: 0;
 		padding: 0;
+		gap: 10px;
+		align-items: center;
+		/* justify-content: space-between; */
 	}
-
-	nav ul li {
-		margin-right: 1rem;
-	}
-
-	nav ul li a {
-		color: var(--color-primary);
-		text-decoration: none;
-	}
-	.hiddenItem {
+	li.hiddenItem {
 		display: none;
 	}
-
 	main.scrollable {
 		overflow-y: scroll;
 	}
+	/* .home {
+		justify-self: flex-end;
+	} */
 </style>

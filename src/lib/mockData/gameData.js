@@ -280,7 +280,8 @@ body {
 	{
 		id: 2,
 		title: 'Example PIXI Game',
-		description: 'An example game project',
+		description:
+			'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin tempor consectetur orci, ac porta risus euismod non. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec rutrum orci in augue elementum, et pellentesque magna ultrices. Morbi id placerat enim. Donec ullamcorper magna magna, id luctus massa pellentesque fermentum. Morbi elit dolor, suscipit vitae pretium sed, consequat quis sem. Proin tellus turpis, sollicitudin vel ullamcorper vitae, vestibulum eu enim.',
 		userId: 1,
 		files: [
 			{

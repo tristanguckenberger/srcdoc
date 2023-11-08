@@ -5,8 +5,8 @@
 </script>
 
 <div class="main grid">
-	{#each data?.games as game}
-		<Card {game} />
+	{#each data?.games as game, i}
+		<Card {game} thumbnail={`https://picsum.photos/${10 + i}`} />
 	{/each}
 </div>
 
@@ -25,5 +25,6 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 		gap: 10px;
+		max-width: 1400px;
 	}
 </style>
