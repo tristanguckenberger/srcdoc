@@ -16,17 +16,25 @@
 	import {
 		fileSystemSidebarWidth,
 		fileSystemSidebarOpen,
-		codePanes,
-		baseDataStore,
-		fileStoreFiles
+		fileStoreFiles,
+		focusedFileId,
+		fileSystemExpanderStore,
+		fileSystemMetaDataStore,
+		previouslyFocusedFileId,
+		softSelectedFileId,
+		openFiles,
+		codePanes2,
+		baseDataStore
 	} from '$lib/stores/filesStore.js';
 
 	// Expiremental
 	import FileTree from '$lib/ui/FileSystem/FileTree.svelte';
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
+	import { onDestroy } from 'svelte';
 
 	export let data;
+	const play = false;
 
 	$: if (data) {
 		// this will be our data's starting point
@@ -46,6 +54,21 @@
 			$gameControllerStore
 		))();
 	$: isSideBarOpen = $fileSystemSidebarOpen;
+	onDestroy(() => {
+		fileStoreFiles.set(null);
+		focusedFileId.set(null);
+		fileSystemExpanderStore.set({});
+		fileSystemMetaDataStore.set({
+			gameId: null,
+			userId: null
+		});
+		previouslyFocusedFileId.set(null);
+		softSelectedFileId.set(null);
+		openFiles.set([]);
+		fileSystemSidebarWidth.set(200);
+		fileSystemSidebarOpen.set(true);
+		codePanes2.set([]);
+	});
 </script>
 
 <div class="main">
@@ -79,7 +102,7 @@
 					bind:clientHeight={$editorOutContainerHeight}
 				>
 					<Pane id={'split-output'} label={'output'}>
-						<Output slot="pane-content" srcdocBuilt={srcdocBuild} />
+						<Output slot="pane-content" srcdocBuilt={srcdocBuild} {play} />
 					</Pane>
 				</section>
 			</SplitPane>

@@ -242,3 +242,9 @@ export const base64ToBlob = (base64Data) => {
 	const blobUrl = URL.createObjectURL(blob);
 	return blobUrl;
 };
+
+// derived store for file system when in play mode
+export const derivedFileSystemData = derived([baseDataStore], ([$baseDataStore]) => {
+	fileStoreFiles.set($baseDataStore?.files);
+	return $baseDataStore?.files;
+});

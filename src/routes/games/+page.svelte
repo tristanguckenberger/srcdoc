@@ -1,14 +1,12 @@
 <script>
+	import Card from '$lib/ui/Card/index.svelte';
+
 	export let data;
 </script>
 
-<div class="main">
+<div class="main grid">
 	{#each data?.games as game}
-		<div class="game">
-			<a href={`/games/${game?.id}/engine`}>Play</a>
-			<h3>{game.title}</h3>
-			<p>{game.description}</p>
-		</div>
+		<Card {game} />
 	{/each}
 </div>
 
@@ -23,17 +21,9 @@
 		flex-wrap: wrap;
 		justify-content: space-evenly;
 	}
-	.game {
-		width: 300px;
-		height: 300px;
-		border: 1px solid black;
-		border-radius: 6px;
-		margin: 10px;
-		padding: 10px;
-	}
-	.game:hover {
-		background-color: #333;
-		color: white;
-		cursor: pointer;
+	.main.grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+		gap: 10px;
 	}
 </style>

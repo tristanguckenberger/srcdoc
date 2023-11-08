@@ -18,7 +18,7 @@
 	</ul>
 </nav>
 
-<main>
+<main class:scrollable={!engineInRoute}>
 	<slot />
 </main>
 
@@ -65,5 +65,9 @@
 	}
 	.hiddenItem {
 		display: none;
+	}
+
+	main.scrollable {
+		overflow-y: scroll;
 	}
 </style>

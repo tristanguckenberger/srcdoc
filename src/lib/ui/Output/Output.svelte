@@ -1,19 +1,21 @@
 <script>
 	// @ts-nocheck
+
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	import { fileStoreFiles } from '$lib/stores/filesStore.js';
+	import { fileStoreFiles, derivedFileSystemData } from '$lib/stores/filesStore.js';
 	import { editorOutContainerWidth, editorOutContainerHeight } from '$lib/stores/layoutStore';
 	import { gameControllerStore } from '$lib/stores/gameControllerStore';
 	import { browser } from '$app/environment';
 
 	export let relaxed = false;
+	export let play = false;
 
 	let id = 0;
 	let iframe;
 	let rootFileId;
 
-	$: $fileStoreFiles,
+	$: {
 		(async () => {
 			// Automatically find the ID of the file named 'index' with type 'html'
 			const rootFile = await $fileStoreFiles?.find((file) => {
@@ -26,6 +28,7 @@
 				console.log('No root file found! Please create a file named "index.html" and try again.');
 			}
 		})();
+	}
 
 	$: srcdoc = buildDynamicSrcDoc(
 		$fileStoreFiles,
@@ -38,7 +41,7 @@
 	);
 
 	afterUpdate(() => {
-		if (iframe) {
+		if (rootFileId) {
 			srcdoc = buildDynamicSrcDoc(
 				$fileStoreFiles,
 				rootFileId,
@@ -50,10 +53,21 @@
 			);
 			const blob = new Blob([srcdoc], { type: 'text/html' });
 			const blobUrl = URL.createObjectURL(blob);
-			iframe.src = blobUrl;
+			try {
+				iframe.src = blobUrl;
+			} catch (error) {
+				console.log('error::', error);
+			}
+
 			id++;
 		}
 	});
+
+	$: {
+		console.log('rootFileId::output::', rootFileId);
+		console.log('files::output::', $fileStoreFiles);
+		console.log('srcdoc::output::', srcdoc);
+	}
 
 	function receiveMessage(event) {
 		// Check for the right message type and possibly origin for security
@@ -69,9 +83,21 @@
 	onDestroy(() => {
 		if (browser) window.removeEventListener('message', receiveMessage);
 	});
+
+	let clientWidth = 0;
+	let clientHeight = 0;
+
+	$: {
+		if (play) {
+			$editorOutContainerHeight = clientHeight;
+			$editorOutContainerWidth = clientWidth;
+
+			fileStoreFiles.set($derivedFileSystemData);
+		}
+	}
 </script>
 
-<div style="height: 100%; flex-grow: 1;">
+<div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight>
 	<iframe
 		id={`output-iframe-${id}`}
 		style="border-radius: 6px; -webkit - mask - image: -webkit - radial - gradient(white, black);"

@@ -1,5 +1,6 @@
 <script>
 	// @ts-nocheck
+	import { page } from '$app/stores';
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
 	import { fileSystemSidebarWidth, fileSystemSidebarOpen } from '$lib/stores/filesStore.js';
 	import { themeKeyStore } from '$lib/stores/themeStore';
@@ -24,6 +25,8 @@
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
+
+	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
 </script>
 
 <div
@@ -31,7 +34,12 @@
 	class:modifiedWidth={!isSideBarOpen}
 	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px;"
 >
-	<div class="sidebar-container" class:modifiedTabBarWidth={!isSideBarOpen} class:isSideBarOpen>
+	<div
+		class="sidebar-container"
+		class:modifiedTabBarWidth={!isSideBarOpen}
+		class:isSideBarOpen
+		class:hiddenContainer={!engineInRoute}
+	>
 		<div class="filler" />
 		<TabContainer />
 	</div>
@@ -71,5 +79,8 @@
 	:global(.monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents > .main) {
 		height: 100% !important;
 		margin: 0 !important;
+	}
+	.hiddenContainer {
+		display: none;
 	}
 </style>
