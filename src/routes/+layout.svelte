@@ -5,12 +5,14 @@
 	import Button from '$lib/ui/Button/index.svelte';
 
 	// controls file system sidebar toggle button visibility
-	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
+	$: splitPath = $page?.route?.id?.split('/') ?? [];
+	$: engineInRoute = splitPath.some((path) => path === 'engine');
+	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
 	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
-<nav class="top" style={`${themeString}`} class:hiddenItem={!engineInRoute}>
-	<ul>
+<nav class="top" style={`${themeString}`} class:matchGridWidth={!engineInRoute && isBrowsePage}>
+	<ul class:matchGridWidth={!engineInRoute && isBrowsePage}>
 		<li class:hiddenItem={!engineInRoute}>
 			<Button
 				action={() => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen)}
@@ -49,7 +51,6 @@
 		max-height: calc(100vh - 76px);
 	}
 	nav {
-		/* background-color: #333; */
 		background-color: var(--color-secondary);
 		color: var(--color-primary);
 		padding: 10px;
@@ -64,6 +65,11 @@
 		align-items: center;
 		/* justify-content: space-between; */
 	}
+
+	nav.matchGridWidth {
+		justify-content: center;
+		display: flex;
+	}
 	li.hiddenItem {
 		display: none;
 	}
@@ -73,4 +79,7 @@
 	/* .home {
 		justify-self: flex-end;
 	} */
+	ul.matchGridWidth {
+		width: calc(var(--nav-width) - 20px);
+	}
 </style>

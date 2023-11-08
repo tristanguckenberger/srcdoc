@@ -3,7 +3,7 @@
 
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	import { fileStoreFiles, derivedFileSystemData } from '$lib/stores/filesStore.js';
+	import { fileStoreFiles, derivedFileSystemData, baseDataStore } from '$lib/stores/filesStore.js';
 	import { editorOutContainerWidth, editorOutContainerHeight } from '$lib/stores/layoutStore';
 	import { gameControllerStore } from '$lib/stores/gameControllerStore';
 	import { browser } from '$app/environment';
@@ -18,8 +18,15 @@
 	$: {
 		(async () => {
 			// Automatically find the ID of the file named 'index' with type 'html'
+			const gameName = $baseDataStore?.title;
+			const joinedGameName = gameName.split(' ').join('_');
 			const rootFile = await $fileStoreFiles?.find((file) => {
-				return file.name === 'root' && file.type === 'folder';
+				return (
+					(file.name === 'root' ||
+						file.name.trim() === joinedGameName.trim() ||
+						file.name === gameName) &&
+					file.type === 'folder'
+				);
 			});
 
 			if (rootFile) {
@@ -63,12 +70,6 @@
 		}
 	});
 
-	$: {
-		console.log('rootFileId::output::', rootFileId);
-		console.log('files::output::', $fileStoreFiles);
-		console.log('srcdoc::output::', srcdoc);
-	}
-
 	function receiveMessage(event) {
 		// Check for the right message type and possibly origin for security
 		if (event.origin === 'http://127.0.0.1:5173' && event.data.type === 'updateStore') {
@@ -100,7 +101,7 @@
 <div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight>
 	<iframe
 		id={`output-iframe-${id}`}
-		style="border-radius: 6px; -webkit - mask - image: -webkit - radial - gradient(white, black);"
+		style="border-radius: 6px; -webkit-mask-image: -webkit-radial-gradient(white, black);"
 		title="result"
 		bind:this={iframe}
 		sandbox={[

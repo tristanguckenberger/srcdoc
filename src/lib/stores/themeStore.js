@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { writable, derived, readable } from 'svelte/store';
 
+import { gridWidth } from './layoutStore';
+
 const lightTheme = readable([
 	'--color-primary: #000;',
 	'--color-secondary: #FBFBFB;',
@@ -23,8 +25,8 @@ const darkTheme = readable([
 export const themeKeyStore = writable('light');
 
 export const themeDataStore = derived(
-	[themeKeyStore, lightTheme, darkTheme],
-	([$themeKeyStore, $lightTheme, $darkTheme]) => {
+	[themeKeyStore, lightTheme, darkTheme, gridWidth],
+	([$themeKeyStore, $lightTheme, $darkTheme, $gridWidth]) => {
 		return {
 			themeKey: $themeKeyStore,
 			theme:
@@ -32,12 +34,14 @@ export const themeDataStore = derived(
 					? [
 							...$lightTheme,
 							`--action-font: 'Questrial', sans-serif;`,
-							`--header-font: 'Geologica', sans-serif;`
+							`--header-font: 'Geologica', sans-serif;`,
+							`--nav-width: ${$gridWidth}px;`
 					  ]
 					: [
 							...$darkTheme,
 							`--action-font: 'Questrial', sans-serif;`,
-							`--header-font: 'Geologica', sans-serif;`
+							`--header-font: 'Geologica', sans-serif;`,
+							`--nav-width: ${$gridWidth}px;`
 					  ]
 		};
 	}

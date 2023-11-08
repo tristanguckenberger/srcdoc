@@ -1,10 +1,11 @@
 <script>
 	import Card from '$lib/ui/Card/index.svelte';
+	import { gridWidth } from '$lib/stores/layoutStore.js';
 
 	export let data;
 </script>
 
-<div class="main grid">
+<div class="main grid" bind:clientWidth={$gridWidth}>
 	{#each data?.games as game, i}
 		<Card {game} thumbnail={`https://picsum.photos/${10 + i}`} />
 	{/each}

@@ -18,18 +18,6 @@
 </script>
 
 <div class="main">
-	<!-- <SplitPane panes={['#split-2', '#split-3']} vertical={value} bind:this={$editorElement}>
-		<EditorInput />
-		<section
-			id="split-3"
-			bind:clientWidth={$editorOutContainerWidth}
-			bind:clientHeight={$editorOutContainerHeight}
-		>
-			<Pane id={'split-output'} label={'output'}>
-				<Output slot="pane-content" srcdocBuilt={srcdocBuild} />
-			</Pane>
-		</section>
-	</SplitPane> -->
 	<a href="/games">Games</a>
 </div>
 
@@ -43,6 +31,7 @@
 		margin: 10px;
 		height: calc(100% - 20px);
 		width: calc(100% - 20px);
+		max-width: 1420px;
 		/* overflow-y: hidden; */
 	}
 	:global(#split-output) {

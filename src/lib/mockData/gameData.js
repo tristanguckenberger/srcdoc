@@ -286,7 +286,7 @@ body {
 		files: [
 			{
 				id: 1,
-				name: 'root',
+				name: 'Example PIXI Game',
 				type: 'folder',
 				gameId: 1,
 				parentFileId: null,
