@@ -1,5 +1,6 @@
 <script>
 	// @ts-nocheck
+	import { triggerCompile } from '$lib/stores/filesStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
 
 	export let label;
@@ -7,8 +8,9 @@
 	export let action;
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: label === 'open';
 	let close = '<-';
+
+	// $: showPlayButton = $triggerCompile ?? null;
 
 	$: showSideBarToggle = label === 'open' || label === 'close';
 </script>
@@ -50,6 +52,28 @@
 					viewBox="0 0 256 256"
 					><path
 						d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"
+					/></svg
+				>
+			{:else if label === 'play'}
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="32"
+					height="32"
+					fill="#000000"
+					viewBox="0 0 256 256"
+					><path
+						d="M234.49,111.07,90.41,22.94A20,20,0,0,0,60,39.87V216.13a20,20,0,0,0,30.41,16.93l144.08-88.13a19.82,19.82,0,0,0,0-33.86ZM84,208.85V47.15L216.16,128Z"
+					/></svg
+				>
+			{:else if label === 'pause'}
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="32"
+					height="32"
+					fill="#000000"
+					viewBox="0 0 256 256"
+					><path
+						d="M216,48V208a16,16,0,0,1-16,16H160a16,16,0,0,1-16-16V48a16,16,0,0,1,16-16h40A16,16,0,0,1,216,48ZM96,32H56A16,16,0,0,0,40,48V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V48A16,16,0,0,0,96,32Z"
 					/></svg
 				>
 			{:else}

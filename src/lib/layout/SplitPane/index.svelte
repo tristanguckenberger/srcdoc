@@ -9,7 +9,9 @@
 	import {
 		fileSystemSidebarOpen,
 		fileSystemSidebarWidth,
-		openInNewPane
+		openInNewPane,
+		autoCompile,
+		triggerCompile
 	} from '$lib/stores/filesStore';
 	import { splitStore } from '$lib/stores/splitStore';
 
@@ -60,7 +62,9 @@
 
 	$: $fileSystemSidebarOpen,
 		(() => {
-			clearSplit.set(true);
+			if ($autoCompile) {
+				clearSplit.set(true);
+			}
 		})();
 
 	afterUpdate(() => {

@@ -5,7 +5,8 @@
 		softSelectedFileId,
 		openFiles,
 		codePanes2,
-		previouslyFocusedFileId
+		previouslyFocusedFileId,
+		autoCompile
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
@@ -56,7 +57,9 @@
 		// set the focused file to the file that was double clicked.
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
-		clearSplit.set(true);
+		if ($autoCompile) {
+			clearSplit.set(true);
+		}
 	}
 
 	// Handle File Single Click
@@ -67,7 +70,9 @@
 		if (isFileAlreadyOpen && $softSelectedFileId !== file.id) {
 			previouslyFocusedFileId.set($focusedFileId);
 			focusedFileId.set(file.id);
-			clearSplit.set(true);
+			if ($autoCompile) {
+				clearSplit.set(true);
+			}
 			return;
 		}
 
@@ -93,7 +98,9 @@
 
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
-		clearSplit.set(true);
+		if ($autoCompile) {
+			clearSplit.set(true);
+		}
 	}
 
 	$: themeString = $themeDataStore?.theme?.join(' ');

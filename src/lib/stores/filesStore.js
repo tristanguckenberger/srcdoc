@@ -13,6 +13,10 @@ export const focusedFileId = writable(null);
 
 export const fileStoreFiles = writable(null);
 
+export const autoCompile = writable(true);
+
+export const triggerCompile = writable(false);
+
 // The file that was previously focused, nullable
 export const previouslyFocusedFileId = writable(null);
 

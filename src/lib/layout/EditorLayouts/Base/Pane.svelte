@@ -8,7 +8,12 @@
 	import { hover } from '$lib/actions/hover';
 	import { fade } from 'svelte/transition';
 	import { splitInstanceStore, editorSplit, clearSplit } from '$lib/stores/splitStore';
-	import { focusedFileId, codePanes2, previouslyFocusedFileId } from '$lib/stores/filesStore';
+	import {
+		focusedFileId,
+		codePanes2,
+		previouslyFocusedFileId,
+		autoCompile
+	} from '$lib/stores/filesStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
 
 	/**
@@ -116,7 +121,9 @@
 		}
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(fileId);
-		clearSplit.set(true);
+		if ($autoCompile) {
+			clearSplit.set(true);
+		}
 	};
 
 	// pull in the theme and join it into a string

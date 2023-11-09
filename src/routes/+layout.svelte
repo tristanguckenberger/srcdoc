@@ -1,6 +1,6 @@
 <script>
 	import { page } from '$app/stores';
-	import { fileSystemSidebarOpen } from '$lib/stores/filesStore';
+	import { autoCompile, fileSystemSidebarOpen, triggerCompile } from '$lib/stores/filesStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import Button from '$lib/ui/Button/index.svelte';
 
@@ -9,6 +9,7 @@
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
 	$: themeString = $themeDataStore?.theme?.join(' ');
+	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
 </script>
 
 <nav class="top" style={`${themeString}`} class:matchGridWidth={!engineInRoute && isBrowsePage}>
@@ -17,6 +18,13 @@
 			<Button
 				action={() => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen)}
 				label={$fileSystemSidebarOpen ? 'close' : 'open'}
+				link={null}
+			/>
+		</li>
+		<li class:hiddenItem={!engineInRoute && !$autoCompile}>
+			<Button
+				action={() => triggerCompile.set(!$triggerCompile)}
+				label={playPauseLabel}
 				link={null}
 			/>
 		</li>

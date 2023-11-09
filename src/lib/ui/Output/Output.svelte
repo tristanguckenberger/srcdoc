@@ -3,7 +3,13 @@
 
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	import { fileStoreFiles, derivedFileSystemData, baseDataStore } from '$lib/stores/filesStore.js';
+	import {
+		fileStoreFiles,
+		derivedFileSystemData,
+		baseDataStore,
+		triggerCompile,
+		autoCompile
+	} from '$lib/stores/filesStore.js';
 	import { editorOutContainerWidth, editorOutContainerHeight } from '$lib/stores/layoutStore';
 	import { gameControllerStore } from '$lib/stores/gameControllerStore';
 	import { browser } from '$app/environment';
@@ -13,6 +19,7 @@
 
 	let id = 0;
 	let iframe;
+	let srcdoc;
 	let rootFileId;
 
 	$: {
@@ -37,18 +44,25 @@
 		})();
 	}
 
-	$: srcdoc = buildDynamicSrcDoc(
-		$fileStoreFiles,
-		rootFileId,
-		{
-			width: $editorOutContainerWidth,
-			height: $editorOutContainerHeight
-		},
-		$gameControllerStore
-	);
+	$: {
+		if (autoCompile || triggerCompile) {
+			srcdoc = buildDynamicSrcDoc(
+				$fileStoreFiles,
+				rootFileId,
+				{
+					width: $editorOutContainerWidth,
+					height: $editorOutContainerHeight
+				},
+				$gameControllerStore
+			);
+			setTimeout(() => {
+				triggerCompile.set(false);
+			}, 400);
+		}
+	}
 
 	afterUpdate(() => {
-		if (rootFileId) {
+		if (rootFileId && ($triggerCompile || $autoCompile)) {
 			srcdoc = buildDynamicSrcDoc(
 				$fileStoreFiles,
 				rootFileId,
@@ -67,6 +81,9 @@
 			}
 
 			id++;
+			setTimeout(() => {
+				triggerCompile.set(false);
+			}, 400);
 		}
 	});
 
