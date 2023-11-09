@@ -14,22 +14,34 @@
 
 <nav class="top" style={`${themeString}`} class:matchGridWidth={!engineInRoute && isBrowsePage}>
 	<ul class:matchGridWidth={!engineInRoute && isBrowsePage}>
-		<li class:hiddenItem={!engineInRoute}>
-			<Button
-				action={() => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen)}
-				label={$fileSystemSidebarOpen ? 'close' : 'open'}
-				link={null}
-			/>
-		</li>
-		<li class:hiddenItem={!engineInRoute && !$autoCompile}>
-			<Button
-				action={() => triggerCompile.set(!$triggerCompile)}
-				label={playPauseLabel}
-				link={null}
-			/>
-		</li>
-		<li class="home"><Button link="/" action={null} label={'Home'} /></li>
-		<li class="browse"><Button link="/games" action={null} label={'Browse'} /></li>
+		<ul>
+			{#if engineInRoute}
+				<li class:hiddenItem={!engineInRoute}>
+					<Button
+						action={() => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen)}
+						label={$fileSystemSidebarOpen ? 'close' : 'open'}
+						link={null}
+					/>
+				</li>
+			{/if}
+			{#if engineInRoute}
+				<li class:hiddenItem={!engineInRoute && !$autoCompile}>
+					<Button
+						action={() => triggerCompile.set(!$triggerCompile)}
+						label={playPauseLabel}
+						link={null}
+					/>
+				</li>
+			{/if}
+			<li class="home"><Button link="/" action={null} label={'Home'} /></li>
+			<li class="browse"><Button link="/games" action={null} label={'Browse'} /></li>
+		</ul>
+		<ul class="profile-info">
+			<li>
+				<img class="avatar" src="https://picsum.photos/50" alt="user avatar" />
+				<Button link="/users/{1}" action={null} label={'gcans'} />
+			</li>
+		</ul>
 	</ul>
 </nav>
 
@@ -89,5 +101,24 @@
 	} */
 	ul.matchGridWidth {
 		width: calc(var(--nav-width) - 20px);
+	}
+	ul ul {
+		flex-grow: 1;
+	}
+
+	ul ul li {
+		justify-content: flex-start;
+		display: flex;
+		flex-direction: row;
+		gap: 10px;
+	}
+	.profile-info {
+		justify-content: flex-end;
+	}
+	.avatar {
+		border-radius: 50%;
+		width: 36.5px;
+		height: 36.5px;
+		object-fit: cover;
 	}
 </style>

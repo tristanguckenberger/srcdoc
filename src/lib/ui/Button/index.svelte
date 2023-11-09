@@ -31,7 +31,7 @@
 			{/if}
 		</a>
 	{:else}
-		<button on:click={action} class:showSideBarToggle>
+		<button on:click={action} class:showSideBarToggle class:follow={label === 'Follow'}>
 			{#if label === 'open'}
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -74,6 +74,17 @@
 					viewBox="0 0 256 256"
 					><path
 						d="M216,48V208a16,16,0,0,1-16,16H160a16,16,0,0,1-16-16V48a16,16,0,0,1,16-16h40A16,16,0,0,1,216,48ZM96,32H56A16,16,0,0,0,40,48V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V48A16,16,0,0,0,96,32Z"
+					/></svg
+				>
+			{:else if label === 'fav'}
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="32"
+					height="32"
+					fill="#000000"
+					viewBox="0 0 256 256"
+					><path
+						d="M178,28c-20.09,0-37.92,7.93-50,21.56C115.92,35.93,98.09,28,78,28A66.08,66.08,0,0,0,12,94c0,72.34,105.81,130.14,110.31,132.57a12,12,0,0,0,11.38,0C138.19,224.14,244,166.34,244,94A66.08,66.08,0,0,0,178,28Zm-5.49,142.36A328.69,328.69,0,0,1,128,202.16a328.69,328.69,0,0,1-44.51-31.8C61.82,151.77,36,123.42,36,94A42,42,0,0,1,78,52c17.8,0,32.7,9.4,38.89,24.54a12,12,0,0,0,22.22,0C145.3,61.4,160.2,52,178,52a42,42,0,0,1,42,42C220,123.42,194.18,151.77,172.51,170.36Z"
 					/></svg
 				>
 			{:else}
@@ -124,5 +135,11 @@
 		height: 36.5px !important;
 		max-width: 36.5px !important;
 		max-height: 36.5px !important;
+	}
+	button.follow {
+		margin-right: 10px;
+		transform: translateY(27px);
+		background-color: #ffffff54 !important;
+		color: var(--color-primary) !important;
 	}
 </style>

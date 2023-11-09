@@ -23,13 +23,21 @@
 		<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
 	</a>
 	<div class="card-info">
-		<!-- <a href={`/games/${game?.id}/play`}>Play</a> -->
 		<a href={`/games/${game?.id}/main`}>
 			<h3>{game.title}</h3>
 			<p>{game.description}</p>
 		</a>
 		<div class="card-action-container">
-			<Button link={`/games/${game?.id}/play`} label={'Play'} />
+			<div class="btn-flex">
+				<Button link={`/games/${game?.id}/play`} label={'Play'} />
+				<Button
+					link={null}
+					label={'fav'}
+					action={() => {
+						console.log('fav');
+					}}
+				/>
+			</div>
 			<Button link={`/games/${game?.id}/engine`} label={'Open in Engine'} />
 		</div>
 	</div>
@@ -114,5 +122,12 @@
 	}
 	.card-thumbnail-placeholder.hidePlaceholder {
 		display: none;
+	}
+	.btn-flex {
+		display: flex;
+		flex-direction: row-reverse;
+		align-items: center;
+		width: 100%;
+		gap: 10px;
 	}
 </style>

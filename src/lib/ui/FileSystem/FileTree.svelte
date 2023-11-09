@@ -373,68 +373,77 @@
 			softSelectedFileId.set(null);
 		}
 
-		if (files) {
+		if (files /** && timeout === false*/) {
+			// files.forEach((file) => {
+			// 	if (file.type === 'folder') {
+			// 		$fileSystemExpanderStore[file.id] = true;
+			// 	}
+			// });
 			fileStoreFiles.set(files);
+			// timeout = true;
 		}
 	});
+	// let timeout = false;
 </script>
 
 <ul class="file-tree">
-	{#each threadedFiles as file}
-		<li class="file-item">
-			{#if file.type === 'folder'}
-				{#if isRenaming && editingId === file.id}
-					<input
-						type="text"
-						bind:value={folderName}
-						on:blur={() => {
-							renameFile(file.id, folderName, 'folder', files);
-							isRenaming = false;
-							editingId = null;
-							folderName = '';
-							preventOpen = false;
-						}}
-					/>
+	{#await threadedFiles then threads}
+		{#each threads as file}
+			<li class="file-item">
+				{#if file.type === 'folder'}
+					{#if isRenaming && editingId === file.id}
+						<input
+							type="text"
+							bind:value={folderName}
+							on:blur={() => {
+								renameFile(file.id, folderName, 'folder', files);
+								isRenaming = false;
+								editingId = null;
+								folderName = '';
+								preventOpen = false;
+							}}
+						/>
+					{:else}
+						<button
+							class="folder-button"
+							class:expanded={$fileSystemExpanderStore[file.id]}
+							on:click={() => toggleFolder(file.id)}
+							on:contextmenu={(e) => handleRightClick(e, file)}
+						>
+							{file.name}
+						</button>
+					{/if}
 				{:else}
 					<button
-						class="folder-button"
-						class:expanded={$fileSystemExpanderStore[file.id]}
-						on:click={() => toggleFolder(file.id)}
+						class="file-button"
+						on:click={() => HandleFileSingleClick(file)}
+						on:dblclick={() => handleFileDBClick(file)}
 						on:contextmenu={(e) => handleRightClick(e, file)}
 					>
-						{file.name}
+						<File {file} bind:isRenaming bind:editingId allFiles={files} bind:preventOpen />
 					</button>
 				{/if}
-			{:else}
-				<button
-					class="file-button"
-					on:click={() => HandleFileSingleClick(file)}
-					on:dblclick={() => handleFileDBClick(file)}
-					on:contextmenu={(e) => handleRightClick(e, file)}
-				>
-					<File {file} bind:isRenaming bind:editingId allFiles={files} bind:preventOpen />
-				</button>
-			{/if}
 
-			{#if creatingFile && newFileParent.id === file.id}
-				<div class="newFileInput">
-					<input type="text" bind:value={newFileName} />
-					<button on:click={confirmFileCreation}>Done</button>
-					<button on:click={cancelFileCreation}>Cancel</button>
-				</div>
-			{/if}
-			{#if $fileSystemExpanderStore[file.id] && file.children && file.children.length > 0}
-				<ul class="nested">
-					<svelte:self
-						{files}
-						parentFileId={file.id}
-						gameId={reactiveGameId}
-						userId={reactiveUserId}
-					/>
-				</ul>
-			{/if}
-		</li>
-	{/each}
+				{#if creatingFile && newFileParent.id === file.id}
+					<div class="newFileInput">
+						<input type="text" bind:value={newFileName} />
+						<button on:click={confirmFileCreation}>Done</button>
+						<button on:click={cancelFileCreation}>Cancel</button>
+					</div>
+				{/if}
+				{#if $fileSystemExpanderStore[file.id] && file.children && file.children.length > 0}
+					<ul class="nested">
+						<svelte:self
+							{files}
+							parentFileId={file.id}
+							gameId={reactiveGameId}
+							userId={reactiveUserId}
+						/>
+					</ul>
+				{/if}
+			</li>
+		{/each}
+	{/await}
 </ul>
 
 <style>
