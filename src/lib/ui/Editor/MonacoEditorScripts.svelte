@@ -143,13 +143,14 @@
 	});
 
 	afterUpdate(async () => {
+		let editorMatch;
 		if ($editorStore === null && editor !== null) {
 			// we want to track multiple editors
 			editorStore.set([editor]);
 		} else if ($editorStore?.length > 0 && editor !== null) {
 			// if there's an editor in the editorStore
 			// check if the saved editor in the editorStore is the same as the editor variable
-			const editorMatch = $editorStore.some(({ _id }) => {
+			editorMatch = $editorStore.find(({ _id }) => {
 				if (_id === editorId) {
 					return true;
 				}
@@ -162,7 +163,13 @@
 		}
 
 		if ($editorStore?.length === 1) {
+			Monaco?.editor?.setModelLanguage(model || $editorStore[0]?.getModel(), IFTitle);
 			$editorStore[0]?.setValue(value);
+		}
+
+		if (editorMatch) {
+			Monaco?.editor?.setModelLanguage(model || editorMatch?.getModel(), IFTitle);
+			editorMatch?.setValue(value);
 		}
 	});
 
