@@ -478,7 +478,7 @@
 	}
 
 	.file-item {
-		padding: 2px 0;
+		padding: 0;
 		color: var(--folder-button-color);
 		position: relative;
 	}
