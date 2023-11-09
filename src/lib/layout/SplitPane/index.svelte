@@ -3,7 +3,12 @@
 <script>
 	// @ts-nocheck
 	import { afterUpdate, onDestroy } from 'svelte';
-	import { clearSplit, splitInstanceStore, editorSplit } from '$lib/stores/splitStore';
+	import {
+		clearSplit,
+		splitInstanceStore,
+		editorSplit,
+		protectPaneManager
+	} from '$lib/stores/splitStore';
 	import Split from 'split.js';
 	import { paneMinHeightModifier } from '$lib/stores/layoutStore';
 	import {
@@ -11,9 +16,15 @@
 		fileSystemSidebarWidth,
 		openInNewPane,
 		autoCompile,
-		triggerCompile
+		triggerCompile,
+		codePanes2
 	} from '$lib/stores/filesStore';
-	import { splitStore } from '$lib/stores/splitStore';
+	import {
+		splitStore,
+		paneManager,
+		inputOutputContainerWidth,
+		inputOutputContainerHeight
+	} from '$lib/stores/splitStore';
 
 	/**
 	 * @type {any[]}
@@ -37,7 +48,69 @@
 
 	$: paneIDs = panes?.map((pane) => (typeof pane === 'string' ? pane : pane?.paneID));
 
+	let sizeUpdate;
+	$: $protectPaneManager === false,
+		(() => {
+			const editorSplit =
+				paneIDs?.includes('#split-file-explorer') && paneIDs?.includes('#split-input-output');
+			const primarySplit = paneIDs?.includes('#split-2') && paneIDs?.includes('#split-3');
+
+			if (primarySplit) {
+				const outputPane = $paneManager?.find((pane) => pane.id === 'split-output');
+
+				return (sizeUpdate = [
+					($inputOutputContainerHeight /
+						(outputPane?.splitClientHeight + $inputOutputContainerHeight)) *
+						100,
+					(outputPane.splitClientHeight /
+						(outputPane.splitClientHeight + $inputOutputContainerHeight)) *
+						100
+				]);
+			} else if (editorSplit) {
+				return (sizeUpdate = [
+					($fileSystemSidebarWidth / ($fileSystemSidebarWidth + $inputOutputContainerWidth)) * 100,
+					($inputOutputContainerWidth / ($fileSystemSidebarWidth + $inputOutputContainerWidth)) *
+						100
+				]);
+			} else {
+				const outputPane = $paneManager?.find((pane) => pane.id === 'split-output');
+
+				if (paneIDs?.length >= 2) {
+					const filterSizes = $paneManager?.filter((pane) => paneIDs?.includes(`#${pane?.id}`));
+					return (sizeUpdate = filterSizes?.map((pane) => {
+						return vertical ? pane?.splitClientHeight : pane?.splitClientWidth;
+					}));
+				} else if (paneIDs?.length === 1) {
+					const pane = $paneManager?.find((pane) => paneIDs?.includes(`#${pane?.id}`));
+
+					if (pane?.id === 'split-3') {
+						return (sizeUpdate = [100]);
+					}
+
+					return (sizeUpdate = vertical
+						? [
+								(pane?.splitClientHeight /
+									(pane?.splitClientHeight + outputPane?.splitClientHeight)) *
+									100,
+								(outputPane?.splitClientHeight /
+									(pane?.splitClientHeight + outputPane?.splitClientHeight)) *
+									100
+						  ]
+						: [
+								(pane?.splitClientWidth / (pane?.splitClientWidth + outputPane?.splitClientWidth)) *
+									100,
+								(outputPane?.splitClientWidth /
+									(pane?.splitClientWidth + outputPane?.splitClientWidth)) *
+									100
+						  ]);
+				} else {
+					return (sizeUpdate = [100]);
+				}
+			}
+		})();
+
 	const reloadSplit = () => {
+		$protectPaneManager = true;
 		// Destory existing splitInstance
 		if (splitInstance) splitInstance?.destroy(true, false);
 
@@ -48,11 +121,12 @@
 			direction: vertical ? 'vertical' : 'horizontal',
 			gutterSize: 10,
 			// @ts-ignore
-			sizes,
+			sizes: sizeUpdate ?? sizes,
 			minSize: $paneMinHeightModifier
 		});
 
 		splitStore.set(splitInstance);
+		$protectPaneManager = false;
 	};
 
 	/**
@@ -73,6 +147,7 @@
 			setTimeout(() => {
 				clearSplit?.set(false);
 				openInNewPane.set(false);
+				triggerCompile.set(false);
 			}, 100);
 		}
 	});
@@ -83,8 +158,8 @@
 	});
 
 	// Replaces functionality found in onMount
-	$: if (split) {
-		panes?.map(async (query) => {
+	$: if (split && $triggerCompile) {
+		panes?.forEach(async (query) => {
 			const queryString = typeof query === 'string' ? query : query?.paneID;
 			const splitDom = await split?.querySelector(queryString);
 			splitDom?.classList?.add('pane');

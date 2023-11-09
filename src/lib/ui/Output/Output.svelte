@@ -45,7 +45,7 @@
 	}
 
 	$: {
-		if (autoCompile || triggerCompile) {
+		if (rootFileId && ($triggerCompile || $autoCompile)) {
 			srcdoc = buildDynamicSrcDoc(
 				$fileStoreFiles,
 				rootFileId,
@@ -61,8 +61,16 @@
 		}
 	}
 
+	let triggerUpdate = false;
+
+	$: $editorOutContainerHeight,
+		$editorOutContainerWidth,
+		(() => {
+			triggerUpdate = true;
+		})();
+
 	afterUpdate(() => {
-		if (rootFileId && ($triggerCompile || $autoCompile)) {
+		if (rootFileId && ($triggerCompile || $autoCompile || triggerUpdate)) {
 			srcdoc = buildDynamicSrcDoc(
 				$fileStoreFiles,
 				rootFileId,
@@ -83,6 +91,7 @@
 			id++;
 			setTimeout(() => {
 				triggerCompile.set(false);
+				triggerUpdate = false;
 			}, 400);
 		}
 	});

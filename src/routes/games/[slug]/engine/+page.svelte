@@ -12,7 +12,11 @@
 		editorOutContainerHeight,
 		isVertical
 	} from '$lib/stores/layoutStore';
-	import { editorElement } from '$lib/stores/splitStore';
+	import {
+		editorElement,
+		inputOutputContainerWidth,
+		inputOutputContainerHeight
+	} from '$lib/stores/splitStore';
 	import {
 		fileSystemSidebarWidth,
 		fileSystemSidebarOpen,
@@ -86,6 +90,8 @@
 			<FileTree files={data?.files} parentFileId={null} gameId={data?.id} userId={data?.userId} />
 		</div>
 		<div
+			bind:clientWidth={$inputOutputContainerWidth}
+			bind:clientHeight={$inputOutputContainerHeight}
 			id="split-input-output"
 			class:fullwidth={!$fileSystemSidebarOpen}
 			class:isSideBarOpen

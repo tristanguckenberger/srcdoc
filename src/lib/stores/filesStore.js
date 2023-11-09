@@ -13,7 +13,7 @@ export const focusedFileId = writable(null);
 
 export const fileStoreFiles = writable(null);
 
-export const autoCompile = writable(true);
+export const autoCompile = writable(false);
 
 export const triggerCompile = writable(false);
 

@@ -17,7 +17,8 @@
 		deleteFiles,
 		renameFile,
 		base64ToBlob,
-		autoCompile
+		autoCompile,
+		triggerCompile
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { onMount, tick } from 'svelte';
@@ -69,9 +70,9 @@
 
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
-		if ($autoCompile) {
-			clearSplit.set(true);
-		}
+		// if ($autoCompile) {
+		clearSplit.set(true);
+		// }
 	}
 
 	// Handle File Single Click
@@ -83,9 +84,9 @@
 		if (isFileAlreadyOpen && $softSelectedFileId !== file.id) {
 			previouslyFocusedFileId.set($focusedFileId);
 			focusedFileId.set(file.id);
-			if ($autoCompile) {
-				clearSplit.set(true);
-			}
+			// if ($autoCompile) {
+			clearSplit.set(true);
+			// }
 			return;
 		}
 
@@ -111,9 +112,9 @@
 		// Finally, focus on the clicked file.
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
-		if ($autoCompile) {
-			clearSplit.set(true);
-		}
+		// if ($autoCompile) {
+		triggerCompile.set(true);
+		// }
 	}
 
 	$: codePaneData = {};

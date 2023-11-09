@@ -6,7 +6,8 @@
 		openFiles,
 		codePanes2,
 		previouslyFocusedFileId,
-		autoCompile
+		autoCompile,
+		triggerCompile
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
@@ -41,6 +42,7 @@
 				return pane.paneID !== paneID;
 			})
 		);
+		triggerCompile.set(true);
 	}
 
 	// Handle File Double Click

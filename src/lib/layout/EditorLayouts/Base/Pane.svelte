@@ -3,18 +3,30 @@
 	import {
 		isVertical,
 		editorContainerHeight,
-		editorOutContainerHeight
+		editorOutContainerHeight,
+		editorOutContainerWidth
 	} from '$lib/stores/layoutStore';
 	import { hover } from '$lib/actions/hover';
 	import { fade } from 'svelte/transition';
-	import { splitInstanceStore, editorSplit, clearSplit } from '$lib/stores/splitStore';
+	import {
+		splitInstanceStore,
+		editorSplit,
+		clearSplit,
+		paneManager,
+		protectPaneManager,
+		inputOutputContainerWidth,
+		inputOutputContainerHeight
+	} from '$lib/stores/splitStore';
 	import {
 		focusedFileId,
 		codePanes2,
 		previouslyFocusedFileId,
-		autoCompile
+		autoCompile,
+		triggerCompile,
+		fileSystemSidebarWidth
 	} from '$lib/stores/filesStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
+	import { afterUpdate, onDestroy } from 'svelte';
 
 	/**
 	 * @type {string | string[]}
@@ -125,6 +137,95 @@
 			clearSplit.set(true);
 		}
 	};
+
+	afterUpdate(() => {
+		const idInPaneManager = $paneManager.some((pane) => {
+			return pane.id === id;
+		});
+		const ioInPaneManager = $paneManager.some((pane) => {
+			return pane.id === 'split-input-output';
+		});
+		const isSideBarInPaneManager = $paneManager.some((pane) => {
+			return pane.id === 'split-file-explorer';
+		});
+		const isSplit3InPaneManager = $paneManager.some((pane) => {
+			return pane.id === 'split-3';
+		});
+
+		if (!isSplit3InPaneManager && $protectPaneManager === false) {
+			$paneManager = [
+				...$paneManager,
+				{
+					id: 'split-3',
+					split: split,
+					splitClientWidth: $editorOutContainerWidth,
+					splitClientHeight: $editorOutContainerHeight
+				}
+			];
+		}
+
+		if (!ioInPaneManager && $protectPaneManager === false) {
+			$paneManager = [
+				...$paneManager,
+				{
+					id: 'split-input-output',
+					split: split,
+					splitClientWidth: $inputOutputContainerWidth,
+					splitClientHeight: $inputOutputContainerHeight
+				}
+			];
+		}
+
+		if (!isSideBarInPaneManager && $protectPaneManager === false) {
+			$paneManager = [
+				...$paneManager,
+				{ id: 'split-file-explorer', split: split, splitClientWidth: $fileSystemSidebarWidth }
+			];
+		}
+		if (!idInPaneManager && $protectPaneManager === false) {
+			$paneManager = [
+				...$paneManager,
+				{ id: id, split: split, splitClientWidth, splitClientHeight }
+			];
+		} else if (
+			$protectPaneManager === false &&
+			(idInPaneManager || isSideBarInPaneManager || ioInPaneManager)
+		) {
+			$paneManager = $paneManager.map((pane) => {
+				if (
+					pane.id === id &&
+					$triggerCompile === false &&
+					$clearSplit === false &&
+					$protectPaneManager === false
+				) {
+					pane.split = split;
+					pane.splitClientWidth = splitClientWidth;
+					pane.splitClientHeight = splitClientHeight;
+				} else if (pane.id === 'split-file-explorer') {
+					pane.split = split;
+					pane.splitClientWidth = $fileSystemSidebarWidth;
+				} else if (pane.id === 'split-input-output') {
+					pane.split = split;
+					pane.splitClientWidth = $inputOutputContainerWidth;
+					pane.splitClientHeight = $inputOutputContainerHeight;
+				}
+
+				return pane;
+			});
+		}
+	});
+
+	onDestroy(() => {
+		const idInPaneManager = $paneManager.some((pane) => {
+			return pane.id === id;
+		});
+
+		// if the pane id that is being destroyed is in the paneManager
+		// then remove it from the paneManager
+		if (idInPaneManager) {
+			$paneManager = $paneManager.filter((pane) => pane.id !== id);
+		}
+	});
 
 	// pull in the theme and join it into a string
 	$: themeString = $themeDataStore?.theme?.join(' ');
