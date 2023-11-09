@@ -38,7 +38,7 @@
 		height: 100%;
 	}
 	:global(.monaco-editor) {
-		border-radius: 9px;
+		border-radius: 8px;
 	}
 	:global(.monaco-editor .overflow-guard) {
 		border-radius: 6px !important;

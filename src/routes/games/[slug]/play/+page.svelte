@@ -15,9 +15,10 @@
 		softSelectedFileId,
 		openFiles,
 		codePanes2,
-		baseDataStore
+		baseDataStore,
+		firstRun
 	} from '$lib/stores/filesStore.js';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	// Expiremental
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
@@ -41,6 +42,9 @@
 			},
 			$gameControllerStore
 		))();
+	onMount(() => {
+		firstRun.set(true);
+	});
 
 	onDestroy(() => {
 		fileStoreFiles.set(null);

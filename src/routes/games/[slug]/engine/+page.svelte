@@ -165,8 +165,8 @@
 	}
 	#split-file-explorer {
 		padding: 10px;
-		border-radius: 9px;
-		border: 3px solid #5c5c5c;
+		border-radius: 8px;
+		border: 2px solid #5c5c5c;
 		overflow: hidden;
 		max-width: 245px;
 	}

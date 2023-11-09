@@ -286,7 +286,7 @@
 		cursor: pointer;
 	}
 	.container {
-		border-radius: 9px 9px 0px 0px;
+		border-radius: 8px 8px 0px 0px;
 		padding: 0 10px 0 10px;
 		z-index: 1;
 		width: calc(100% - 20px);
@@ -298,8 +298,8 @@
 		/* transition: background-color 300ms cubic-bezier(0.215, 0.610, 0.355, 1); */
 	}
 	.section-panel {
-		border-radius: 9px;
-		border: 3px solid #5c5c5c;
+		border-radius: 8px;
+		border: 2px solid #5c5c5c;
 		min-width: 30px;
 	}
 	:global(.split.vertical) {
@@ -307,6 +307,6 @@
 		flex-direction: column !important;
 	}
 	section.isFocused {
-		border: 3px solid #4ca5ff;
+		border: 2px solid #4ca5ff;
 	}
 </style>

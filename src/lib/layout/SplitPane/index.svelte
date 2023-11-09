@@ -51,6 +51,10 @@
 	let sizeUpdate;
 	$: $protectPaneManager === false,
 		(() => {
+			if (firstRun) {
+				return (sizeUpdate = sizes);
+			}
+
 			const editorSplit =
 				paneIDs?.includes('#split-file-explorer') && paneIDs?.includes('#split-input-output');
 			const primarySplit = paneIDs?.includes('#split-2') && paneIDs?.includes('#split-3');
@@ -133,10 +137,11 @@
 	 * @type {HTMLDivElement | null}
 	 */
 	let split;
+	let firstRun = true;
 
 	$: $fileSystemSidebarOpen,
 		(() => {
-			if ($autoCompile) {
+			if ($autoCompile || firstRun) {
 				clearSplit.set(true);
 			}
 		})();
@@ -148,6 +153,7 @@
 				clearSplit?.set(false);
 				openInNewPane.set(false);
 				triggerCompile.set(false);
+				firstRun = false;
 			}, 100);
 		}
 	});
@@ -205,7 +211,7 @@
 
 	:global(.gutter) {
 		background-color: transparent;
-		border-radius: 3px;
+		border-radius: 2px;
 		background-repeat: no-repeat;
 		background-position: 50%;
 		z-index: 2147483647;

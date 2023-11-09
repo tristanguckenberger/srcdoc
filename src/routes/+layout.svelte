@@ -7,6 +7,7 @@
 	// controls file system sidebar toggle button visibility
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
+	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
@@ -45,7 +46,7 @@
 	</ul>
 </nav>
 
-<main class:scrollable={!engineInRoute} style={`${themeString}`}>
+<main class:scrollable={!engineInRoute && !playInRoute && isBrowsePage} style={`${themeString}`}>
 	<slot />
 </main>
 

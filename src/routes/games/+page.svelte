@@ -1,8 +1,14 @@
 <script>
 	import Card from '$lib/ui/Card/index.svelte';
 	import { gridWidth } from '$lib/stores/layoutStore.js';
+	import { onMount } from 'svelte';
+	import { firstRun } from '$lib/stores/filesStore.js';
 
 	export let data;
+
+	onMount(() => {
+		firstRun.set(true);
+	});
 </script>
 
 <div class="main grid" bind:clientWidth={$gridWidth}>

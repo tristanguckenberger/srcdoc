@@ -18,10 +18,11 @@
 		renameFile,
 		base64ToBlob,
 		autoCompile,
-		triggerCompile
+		triggerCompile,
+		firstRun
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
-	import { onMount, tick } from 'svelte';
+	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 
 	export let gameId;
 	export let userId;
@@ -333,7 +334,8 @@
 				const children = buildItemThreads(item.id, items);
 				threads.push({
 					...item,
-					children
+					children,
+					isExpanded: $fileSystemExpanderStore[item.id] ?? false
 				});
 			}
 		}
@@ -341,8 +343,10 @@
 		return threads;
 	}
 
-	function toggleFolder(id) {
+	function toggleFolder({ id }, file) {
+		console.log('id', id);
 		$fileSystemExpanderStore[id] = !$fileSystemExpanderStore[id];
+		console.log('$fileSystemExpanderStore', $fileSystemExpanderStore);
 		fileSystemExpanderStore.set($fileSystemExpanderStore);
 		tick();
 	}
@@ -356,6 +360,23 @@
 			}
 		})();
 
+	afterUpdate(() => {
+		console.log('firstRun', $firstRun);
+		if (threadedFiles?.length > 0 && $firstRun) {
+			console.log('$firstRun', $firstRun);
+			files.forEach((file) => {
+				if (file.type === 'folder') {
+					$fileSystemExpanderStore[file.id] = true;
+				}
+			});
+			fileSystemExpanderStore.set($fileSystemExpanderStore);
+			setTimeout(() => {
+				$firstRun = false;
+			}, 50);
+			firstRun.set(false);
+		}
+	});
+
 	onMount(() => {
 		/**
 		 * check if gameId matches the current game id in the store.
@@ -363,6 +384,7 @@
 		 * This persists the store and then wipes it ONLY if the user visits a new game.
 		 *
 		 */
+
 		if ($fileSystemMetaDataStore?.gameId !== reactiveGameId) {
 			fileSystemExpanderStore.set({});
 			fileSystemMetaDataStore.set({
@@ -375,21 +397,14 @@
 		}
 
 		if (files /** && timeout === false*/) {
-			// files.forEach((file) => {
-			// 	if (file.type === 'folder') {
-			// 		$fileSystemExpanderStore[file.id] = true;
-			// 	}
-			// });
 			fileStoreFiles.set(files);
-			// timeout = true;
 		}
 	});
-	// let timeout = false;
 </script>
 
 <ul class="file-tree">
 	{#await threadedFiles then threads}
-		{#each threads as file}
+		{#each threads as file (file.id)}
 			<li class="file-item">
 				{#if file.type === 'folder'}
 					{#if isRenaming && editingId === file.id}
@@ -408,7 +423,9 @@
 						<button
 							class="folder-button"
 							class:expanded={$fileSystemExpanderStore[file.id]}
-							on:click={() => toggleFolder(file.id)}
+							on:click={() => {
+								toggleFolder(file);
+							}}
 							on:contextmenu={(e) => handleRightClick(e, file)}
 						>
 							{file.name}

@@ -2,6 +2,8 @@
 // import persistable from './persistable';
 import { writable, derived } from 'svelte/store';
 
+export const firstRun = writable(true);
+
 export const fileSystemExpanderStore = writable({});
 export const fileSystemMetaDataStore = writable({
 	gameId: null,
