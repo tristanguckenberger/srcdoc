@@ -9,16 +9,20 @@ const lightTheme = readable([
 	'--text-color-highlight: #000;',
 	'--text-color-primary: #121212;',
 	'--folder-button-color: #424242;',
-	'--color-highlight-faded: rgba(0, 0, 0, 0.06);'
+	'--button-highlight: rgba(0, 0, 0, 0.06);',
+	'--color-highlight-faded: rgba(0, 0, 0, 0.06);',
+	'--color-accent: #1c6ef3;'
 ]);
 
 const darkTheme = readable([
 	'--color-primary: #fff;',
-	'--color-secondary: #373638;',
+	'--color-secondary: #202124;',
 	'--text-color-highlight: #ffffff;',
-	'--text-color-primary: #fbfbfb;',
+	'--text-color-primary: #e8eaed;',
+	'--button-highlight: rgb(55 54 56);',
 	'--folder-button-color: #cccccc;',
-	'--color-highlight-faded: rgba(0, 0, 0, 0.1);'
+	'--color-highlight-faded: rgba(0, 0, 0, 0.1);',
+	'--color-accent: #4ca5ff;'
 ]);
 
 const fontTheme = readable([
@@ -26,6 +30,8 @@ const fontTheme = readable([
 	'--header-font: Geologica, sans-serif;',
 	'--paragraph-font: Nunito, sans-serif;'
 ]);
+
+// const baseTheme = readable(['--color-accent: #1c6ef3;']);
 
 // Initial theme config from current state
 export const themeKeyStore = writable('light');

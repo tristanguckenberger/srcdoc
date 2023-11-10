@@ -13,11 +13,18 @@
 	// $: showPlayButton = $triggerCompile ?? null;
 
 	$: showSideBarToggle = label === 'open' || label === 'close';
+
+	$: isIcon =
+		label === 'open' ||
+		label === 'close' ||
+		label === 'play' ||
+		label === 'pause' ||
+		label === 'fav';
 </script>
 
 <div style={`${themeString}`}>
 	{#if link}
-		<a href={link} class:showSideBarToggle>
+		<a href={link} class:showSideBarToggle class:isIcon>
 			{#if label === 'open'}
 				<svg xmlns="http://www.w3.org/2000/svg" fill="#000000"
 					><path
@@ -31,7 +38,12 @@
 			{/if}
 		</a>
 	{:else}
-		<button on:click={action} class:showSideBarToggle class:follow={label === 'Follow'}>
+		<button
+			on:click={action}
+			class:showSideBarToggle
+			class:follow={label === 'Follow'}
+			class:isIcon
+		>
 			{#if label === 'open'}
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -98,19 +110,21 @@
 	a,
 	button {
 		padding-block: 0;
-		color: var(--folder-button-color) !important;
+		color: var(--text-color-primary) !important;
 		border-width: 0;
 		border-radius: 4px;
 		padding: 10px;
 		text-decoration: none;
 		/* height: 45px; */
 		font-size: 1rem;
-		background-color: var(--color-highlight-faded) !important;
+		background-color: transparent !important;
 		font-family: var(--action-font) !important;
 		text-wrap: nowrap;
 		border-style: none !important;
 		display: flex;
 		align-items: center;
+		max-height: 36.5px;
+		height: 16.5px;
 	}
 	svg {
 		width: 1rem;
@@ -121,6 +135,18 @@
 	button:hover {
 		color: var(--text-color-highlight);
 		cursor: pointer;
+		background-color: var(--button-highlight) !important;
+		transition: background-color 250ms ease;
+	}
+
+	.isIcon {
+		background-color: var(--button-highlight) !important;
+		width: 36.5px !important;
+		height: 36.5px !important;
+		max-width: 36.5px !important;
+		max-height: 36.5px !important;
+		min-width: 36.5px !important;
+		min-height: 36.5px !important;
 	}
 
 	button.showSideBarToggle {

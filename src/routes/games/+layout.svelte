@@ -76,7 +76,7 @@
 		padding-left: 20px;
 	}
 	.filler {
-		width: var(--sidebar-width);
+		width: calc(var(--sidebar-width) + 20px);
 		height: 30px;
 	}
 	:global(.monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents > .main) {

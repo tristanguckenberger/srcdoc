@@ -507,7 +507,7 @@
 		content: '>';
 		position: absolute;
 		left: 0;
-		top: 14px;
+		top: 12px;
 		transform: translateY(-50%);
 		font-size: larger;
 	}

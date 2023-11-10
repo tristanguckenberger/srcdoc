@@ -160,14 +160,16 @@
 		opacity: 1;
 	}
 	.tab.isFocused {
-		background-color: var(--color-highlight-faded);
-		border-bottom: 1px solid var(--folder-button-color);
-		color: var(--text-color-highlight);
+		background-color: var(--button-highlight);
+		border-bottom: 4px solid var(--color-accent);
 		border-top-right-radius: 4px;
 		border-top-left-radius: 4px;
 	}
 	.tab span {
 		color: var(--folder-button-color);
+	}
+	.tab.isFocused span {
+		color: var(--color-accent) !important;
 	}
 	.tab span.isSoftSelected {
 		color: var(--text-color-highlight);
