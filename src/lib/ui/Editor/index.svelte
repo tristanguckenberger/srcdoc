@@ -85,7 +85,7 @@
 		padding: { top: 30 },
 		showFoldingControls: 'always',
 		tabCompletion: 'on',
-		wordWrap: 'on',
+		wordWrap: 'off',
 		scrollBeyondLastLine: true,
 		autoClosingBrackets: 'languageDefined',
 		autoClosingQuotes: 'beforeWhitespace',
