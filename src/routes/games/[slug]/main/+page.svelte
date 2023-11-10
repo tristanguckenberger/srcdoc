@@ -61,7 +61,7 @@
 				<h1>{data?.title}</h1>
 				<div class="main-action-container">
 					<Button link={`/games/${data?.id}/engine`} label={'Open in Engine'} />
-					<Button link={`/games/${data?.id}/play`} label={'Play'} />
+					<div class="trailing-btn"><Button link={`/games/${data?.id}/play`} label={'Play'} /></div>
 				</div>
 			</div>
 			<div class="game-text">
@@ -143,13 +143,20 @@
 	.game-header-placeholder.hidePlaceholder {
 		display: none;
 	}
-	@media (max-width: 490px) {
-		.game-details {
-			flex-direction: column-reverse;
+
+	@media (max-width: 900px) {
+		.main-action-container {
+			flex-direction: column;
 		}
+		.trailing-btn {
+			align-self: flex-end;
+		}
+	}
+
+	@media (max-width: 490px) {
 		.main-action-container {
 			padding: 10px 0 20px 0;
-			flex-direction: row-reverse;
+			flex-direction: column;
 			justify-content: flex-end;
 		}
 	}

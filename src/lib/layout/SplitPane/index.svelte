@@ -201,8 +201,8 @@
 		flex-direction: row;
 		height: 100%;
 		width: 100%;
-		max-width: 100vw;
-		min-width: calc(100vw - var(--sidebar-width));
+		max-width: 100%;
+		min-width: calc(100% - var(--sidebar-width));
 	}
 	.split.vertical {
 		display: block;

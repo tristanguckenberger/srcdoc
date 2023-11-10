@@ -163,6 +163,8 @@
 		background-color: var(--color-highlight-faded);
 		border-bottom: 1px solid var(--folder-button-color);
 		color: var(--text-color-highlight);
+		border-top-right-radius: 4px;
+		border-top-left-radius: 4px;
 	}
 	.tab span {
 		color: var(--folder-button-color);

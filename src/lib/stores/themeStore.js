@@ -21,28 +21,24 @@ const darkTheme = readable([
 	'--color-highlight-faded: rgba(0, 0, 0, 0.1);'
 ]);
 
+const fontTheme = readable([
+	'--action-font: Nunito, sans-serif;',
+	'--header-font: Geologica, sans-serif;',
+	'--paragraph-font: Nunito, sans-serif;'
+]);
+
 // Initial theme config from current state
 export const themeKeyStore = writable('light');
 
 export const themeDataStore = derived(
-	[themeKeyStore, lightTheme, darkTheme, gridWidth],
-	([$themeKeyStore, $lightTheme, $darkTheme, $gridWidth]) => {
+	[themeKeyStore, lightTheme, darkTheme, gridWidth, fontTheme],
+	([$themeKeyStore, $lightTheme, $darkTheme, $gridWidth, $fontTheme]) => {
 		return {
 			themeKey: $themeKeyStore,
 			theme:
 				$themeKeyStore === 'light'
-					? [
-							...$lightTheme,
-							`--action-font: 'Questrial', sans-serif;`,
-							`--header-font: 'Geologica', sans-serif;`,
-							`--nav-width: ${$gridWidth}px;`
-					  ]
-					: [
-							...$darkTheme,
-							`--action-font: 'Questrial', sans-serif;`,
-							`--header-font: 'Geologica', sans-serif;`,
-							`--nav-width: ${$gridWidth}px;`
-					  ]
+					? [...$lightTheme, ...$fontTheme, `--nav-width: ${$gridWidth}px;`]
+					: [...$darkTheme, ...$fontTheme, `--nav-width: ${$gridWidth}px;`]
 		};
 	}
 );

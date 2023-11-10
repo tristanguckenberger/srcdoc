@@ -69,7 +69,6 @@
 		height: calc(100% - 20px);
 		width: calc(100% - 20px);
 		max-width: calc(100%);
-		max-height: calc(100vh - 76px);
 	}
 	nav {
 		background-color: var(--color-secondary);

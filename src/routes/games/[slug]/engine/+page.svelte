@@ -15,7 +15,8 @@
 	import {
 		editorElement,
 		inputOutputContainerWidth,
-		inputOutputContainerHeight
+		inputOutputContainerHeight,
+		paneManager
 	} from '$lib/stores/splitStore';
 	import {
 		fileSystemSidebarWidth,
@@ -111,6 +112,7 @@
 				<!-- Output Content -->
 				<section
 					id="split-3"
+					class:withoutPanes={$paneManager?.length <= 4}
 					bind:clientWidth={$editorOutContainerWidth}
 					bind:clientHeight={$editorOutContainerHeight}
 				>
@@ -125,18 +127,20 @@
 
 <style>
 	:global(body) {
-		height: 100vh;
-		width: 100vw;
+		height: 100%;
+		width: 100%;
 		margin: 0;
 	}
 	.main {
-		margin: 10px;
-		height: calc(100% - 20px);
-		width: calc(100% - 20px);
+		margin: 0 10px 10px 11px;
+		/* height: calc(100% - 20px);
+		width: calc(100% - 20px); */
 		/* overflow-y: hidden; */
+		max-height: calc(100vh - 101.5px);
 	}
 	:global(#split-output) {
 		height: 100%;
+		/* max-height: calc(100% - 101.5px); */
 	}
 	:global(.monaco-editor) {
 		border-radius: 4px;
@@ -155,11 +159,14 @@
 	}
 	#split-input-output {
 		width: 100%;
-		height: calc(100vh - 110px);
+		height: 100%;
+		height: calc(100% - 4px);
+		/* max-height: calc(100% - 101.5px); */
 	}
 	#split-input-output.isSideBarOpen {
-		max-width: calc(100vw - var(--sidebar-width));
+		max-width: calc(100% - var(--sidebar-width));
 	}
+
 	#split-input-output.fullwidth {
 		width: 100% !important;
 	}
@@ -177,5 +184,14 @@
 	#split-3 {
 		height: 100%;
 		width: 100%;
+	}
+
+	#split-3.withoutPanes {
+		height: 100% !important;
+	}
+
+	#split-input-output.isSideBarOpen {
+		max-width: calc(100% - var(--sidebar-width) + 4px);
+		min-width: calc(100% - 275px);
 	}
 </style>
