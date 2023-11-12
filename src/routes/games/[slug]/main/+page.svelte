@@ -17,11 +17,13 @@
 	} from '$lib/stores/filesStore.js';
 	import { themeDataStore } from '$lib/stores/themeStore.js';
 	import Button from '$lib/ui/Button/index.svelte';
+	import Comment from '$lib/ui/Comment/Index.svelte';
+	import { commentStoreComments } from '$lib/stores/commentStore.js';
 
 	export let data;
 
 	onMount(() => {
-		firstRun.set(true);
+		// firstRun.set(true);
 	});
 
 	onDestroy(() => {
@@ -38,6 +40,7 @@
 		fileSystemSidebarWidth.set(200);
 		fileSystemSidebarOpen.set(true);
 		codePanes2.set([]);
+		commentStoreComments.set(null);
 	});
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	let imageLoaded = false;
@@ -65,14 +68,11 @@
 				</div>
 			</div>
 			<div class="game-text">
-				<!-- <h1>{data?.title}</h1> -->
 				<p>{data?.description}</p>
-				<!-- <div class="game-tags">
-					{#each data?.game?.tags as tag}
-						<span>{tag}</span>
-					{/each}
-				</div> -->
 			</div>
+		</div>
+		<div class="comment-container">
+			<Comment gameId={data?.gameId} comments={data?.comments} parentCommentId={null} />
 		</div>
 	</div>
 </div>
@@ -142,6 +142,12 @@
 	}
 	.game-header-placeholder.hidePlaceholder {
 		display: none;
+	}
+	.comment-container {
+		background-color: var(--text-box);
+		padding: 10px;
+		border-radius: 4px;
+		min-height: 75px;
 	}
 
 	@media (max-width: 900px) {
