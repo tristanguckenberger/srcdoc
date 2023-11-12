@@ -325,9 +325,6 @@
 		gap: 10px;
 		padding: 10px;
 	}
-	.parent,
-	.parent-no-children {
-	}
 	.child {
 		padding-left: 10px;
 	}
@@ -351,6 +348,6 @@
 		width: 110px;
 	}
 	.comment-tree.hasChildren {
-		border-left: 1px solid var(--text-box-outline);
+		border-left: 1px solid rgb(0, 0, 0, 0.24);
 	}
 </style>
