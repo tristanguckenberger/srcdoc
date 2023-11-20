@@ -31,7 +31,7 @@
 
 	$: reactiveGameId = gameId;
 	$: reactiveUserId = userId;
-	$: hasChildren = threadedComments[0].children?.length >= 1;
+	$: hasChildren = threadedComments[0]?.children?.length >= 1;
 
 	function startCreatingComment(comment) {
 		creatingComment = true;
