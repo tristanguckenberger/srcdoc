@@ -1,6 +1,6 @@
 <script>
 	let inputText = '';
-	let inputType = 'text';
+	let inputType = 'password';
 	export let blurAction = () => {};
 </script>
 
@@ -9,7 +9,7 @@
 	<div class="row">
 		<slot name="icon" />
 		<input
-			type="text"
+			type="password"
 			bind:value={inputText}
 			on:blur={() => {
 				blurAction();
@@ -32,10 +32,10 @@
 		padding: 5px;
 	}
 	:global(.input-label) {
-		/* font-family: 'Nunito', sans-serif;
-		font-weight: 600;
-		font-size: 1rem; */
-		/* color: #ab4734c7; */
+		font-family: 'Nunito', sans-serif;
+		font-weight: 700;
+		font-size: 1rem;
+		color: #2e324c;
 	}
 	input {
 		border: none;

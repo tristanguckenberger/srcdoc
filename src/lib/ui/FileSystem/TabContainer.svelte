@@ -78,6 +78,7 @@
 		flex-direction: row;
 		background-color: var(--color-secondary);
 		overflow-x: auto;
+		overflow-y: hidden;
 		height: 30px;
 		flex-grow: 1;
 	}

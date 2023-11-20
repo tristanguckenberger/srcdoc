@@ -1,5 +1,4 @@
 // @ts-nocheck
-
 /**
  * @typedef {Object} FileObject
  * @property {string} name - The name of the file.
@@ -273,6 +272,8 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 	}
 
 	const stringifiedStore = JSON.stringify(gameControllerStore);
+
+	//
 
 	return `
 	  <!DOCTYPE html>

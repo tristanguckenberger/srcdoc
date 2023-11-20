@@ -7,17 +7,24 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 
-	let preferedThemeMode;
+	$: splitPath = $page?.route?.id?.split('/') ?? [];
+	$: engineInRoute = splitPath.some((path) => path === 'engine');
+	$: playInRoute = splitPath.some((path) => path === 'play');
+	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
+	$: isHomePage = $page?.route?.id === '/';
+	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: isSideBarOpen = $fileSystemSidebarOpen;
+	let preferedThemeMode;
 
 	const updateTheme = (e) => {
-		themeKeyStore.set(e.matches ? 'light' : 'dark');
+		console.log('e::', e);
+		themeKeyStore?.set(e.matches ? 'light' : 'dark');
 	};
 
 	onMount(() => {
 		if (browser) {
 			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
-			preferedThemeMode.addEventListener('change', updateTheme);
+			preferedThemeMode?.addEventListener('change', updateTheme);
 			updateTheme(preferedThemeMode);
 		}
 	});
@@ -25,14 +32,11 @@
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
-
-	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
-
-	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
 <div
 	id="editor-layout"
+	class:isBrowsePage
 	class:noSideBar={!engineInRoute}
 	class:modifiedWidth={!isSideBarOpen}
 	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px; {themeString}"
@@ -62,6 +66,8 @@
 		height: 100%;
 		width: 100%;
 		background-color: var(--color-secondary);
+	}
+	#editor-layout.isBrowsePage {
 	}
 	.modifiedWidth {
 		max-width: calc(100% + 10px) !important;

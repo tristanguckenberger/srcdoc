@@ -1,19 +1,49 @@
 <script>
+	// @ts-nocheck
 	import { page } from '$app/stores';
 	import { autoCompile, fileSystemSidebarOpen, triggerCompile } from '$lib/stores/filesStore';
-	import { themeDataStore } from '$lib/stores/themeStore';
+	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
 	import Button from '$lib/ui/Button/index.svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import { browser } from '$app/environment';
+
+	let preferedThemeMode;
 
 	// controls file system sidebar toggle button visibility
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
+	$: isHomePage = $page?.route?.id === '/';
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
+
+	$: console.log('isHomePage::', isHomePage);
+
+	const updateTheme = (e) => {
+		console.log('e::', e);
+		themeKeyStore.set(e.matches ? 'light' : 'dark');
+	};
+
+	onMount(() => {
+		if (browser) {
+			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
+			preferedThemeMode?.addEventListener('change', updateTheme);
+			updateTheme(preferedThemeMode);
+		}
+	});
+
+	onDestroy(() => {
+		preferedThemeMode?.removeListener(updateTheme);
+	});
 </script>
 
-<nav class="top" style={`${themeString}`} class:matchGridWidth={!engineInRoute && isBrowsePage}>
+<nav
+	class="top"
+	style={`${themeString}`}
+	class:matchGridWidth={!engineInRoute && isBrowsePage}
+	class:isNotHomePage={!isHomePage}
+>
 	<ul class:matchGridWidth={!engineInRoute && isBrowsePage}>
 		<ul>
 			{#if engineInRoute}
@@ -56,13 +86,17 @@
 		flex-direction: column;
 		margin: 0;
 		padding: 0;
+		background: hsla(32, 29%, 57%, 1) !important;
+		background: linear-gradient(135deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
+		background: -moz-linear-gradient(135deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
+		background: -webkit-linear-gradient(333deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
 	}
 	main {
 		flex-grow: 1;
 		display: flex;
 		flex-direction: row;
 		max-width: 100%;
-		background-color: var(--color-secondary);
+		/* background-color: var(--home-bg); */
 	}
 	:global(.main) {
 		margin: 10px;
@@ -71,7 +105,7 @@
 		max-width: calc(100%);
 	}
 	nav {
-		background-color: var(--color-secondary);
+		/* background-color: var(--home-bg); */
 		color: var(--color-primary);
 		padding: 10px;
 	}
@@ -89,6 +123,7 @@
 	nav.matchGridWidth {
 		justify-content: center;
 		display: flex;
+		background-color: var(--color-secondary);
 	}
 	li.hiddenItem {
 		display: none;
@@ -120,5 +155,8 @@
 		width: 36.5px;
 		height: 36.5px;
 		object-fit: cover;
+	}
+	.isNotHomePage {
+		background-color: var(--color-secondary);
 	}
 </style>
