@@ -344,9 +344,7 @@
 	}
 
 	function toggleFolder({ id }, file) {
-		console.log('id', id);
 		$fileSystemExpanderStore[id] = !$fileSystemExpanderStore[id];
-		console.log('$fileSystemExpanderStore', $fileSystemExpanderStore);
 		fileSystemExpanderStore.set($fileSystemExpanderStore);
 		tick();
 	}
@@ -361,9 +359,7 @@
 		})();
 
 	afterUpdate(() => {
-		console.log('firstRun', $firstRun);
 		if (threadedFiles?.length > 0 && $firstRun) {
-			console.log('$firstRun', $firstRun);
 			files.forEach((file) => {
 				if (file.type === 'folder') {
 					$fileSystemExpanderStore[file.id] = true;

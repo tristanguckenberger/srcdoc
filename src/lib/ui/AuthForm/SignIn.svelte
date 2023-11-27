@@ -8,7 +8,6 @@
 
 	const submit = (e) => {
 		e.preventDefault();
-		console.log('submit');
 	};
 </script>
 

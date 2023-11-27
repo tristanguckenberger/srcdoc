@@ -150,8 +150,6 @@
 	});
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
-
-	$: console.log('commentText::', $commentText);
 </script>
 
 <ul class="comment-tree" class:hasChildren style={themeString}>

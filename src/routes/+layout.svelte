@@ -18,10 +18,7 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
 
-	$: console.log('isHomePage::', isHomePage);
-
 	const updateTheme = (e) => {
-		console.log('e::', e);
 		themeKeyStore.set(e.matches ? 'light' : 'dark');
 	};
 

@@ -82,12 +82,7 @@
 			);
 			const blob = new Blob([srcdoc], { type: 'text/html' });
 			const blobUrl = URL.createObjectURL(blob);
-			try {
-				iframe.src = blobUrl;
-			} catch (error) {
-				console.log('error::', error);
-			}
-
+			iframe.src = blobUrl;
 			id++;
 			setTimeout(() => {
 				triggerCompile.set(false);
