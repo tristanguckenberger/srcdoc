@@ -69,8 +69,7 @@
 		</ul>
 		<ul class="profile-info">
 			<li>
-				<img class="avatar" src="https://picsum.photos/50" alt="user avatar" />
-				<Button link="/users/{1}" action={null} label={'gcans'} />
+				<Button link="/users/{1}" action={null} userName={'gcans'} isRounded />
 			</li>
 		</ul>
 	</ul>

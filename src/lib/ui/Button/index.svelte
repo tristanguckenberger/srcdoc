@@ -4,36 +4,37 @@
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import { page } from '$app/stores';
 
-	// import svg from '../../../static/static/Screenshot 2023-11-14 at 12.35 1.png';
-
 	export let label;
 	export let link;
 	export let action;
 	export let type = 'submit';
 	export let isRounded = false;
+	export let userName;
 
-	$: themeString = $themeDataStore?.theme?.join(' ');
 	let close = '<-';
 
-	// $: showPlayButton = $triggerCompile ?? null;
-
+	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: showSideBarToggle = label === 'open' || label === 'close';
-
+	$: authBtn = label === 'Sign In' || label === 'Sign Up';
+	$: isHomePage = $page?.route?.id === '/';
 	$: isIcon =
 		label === 'open' ||
 		label === 'close' ||
 		label === 'play' ||
 		label === 'pause' ||
 		label === 'fav';
-
-	$: authBtn = label === 'Sign In' || label === 'Sign Up';
-
-	$: isHomePage = $page?.route?.id === '/';
 </script>
 
 <div style={`${themeString}`}>
 	{#if link}
-		<a href={link} class:isRounded class:showSideBarToggle class:isHomePage class:isIcon>
+		<a
+			href={link}
+			class:isRounded={isRounded || userName}
+			class:showSideBarToggle
+			class:isHomePage
+			class:isIcon
+			class:userName
+		>
 			{#if label === 'open'}
 				<svg xmlns="http://www.w3.org/2000/svg" fill="#000000"
 					><path
@@ -42,13 +43,17 @@
 				>
 			{:else if label === 'close'}
 				{close}
-			{:else}
+			{:else if label}
 				{label}
+			{:else if userName}
+				<img class="avatar" src="https://picsum.photos/50" alt="user avatar" /><span
+					>{userName}</span
+				>
 			{/if}
 		</a>
 	{:else}
 		<button
-			class:isRounded
+			class:isRounded={isRounded || userName}
 			typeof={type}
 			class:authBtn
 			class:isHomePage
@@ -56,6 +61,7 @@
 			class:showSideBarToggle
 			class:follow={label === 'Follow'}
 			class:isIcon
+			class:userName
 		>
 			{#if label === 'open'}
 				<svg
@@ -114,6 +120,10 @@
 				>
 			{:else if label}
 				{label}
+			{:else if userName}
+				<img class="avatar" src="https://picsum.photos/50" alt="user avatar" /><span
+					>{userName}</span
+				>
 			{/if}
 		</button>
 	{/if}
@@ -154,6 +164,7 @@
 	a.isHomePage {
 		background-color: #2e324c !important;
 		color: #ffffff !important;
+		height: calc(100% - 15px);
 	}
 
 	.isIcon {
@@ -194,5 +205,19 @@
 		width: 100%;
 		justify-content: center;
 		height: 100%;
+	}
+	button.isRounded.userName,
+	a.isRounded.userName {
+		width: unset !important;
+		height: fit-content;
+		gap: 9px;
+		border-radius: 30px !important;
+		align-items: center;
+	}
+	.avatar {
+		border-radius: 50%;
+		width: 26.5px;
+		height: 26.5px;
+		object-fit: cover;
 	}
 </style>
