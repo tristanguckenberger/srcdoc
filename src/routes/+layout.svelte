@@ -3,9 +3,9 @@
 	import { page } from '$app/stores';
 	import { autoCompile, fileSystemSidebarOpen, triggerCompile } from '$lib/stores/filesStore';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
-	import Button from '$lib/ui/Button/index.svelte';
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
+	import Button from '$lib/ui/Button/index.svelte';
 
 	let preferedThemeMode;
 

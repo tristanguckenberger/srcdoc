@@ -9,9 +9,7 @@
 
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
-	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
-	$: isHomePage = $page?.route?.id === '/';
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: isSideBarOpen = $fileSystemSidebarOpen;
 	let preferedThemeMode;
@@ -65,8 +63,6 @@
 		height: 100%;
 		width: 100%;
 		background-color: var(--color-secondary);
-	}
-	#editor-layout.isBrowsePage {
 	}
 	.modifiedWidth {
 		max-width: calc(100% + 10px) !important;
