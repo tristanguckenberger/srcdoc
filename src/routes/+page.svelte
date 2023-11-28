@@ -1,13 +1,17 @@
 <script>
 	// @ts-nocheck
 	import { themeKeyStore } from '$lib/stores/themeStore';
-	import Form from '$lib/ui/Form/index.svelte';
+	import Form from '$lib/ui/Form/Form.svelte';
 	import EmailInput from '$lib/ui/Input/EmailInput.svelte';
 	import PasswordInput from '$lib/ui/Input/PasswordInput.svelte';
 	import { icons } from '$lib/stores/themeStore.js';
 	import Button from '$lib/ui/Button/index.svelte';
+	import { POST } from './api/login.js';
+	import { loginRequest } from '$lib/stores/authStore.js';
 
 	let email = '';
+
+	$: console.log('loginRequest::', $loginRequest);
 </script>
 
 <div class="main">
@@ -534,7 +538,7 @@
 		</svg>
 	</div>
 	<div class="auth-container">
-		<Form action={() => console.log('submitted')}>
+		<Form>
 			<!-- <div class="logo-container"> -->
 			<h1>Sign In</h1>
 			<div class="tagline">
@@ -562,7 +566,7 @@
 					{@html $icons.password}
 				</div>
 			</PasswordInput>
-			<Button label="Sign In" isRounded />
+			<Button label="Sign In" action={() => POST($loginRequest)} isRounded />
 		</Form>
 	</div>
 </div>

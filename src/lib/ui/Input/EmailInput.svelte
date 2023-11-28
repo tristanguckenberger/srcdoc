@@ -1,6 +1,10 @@
 <script>
+	// @ts-nocheck
+	import { loginRequestUsername } from '$lib/stores/authStore';
+
 	let inputText = '';
-	let inputType = 'email';
+	$: loginRequestUsername.set(inputText);
+
 	export let blurAction = () => {};
 </script>
 

@@ -1,10 +1,10 @@
 <script>
 	// @ts-nocheck
-	export let action;
+	export let method = 'post';
 </script>
 
 <div class="form-container">
-	<form on:submit|preventDefault={action}>
+	<form {method}>
 		<slot />
 	</form>
 </div>

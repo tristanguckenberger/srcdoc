@@ -1,6 +1,9 @@
 <script>
+	// @ts-nocheck
+	import { loginRequestPassword } from '$lib/stores/authStore';
+
 	let inputText = '';
-	let inputType = 'password';
+	$: loginRequestPassword.set(inputText);
 	export let blurAction = () => {};
 </script>
 

@@ -32,6 +32,7 @@
 		"vitest": "^0.32.2"
 	},
 	"dependencies": {
+		"dotenv": "^16.3.1",
 		"monaco-editor": "^0.43.0",
 		"split.js": "^1.6.5",
 		"svelte-json-tree": "^1.0.0",
