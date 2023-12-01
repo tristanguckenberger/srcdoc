@@ -2,7 +2,7 @@
 	// @ts-nocheck
 	import { loginRequestUsername } from '$lib/stores/authStore';
 
-	let inputText = '';
+	let inputText = 'tristan@gcans.com';
 	$: loginRequestUsername.set(inputText);
 
 	export let blurAction = () => {};
@@ -14,6 +14,7 @@
 		<slot name="icon" />
 		<input
 			type="email"
+			name="email"
 			bind:value={inputText}
 			on:blur={() => {
 				blurAction();

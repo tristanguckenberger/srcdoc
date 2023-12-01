@@ -1,16 +1,17 @@
 <script>
 	// @ts-nocheck
-	export let method = 'post';
+	export let method = 'POST';
+	export let action = '/';
 </script>
 
 <div class="form-container">
-	<form {method}>
+	<form {method} {action}>
 		<slot />
 	</form>
 </div>
 
 <style>
-	.form-container {
+	/* .form-container {
 		display: flex;
 		width: 400px;
 		background-color: #e7e4df75;
@@ -34,5 +35,5 @@
 		font-size: 1.5rem;
 		color: #2e324c;
 		margin-block-start: 1.5rem;
-	}
+	} */
 </style>

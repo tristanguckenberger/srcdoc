@@ -7,7 +7,7 @@ export const loginRequest = derived(
 	[loginRequestUsername, loginRequestPassword],
 	([$loginRequestUsername, $loginRequestPassword]) => {
 		return JSON.stringify({
-			username: $loginRequestUsername,
+			email: $loginRequestUsername,
 			password: $loginRequestPassword
 		});
 	}

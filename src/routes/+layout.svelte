@@ -3,9 +3,12 @@
 	import { page } from '$app/stores';
 	import { autoCompile, fileSystemSidebarOpen, triggerCompile } from '$lib/stores/filesStore';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
+	import { session } from '$lib/stores/sessionStore.js';
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 	import Button from '$lib/ui/Button/index.svelte';
+
+	export let sessionData;
 
 	let preferedThemeMode;
 
@@ -17,10 +20,13 @@
 	$: isHomePage = $page?.route?.id === '/';
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
+	$: $session = sessionData ?? $session;
 
 	const updateTheme = (e) => {
 		themeKeyStore.set(e.matches ? 'light' : 'dark');
 	};
+
+	let shouldPoll = false;
 
 	onMount(() => {
 		if (browser) {
@@ -65,9 +71,11 @@
 			<li class="browse"><Button link="/games" action={null} label={'Browse'} /></li>
 		</ul>
 		<ul class="profile-info">
-			<li>
-				<Button link="/users/{1}" action={null} userName={'gcans'} isRounded />
-			</li>
+			{#if $session?.username}
+				<li>
+					<Button link="/users/{1}" action={null} userName={$session?.username} isRounded />
+				</li>
+			{/if}
 		</ul>
 	</ul>
 </nav>

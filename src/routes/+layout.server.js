@@ -1,6 +1,5 @@
 // @ts-nocheck
-import { gameData } from '$lib/mockData/gameData.js';
-import { session } from '$lib/stores/sessionStore.js';
+import { session } from '$lib/stores/sessionStore';
 
 export async function load({ cookies }) {
 	session.subscribe(async (session) => {
@@ -44,8 +43,7 @@ export async function load({ cookies }) {
 	});
 
 	return {
-		games: [...gameData],
-		session: {
+		sessionData: {
 			...user,
 			password: ''
 		}

@@ -1,17 +1,21 @@
 <script>
 	// @ts-nocheck
-	import { themeKeyStore } from '$lib/stores/themeStore';
-	import Form from '$lib/ui/Form/Form.svelte';
 	import EmailInput from '$lib/ui/Input/EmailInput.svelte';
 	import PasswordInput from '$lib/ui/Input/PasswordInput.svelte';
-	import { icons } from '$lib/stores/themeStore.js';
 	import Button from '$lib/ui/Button/index.svelte';
-	import { POST } from './api/login.js';
-	import { loginRequest } from '$lib/stores/authStore.js';
+	import { icons } from '$lib/stores/themeStore.js';
+	import { browser } from '$app/environment';
+	import { session } from '$lib/stores/sessionStore.js';
+	import { goto } from '$app/navigation';
 
-	let email = '';
+	// 'form' is the response from the server for the login request
+	export let form;
+	// 'sessionData' is user data from server ideally we want this
+	// to update on login, not working atm
+	export let sessionData;
 
-	$: console.log('loginRequest::', $loginRequest);
+	$: browser && form, session.set(form?.body?.user);
+	$: $session?.username && browser && goto('/games');
 </script>
 
 <div class="main">
@@ -538,36 +542,33 @@
 		</svg>
 	</div>
 	<div class="auth-container">
-		<Form>
-			<!-- <div class="logo-container"> -->
-			<h1>Sign In</h1>
-			<div class="tagline">
-				<!-- <div class="gradient-mask" /> -->
-
-				<Button label="Sign in with Google" isRounded />
-				<Button label="Sign in with GitHub" isRounded />
-
-				<div class="sign-in-split">
-					<hr />
-					<span>or sign in with email</span>
-					<hr />
+		<div class="form-container">
+			<form action="?/login" method="POST">
+				<h1>Sign In</h1>
+				<div class="tagline">
+					<Button label="Sign in with Google" isRounded />
+					<Button label="Sign in with GitHub" isRounded />
+					<div class="sign-in-split">
+						<hr />
+						<span>or sign in with email</span>
+						<hr />
+					</div>
 				</div>
-			</div>
-			<!-- </div> -->
-			<EmailInput>
-				<span slot="label" class="input-label">Email</span>
-				<div slot="icon" class="input-icon">
-					{@html $icons.email}
-				</div>
-			</EmailInput>
-			<PasswordInput>
-				<span slot="label" class="input-label">Password</span>
-				<div slot="icon" class="input-icon">
-					{@html $icons.password}
-				</div>
-			</PasswordInput>
-			<Button label="Sign In" action={() => POST($loginRequest)} isRounded />
-		</Form>
+				<EmailInput>
+					<span slot="label" class="input-label">Email</span>
+					<div slot="icon" class="input-icon">
+						{@html $icons.email}
+					</div>
+				</EmailInput>
+				<PasswordInput>
+					<span slot="label" class="input-label">Password</span>
+					<div slot="icon" class="input-icon">
+						{@html $icons.password}
+					</div>
+				</PasswordInput>
+				<Button label="Sign In" isRounded />
+			</form>
+		</div>
 	</div>
 </div>
 
@@ -594,7 +595,6 @@
 	}
 	:global(.monaco-editor .overflow-guard) {
 		border-radius: 6px !important;
-		/* border: 2px solid #5c5c5c; */
 	}
 	:global(.margin-view-overlays) {
 		background-color: transparent;
@@ -609,26 +609,6 @@
 		height: 100%;
 		flex-grow: 1;
 	}
-	/* .gradient-mask {
-		height: 37px;
-		background: linear-gradient(90deg, hsl(44, 100%, 55%) 0%, hsl(30, 72%, 36%) 54%, #841616 100%);
-		background: linear-gradient(
-			90deg,
-			hsl(0deg 100% 55%) 0%,
-			hsl(324.02deg 72% 36%) 54%,
-			#eca421 100%
-		);
-		background: linear-gradient(
-			90deg,
-			hsla(294, 100%, 55%, 1) 0%,
-			hsla(271, 72%, 36%, 1) 54%,
-			#55189c 100%
-		);
-		background: linear-gradient(90deg, #1a84ff 0%, #b7dde1 54%, #4ca5ff 100%);
-		background: linear-gradient(90deg, #7528af 0%, #5d1c8f 54%, #f06449 100%);
-		-webkit-mask: url(/PELOGO.svg) no-repeat center / contain;
-		mask: url(/PELOGO.svg) no-repeat center / contain;
-	} */
 	.tagline {
 		display: flex;
 		flex-direction: column;
@@ -648,13 +628,6 @@
 		flex-grow: 1;
 		position: relative;
 		top: -77px;
-	}
-	.logo-bg {
-		border-radius: 50%;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
 	}
 	.hero {
 		width: 400px;
@@ -687,5 +660,29 @@
 		background-color: #dddbd7;
 		border: none;
 		border-radius: 7px;
+	}
+	.form-container {
+		display: flex;
+		width: 400px;
+		background-color: #e7e4df75;
+		border-radius: 8px;
+		padding: 10px;
+	}
+	form {
+		width: calc(100% - 20px);
+		height: calc(100% - 20px);
+		border-radius: 8px;
+		background-color: #dedbd757;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+		padding: 25px 80px 100px 80px;
+	}
+	:global(form h1) {
+		font-family: 'Rubik', sans-serif;
+		font-weight: 500;
+		font-size: 1.5rem;
+		color: #2e324c;
+		margin-block-start: 1.5rem;
 	}
 </style>

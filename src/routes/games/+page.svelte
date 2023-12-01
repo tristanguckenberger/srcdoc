@@ -12,6 +12,7 @@
 	});
 
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
+	$: console.log('data::session::', data);
 </script>
 
 <div class="page-container" class:noSideBar={!engineInRoute}>

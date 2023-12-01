@@ -2,7 +2,7 @@
 	// @ts-nocheck
 	import { loginRequestPassword } from '$lib/stores/authStore';
 
-	let inputText = '';
+	let inputText = 'tjg1234';
 	$: loginRequestPassword.set(inputText);
 	export let blurAction = () => {};
 </script>
@@ -13,6 +13,7 @@
 		<slot name="icon" />
 		<input
 			type="password"
+			name="password"
 			bind:value={inputText}
 			on:blur={() => {
 				blurAction();

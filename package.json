@@ -36,6 +36,7 @@
 		"monaco-editor": "^0.43.0",
 		"split.js": "^1.6.5",
 		"svelte-json-tree": "^1.0.0",
+		"svelte-kit-cookie-session": "^4.0.0",
 		"svelte-preprocess": "^5.0.4"
 	},
 	"type": "module"
