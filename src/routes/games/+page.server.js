@@ -45,7 +45,7 @@ export async function load({ cookies }) {
 
 	return {
 		games: [...gameData],
-		session: {
+		sessionData: {
 			...user,
 			password: ''
 		}

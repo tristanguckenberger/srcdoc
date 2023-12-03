@@ -1,10 +1,13 @@
 <script>
 	// @ts-nocheck
-	import { loginRequestPassword } from '$lib/stores/authStore';
+	import { loginRequestPassword, registerRequestPassword } from '$lib/stores/authStore';
+
+	export let formType = 'login';
+	export let blurAction = () => {};
 
 	let inputText = 'tjg1234';
 	$: loginRequestPassword.set(inputText);
-	export let blurAction = () => {};
+	$: registerRequestPassword.set(inputText);
 </script>
 
 <div class="input-container">
@@ -34,18 +37,20 @@
 		border-radius: 4px;
 		background-color: #faf8f4;
 		padding: 5px;
+		margin-top: 4px;
 	}
 	:global(.input-label) {
 		font-family: 'Nunito', sans-serif;
-		font-weight: 700;
+		font-weight: 500;
 		font-size: 1rem;
-		color: #2e324c;
+		color: #ffffff;
 	}
 	input {
 		border: none;
 		font-size: 1rem;
 		background-color: transparent;
 		color: #2e324c;
+		flex-grow: 1;
 	}
 	input:focus-visible {
 		outline: var(--vibrant-orange) auto 1px;

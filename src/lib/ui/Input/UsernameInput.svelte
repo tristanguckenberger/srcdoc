@@ -1,18 +1,14 @@
 <script>
 	// @ts-nocheck
-	import {
-		loginRequestUsername,
-		registerRequestEmail,
-		registerRequest
-	} from '$lib/stores/authStore';
+	import { registerRequestUsername, registerRequest } from '$lib/stores/authStore';
 
-	export let formType = 'login';
+	export let formType = 'register';
+
+	let inputText = 'gcans';
+	$: registerRequestUsername.set(inputText);
+	$: usernameIsValid = JSON.parse($registerRequest)?.usernameAvailable;
+
 	export let blurAction = () => {};
-
-	let inputText = 'tristan@gcans.com';
-	$: loginRequestUsername.set(inputText);
-	$: registerRequestEmail.set(inputText);
-	$: emailIsValid = formType === 'login' || JSON.parse($registerRequest)?.emailAvailable;
 </script>
 
 <div class="input-container">
@@ -20,9 +16,9 @@
 	<div class="row">
 		<slot name="icon" />
 		<input
-			class:not-available={!emailIsValid}
-			type="email"
-			name="email"
+			class:not-available={!usernameIsValid}
+			type="text"
+			name="username"
 			bind:value={inputText}
 			on:blur={() => {
 				blurAction();

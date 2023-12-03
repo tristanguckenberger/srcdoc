@@ -24,7 +24,7 @@
 		label === 'fav';
 </script>
 
-<div style={`${themeString}`}>
+<div style={`${themeString}`} class:authBtn>
 	{#if link}
 		<a
 			href={link}
@@ -155,7 +155,7 @@
 		align-items: center;
 		max-height: 36.5px;
 		height: 16.5px;
-		font-weight: 900;
+		font-weight: 500;
 	}
 	svg {
 		width: 1rem;
@@ -171,9 +171,9 @@
 	}
 	button.isHomePage,
 	a.isHomePage {
-		background-color: #2e324c !important;
+		background-color: #4da5ff !important;
 		color: #ffffff !important;
-		height: calc(100% - 15px);
+		height: calc(100% - 20px);
 	}
 
 	.isIcon {
@@ -207,6 +207,10 @@
 	}
 	button.authBtn {
 		height: 100%;
+	}
+	div.authBtn {
+		height: 100%;
+		padding-top: 20px;
 	}
 	button.isRounded,
 	a.isRounded {

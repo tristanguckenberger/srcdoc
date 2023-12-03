@@ -67,8 +67,12 @@
 					/>
 				</li>
 			{/if}
-			<li class="home"><Button link="/" action={null} label={'Home'} /></li>
-			<li class="browse"><Button link="/games" action={null} label={'Browse'} /></li>
+			<li class="home" style="height: calc(100% - 20px) !important;">
+				<Button link="/" action={null} label={'Home'} />
+			</li>
+			<li class="browse" style="height: calc(100% - 20px) !important;">
+				<Button link="/games" action={null} label={'Browse'} />
+			</li>
 		</ul>
 		<ul class="profile-info">
 			{#if $session?.username}
@@ -103,15 +107,16 @@
 		/* background-color: var(--home-bg); */
 	}
 	:global(.main) {
-		margin: 10px;
+		/* margin: 10px; */
 		height: calc(100% - 20px);
 		width: calc(100% - 20px);
 		max-width: calc(100%);
 	}
 	nav {
-		/* background-color: var(--home-bg); */
 		color: var(--color-primary);
 		padding: 10px;
+		background-color: #2e324c;
+		border-bottom: 2px solid #fff9d7;
 	}
 
 	nav ul {

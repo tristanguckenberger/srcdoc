@@ -1,18 +1,19 @@
 <script>
 	// @ts-nocheck
 	import {
-		loginRequestUsername,
-		registerRequestEmail,
-		registerRequest
+		loginRequestPassword,
+		registerRequest,
+		registerRequestPasswordConfirm
 	} from '$lib/stores/authStore';
 
-	export let formType = 'login';
-	export let blurAction = () => {};
+	export let formType = 'register';
 
-	let inputText = 'tristan@gcans.com';
-	$: loginRequestUsername.set(inputText);
-	$: registerRequestEmail.set(inputText);
-	$: emailIsValid = formType === 'login' || JSON.parse($registerRequest)?.emailAvailable;
+	let inputText = 'tjg1234';
+	$: registerRequestPasswordConfirm.set(inputText);
+	$: passwordIsConfirmed = JSON.parse($registerRequest)?.passwordIsConfirmed ?? false;
+
+	$: console.log('passwordIsConfirmed::', JSON.parse($registerRequest)?.passwordIsConfirmed);
+	export let blurAction = () => {};
 </script>
 
 <div class="input-container">
@@ -20,9 +21,9 @@
 	<div class="row">
 		<slot name="icon" />
 		<input
-			class:not-available={!emailIsValid}
-			type="email"
-			name="email"
+			class:not-confirmed={!passwordIsConfirmed}
+			type="password"
+			name="password"
 			bind:value={inputText}
 			on:blur={() => {
 				blurAction();
@@ -71,7 +72,7 @@
 		height: 24px;
 		fill: #dedbd7;
 	}
-	.not-available {
-		border: 1px solid red;
+	.not-confirmed {
+		border: 2px solid red;
 	}
 </style>
