@@ -371,6 +371,9 @@
 		background-repeat: repeat;
 		background-size: 50%;
 		background-color: #2e324c;
+		border: 10px solid #fff9d7;
+		border-left: 0;
+		border-top-right-radius: 55px;
 	}
 	:global(#split-output) {
 		height: 100%;
@@ -429,7 +432,7 @@
 		display: flex;
 		width: fit-content;
 		background-color: #fff9d7;
-		border-radius: 8px;
+		border-radius: 12px;
 		padding: 10px;
 	}
 	.form-container.isSignIn {
@@ -486,7 +489,7 @@
 	.flexed-form {
 		width: calc(100% - 20px);
 		height: calc(100% - 20px);
-		border-radius: 8px;
+		border-radius: 12px;
 		background-color: #2e324c;
 		display: flex;
 		flex-direction: column;

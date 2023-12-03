@@ -94,10 +94,11 @@
 		flex-direction: column;
 		margin: 0;
 		padding: 0;
-		background: hsla(32, 29%, 57%, 1) !important;
+		/* background: hsla(32, 29%, 57%, 1) !important;
 		background: linear-gradient(135deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
 		background: -moz-linear-gradient(135deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
-		background: -webkit-linear-gradient(333deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
+		background: -webkit-linear-gradient(333deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important; */
+		background-color: #2e324c;
 	}
 	main {
 		flex-grow: 1;
