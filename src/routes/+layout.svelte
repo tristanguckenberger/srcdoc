@@ -8,6 +8,7 @@
 	import { browser } from '$app/environment';
 	import Button from '$lib/ui/Button/index.svelte';
 	import bgFadedMono10 from '$lib/assets/bgFadedMono10.svg';
+	import bgFadedMono13 from '$lib/assets/bgFadedMono13.svg';
 
 	export let sessionData;
 	export let data;
@@ -50,8 +51,12 @@
 	};
 </script>
 
-<div class:isBrowsePage style="--svg-bg: url('{bgFadedMono10}'); height: 100%; width: 100%;">
-	<div class="bg-container" style="height: 100%; width: 100%;">
+<div
+	class="layout-container"
+	class:isBrowsePage
+	style="--svg-bg: url('{bgFadedMono10}'); --svg-dark-bg: url('{bgFadedMono13}'); height: 100%; width: 100%;"
+>
+	<div class="bg-container" style="height: 100%; width: 100%;" class:isBrowsePage>
 		<nav
 			class="top"
 			style={`${themeString}`}
@@ -97,14 +102,16 @@
 							/>
 						</li>
 					{/if}
-					<div class="more" class:dropDownToggle class:isBrowsePage>
-						<ul>
-							<li>
-								<form class="logout-form" action="/?/logout" method="POST">
-									<Button class="logout" label="Logout" />
-								</form>
-							</li>
-						</ul>
+					<div class="more-container">
+						<div class="more" class:dropDownToggle class:isBrowsePage>
+							<ul>
+								<li>
+									<form class="logout-form" action="/?/logout" method="POST">
+										<Button class="logout" label="Logout" />
+									</form>
+								</li>
+							</ul>
+						</div>
 					</div>
 				</ul>
 			</ul>
@@ -139,6 +146,9 @@
 		background-image: var(--svg-bg);
 		background-repeat: repeat;
 		background-size: 28%;
+	}
+	.bg-container.isBrowsePage {
+		background-image: var(--svg-dark-bg);
 	}
 	@media (max-width: 768px) {
 		.bg-container {
@@ -183,7 +193,7 @@
 	nav.matchGridWidth {
 		justify-content: center;
 		display: flex;
-		background-color: var(--color-secondary);
+		/* background-color: var(--color-secondary); */
 	}
 	li.hiddenItem {
 		display: none;
@@ -220,7 +230,7 @@
 		object-fit: cover;
 	}
 	.isNotHomePage {
-		background-color: var(--color-secondary);
+		/* background-color: var(--color-secondary); */
 	}
 	.isBrowsePage {
 		overflow-y: scroll;
@@ -228,6 +238,9 @@
 	.isProfilePage {
 		height: 100%;
 		overflow-y: scroll;
+	}
+	.more-container {
+		position: relative;
 	}
 	.more {
 		display: none;
@@ -242,7 +255,7 @@
 		width: 200px;
 		background-color: aliceblue;
 		position: absolute;
-		top: 47px;
+		top: 18px;
 		right: 10px;
 		z-index: 100;
 		border-radius: 12px;
@@ -250,7 +263,7 @@
 		opacity: 1;
 	}
 	.more.isBrowsePage {
-		right: 20px;
+		right: 10px;
 	}
 	.more ul {
 		height: 100%;
@@ -269,5 +282,8 @@
 		height: fit-content;
 		width: fit-content;
 		padding-top: 10px;
+	}
+	.layout-container.isBrowsePage {
+		background-color: #202124;
 	}
 </style>

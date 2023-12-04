@@ -62,7 +62,7 @@
 		flex-direction: column;
 		height: 100%;
 		width: 100%;
-		background-color: var(--color-secondary);
+		/* background-color: var(--color-secondary); */
 	}
 	.modifiedWidth {
 		max-width: calc(100% + 10px) !important;
