@@ -47,9 +47,9 @@
 				</div>
 			</div>
 			<div class="user-text">
-				<h1>{data?.username}</h1>
+				<h1>{data?.username ?? ''}</h1>
 				<p>
-					{data?.bio}
+					{data?.bio ?? ''}
 				</p>
 			</div>
 		</div>

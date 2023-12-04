@@ -3,16 +3,13 @@
 	import { page } from '$app/stores';
 	import { autoCompile, fileSystemSidebarOpen, triggerCompile } from '$lib/stores/filesStore';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
-	import { session } from '$lib/stores/sessionStore.js';
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 	import Button from '$lib/ui/Button/index.svelte';
-	import Frame from '$lib/assets/Frame.svg';
-	import bgFaded from '$lib/assets/bgFaded.svg';
-	import bgFadedMono from '$lib/assets/bgFadedMono.svg';
 	import bgFadedMono10 from '$lib/assets/bgFadedMono10.svg';
 
 	export let sessionData;
+	export let data;
 
 	let preferedThemeMode;
 
@@ -24,13 +21,11 @@
 	$: isHomePage = $page?.route?.id === '/';
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
-	$: $session = sessionData ?? $session;
+	$: sessionData = data?.sessionData;
 
 	const updateTheme = (e) => {
 		themeKeyStore.set(e.matches ? 'light' : 'dark');
 	};
-
-	let shouldPoll = false;
 
 	onMount(() => {
 		if (browser) {
@@ -81,9 +76,14 @@
 					</li>
 				</ul>
 				<ul class="profile-info">
-					{#if $session?.username}
+					{#if sessionData?.username}
 						<li>
-							<Button link="/users/{1}" action={null} userName={$session?.username} isRounded />
+							<Button
+								link="/users/{sessionData?.id}"
+								action={null}
+								userName={sessionData?.username}
+								isRounded
+							/>
 						</li>
 					{/if}
 				</ul>

@@ -21,7 +21,7 @@ const getAllUsers = async () => {
 };
 
 export async function GET({ params }) {
-	console.log('GET::', params);
+	// console.log('GET::', params);
 
 	const users = await getAllUsers();
 

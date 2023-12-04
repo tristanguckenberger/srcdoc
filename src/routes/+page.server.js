@@ -59,15 +59,11 @@ export async function load({ cookies }) {
 
 	const user = await getCurrentUser(cookies);
 
+	// console.log('user::', user);
+
 	const users = await getAllUsers();
 
 	users?.length && userStore.set(users);
-
-	// console.log('users::', users);
-
-	userStore.subscribe((users) => {
-		console.log('user::', users);
-	});
 
 	session.set({
 		...user,
