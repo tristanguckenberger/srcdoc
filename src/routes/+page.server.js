@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { session } from '$lib/stores/sessionStore.js';
 import { userStore } from '$lib/stores/authStore.js';
+import { redirect } from '@sveltejs/kit';
 
 const getAllUsers = async () => {
 	const userReqHeaders = new Headers();
@@ -49,6 +50,10 @@ const getCurrentUser = async (cookies) => {
 };
 
 export async function load({ cookies }) {
+	if (cookies.get('token')) {
+		throw redirect(300, '/games');
+	}
+
 	session.subscribe(async (session) => {
 		try {
 			session?.token && cookies.set('token', session?.token);

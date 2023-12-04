@@ -17,6 +17,9 @@
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
+	$: isProfilePage =
+		splitPath.some((path) => path === 'users') ||
+		(splitPath.some((path) => path === 'games') && splitPath.some((path) => path === 'main'));
 	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
 	$: isHomePage = $page?.route?.id === '/';
 	$: themeString = $themeDataStore?.theme?.join(' ');
@@ -40,7 +43,7 @@
 	});
 </script>
 
-<div style="--svg-bg: url('{bgFadedMono10}'); height: 100%; width: 100%;">
+<div class:isBrowsePage style="--svg-bg: url('{bgFadedMono10}'); height: 100%; width: 100%;">
 	<div class="bg-container" style="height: 100%; width: 100%;">
 		<nav
 			class="top"
@@ -91,7 +94,9 @@
 		</nav>
 
 		<main
+			class:isProfilePage
 			class:scrollable={!engineInRoute && !playInRoute && isBrowsePage}
+			class:editor={(engineInRoute || playInRoute) && !isBrowsePage}
 			style={`${themeString}`}
 		>
 			<slot />
@@ -157,7 +162,10 @@
 		display: none;
 	}
 	main.scrollable {
-		overflow-y: scroll;
+		overflow-y: scroll !important;
+	}
+	main.editor {
+		height: calc(100% - 66.5px) !important;
 	}
 	/* .home {
 		justify-self: flex-end;
@@ -186,5 +194,12 @@
 	}
 	.isNotHomePage {
 		background-color: var(--color-secondary);
+	}
+	.isBrowsePage {
+		overflow-y: scroll;
+	}
+	.isProfilePage {
+		height: 100%;
+		overflow-y: scroll;
 	}
 </style>
