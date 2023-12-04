@@ -342,8 +342,9 @@
 	}
 	.actions {
 		display: flex;
-		flex-direction: row-reverse;
+		flex-direction: row;
 		width: 110px;
+		gap: 10px;
 	}
 	.comment-tree.hasChildren {
 		border-left: 1px solid rgb(0, 0, 0, 0.24);

@@ -6,6 +6,7 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import { icons } from '$lib/stores/themeStore.js';
 	import PasswordInputValidate from '../Input/PasswordInputValidate.svelte';
+	import { fade } from 'svelte/transition';
 </script>
 
 <form action="?/register" method="POST">
@@ -80,7 +81,7 @@
 		height: 100%;
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
+		gap: 30px;
 	}
 	:global(form h1) {
 		font-family: 'Rubik', sans-serif;

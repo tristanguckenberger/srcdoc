@@ -10,8 +10,9 @@
 	import { userStore } from '$lib/stores/authStore.js';
 	import { onMount } from 'svelte';
 	import playbg from '$lib/assets/playbg.svg';
+	import bg from '$lib/assets/bg.svg';
+	import Frame from '$lib/assets/Frame.svg';
 	import playenginelogo from '$lib/assets/playenginelogo.svg';
-
 	import SignInForm from '$lib/ui/Form/SignInForm.svelte';
 	import SignUpForm from '$lib/ui/Form/SignUpForm.svelte';
 
@@ -36,6 +37,7 @@
 		return users;
 	};
 	const toggleAuthForm = async () => {
+		quickHide = true;
 		selected = selected === authFlowOptions[0] ? authFlowOptions[1] : authFlowOptions[0];
 	};
 
@@ -45,6 +47,7 @@
 	// to update on login, not working atm
 
 	export let data;
+	let quickHide = false;
 
 	onMount(async () => {
 		$session?.username && browser && goto('/games');
@@ -81,9 +84,11 @@
 	$: formSwitchText =
 		selected === authFlowOptions[0] ? 'Already have an account?' : "Don't have an account?";
 	$: formSwitchAction = selected === authFlowOptions[0] ? 'Sign In' : 'Sign Up';
+
+	$: quickHide && setTimeout(() => (quickHide = false), 1000);
 </script>
 
-<div class="main" style="--svg-bg: url('{playbg}');">
+<div class="main" style="--svg-bg: url('{Frame}');">
 	<div class="hero">
 		<!-- <img src={playenginelogo} alt="Play Engine's Logo" /> -->
 		<svg
@@ -339,14 +344,14 @@
 		</svg>
 	</div>
 	<div class="auth-container">
-		<div>
+		<div class="authentication" class:quickHide>
 			<div class="form-container" class:isSignIn={selected === authFlowOptions[1]}>
 				<div class="flexed-form">
 					<!-- <SignInForm /> -->
 					<svelte:component this={selected.component} />
 					<div class="form-action">
 						<span>{formSwitchText}</span>
-						<button on:click|preventDefault={toggleAuthForm}>{formSwitchAction}</button>
+						<Button action={toggleAuthForm} label={formSwitchAction} />
 					</div>
 				</div>
 			</div>
@@ -367,13 +372,14 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		background-image: var(--svg-bg);
+		/* background-image: var(--svg-bg);
 		background-repeat: repeat;
-		background-size: 50%;
-		background-color: #2e324c;
-		border: 10px solid #fff9d7;
+		background-size: 50%; */
+		/* background-color: #2e324c; */
+		/* border: 8px solid #fff9d7;
 		border-left: 0;
-		border-top-right-radius: 55px;
+		border-top: 0;
+		border-top-right-radius: 55px; */
 	}
 	:global(#split-output) {
 		height: 100%;
@@ -432,8 +438,9 @@
 		display: flex;
 		width: fit-content;
 		background-color: #fff9d7;
-		border-radius: 12px;
-		padding: 10px;
+		border-radius: 60px;
+		padding: 8px;
+		transition: all 0.5s linear;
 	}
 	.form-container.isSignIn {
 		width: 613px;
@@ -474,7 +481,7 @@
 		}
 	}
 
-	@keyframes example {
+	@keyframes clockwise {
 		from {
 			transform: rotate(0deg);
 		}
@@ -482,18 +489,37 @@
 			transform: rotate(360deg);
 		}
 	}
+	@keyframes counter-clockwise {
+		from {
+			transform: rotate(360deg);
+		}
+		to {
+			transform: rotate(0deg);
+		}
+	}
 	.gPath {
-		animation: example 10s infinite linear;
+		transition: animation 0.5s linear;
+		animation: clockwise 10s infinite linear;
 		transform-origin: 2746.21px 607.41px;
 	}
+	/* .gPath:hover {
+		animation: counter-clockwise 10s infinite linear;
+	} */
 	.flexed-form {
 		width: calc(100% - 20px);
 		height: calc(100% - 20px);
-		border-radius: 12px;
+		border-radius: 55px;
 		background-color: #2e324c;
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
 		padding: 92.58px 80px 25px 80px;
+	}
+	.authentication {
+		/* transition: opacity 5ms linear; */
+		max-height: 716.08px;
+	}
+	.authentication.quickHide {
+		/* opacity: 0; */
 	}
 </style>

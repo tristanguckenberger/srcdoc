@@ -14,7 +14,11 @@
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: showSideBarToggle = label === 'open' || label === 'close';
-	$: authBtn = label === 'Sign In' || label === 'Sign Up';
+	$: authBtn =
+		label === 'Sign In' ||
+		label === 'Sign Up' ||
+		label?.includes('Continue') ||
+		label?.includes('Sign Up');
 	$: isHomePage = $page?.route?.id === '/';
 	$: isIcon =
 		label === 'open' ||
@@ -171,7 +175,7 @@
 	}
 	button.isHomePage,
 	a.isHomePage {
-		background-color: #4da5ff !important;
+		background-color: #2e324c !important;
 		color: #ffffff !important;
 		height: calc(100% - 20px);
 	}
@@ -207,10 +211,11 @@
 	}
 	button.authBtn {
 		height: 100%;
+		background-color: #4da5ff !important;
 	}
 	div.authBtn {
 		height: 100%;
-		padding-top: 20px;
+		/* padding-top: 20px; */
 	}
 	button.isRounded,
 	a.isRounded {
@@ -226,6 +231,7 @@
 		gap: 9px;
 		border-radius: 30px !important;
 		align-items: center;
+		background-color: var(--button-highlight) !important;
 	}
 	.avatar {
 		border-radius: 50%;

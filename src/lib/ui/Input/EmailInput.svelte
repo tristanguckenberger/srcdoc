@@ -41,7 +41,7 @@
 		flex-direction: row;
 		gap: 10px;
 		border-radius: 4px;
-		background-color: #faf8f4;
+		background-color: #fffbe4;
 		padding: 5px;
 		margin-top: 4px;
 	}
@@ -49,7 +49,7 @@
 		font-family: 'Nunito', sans-serif;
 		font-weight: 500;
 		font-size: 1rem;
-		color: #ffffff;
+		color: #fffbe4;
 	}
 	input {
 		border: none;
