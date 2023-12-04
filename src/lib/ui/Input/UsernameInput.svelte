@@ -4,7 +4,7 @@
 
 	export let formType = 'register';
 
-	let inputText = 'gcans';
+	let inputText = '';
 	$: registerRequestUsername.set(inputText);
 	$: usernameIsValid = JSON.parse($registerRequest)?.usernameAvailable;
 

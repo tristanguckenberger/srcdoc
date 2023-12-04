@@ -48,8 +48,8 @@
 	}
 	.sign-in-split span {
 		font-family: 'Nunito', sans-serif;
-		font-weight: 600;
-		font-size: 0.84rem;
+		font-weight: 500;
+		font-size: 0.9rem;
 		color: #b0b7e182;
 	}
 	.sign-in-split hr {

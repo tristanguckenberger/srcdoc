@@ -4,6 +4,7 @@
 	import { autoCompile, fileSystemSidebarOpen, triggerCompile } from '$lib/stores/filesStore';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
 	import { onMount, onDestroy } from 'svelte';
+	import { session } from '$lib/stores/sessionStore.js';
 	import { browser } from '$app/environment';
 	import Button from '$lib/ui/Button/index.svelte';
 	import bgFadedMono10 from '$lib/assets/bgFadedMono10.svg';
@@ -24,7 +25,7 @@
 	$: isHomePage = $page?.route?.id === '/';
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
-	$: sessionData = data?.sessionData;
+	$: sessionData = data?.sessionData ?? $session;
 
 	const updateTheme = (e) => {
 		themeKeyStore.set(e.matches ? 'light' : 'dark');
@@ -41,6 +42,12 @@
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
+
+	let dropDownToggle = false;
+
+	const toggleDropDown = () => {
+		dropDownToggle = !dropDownToggle;
+	};
 </script>
 
 <div class:isBrowsePage style="--svg-bg: url('{bgFadedMono10}'); height: 100%; width: 100%;">
@@ -79,16 +86,26 @@
 					</li>
 				</ul>
 				<ul class="profile-info">
-					{#if sessionData?.username}
+					{#if sessionData?.username || $session?.username}
 						<li>
 							<Button
 								link="/users/{sessionData?.id}"
-								action={null}
-								userName={sessionData?.username}
+								userName={sessionData?.username ?? $session?.username}
 								isRounded
+								action={toggleDropDown}
+								showDropDown={dropDownToggle}
 							/>
 						</li>
 					{/if}
+					<div class="more" class:dropDownToggle class:isBrowsePage>
+						<ul>
+							<li>
+								<form class="logout-form" action="/?/logout" method="POST">
+									<Button class="logout" label="Logout" />
+								</form>
+							</li>
+						</ul>
+					</div>
 				</ul>
 			</ul>
 		</nav>
@@ -201,5 +218,46 @@
 	.isProfilePage {
 		height: 100%;
 		overflow-y: scroll;
+	}
+	.more {
+		display: none;
+		gap: 9px;
+		align-items: center;
+		opacity: 0;
+		transition: opacity 0.5s linear;
+	}
+	.more.dropDownToggle {
+		display: flex;
+		height: 150px;
+		width: 200px;
+		background-color: aliceblue;
+		position: absolute;
+		top: 47px;
+		right: 10px;
+		z-index: 100;
+		border-radius: 12px;
+		border-top-right-radius: 0px;
+		opacity: 1;
+	}
+	.more.isBrowsePage {
+		right: 20px;
+	}
+	.more ul {
+		height: 100%;
+		width: 100%;
+		display: flex;
+		justify-content: flex-end;
+		align-items: flex-start;
+		padding: 0 10px;
+	}
+
+	.more ul > li {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		height: fit-content;
+		width: fit-content;
+		padding-top: 10px;
 	}
 </style>

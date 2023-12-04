@@ -195,5 +195,45 @@ export const actions = {
 				}
 			};
 		}
+	},
+	logout: async ({ cookies }) => {
+		const token = cookies.get('token');
+		const requestHeaders = new Headers();
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+		const requestInit = {
+			method: 'POST',
+			headers: requestHeaders,
+			mode: 'cors'
+		};
+
+		const authResponse = await fetch(`${process.env.SERVER_URL}/api/auth/logout`, requestInit);
+
+		console.log('authResponse::', authResponse);
+		if (!authResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Logout failed'
+				}
+			};
+		}
+		cookies.delete('token');
+		// throw redirect(300, '/');
+
+		return {
+			status: 300,
+			redirect: '/',
+			body: {
+				message: 'logout_success'
+			}
+		};
+	},
+	session: async ({ cookies }) => {
+		const user = await getCurrentUser(cookies);
+		return {
+			body: {
+				user: user
+			}
+		};
 	}
 };

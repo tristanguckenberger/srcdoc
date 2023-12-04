@@ -5,7 +5,7 @@
 	export let formType = 'login';
 	export let blurAction = () => {};
 
-	let inputText = 'tjg1234';
+	let inputText = '';
 	$: loginRequestPassword.set(inputText);
 	$: registerRequestPassword.set(inputText);
 </script>

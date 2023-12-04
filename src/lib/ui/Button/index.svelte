@@ -9,6 +9,12 @@
 	export let type = 'submit';
 	export let isRounded = false;
 	export let userName;
+	export let showDropDown;
+	export let style;
+
+	let profileControl = false;
+
+	$: profileControl = Boolean(userName);
 
 	let close = '<-';
 
@@ -26,10 +32,12 @@
 		label === 'play' ||
 		label === 'pause' ||
 		label === 'fav';
+
+	$: console.log('showDropDown', showDropDown);
 </script>
 
 <div style={`${themeString}`} class:authBtn>
-	{#if link}
+	{#if link && !action}
 		<a
 			href={link}
 			class:isRounded={isRounded || userName}
@@ -52,6 +60,18 @@
 				<img class="avatar" src="https://picsum.photos/50" alt="user avatar" /><span
 					>{userName}</span
 				>
+				<div class="more-dropdown" on:click={action}>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="32"
+						height="32"
+						fill="#000000"
+						viewBox="0 0 256 256"
+						><path
+							d="M144,128a16,16,0,1,1-16-16A16,16,0,0,1,144,128ZM60,112a16,16,0,1,0,16,16A16,16,0,0,0,60,112Zm136,0a16,16,0,1,0,16,16A16,16,0,0,0,196,112Z"
+						/></svg
+					>
+				</div>
 			{/if}
 		</a>
 	{:else}
@@ -60,11 +80,15 @@
 			typeof={type}
 			class:authBtn
 			class:isHomePage
-			on:click={action}
+			on:click={() => action(showDropDown)}
 			class:showSideBarToggle
 			class:follow={label === 'Follow'}
 			class:isIcon
 			class:userName
+			class:showDropDown
+			class:profileControl
+			class:logoutButton={label === 'Logout'}
+			{style}
 		>
 			{#if label === 'open'}
 				<svg
@@ -124,9 +148,11 @@
 			{:else if label}
 				{label}
 			{:else if userName}
-				<img class="avatar" src="https://picsum.photos/50" alt="user avatar" /><span
-					>{userName}</span
-				>
+				<a href={link} class="profile-quick-control">
+					<img class="avatar" src="https://picsum.photos/50" alt="user avatar" /><span
+						>{userName}</span
+					>
+				</a>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					width="32"
@@ -229,7 +255,7 @@
 		width: unset !important;
 		height: fit-content;
 		gap: 9px;
-		border-radius: 30px !important;
+		border-radius: 30px;
 		align-items: center;
 		background-color: var(--button-highlight) !important;
 	}
@@ -238,5 +264,21 @@
 		width: 26.5px;
 		height: 26.5px;
 		object-fit: cover;
+	}
+	.profile-quick-control {
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		padding: 0px;
+	}
+	button.showDropDown {
+		border-bottom-right-radius: 0px !important;
+	}
+	button.profileControl {
+		padding-left: 5px;
+	}
+	button.logoutButton {
+		background-color: transparent !important;
+		color: var(--color-secondary) !important;
 	}
 </style>

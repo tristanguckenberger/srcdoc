@@ -61,6 +61,8 @@
 				  };
 
 			data && userStore.set(data?.body?.users);
+		} else {
+			console.log('$session::::::::::::::::::', $session);
 		}
 	});
 
@@ -351,7 +353,11 @@
 					<svelte:component this={selected.component} />
 					<div class="form-action">
 						<span>{formSwitchText}</span>
-						<Button action={toggleAuthForm} label={formSwitchAction} />
+						<Button
+							action={toggleAuthForm}
+							label={formSwitchAction}
+							style={'background-color: transparent !important; color: #4da5ff !important; text-decoration: underline; font-size: 0.9rem;'}
+						/>
 					</div>
 				</div>
 			</div>
@@ -456,7 +462,7 @@
 		display: flex;
 		padding: 10px;
 		align-items: center;
-		gap: 10px;
+		gap: 0px;
 	}
 
 	.form-action span {

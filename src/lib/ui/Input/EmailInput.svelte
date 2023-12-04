@@ -9,7 +9,7 @@
 	export let formType = 'login';
 	export let blurAction = () => {};
 
-	let inputText = 'tristan@gcans.com';
+	let inputText = '';
 	$: loginRequestUsername.set(inputText);
 	$: registerRequestEmail.set(inputText);
 	$: emailIsValid = formType === 'login' || JSON.parse($registerRequest)?.emailAvailable;

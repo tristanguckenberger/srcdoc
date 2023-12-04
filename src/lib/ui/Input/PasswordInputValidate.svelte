@@ -8,7 +8,7 @@
 
 	export let formType = 'register';
 
-	let inputText = 'tjg1234';
+	let inputText = '';
 	$: registerRequestPasswordConfirm.set(inputText);
 	$: passwordIsConfirmed = JSON.parse($registerRequest)?.passwordIsConfirmed ?? false;
 
