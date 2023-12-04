@@ -138,7 +138,17 @@
 		width: 100%;
 		background-image: var(--svg-bg);
 		background-repeat: repeat;
-		background-size: 50%;
+		background-size: 28%;
+	}
+	@media (max-width: 768px) {
+		.bg-container {
+			background-size: 50%;
+		}
+	}
+	@media (max-width: 480px) {
+		.bg-container {
+			background-size: 100%;
+		}
 	}
 	main {
 		flex-grow: 1;

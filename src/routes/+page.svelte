@@ -448,7 +448,7 @@
 		padding: 8px;
 		transition: all 0.5s linear;
 	}
-	.form-container.isSignIn {
+	.form-container {
 		width: 613px;
 	}
 	:global(form h1) {
@@ -483,7 +483,6 @@
 		.form-container {
 			width: 100%;
 			height: 100%;
-			border-radius: 0;
 		}
 	}
 
