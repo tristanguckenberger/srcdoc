@@ -56,12 +56,20 @@
 	class:isBrowsePage
 	style="--svg-bg: url('{bgFadedMono10}'); --svg-dark-bg: url('{bgFadedMono13}'); height: 100%; width: 100%;"
 >
-	<div class="bg-container" style="height: 100%; width: 100%;" class:isBrowsePage>
+	<div
+		class="bg-container"
+		style="height: 100%; width: 100%;"
+		class:isBrowsePage
+		class:engineInRoute
+		class:gameProfile={(isProfilePage || playInRoute) && !engineInRoute}
+	>
 		<nav
 			class="top"
 			style={`${themeString}`}
 			class:matchGridWidth={!engineInRoute && isBrowsePage}
 			class:isNotHomePage={!isHomePage}
+			class:engineInRoute
+			class:gameProfile={(isProfilePage || playInRoute) && !engineInRoute}
 		>
 			<ul class:matchGridWidth={!engineInRoute && isBrowsePage}>
 				<ul>
@@ -285,5 +293,17 @@
 	}
 	.layout-container.isBrowsePage {
 		background-color: #202124;
+	}
+	.bg-container.engineInRoute {
+		background-color: #202124 !important;
+	}
+	.bg-container.gameProfile {
+		background-color: #202124 !important;
+	}
+	nav.engineInRoute {
+		background-color: #202124 !important;
+	}
+	nav.gameProfile {
+		background-color: #202124 !important;
 	}
 </style>
