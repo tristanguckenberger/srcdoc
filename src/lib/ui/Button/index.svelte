@@ -80,7 +80,7 @@
 			typeof={type}
 			class:authBtn
 			class:isHomePage
-			on:click={() => action(showDropDown)}
+			on:click={() => action && action(showDropDown)}
 			class:showSideBarToggle
 			class:follow={label === 'Follow'}
 			class:isIcon

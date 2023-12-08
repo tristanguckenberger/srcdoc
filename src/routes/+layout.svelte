@@ -7,8 +7,8 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { browser } from '$app/environment';
 	import Button from '$lib/ui/Button/index.svelte';
-	import bgFadedMono10 from '$lib/assets/bgFadedMono10.svg';
 	import bgFadedMono13 from '$lib/assets/bgFadedMono13.svg';
+	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
 
 	export let sessionData;
 	export let data;
@@ -54,7 +54,7 @@
 <div
 	class="layout-container"
 	class:isBrowsePage
-	style="--svg-bg: url('{bgFadedMono10}'); --svg-dark-bg: url('{bgFadedMono13}'); height: 100%; width: 100%;"
+	style="--svg-bg: url('{bgFadedMono16}'); --svg-dark-bg: url('{bgFadedMono13}'); height: 100%; width: 100%;"
 >
 	<div
 		class="bg-container"
@@ -157,6 +157,7 @@
 	}
 	.bg-container.isBrowsePage {
 		background-image: var(--svg-dark-bg);
+		overflow-y: scroll;
 	}
 	@media (max-width: 768px) {
 		.bg-container {
@@ -207,7 +208,7 @@
 		display: none;
 	}
 	main.scrollable {
-		overflow-y: scroll !important;
+		/* overflow-y: scroll !important; */
 	}
 	main.editor {
 		height: calc(100% - 66.5px) !important;
@@ -238,14 +239,15 @@
 		object-fit: cover;
 	}
 	.isNotHomePage {
-		/* background-color: var(--color-secondary); */
+		background-color: var(--color-secondary);
 	}
 	.isBrowsePage {
-		overflow-y: scroll;
+		/* overflow-y: scroll; */
 	}
 	.isProfilePage {
 		height: 100%;
-		overflow-y: scroll;
+		/* overflow-y: scroll; */
+		background-color: var(--color-secondary);
 	}
 	.more-container {
 		position: relative;

@@ -60,9 +60,9 @@
 	#editor-layout {
 		display: flex;
 		flex-direction: column;
-		height: 100%;
+		height: calc(100% + 10px);
 		width: 100%;
-		/* background-color: var(--color-secondary); */
+		background-color: var(--color-secondary);
 	}
 	.modifiedWidth {
 		max-width: calc(100% + 10px) !important;

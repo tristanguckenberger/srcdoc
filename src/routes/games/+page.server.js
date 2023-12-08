@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { gameData } from '$lib/mockData/gameData.js';
 import { session } from '$lib/stores/sessionStore.js';
+import { redirect } from '@sveltejs/kit';
 
 export async function load({ cookies }) {
 	session.subscribe(async (session) => {
@@ -37,6 +38,12 @@ export async function load({ cookies }) {
 	};
 
 	const user = await getCurrentUser();
+
+	console.log('user::', user);
+
+	if (!user?.is_active) {
+		throw redirect(300, `/users/${user?.id}/verify`);
+	}
 
 	session.set({
 		...user,

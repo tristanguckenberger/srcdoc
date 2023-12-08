@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { session } from '$lib/stores/sessionStore';
+import { redirect } from '@sveltejs/kit';
 
 const getCurrentUser = async (cookies) => {
 	const token = cookies.get('token');
@@ -36,6 +37,11 @@ export async function load({ cookies }) {
 	});
 
 	const user = await getCurrentUser(cookies);
+
+	// if (user?.is_active) {
+	// 	throw redirect(300, `/games`);
+	// }
+
 	session.set({
 		...user,
 		password: ''

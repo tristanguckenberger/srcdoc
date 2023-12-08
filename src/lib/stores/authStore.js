@@ -46,3 +46,10 @@ export const registerRequest = derived(
 		});
 	}
 );
+
+export const verifactionRequestCode = writable(null);
+export const verifactionRequest = derived(verifactionRequestCode, ([$verifactionRequestCode]) => {
+	return JSON.stringify({
+		verificationCode: $verifactionRequestCode
+	});
+});

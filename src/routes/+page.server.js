@@ -64,6 +64,10 @@ export async function load({ cookies }) {
 
 	const user = await getCurrentUser(cookies);
 
+	if (user?.is_active) {
+		throw redirect(300, `/games`);
+	}
+
 	// console.log('user::', user);
 
 	const users = await getAllUsers();

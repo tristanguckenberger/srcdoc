@@ -1,9 +1,6 @@
 <script>
 	// @ts-nocheck
-	import EmailInput from '$lib/ui/Input/EmailInput.svelte';
-	import PasswordInput from '$lib/ui/Input/PasswordInput.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
-	import { icons } from '$lib/stores/themeStore.js';
 	import { browser } from '$app/environment';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { goto } from '$app/navigation';
@@ -12,9 +9,7 @@
 	import playbg from '$lib/assets/playbg.svg';
 	import bg from '$lib/assets/bg.svg';
 	import Frame from '$lib/assets/Frame.svg';
-	import playenginelogo from '$lib/assets/playenginelogo.svg';
-	import SignInForm from '$lib/ui/Form/SignInForm.svelte';
-	import SignUpForm from '$lib/ui/Form/SignUpForm.svelte';
+	import VerifyEmailForm from '$lib/ui/Form/VerifyEmailForm.svelte';
 
 	const getAllUsers = async () => {
 		const userReqHeaders = new Headers();
@@ -49,31 +44,6 @@
 	export let data;
 	let quickHide = false;
 
-	onMount(async () => {
-		$session?.username && browser && goto('/games');
-
-		// Gets a list of users for checking if a username is taken during registration
-		if (!$session?.username) {
-			const data = data?.sessionData?.username
-				? data?.sessionData
-				: {
-						body: await getAllUsers()
-				  };
-
-			data && userStore.set(data?.body?.users);
-		} else {
-			console.log('$session::::::::::::::::::', $session);
-		}
-	});
-
-	const authFlowOptions = [
-		{ option: 'register', component: SignUpForm },
-		{ option: 'login', component: SignInForm }
-		// { option: 'forgot', component: BlueThing }
-	];
-
-	let selected = authFlowOptions[0];
-
 	// sync the session store data from the server with the session store on the client
 	$: browser && form, session.set(form?.body?.user);
 
@@ -81,18 +51,13 @@
 	$: data?.users?.length && userStore.set(data?.users);
 
 	// if the user is logged in, redirect to the games page
-	$: $session?.username && browser && goto('/games');
-
-	$: formSwitchText =
-		selected === authFlowOptions[0] ? 'Already have an account?' : "Don't have an account?";
-	$: formSwitchAction = selected === authFlowOptions[0] ? 'Sign In' : 'Sign Up';
+	$: ($session?.is_active || data?.sessionData?.is_active) && browser && goto('/games');
 
 	$: quickHide && setTimeout(() => (quickHide = false), 1000);
 </script>
 
 <div class="main" style="--svg-bg: url('{Frame}');">
 	<div class="hero">
-		<!-- <img src={playenginelogo} alt="Play Engine's Logo" /> -->
 		<svg
 			width="3354"
 			height="2087"
@@ -347,18 +312,9 @@
 	</div>
 	<div class="auth-container">
 		<div class="authentication" class:quickHide>
-			<div class="form-container" class:isSignIn={selected === authFlowOptions[1]}>
+			<div class="form-container" class:isSignIn={true}>
 				<div class="flexed-form">
-					<!-- <SignInForm /> -->
-					<svelte:component this={selected.component} />
-					<div class="form-action">
-						<span>{formSwitchText}</span>
-						<Button
-							action={toggleAuthForm}
-							label={formSwitchAction}
-							style={'background-color: transparent !important; color: #4da5ff !important; text-decoration: underline; font-size: 0.9rem;'}
-						/>
-					</div>
+					<VerifyEmailForm />
 				</div>
 			</div>
 		</div>
