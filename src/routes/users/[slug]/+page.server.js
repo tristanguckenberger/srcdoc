@@ -27,8 +27,6 @@ const getUser = async (/** @type {String} */ id) => {
 export async function load({ params }) {
 	const { slug } = params;
 
-	console.log('slug::', slug);
-
 	// find the user by slug
 	const user = await getUser(slug); // userData.find((user) => user?.id.toString() === slug.toString());
 

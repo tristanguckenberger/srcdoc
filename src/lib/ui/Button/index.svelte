@@ -32,8 +32,6 @@
 		label === 'play' ||
 		label === 'pause' ||
 		label === 'fav';
-
-	$: console.log('showDropDown', showDropDown);
 </script>
 
 <div style={`${themeString}`} class:authBtn>

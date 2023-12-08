@@ -68,8 +68,6 @@ export async function load({ cookies }) {
 		throw redirect(300, `/games`);
 	}
 
-	// console.log('user::', user);
-
 	const users = await getAllUsers();
 
 	users?.length && userStore.set(users);
@@ -212,7 +210,6 @@ export const actions = {
 
 		const authResponse = await fetch(`${process.env.SERVER_URL}/api/auth/logout`, requestInit);
 
-		console.log('authResponse::', authResponse);
 		if (!authResponse.ok) {
 			return {
 				status: 401,

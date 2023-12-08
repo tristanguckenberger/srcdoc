@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { session } from '$lib/stores/sessionStore.js';
-// import { redirect } from '@sveltejs/kit';
 
 const getCurrentUser = async (cookies) => {
 	const token = cookies.get('token');
@@ -28,7 +27,6 @@ const getCurrentUser = async (cookies) => {
 };
 
 export async function load({ cookies }) {
-	console.log('HIT LOAD FUNCTION::');
 	if (!cookies.get('token')) {
 		session.subscribe(async (session) => {
 			try {
@@ -40,15 +38,6 @@ export async function load({ cookies }) {
 	}
 
 	const user = await getCurrentUser(cookies);
-	console.log('user::', user);
-
-	// if (user?.is_active) {
-	// 	try {
-	// 		throw redirect(300, `/games`);
-	// 	} catch (error) {
-	// 		console.log('error::', error);
-	// 	}
-	// }
 
 	return {
 		sessionData: {
@@ -63,9 +52,6 @@ export const actions = {
 		const token = cookies.get('token');
 		const data = await request.formData();
 		const verificationCode = data.get('verificationCode');
-
-		console.log('verificationCode::', verificationCode);
-
 		const credentials = JSON.stringify({ verificationToken: verificationCode });
 		const requestHeaders = new Headers();
 		if (!requestHeaders.has('Authorization')) {

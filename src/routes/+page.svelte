@@ -61,8 +61,6 @@
 				  };
 
 			data && userStore.set(data?.body?.users);
-		} else {
-			console.log('$session::::::::::::::::::', $session);
 		}
 	});
 

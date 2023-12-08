@@ -11,8 +11,6 @@
 	let inputText = '';
 	$: registerRequestPasswordConfirm.set(inputText);
 	$: passwordIsConfirmed = JSON.parse($registerRequest)?.passwordIsConfirmed ?? false;
-
-	$: console.log('passwordIsConfirmed::', JSON.parse($registerRequest)?.passwordIsConfirmed);
 	export let blurAction = () => {};
 </script>
 
