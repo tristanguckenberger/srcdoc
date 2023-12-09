@@ -4,6 +4,7 @@
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
 	import { fileSystemSidebarWidth, fileSystemSidebarOpen } from '$lib/stores/filesStore.js';
 	import { themeKeyStore, themeDataStore } from '$lib/stores/themeStore';
+	import { sideBarState, sideBarWidth } from '$lib/stores/layoutStore.js';
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 
@@ -11,7 +12,9 @@
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
 	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: isSideBarOpen = $fileSystemSidebarOpen;
+	$: isSideBarOpen = $fileSystemSidebarOpen ?? $sideBarState;
+
+	$: engineInRoute && sideBarState?.set(false);
 	let preferedThemeMode;
 
 	const updateTheme = (e) => {
@@ -36,6 +39,7 @@
 	class:isBrowsePage
 	class:noSideBar={!engineInRoute}
 	class:modifiedWidth={!isSideBarOpen}
+	class:showSideBar={$sideBarState}
 	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px; {themeString}"
 >
 	<div
@@ -89,5 +93,8 @@
 	}
 	.hiddenContainer {
 		display: none;
+	}
+	#editor-layout.showSideBar {
+		width: calc(100% - 230px);
 	}
 </style>

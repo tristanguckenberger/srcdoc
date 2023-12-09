@@ -9,12 +9,15 @@
 	export let type = 'submit';
 	export let isRounded = false;
 	export let userName;
+	export let userAvatar;
 	export let showDropDown;
 	export let style;
 
 	let profileControl = false;
 
 	$: profileControl = Boolean(userName);
+
+	$: console.log(userAvatar);
 
 	let close = '<-';
 
@@ -55,9 +58,11 @@
 			{:else if label}
 				{label}
 			{:else if userName}
-				<img class="avatar" src="https://picsum.photos/50" alt="user avatar" /><span
-					>{userName}</span
-				>
+				<img
+					class="avatar"
+					src={`${userAvatar}` ?? 'https://picsum.photos/50'}
+					alt="user avatar"
+				/><span>{userName}</span>
 				<div class="more-dropdown" on:click={action}>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -76,9 +81,9 @@
 		<button
 			class:isRounded={isRounded || userName}
 			typeof={type}
+			on:click={() => !userName && action && action()}
 			class:authBtn
 			class:isHomePage
-			on:click={() => action && action(showDropDown)}
 			class:showSideBarToggle
 			class:follow={label === 'Follow'}
 			class:isIcon
@@ -147,20 +152,24 @@
 				{label}
 			{:else if userName}
 				<a href={link} class="profile-quick-control">
-					<img class="avatar" src="https://picsum.photos/50" alt="user avatar" /><span
-						>{userName}</span
-					>
+					<img
+						class="avatar"
+						src={`${userAvatar}` ?? 'https://picsum.photos/50'}
+						alt="user avatar"
+					/><span>{userName}</span>
 				</a>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="32"
-					height="32"
-					fill="#000000"
-					viewBox="0 0 256 256"
-					><path
-						d="M144,128a16,16,0,1,1-16-16A16,16,0,0,1,144,128ZM60,112a16,16,0,1,0,16,16A16,16,0,0,0,60,112Zm136,0a16,16,0,1,0,16,16A16,16,0,0,0,196,112Z"
-					/></svg
-				>
+				<button class="dropdown-btn" on:click={() => action && action(showDropDown)}>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="32"
+						height="32"
+						fill="#000000"
+						viewBox="0 0 256 256"
+						><path
+							d="M144,128a16,16,0,1,1-16-16A16,16,0,0,1,144,128ZM60,112a16,16,0,1,0,16,16A16,16,0,0,0,60,112Zm136,0a16,16,0,1,0,16,16A16,16,0,0,0,196,112Z"
+						/></svg
+					>
+				</button>
 			{/if}
 		</button>
 	{/if}
@@ -280,5 +289,8 @@
 	button.logoutButton {
 		background-color: transparent !important;
 		color: var(--color-secondary) !important;
+	}
+	.dropdown-btn {
+		background-color: transparent !important;
 	}
 </style>

@@ -3,6 +3,7 @@
 	import { page } from '$app/stores';
 	import { autoCompile, fileSystemSidebarOpen, triggerCompile } from '$lib/stores/filesStore';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
+	import { sideBarState, sideBarWidth } from '$lib/stores/layoutStore.js';
 	import { onMount, onDestroy } from 'svelte';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { browser } from '$app/environment';
@@ -14,6 +15,10 @@
 	export let data;
 
 	let preferedThemeMode;
+
+	const browseOptions = [{ option: 'Home' }, { option: 'Quick Play' }, { option: 'Favorites' }];
+
+	$: currentBrowseOptionSelection = browseOptions[0];
 
 	// controls file system sidebar toggle button visibility
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
@@ -32,6 +37,17 @@
 		themeKeyStore.set(e.matches ? 'light' : 'dark');
 	};
 
+	// menu and sidebar toggle funcs
+	let dropDownToggle = false;
+	const toggleDropDown = () => {
+		dropDownToggle = !dropDownToggle;
+	};
+	const toggleSideBar = () => {
+		$sideBarState = !$sideBarState;
+	};
+	const toggleFileSystemSidebar = () => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen);
+
+	// lifecycle funcs
 	onMount(() => {
 		if (browser) {
 			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
@@ -39,16 +55,11 @@
 			updateTheme(preferedThemeMode);
 		}
 	});
-
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
 
-	let dropDownToggle = false;
-
-	const toggleDropDown = () => {
-		dropDownToggle = !dropDownToggle;
-	};
+	$: console.log('session::', $session, sessionData);
 </script>
 
 <div
@@ -69,16 +80,21 @@
 			class:isNotHomePage={!isHomePage}
 			class:engineInRoute
 			class:gameProfile={(isProfilePage || playInRoute) && !engineInRoute}
+			class:showSideBar={$sideBarState}
 		>
 			<ul class:matchGridWidth={!engineInRoute && isBrowsePage}>
 				<ul>
 					{#if engineInRoute}
 						<li class:hiddenItem={!engineInRoute}>
 							<Button
-								action={() => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen)}
+								action={toggleFileSystemSidebar}
 								label={$fileSystemSidebarOpen ? 'close' : 'open'}
 								link={null}
 							/>
+						</li>
+					{:else}
+						<li>
+							<Button action={toggleSideBar} label={$sideBarState ? 'close' : 'open'} link={null} />
 						</li>
 					{/if}
 					{#if engineInRoute}
@@ -90,12 +106,6 @@
 							/>
 						</li>
 					{/if}
-					<li class="home" style="height: calc(100% - 20px) !important;">
-						<Button link="/" action={null} label={'Home'} />
-					</li>
-					<li class="browse" style="height: calc(100% - 20px) !important;">
-						<Button link="/games" action={null} label={'Browse'} />
-					</li>
 				</ul>
 				<ul class="profile-info">
 					{#if sessionData?.username || $session?.username}
@@ -103,6 +113,7 @@
 							<Button
 								link="/users/{sessionData?.id}"
 								userName={sessionData?.username ?? $session?.username}
+								userAvatar={sessionData?.profile_photo ?? $session?.profile_photo}
 								isRounded
 								action={toggleDropDown}
 								showDropDown={dropDownToggle}
@@ -124,14 +135,57 @@
 			</ul>
 		</nav>
 
-		<main
-			class:isProfilePage
-			class:scrollable={!engineInRoute && !playInRoute && isBrowsePage}
-			class:editor={(engineInRoute || playInRoute) && !isBrowsePage}
-			style={`${themeString}`}
-		>
-			<slot />
-		</main>
+		<div class="page-container" class:engineInRoute>
+			<div
+				class="sidebar"
+				class:engineInRoute
+				class:showSideBar={$sideBarState}
+				bind:clientWidth={$sideBarWidth}
+			>
+				<div class="sidebar-section">
+					<ul>
+						<a href="/games" class:active={isBrowsePage}> Home </a>
+						<a href="">Quick Play</a>
+						<a href="">Favorites</a>
+					</ul>
+				</div>
+				<hr class="sidebar-divider" />
+				<div class="sidebar-section">
+					<h3>Explore</h3>
+					<ul>
+						<a href="/trending">Trending</a>
+						<a href="/top?rated">Top Rated</a>
+						<a href="/top?played">Top Played</a>
+						<a href="/new">Recently Added</a>
+					</ul>
+				</div>
+				<hr class="sidebar-divider" />
+				<div class="sidebar-section">
+					<ul>
+						<a href="">My Projects</a>
+						<a href="">Create New Project</a>
+					</ul>
+				</div>
+				<hr class="sidebar-divider" />
+				<div class="sidebar-section">
+					<ul>
+						<a href="/settings">Settings</a>
+						{#if !sessionData?.username && !$session?.username}
+							<a href="/" class:active={isHomePage}>Sign In or Register</a>
+						{/if}
+					</ul>
+				</div>
+			</div>
+			<main
+				class:isProfilePage
+				class:scrollable={!engineInRoute && !playInRoute && isBrowsePage}
+				class:editor={(engineInRoute || playInRoute) && !isBrowsePage}
+				class:showSideBar={$sideBarState}
+				style={`${themeString}`}
+			>
+				<slot />
+			</main>
+		</div>
 	</div>
 </div>
 
@@ -216,6 +270,14 @@
 	}
 	main.editor {
 		height: calc(100% - 66.5px) !important;
+	}
+	main.showSideBar {
+		width: calc(100% - 230px);
+		left: 230px;
+		position: relative;
+	}
+	:global(.main.showSideBar) {
+		width: calc(100% - 230px);
 	}
 	/* .home {
 		justify-self: flex-end;
@@ -340,5 +402,93 @@
 	/* Handle on hover */
 	::-webkit-scrollbar-thumb:hover {
 		background: #555;
+	}
+	.page-container {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: row;
+	}
+	.page-container.engineInRoute {
+	}
+
+	.sidebar {
+		width: 230px;
+		display: none;
+		height: 100%;
+		background-color: var(--color-secondary);
+		flex-direction: column;
+		position: fixed;
+	}
+	.sidebar.showSideBar {
+		display: flex;
+	}
+	.sidebar-section {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		padding: 10px;
+	}
+	.sidebar-section h3 {
+		font-size: 1.1rem;
+		font-family: var(--action-font) !important;
+		color: var(--color-primary);
+		margin: 0;
+	}
+	.sidebar-section ul {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		list-style: none;
+		padding-inline-start: 10px;
+	}
+	.sidebar-section ul a {
+		display: flex;
+		flex-direction: row;
+		gap: 10px;
+		color: var(--color-primary);
+		padding-block: 0;
+
+		border-width: 0;
+		border-radius: 4px;
+		padding: 10px;
+		text-decoration: none;
+		font-size: 0.9rem;
+		font-family: var(--action-font) !important;
+		text-wrap: nowrap;
+		border-style: none !important;
+		display: flex;
+		align-items: center;
+		max-height: 36.5px;
+		height: 16.5px;
+		font-weight: 500;
+	}
+	.sidebar-section ul a {
+		color: var(--color-primary);
+		text-decoration: none;
+	}
+
+	.sidebar-section ul a:hover {
+		background-color: var(--button-highlight);
+		color: var(--color-primary);
+		cursor: pointer;
+	}
+	.sidebar-section ul a.active {
+		background-color: var(--button-highlight);
+		color: var(--color-primary);
+	}
+	.sidebar-divider {
+		border: 1px solid #f6f6f605;
+		border-radius: 25px;
+		width: 90%;
+	}
+	nav.showSideBar {
+		color: var(--color-primary);
+		padding: 10px;
+		position: fixed;
+		top: 0;
+		left: 230px;
+		z-index: 10;
+		width: calc(100% - 250px);
 	}
 </style>

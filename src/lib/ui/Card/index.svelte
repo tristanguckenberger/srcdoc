@@ -2,9 +2,11 @@
 	// @ts-nocheck
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import Button from '$lib/ui/Button/index.svelte';
+	// import { session } from ''
 
 	export let game;
 	export let thumbnail;
+	export let user;
 	let imageLoaded = false;
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
@@ -38,7 +40,10 @@
 					}}
 				/>
 			</div>
-			<Button link={`/games/${game?.id}/engine`} label={'Open in Engine'} />
+			{#if user === game?.userId}
+				<Button link={`/games/${game?.id}/engine`} label={'Edit in Engine'} />
+			{/if}
+			<!-- <Button link={`/games/${game?.id}/engine`} label={'Open in Engine'} /> -->
 		</div>
 	</div>
 </div>

@@ -7,6 +7,10 @@
 
 	export let data;
 
+	$: console.log('data::', data);
+
+	$: currentUserId = data?.sessionData?.id;
+
 	onMount(() => {
 		firstRun.set(true);
 	});
@@ -17,7 +21,7 @@
 <div class="page-container" class:noSideBar={!engineInRoute}>
 	<div class="main grid" bind:clientWidth={$gridWidth}>
 		{#each data?.games as game, i}
-			<Card {game} thumbnail={`https://picsum.photos/${10 + i}`} />
+			<Card user={currentUserId} {game} thumbnail={`https://picsum.photos/${10 + i}`} />
 		{/each}
 	</div>
 </div>
@@ -42,8 +46,10 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 		gap: 10px;
-		max-width: 1400px;
+		/* max-width: 1400px; */
+		/* grid-template-rows: minmax(242px, 367px); */
 		margin: 0;
+		height: fit-content;
 	}
 	.noSideBar {
 		align-items: center;

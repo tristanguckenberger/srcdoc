@@ -37,3 +37,7 @@ export const redirected = writable(false);
 export const isVertical = writable(true);
 
 export const gridWidth = writable(0);
+
+// Sidebar
+export const sideBarWidth = writable(null);
+export const sideBarState = writable(true);

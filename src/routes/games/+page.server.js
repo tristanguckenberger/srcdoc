@@ -39,7 +39,7 @@ export async function load({ cookies }) {
 
 	const user = await getCurrentUser();
 
-	if (!user?.is_active) {
+	if (user && !user?.is_active) {
 		throw redirect(300, `/users/${user?.id}/verify`);
 	}
 

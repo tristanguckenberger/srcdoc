@@ -3,7 +3,7 @@ export const gameData = [
 		id: 1,
 		title: 'Example PIXI Game',
 		description: 'An example game project',
-		userId: 1,
+		userId: 45,
 		files: [
 			{
 				id: 1,
@@ -838,7 +838,7 @@ body {
 		id: 4,
 		title: 'Example PIXI Game',
 		description: 'An example game project',
-		userId: 1,
+		userId: 45,
 		files: [
 			{
 				id: 1,
@@ -1394,7 +1394,7 @@ body {
 		id: 6,
 		title: 'Example PIXI Game',
 		description: 'An example game project',
-		userId: 1,
+		userId: 45,
 		files: [
 			{
 				id: 1,
