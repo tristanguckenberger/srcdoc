@@ -271,6 +271,8 @@
 	}
 	button.showDropDown {
 		border-bottom-right-radius: 0px !important;
+		position: relative;
+		left: 10px;
 	}
 	button.profileControl {
 		padding-left: 5px;

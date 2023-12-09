@@ -54,7 +54,7 @@
 <div
 	class="layout-container"
 	class:isBrowsePage
-	style="--svg-bg: url('{bgFadedMono16}'); --svg-dark-bg: url('{bgFadedMono13}'); height: 100%; width: 100%;"
+	style="--svg-bg: url('{bgFadedMono16}'); --svg-dark-bg: url('{bgFadedMono13}'); height: 100%; width: 100%; {themeString}"
 >
 	<div
 		class="bg-container"
@@ -65,7 +65,6 @@
 	>
 		<nav
 			class="top"
-			style={`${themeString}`}
 			class:matchGridWidth={!engineInRoute && isBrowsePage}
 			class:isNotHomePage={!isHomePage}
 			class:engineInRoute
@@ -110,7 +109,7 @@
 							/>
 						</li>
 					{/if}
-					<div class="more-container">
+					<div class="more-container" class:dropDownToggle>
 						<div class="more" class:dropDownToggle class:isBrowsePage>
 							<ul>
 								<li>
@@ -156,7 +155,7 @@
 		background-size: 28%;
 	}
 	.bg-container.isBrowsePage {
-		background-image: var(--svg-dark-bg);
+		background-image: none;
 		overflow-y: scroll;
 	}
 	@media (max-width: 768px) {
@@ -174,6 +173,7 @@
 		display: flex;
 		flex-direction: row;
 		max-width: 100%;
+		padding-top: 56.5px;
 		/* background-color: var(--home-bg); */
 	}
 	:global(.main) {
@@ -187,6 +187,10 @@
 		padding: 10px;
 		/* background-color: #fff9d7; */
 		/* border-bottom: 2px solid #fff9d7; */
+		position: fixed;
+		top: 0;
+		z-index: 10;
+		width: calc(100% - 20px);
 	}
 
 	nav ul {
@@ -239,7 +243,7 @@
 		object-fit: cover;
 	}
 	.isNotHomePage {
-		background-color: var(--color-secondary);
+		/* background-color: var(--color-secondary); */
 	}
 	.isBrowsePage {
 		/* overflow-y: scroll; */
@@ -249,8 +253,14 @@
 		/* overflow-y: scroll; */
 		background-color: var(--color-secondary);
 	}
+
 	.more-container {
 		position: relative;
+		display: none;
+	}
+	.more-container.dropDownToggle {
+		display: block;
+		left: 10px;
 	}
 	.more {
 		display: none;
@@ -307,5 +317,28 @@
 	}
 	nav.gameProfile {
 		background-color: #202124 !important;
+	}
+
+	/* SCROLL BAR */
+	/* Style the scrollbar itself (width, color, etc.) */
+	::-webkit-scrollbar {
+		/* width: 10px; */
+		/* z-index: 10000;
+		position: absolute; */
+	}
+
+	/* Style the track of the scrollbar */
+	::-webkit-scrollbar-track {
+		background: var(--color-secondary);
+	}
+
+	/* Style the handle of the scrollbar */
+	::-webkit-scrollbar-thumb {
+		background: #888;
+	}
+
+	/* Handle on hover */
+	::-webkit-scrollbar-thumb:hover {
+		background: #555;
 	}
 </style>
