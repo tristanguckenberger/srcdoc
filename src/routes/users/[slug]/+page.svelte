@@ -2,6 +2,7 @@
 	// @ts-nocheck
 	import { themeDataStore } from '$lib/stores/themeStore.js';
 	import Button from '$lib/ui/Button/index.svelte';
+	import { sideBarState } from '$lib/stores/layoutStore.js';
 
 	export let data;
 
@@ -13,7 +14,7 @@
 	let imageLoaded = false;
 </script>
 
-<div class="user-info-container" style={`${themeString}`}>
+<div class="user-info-container" class:showSideBar={$sideBarState} style={`${themeString}`}>
 	<div class="user-info">
 		<div class="user-header-image-container">
 			<img
@@ -62,6 +63,9 @@
 		width: 100%;
 		display: flex;
 		justify-content: center;
+	}
+	.user-info-container.showSideBar {
+		width: calc(100% - 230px);
 	}
 	.user-info {
 		height: 100%;

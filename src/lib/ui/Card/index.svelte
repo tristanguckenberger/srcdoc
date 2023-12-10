@@ -59,7 +59,7 @@
 		border-radius: 6px;
 		margin: 0;
 		padding: 10px;
-		background-color: #202021;
+		/* background-color: #202021; */
 	}
 	.game:hover {
 		/* background-color: #333; */

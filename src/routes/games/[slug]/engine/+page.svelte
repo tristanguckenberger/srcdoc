@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-
+	import { page } from '$app/stores';
 	import { default as EditorInput } from '$lib/layout/EditorLayouts/Base/Input.svelte';
 	import SplitPane from '$lib/layout/SplitPane/index.svelte';
 	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
@@ -37,6 +37,7 @@
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
 	import { onDestroy } from 'svelte';
+	import { routeHistoryStore } from '$lib/stores/routeStore.js';
 
 	export let data;
 	const play = false;
@@ -46,6 +47,8 @@
 		// We will need to update this data on every keystroke
 		baseDataStore.set(data);
 	}
+
+	$: console.log('$page::', $page);
 
 	$: value = $isVertical;
 	$: srcdocBuild = (async () =>
@@ -59,6 +62,7 @@
 			$gameControllerStore
 		))();
 	$: isSideBarOpen = $fileSystemSidebarOpen;
+	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
 	onDestroy(() => {
 		fileStoreFiles.set(null);
 		focusedFileId.set(null);
@@ -74,6 +78,8 @@
 		fileSystemSidebarOpen.set(true);
 		codePanes2.set([]);
 	});
+
+	$: console.log('routeHistoryStore::', $routeHistoryStore);
 </script>
 
 <div class="main">
@@ -88,6 +94,9 @@
 			class:hidden={!$fileSystemSidebarOpen}
 			bind:clientWidth={$fileSystemSidebarWidth}
 		>
+			<!-- <button on:click={() => console.log('page::', $page)} /> -->
+			<a href={previousRoute}>Back</a>
+			<hr class="sidebar-divider" />
 			<FileTree files={data?.files} parentFileId={null} gameId={data?.id} userId={data?.userId} />
 		</div>
 		<div
@@ -193,5 +202,10 @@
 	#split-input-output.isSideBarOpen {
 		max-width: calc(100% - var(--sidebar-width) + 4px);
 		min-width: calc(100% - 275px);
+	}
+	.sidebar-divider {
+		border: 1px solid #f6f6f605;
+		border-radius: 25px;
+		width: 90%;
 	}
 </style>
