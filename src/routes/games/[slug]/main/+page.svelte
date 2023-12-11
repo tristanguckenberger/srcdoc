@@ -52,10 +52,10 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	let imageLoaded = false;
 
-	$: console.log('data::', data);
+	// $: console.log('data::', data);
 
 	const openModal = () => {
-		console.log('data::atModalOpen', data);
+		// console.log('data::atModalOpen', data);
 		modalComponent.set(EditGameDetails);
 		modalProps.set({
 			gameId: data?.id,

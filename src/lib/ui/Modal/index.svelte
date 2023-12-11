@@ -1,6 +1,12 @@
 <script>
 	// @ts-nocheck
-	import { modalState, modalOpenState, modalStateStore } from '$lib/stores/layoutStore.js';
+	import {
+		modalState,
+		modalOpenState,
+		modalComponent,
+		modalProps,
+		modalStateStore
+	} from '$lib/stores/layoutStore.js';
 	import { sideBarState } from '$lib/stores/layoutStore.js';
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import { onMount } from 'svelte';
@@ -24,9 +30,16 @@
 		if (
 			!e.target.classList.contains('modal') &&
 			e.target.name !== 'title' &&
-			e.target.name !== 'description'
+			e.target.name !== 'description' &&
+			e.target.type !== 'submit'
 		) {
-			modalOpenState.set(false);
+			const checkUser = confirm('Are you sure you want to close this modal?');
+			if (checkUser) {
+				modalOpenState.set(false);
+				// modalComponent.set(null);
+				// modalProps.set(null);
+				// modalStateStore.set(null);
+			}
 		}
 	}}
 />

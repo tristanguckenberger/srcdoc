@@ -19,6 +19,9 @@
 	import { enhance } from '$app/forms';
 	import Modal from '$lib/ui/Modal/index.svelte';
 
+	$: modalIsOpen = $modalOpenState;
+	$: console.log('modalIsOpen::', modalIsOpen);
+
 	export let sessionData;
 	export let data;
 
@@ -68,10 +71,6 @@
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
-
-	$: console.log($modalStateStore);
-
-	// $: console.log('session::', $session, sessionData);
 </script>
 
 <div
@@ -146,7 +145,7 @@
 				</ul>
 			</ul>
 		</nav>
-		{#if $modalStateStore?.modalOpenState}
+		{#if modalIsOpen}
 			<Modal />
 		{/if}
 		<div

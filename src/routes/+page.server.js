@@ -259,7 +259,7 @@ export const actions = {
 		}
 
 		const project = await authResponse.json();
-		console.log('project::', project);
+		// console.log('project::', project);
 
 		if (project?.id) {
 			throw redirect(300, `/games/${project?.id}/main`);

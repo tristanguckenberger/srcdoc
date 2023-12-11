@@ -1,18 +1,19 @@
 <script>
 	// @ts-nocheck
-	import { enhance } from '$app/forms';
-	import { modalState } from '$lib/stores/layoutStore.js';
+	import { enhance, applyAction } from '$app/forms';
+	import { modalProps, modalState, modalOpenState } from '$lib/stores/layoutStore.js';
 	import CustomInput from '$lib/ui/Input/CustomInput.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
+	import { goto } from '$app/navigation';
+	import { redirect } from '@sveltejs/kit';
+	import { invalidate, invalidateAll } from '$app/navigation';
 
-	export let gameId;
-	export let title;
-	export let description;
+	export let gameId = $modalProps?.gameId;
+	export let title = $modalProps?.title;
+	export let description = $modalProps?.description;
 	export let headerImage;
 
-	let newTitle = title;
-	let newDescription = description;
-	let newHeaderImage = headerImage;
+	$: console.log('EditGameDetails::gameId::', gameId);
 
 	// const updateGameDetails = async () => {
 	//     const response = await fetch(`/api/games/${gameId}`, {
@@ -35,15 +36,26 @@
 	class="gameDetails new-project-form modal"
 	method="POST"
 	action="/games/?/updateDetails"
-	use:enhance
+	use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+		const gameId = formData.get('gameId');
+		console.log('enhance::gameId::', gameId);
+		return async ({ result }) => {
+			if (result.status === 200) {
+				modalOpenState.set(false);
+				invalidateAll();
+			} else {
+				await applyAction(result);
+			}
+		};
+	}}
 >
-	<CustomInput inputCapture={'title'}>
+	<CustomInput inputCapture={'title'} inputText={title}>
 		<span slot="label" class="input-label modal">Title</span>
 	</CustomInput>
-	<CustomInput inputCapture={'description'}>
+	<CustomInput inputCapture={'description'} inputText={description}>
 		<span slot="label" class="input-label modal">Description</span>
 	</CustomInput>
-	<input type="text" hidden value={gameId} class="modal" />
+	<CustomInput inputCapture={'gameId'} inputText={gameId} hidden />
 	<Button label="Update Details" isRounded />
 </form>
 

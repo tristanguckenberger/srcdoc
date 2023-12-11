@@ -1,27 +1,35 @@
 <script>
 	// @ts-nocheck
 	import { gameDetails, gameTitle, gameDescription, gameImage } from '$lib/stores/gameDetailsStore';
+	import { modalProps } from '$lib/stores/layoutStore.js';
 
 	export let blurAction = () => {};
 	export let inputCapture;
+	export let inputText;
+	export let hidden = false;
 
-	let inputText = inputCapture ?? '';
 	$: inputText,
 		(() => {
 			switch (inputCapture) {
 				case 'title':
-					gameTitle.set(inputText);
+					gameTitle.set(inputText ?? $modalProps?.title);
+					inputText = $gameTitle;
 					break;
 				case 'description':
-					gameDescription.set(inputText);
+					gameDescription.set(inputText ?? $modalProps?.description);
+					inputText = $gameDescription;
 					break;
 				case 'image':
-					gameImage.set(inputText);
+					gameImage.set(inputText ?? $modalProps?.image);
+					inputText = $gameImage;
 					break;
 				default:
 					break;
 			}
 		})();
+
+	// $: console.log('inputText::', inputText);
+	// $: console.log('$modalProps::', $modalProps);
 </script>
 
 <div class="input-container modal">
@@ -31,6 +39,7 @@
 		{#if inputCapture === 'image'}
 			<input
 				type="file"
+				{hidden}
 				name={inputCapture}
 				bind:value={inputText}
 				on:blur={() => {
@@ -49,6 +58,7 @@
 		{:else}
 			<input
 				type="text"
+				{hidden}
 				name={inputCapture}
 				bind:value={inputText}
 				on:blur={() => {

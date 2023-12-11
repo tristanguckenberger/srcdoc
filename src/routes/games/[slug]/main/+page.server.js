@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { gameData } from '$lib/mockData/gameData.js';
 import { commentData } from '$lib/mockData/commentData.js';
+import { modalOpenState } from '$lib/stores/layoutStore.js';
 
 const getSingleGame = async (slug) => {
 	const gameReqHeaders = new Headers();
@@ -24,6 +25,7 @@ const getSingleGame = async (slug) => {
 };
 
 export async function load({ params }) {
+	modalOpenState.set(false);
 	const { slug } = params;
 
 	const game =

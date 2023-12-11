@@ -43,7 +43,7 @@
 	const play = false;
 
 	$: if (data) {
-		console.log('data:::::::::::::', data.files);
+		// console.log('data:::::::::::::', data.files);
 		// this will be our data's starting point
 		// We will need to update this data on every keystroke
 		baseDataStore.set(data);

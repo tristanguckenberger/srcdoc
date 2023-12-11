@@ -12,7 +12,7 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: gameUserID = game?.userId ?? game?.user_id;
 
-	$: console.log('game::UID', gameUserID);
+	// $: console.log('game::UID', gameUserID);
 </script>
 
 <div class="game" style={`${themeString}`}>

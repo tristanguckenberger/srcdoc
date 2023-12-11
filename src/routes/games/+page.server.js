@@ -93,5 +93,55 @@ export const actions = {
 				project: project
 			}
 		};
+	},
+	updateDetails: async ({ cookies, request }) => {
+		const token = cookies.get('token');
+
+		const formData = await request.formData();
+		const gameId = formData?.get('gameId');
+		const title = formData?.get('title');
+		const description = formData?.get('description');
+
+		const requestHeaders = new Headers();
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+		const requestInit = {
+			method: 'PUT',
+			headers: requestHeaders,
+			mode: 'cors',
+			body: JSON.stringify({
+				title,
+				description
+			})
+		};
+
+		const authResponse = await fetch(
+			`${process.env.SERVER_URL}/api/games/update/${gameId}`,
+			requestInit
+		);
+
+		console.log('authResponse::', authResponse);
+		if (!authResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to create new project'
+				}
+			};
+		}
+
+		const project = await authResponse.json();
+		console.log('project::', project);
+		if (project?.id) {
+			throw redirect(300, `/games/${project?.id}/main`);
+		}
+		return {
+			status: 300,
+			redirect: `/games/${project?.id}/main`,
+			body: {
+				message: 'add_project_success',
+				project: project
+			}
+		};
 	}
 };

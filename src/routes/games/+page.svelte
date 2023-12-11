@@ -7,7 +7,7 @@
 
 	export let data;
 
-	$: console.log('data::', data);
+	// $: console.log('data::', data);
 
 	$: currentUserId = data?.sessionData?.id;
 

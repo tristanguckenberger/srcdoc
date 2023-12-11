@@ -17,7 +17,7 @@
 
 	$: profileControl = Boolean(userName);
 
-	$: console.log(userAvatar);
+	// $: console.log(userAvatar);
 
 	let close = '<-';
 
