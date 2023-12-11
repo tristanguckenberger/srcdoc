@@ -11,6 +11,7 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import bgFadedMono13 from '$lib/assets/bgFadedMono13.svg';
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
+	import { enhance } from '$app/forms';
 
 	export let sessionData;
 	export let data;
@@ -19,7 +20,6 @@
 
 	const browseOptions = [{ option: 'Home' }, { option: 'Quick Play' }, { option: 'Favorites' }];
 
-	$: console.log('routeHistoryStore::', $routeHistoryStore);
 	$: currentBrowseOptionSelection = browseOptions[0];
 
 	// controls file system sidebar toggle button visibility
@@ -30,6 +30,8 @@
 		splitPath.some((path) => path === 'users') ||
 		(splitPath.some((path) => path === 'games') && splitPath.some((path) => path === 'main'));
 	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
+	$: isUserGamesBrowsePage =
+		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
 	$: isHomePage = $page?.route?.id === '/';
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
@@ -61,7 +63,7 @@
 		preferedThemeMode?.removeListener(updateTheme);
 	});
 
-	$: console.log('session::', $session, sessionData);
+	// $: console.log('session::', $session, sessionData);
 </script>
 
 <div
@@ -137,7 +139,11 @@
 			</ul>
 		</nav>
 
-		<div class="page-container" class:engineInRoute>
+		<div
+			class="page-container"
+			class:engineInRoute
+			class:showSideBar={!engineInRoute && $sideBarState}
+		>
 			<div
 				class="sidebar"
 				class:engineInRoute
@@ -146,7 +152,7 @@
 			>
 				<div class="sidebar-section">
 					<ul>
-						<a href="/games" class:active={isBrowsePage}>
+						<a href="/games" class:active={!isUserGamesBrowsePage && isBrowsePage}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -249,7 +255,11 @@
 				<div class="sidebar-section">
 					<h3>Projects</h3>
 					<ul>
-						<a href="">
+						<a
+							href="/users/{sessionData?.id}/games"
+							class:active={isUserGamesBrowsePage}
+							class="sidebar-item"
+						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -262,7 +272,7 @@
 							>
 							<span>My Projects</span>
 						</a>
-						<a href="">
+						<div class="sidebar-action">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -273,8 +283,10 @@
 									d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
 								/></svg
 							>
-							<span> New Project </span>
-						</a>
+							<form method="POST" action="/games/?/addProject" class="new-project-form" use:enhance>
+								<Button class="new-project" label="New Project" />
+							</form>
+						</div>
 					</ul>
 				</div>
 				<hr class="sidebar-divider" />
@@ -532,6 +544,9 @@
 		display: flex;
 		flex-direction: row;
 	}
+	.page-container.showSideBar {
+		overflow-x: hidden;
+	}
 	.page-container.engineInRoute {
 	}
 
@@ -567,7 +582,8 @@
 		list-style: none;
 		padding-inline-start: 10px;
 	}
-	.sidebar-section ul a {
+	.sidebar-section ul a,
+	.sidebar-section ul .sidebar-action {
 		display: flex;
 		flex-direction: row;
 		gap: 25px;
@@ -587,25 +603,34 @@
 		height: 16.5px;
 		font-weight: 500;
 	}
-	.sidebar-section ul a {
+	.sidebar-section ul a,
+	.sidebar-section ul .sidebar-action {
 		color: var(--color-primary);
 		text-decoration: none;
 	}
 
-	.sidebar-section ul a svg {
+	.sidebar-section ul a svg,
+	.sidebar-section ul .sidebar-action svg {
 		height: 1.6rem;
 		width: 1.6rem;
 		fill: var(--color-primary);
 	}
 
-	.sidebar-section ul a:hover {
+	.sidebar-section ul a:hover,
+	.sidebar-section ul .sidebar-action:hover {
 		background-color: var(--button-highlight);
 		color: var(--color-primary);
 		cursor: pointer;
 	}
-	.sidebar-section ul a.active {
+	.sidebar-section ul a.active,
+	.sidebar-section ul .sidebar-action.active {
 		background-color: var(--button-highlight);
 		color: var(--color-primary);
+	}
+	.sidebar-action :global(button) {
+		background-color: transparent !important;
+		padding: 0 !important;
+		font-size: 0.9rem !important;
 	}
 	.sidebar-divider {
 		border: 1px solid #f6f6f605;

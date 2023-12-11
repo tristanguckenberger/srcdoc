@@ -10,6 +10,9 @@
 	let imageLoaded = false;
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
+	$: gameUserID = game?.userId ?? game?.user_id;
+
+	$: console.log('game::UID', gameUserID);
 </script>
 
 <div class="game" style={`${themeString}`}>
@@ -40,7 +43,7 @@
 					}}
 				/>
 			</div>
-			{#if user === game?.userId}
+			{#if user.toString() === gameUserID.toString()}
 				<Button link={`/games/${game?.id}/engine`} label={'Edit in Engine'} />
 			{/if}
 			<!-- <Button link={`/games/${game?.id}/engine`} label={'Open in Engine'} /> -->

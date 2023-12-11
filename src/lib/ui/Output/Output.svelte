@@ -26,7 +26,7 @@
 		(async () => {
 			// Automatically find the ID of the file named 'index' with type 'html'
 			const gameName = $baseDataStore?.title;
-			const joinedGameName = gameName.split(' ').join('_');
+			const joinedGameName = gameName?.split(' ').join('_');
 			const rootFile = await $fileStoreFiles?.find((file) => {
 				return (
 					(file.name === 'root' ||

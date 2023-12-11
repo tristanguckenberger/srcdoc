@@ -56,3 +56,42 @@ export async function load({ cookies }) {
 		}
 	};
 }
+
+export const actions = {
+	addProject: async ({ cookies }) => {
+		const token = cookies.get('token');
+		const requestHeaders = new Headers();
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+		const requestInit = {
+			method: 'POST',
+			headers: requestHeaders,
+			mode: 'cors'
+		};
+
+		const authResponse = await fetch(`${process.env.SERVER_URL}/api/games/create`, requestInit);
+		if (!authResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to create new project'
+				}
+			};
+		}
+
+		const project = await authResponse.json();
+		console.log('project::', project);
+
+		if (project?.id) {
+			throw redirect(300, `/games/${project?.id}/main`);
+		}
+		return {
+			status: 300,
+			redirect: `/games/${project?.id}/main`,
+			body: {
+				message: 'add_project_success',
+				project: project
+			}
+		};
+	}
+};

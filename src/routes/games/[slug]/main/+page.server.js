@@ -1,11 +1,35 @@
+// @ts-nocheck
 import { gameData } from '$lib/mockData/gameData.js';
 import { commentData } from '$lib/mockData/commentData.js';
 
-export function load({ params }) {
+const getSingleGame = async (slug) => {
+	const gameReqHeaders = new Headers();
+	const gameReqInit = {
+		method: 'GET',
+		headers: gameReqHeaders
+	};
+
+	const gameResponse = await fetch(`${process.env.SERVER_URL}/api/games/${slug}`, gameReqInit);
+	if (!gameResponse.ok) {
+		return {
+			status: 401,
+			body: {
+				message: 'Authentication failed'
+			}
+		};
+	}
+
+	const game = await gameResponse.json();
+	return game;
+};
+
+export async function load({ params }) {
 	const { slug } = params;
 
+	const game =
+		(await getSingleGame(slug)) ?? gameData.find((game) => game?.id.toString() === slug.toString());
+
 	// find the game by slug
-	const game = gameData.find((game) => game?.id.toString() === slug.toString());
 	const comments = commentData.filter((comment) => comment?.gameId.toString() === slug.toString());
 
 	return {

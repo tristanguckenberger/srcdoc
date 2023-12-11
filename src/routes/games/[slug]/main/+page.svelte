@@ -44,6 +44,8 @@
 	});
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	let imageLoaded = false;
+
+	$: console.log('data::', data);
 </script>
 
 <div class="game-info-container" style={`${themeString}`}>

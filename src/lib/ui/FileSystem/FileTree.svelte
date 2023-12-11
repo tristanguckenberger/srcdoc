@@ -328,9 +328,10 @@
 
 	function buildItemThreads(parentId, items) {
 		const threads = [];
+		console.log('items::', items);
 
 		for (const item of items) {
-			if (item.parentFileId === parentId) {
+			if ((item?.parentFileId ?? item?.parent_file_id) === parentId) {
 				const children = buildItemThreads(item.id, items);
 				threads.push({
 					...item,
@@ -381,7 +382,9 @@
 		 *
 		 */
 
-		if ($fileSystemMetaDataStore?.gameId !== reactiveGameId) {
+		if (
+			($fileSystemMetaDataStore?.gameId ?? $fileSystemMetaDataStore?.game_id) !== reactiveGameId
+		) {
 			fileSystemExpanderStore.set({});
 			fileSystemMetaDataStore.set({
 				gameId: reactiveGameId,

@@ -43,12 +43,11 @@
 	const play = false;
 
 	$: if (data) {
+		console.log('data:::::::::::::', data.files);
 		// this will be our data's starting point
 		// We will need to update this data on every keystroke
 		baseDataStore.set(data);
 	}
-
-	$: console.log('$page::', $page);
 
 	$: value = $isVertical;
 	$: srcdocBuild = (async () =>
@@ -63,6 +62,7 @@
 		))();
 	$: isSideBarOpen = $fileSystemSidebarOpen;
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
+
 	onDestroy(() => {
 		fileStoreFiles.set(null);
 		focusedFileId.set(null);
@@ -78,8 +78,6 @@
 		fileSystemSidebarOpen.set(true);
 		codePanes2.set([]);
 	});
-
-	$: console.log('routeHistoryStore::', $routeHistoryStore);
 </script>
 
 <div class="main">
@@ -97,7 +95,12 @@
 			<!-- <button on:click={() => console.log('page::', $page)} /> -->
 			<a href={previousRoute}>Back</a>
 			<hr class="sidebar-divider" />
-			<FileTree files={data?.files} parentFileId={null} gameId={data?.id} userId={data?.userId} />
+			<FileTree
+				files={data?.files}
+				parentFileId={null}
+				gameId={data?.id}
+				userId={data?.userId ?? data?.user_id}
+			/>
 		</div>
 		<div
 			bind:clientWidth={$inputOutputContainerWidth}
