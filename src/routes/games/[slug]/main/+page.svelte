@@ -26,6 +26,7 @@
 		modalProps
 	} from '$lib/stores/layoutStore.js';
 	import EditGameDetails from '$lib/ui/Modal/components/EditGameDetails.svelte';
+	import Widget from '$lib/ui/Widget/index.svelte';
 
 	export let data;
 
@@ -65,37 +66,40 @@
 		});
 		modalOpenState.set(true);
 	};
+	$: console.log('data::games/slug/main', data);
 </script>
 
 <div class="game-info-container" style={`${themeString}`}>
 	<div class="game-info">
-		<div class="game-header-image-container">
-			<img
-				class="game-header-image"
-				class:showImage={imageLoaded}
-				src={data?.headerImage ?? 'https://picsum.photos/2000/300'}
-				on:load={() => {
-					imageLoaded = true;
-				}}
-			/>
-			<div class="game-header-placeholder" class:hidePlaceholder={imageLoaded} />
-		</div>
-		<div class="game-details">
-			<div class="game-controls">
+		<div class="header-detail">
+			<div class="game-header-image-container">
+				<img
+					class="game-header-image"
+					class:showImage={imageLoaded}
+					src={data?.headerImage ?? 'https://picsum.photos/2000/300'}
+					on:load={() => {
+						imageLoaded = true;
+					}}
+				/>
+				<div class="game-header-placeholder" class:hidePlaceholder={imageLoaded} />
+			</div>
+			<div class="game-details">
 				<h1>{data?.title}</h1>
-				<div class="main-action-container">
-					<Button action={() => openModal()} label={'Edit Page Details'} />
-					<Button link={`/games/${data?.id}/engine`} label={'Open in Engine'} />
-					<div class="trailing-btn"><Button link={`/games/${data?.id}/play`} label={'Play'} /></div>
+				<div class="game-text">
+					<p>{data?.description}</p>
 				</div>
 			</div>
-			<div class="game-text">
-				<p>{data?.description}</p>
+		</div>
+		<div class="game-controls">
+			<div class="main-action-container">
+				{#if data?.user_id === data?.sessionData?.id}
+					<div class="edit"><Button action={() => openModal()} label={'Edit Game Details'} /></div>
+				{/if}
+				<Button link={`/games/${data?.id}/engine`} label={'Open in Engine'} />
+				<div class="trailing-btn"><Button link={`/games/${data?.id}/play`} label={'Play'} /></div>
 			</div>
 		</div>
-		<div class="comment-container">
-			<Comment gameId={data?.gameId} comments={data?.comments} parentCommentId={null} />
-		</div>
+		<Widget content={data} />
 	</div>
 </div>
 
@@ -129,9 +133,14 @@
 	.game-details {
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
 		border-radius: 6px;
 		padding: 10px 0 10px 0;
+		min-width: 35%;
+	}
+	.game-details h1 {
+		font-family: var(--header-font);
+		color: var(--color-primary);
+		margin-block-start: 0;
 	}
 	.main-action-container {
 		display: flex;
@@ -187,5 +196,15 @@
 			flex-direction: column;
 			justify-content: flex-end;
 		}
+	}
+	.main-action-container div.edit :global(button) {
+		background-color: rgb(32 33 36);
+		height: 36.5px;
+	}
+	.header-detail {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		gap: 20px;
 	}
 </style>
