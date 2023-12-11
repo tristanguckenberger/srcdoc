@@ -19,6 +19,13 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import Comment from '$lib/ui/Comment/Index.svelte';
 	import { commentStoreComments } from '$lib/stores/commentStore.js';
+	import {
+		modalState,
+		modalOpenState,
+		modalComponent,
+		modalProps
+	} from '$lib/stores/layoutStore.js';
+	import EditGameDetails from '$lib/ui/Modal/components/EditGameDetails.svelte';
 
 	export let data;
 
@@ -46,6 +53,18 @@
 	let imageLoaded = false;
 
 	$: console.log('data::', data);
+
+	const openModal = () => {
+		console.log('data::atModalOpen', data);
+		modalComponent.set(EditGameDetails);
+		modalProps.set({
+			gameId: data?.id,
+			title: data?.title,
+			description: data?.description,
+			headerImage: data?.headerImage
+		});
+		modalOpenState.set(true);
+	};
 </script>
 
 <div class="game-info-container" style={`${themeString}`}>
@@ -65,6 +84,7 @@
 			<div class="game-controls">
 				<h1>{data?.title}</h1>
 				<div class="main-action-container">
+					<Button action={() => openModal()} label={'Edit Page Details'} />
 					<Button link={`/games/${data?.id}/engine`} label={'Open in Engine'} />
 					<div class="trailing-btn"><Button link={`/games/${data?.id}/play`} label={'Play'} /></div>
 				</div>

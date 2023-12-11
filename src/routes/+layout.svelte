@@ -4,7 +4,12 @@
 	import { routeHistoryStore } from '$lib/stores/routeStore.js';
 	import { autoCompile, fileSystemSidebarOpen, triggerCompile } from '$lib/stores/filesStore';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
-	import { sideBarState, sideBarWidth } from '$lib/stores/layoutStore.js';
+	import {
+		sideBarState,
+		sideBarWidth,
+		modalStateStore,
+		modalOpenState
+	} from '$lib/stores/layoutStore.js';
 	import { onMount, onDestroy } from 'svelte';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { browser } from '$app/environment';
@@ -12,6 +17,7 @@
 	import bgFadedMono13 from '$lib/assets/bgFadedMono13.svg';
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
 	import { enhance } from '$app/forms';
+	import Modal from '$lib/ui/Modal/index.svelte';
 
 	export let sessionData;
 	export let data;
@@ -63,6 +69,8 @@
 		preferedThemeMode?.removeListener(updateTheme);
 	});
 
+	$: console.log($modalStateStore);
+
 	// $: console.log('session::', $session, sessionData);
 </script>
 
@@ -97,7 +105,7 @@
 							/>
 						</li>
 					{:else}
-						<li>
+						<li class="sidebar-toggle" class:showSideBar={$sideBarState}>
 							<Button action={toggleSideBar} label={$sideBarState ? 'close' : 'open'} link={null} />
 						</li>
 					{/if}
@@ -138,7 +146,9 @@
 				</ul>
 			</ul>
 		</nav>
-
+		{#if $modalStateStore?.modalOpenState}
+			<Modal />
+		{/if}
 		<div
 			class="page-container"
 			class:engineInRoute
@@ -150,7 +160,7 @@
 				class:showSideBar={$sideBarState}
 				bind:clientWidth={$sideBarWidth}
 			>
-				<div class="sidebar-section">
+				<div id="primary-actions" class="sidebar-section">
 					<ul>
 						<a href="/games" class:active={!isUserGamesBrowsePage && isBrowsePage}>
 							<svg
@@ -508,6 +518,7 @@
 	}
 	.bg-container.gameProfile {
 		background-color: #202124 !important;
+		display: flex;
 	}
 	nav.engineInRoute {
 		background-color: #202124 !important;
@@ -645,5 +656,15 @@
 		left: 230px;
 		z-index: 10;
 		width: calc(100% - 250px);
+	}
+	.sidebar-toggle {
+		position: absolute;
+	}
+	.sidebar-toggle.showSideBar {
+		left: -220px;
+	}
+
+	#primary-actions {
+		margin-block-start: 40px;
 	}
 </style>

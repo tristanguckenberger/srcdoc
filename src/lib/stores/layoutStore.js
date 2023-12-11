@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 const createWritableStore = (key, startValue) => {
 	const { subscribe, set } = writable(startValue);
 
@@ -41,3 +41,20 @@ export const gridWidth = writable(0);
 // Sidebar
 export const sideBarWidth = writable(null);
 export const sideBarState = writable(true);
+
+export const modalState = writable({});
+
+export const modalOpenState = writable(false);
+export const modalComponent = writable(null);
+export const modalProps = writable({});
+
+export const modalStateStore = derived(
+	[modalOpenState, modalComponent, modalProps],
+	([$modalOpenState, $modalComponent, $modalProps]) => {
+		return {
+			modalOpenState: $modalOpenState,
+			modalComponent: $modalComponent,
+			modalProps: $modalProps
+		};
+	}
+);
