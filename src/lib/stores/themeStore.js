@@ -42,11 +42,12 @@ const darkTheme = readable([
 	'--color-secondary: #202124;',
 	'--text-color-highlight: #ffffff;',
 	'--text-color-primary: #e8eaed;',
-	'--button-highlight: rgb(44 44 44);',
+	'--button-highlight: #1C1D1F;',
+	'--faded-highlight: #1c1d1f6e;',
 	'--folder-button-color: #cccccc;',
 	'--color-highlight-faded: rgba(0, 0, 0, 0.1);',
 	'--color-accent: #4ca5ff;',
-	'--darker-bg: #1c1d1f;',
+	'--darker-bg: #121314;',
 	'--text-box: #1a1b1d;',
 	'--text-box-outline: rgb(44 44 44);'
 ]);

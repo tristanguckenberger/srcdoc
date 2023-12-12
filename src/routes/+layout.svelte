@@ -453,7 +453,7 @@
 		height: calc(100% - 66.5px);
 		/* overflow-y: scroll; */
 		/* background-color: var(--color-secondary); */
-		background-color: #1a1b1d;
+		background-color: var(--darker-bg);
 	}
 
 	.more-container {
@@ -506,7 +506,7 @@
 		padding-top: 10px;
 	}
 	.layout-container.isBrowsePage {
-		background-color: #202124;
+		background-color: #1a1b1d;
 	}
 	.bg-container.engineInRoute {
 		background-color: #202124 !important;

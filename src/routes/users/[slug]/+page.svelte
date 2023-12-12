@@ -98,7 +98,7 @@
 		display: flex;
 		flex-direction: row;
 		align-items: flex-start;
-		padding: 10px 0 10px 10px;
+		padding: 10px 0 10px 0;
 		gap: 10px;
 	}
 	/* .user-controls {

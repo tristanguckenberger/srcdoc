@@ -67,7 +67,7 @@
 		height: calc(100% + 10px);
 		width: 100%;
 		/* background-color: var(--color-secondary); */
-		background-color: #1a1b1d;
+		background-color: var(--darker-bg);
 	}
 	.modifiedWidth {
 		max-width: calc(100% + 10px) !important;

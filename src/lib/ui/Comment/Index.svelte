@@ -15,6 +15,8 @@
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import CustomInput from '$lib/ui/Input/CustomInput.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
+	import CaretDown from '$lib/assets/CaretDown.svg';
+	import CaretLeft from '$lib/assets/CaretLeft.svg';
 
 	export let gameId;
 	export let userId;
@@ -109,27 +111,14 @@
 		return threads;
 	}
 	function toggleComment({ id }, comment) {
+		if (disabledToggle) {
+			return;
+		}
 		$commentSystemExpanderStore[id] = !$commentSystemExpanderStore[id];
 		commentSystemExpanderStore.set($commentSystemExpanderStore);
 		tick();
 	}
-	function autoResize(textAreaId) {
-		console.log('autoResize::textAreaId', textAreaId);
-		console.log('autoResize::text-area-${newCommentParent}', `text-area-${newCommentParent?.id}`);
-		if (creatingComment && textAreaId !== `text-area-${newCommentParent?.id}`) {
-			return;
-		}
-
-		if (showNewCommentActions) {
-			creatingComment = false;
-			return;
-		}
-
-		if (creatingComment) {
-			showNewCommentActions = false;
-			return;
-		}
-
+	function autoResize() {
 		newCommentTextArea.style.height = 'fit-content';
 		let textAreaCharCount = newCommentTextArea?.value?.length;
 		const textAreaLineCount = newCommentTextArea?.value?.split('\n').length;
@@ -159,6 +148,16 @@
 		init = false;
 		newCommentTotalCharacters = textAreaCharCount;
 	}
+	function calculateGradientDirctionAndPosition(deg) {
+		const gradientDirection = deg;
+		const gradientPosition = gradientDirection / 360;
+
+		// switch (gradientPosition) {
+
+		// }
+
+		return gradientPosition;
+	}
 
 	const commentText = writable('');
 	const newCommentMaxLength = 1500;
@@ -175,19 +174,42 @@
 	let newCommentTotalCharacters = 0;
 	let inputText = '';
 	let newCommentTextArea;
+	let showNewCommentActions = false;
+	let disabledToggle = false;
 
 	$: reactiveGameId = gameId;
 	$: reactiveUserId = userId;
 	$: hasChildren = threadedComments[0]?.children?.length >= 1;
 	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: newCommentTextArea && init && autoResize(`text-area-root`);
+	$: newCommentTextArea && init && autoResize();
 	$: threadedComments = buildItemThreads(parentCommentId, $commentStoreComments ?? comments);
 	$: comments, commentStoreComments.set(comments);
-
-	let showNewCommentActions = false;
+	$: disabledToggle === true,
+		setTimeout(() => {
+			disabledToggle = false;
+		}, 50);
 </script>
 
-<svelte:window on:click={(e) => console.log(e.target)} />
+<svelte:window
+	on:click={(e) => {
+		if (e.target.classList.contains('reply') || e.target.classList.contains('edit')) {
+			disabledToggle = true;
+		}
+	}}
+	on:load={() => {
+		console.log('::on:load::');
+		// console.log('::comments::', comments);
+		// console.log('::threadedComments::', threadedComments);
+
+		// find .comment-container.parent::after
+		const after = document.querySelector('.comment-container.parent::after');
+		console.log('::after::', after);
+		// add event listener to .comment-container.parent::after for on click
+		after.addEventListener('click', (e) => {
+			console.log('::after::onclick::');
+		});
+	}}
+/>
 
 {#if parentCommentId === null}
 	<AddCommentForm {gameId} {comments} {parentCommentId} />
@@ -196,15 +218,18 @@
 	class="comment-tree"
 	class:isRoot={parentCommentId === null}
 	class:hasChildren
-	style={themeString}
+	style={`${themeString} --caret-down: url('${CaretDown}'); --caret-left: url('${CaretLeft}');`}
 	class:noComments={threadedComments.length === 0}
 >
 	{#if threadedComments?.length === 0}
 		<p class="no-comments">Be the first to leave a comment</p>
 	{:else}
 		{#await threadedComments then threads}
-			{#each threads as comment (comment.id)}
-				<li class="comment-item">
+			{#each threads as comment, i (comment.id)}
+				<li
+					class="comment-item"
+					style={`--multiplyer: ${calculateGradientDirctionAndPosition(270 * (i + 1))}rad;`}
+				>
 					{#if comment.type === 'parent'}
 						{#if isEditing && editingId === comment.id}
 							<div
@@ -220,11 +245,10 @@
 						{:else}
 							<div
 								class="comment-container parent"
-								class:expaneded={$commentSystemExpanderStore[comment.id]}
+								class:expanded={$commentSystemExpanderStore[comment.id]}
 							>
 								<Button
 									link="/users/{comment?.userId}"
-									action={() => toggleComment(comment)}
 									userName={`@${comment?.userName}`}
 									userAvatar={comment?.userAvatar}
 									style={'padding: 0 10px; background-color: transparent !important; width: fit-content !important;'}
@@ -232,7 +256,6 @@
 								<div
 									class="comment parent row"
 									class:expanded={$commentSystemExpanderStore[comment.id]}
-									on:click={() => toggleComment(comment)}
 								>
 									<p>
 										<span class="commentText">{comment.commentText}</span>
@@ -249,6 +272,17 @@
 											additionalClasses={'existing-comment-action reply'}
 										/>
 									</div>
+								</div>
+								<div
+									class="after-icon"
+									on:click={() => {
+										toggleComment(comment);
+									}}
+								>
+									<img
+										src={$commentSystemExpanderStore[comment.id] ? CaretDown : CaretLeft}
+										alt="caret-left"
+									/>
 								</div>
 							</div>
 						{/if}
@@ -488,17 +522,17 @@
 		border-radius: 8px;
 		transition: background-color 0.1s linear;
 		background: hsla(0, 0%, 16%, 1);
-		background: linear-gradient(315deg, hsla(0, 0%, 16%, 1) 21%, hsla(0, 0%, 35%, 1) 76%);
+		background: linear-gradient(167deg, hsla(0, 0%, 16%, 1) 21%, hsla(0, 0%, 35%, 1) 76%);
 		background: -moz-linear-gradient(315deg, hsla(0, 0%, 16%, 1) 21%, hsla(0, 0%, 35%, 1) 76%);
 		background: -webkit-linear-gradient(
-			315deg,
-			hsl(218.63deg 4.85% 12.25%) 21%,
-			hsl(227.34deg 4.13% 11.31%) 76%
+			var(--multiplyer),
+			var(--faded-highlight) 1%,
+			var(--darker-bg) 99%
 		);
 	}
 
 	.comment-container.parent::after {
-		content: '<';
+		/* content: '<';
 		font-family: 'Recursive', sans-serif;
 		position: absolute;
 		top: 7px;
@@ -506,22 +540,23 @@
 		font-size: 1.5rem;
 		font-weight: 400;
 		color: #2a2b2e;
+		z-index: 20; */
 	}
 
-	.comment-container.parent.expaneded {
+	.comment-container.parent.expanded {
 		background-color: #24242447;
 		padding-top: 23px;
 		border-radius: 8px;
 	}
-	.comment-container.parent.expaneded::after {
-		content: 'v';
+	.comment-container.parent.expanded::after {
+		/* content: 'v';
 		font-family: 'Recursive', sans-serif;
 		position: absolute;
 		top: 7px;
 		right: 23px;
 		font-size: 1.5rem;
 		font-weight: 400;
-		color: #2a2b2e;
+		color: #2a2b2e; */
 	}
 	/* .comment.parent.row p .commentText::before {
 		padding-right: 20px;
@@ -531,4 +566,50 @@
 	.comment.parent.row.expanded p .commentText::before {
 		content: 'v';
 	} */
+	/* .after-icon {
+		display: none;
+	} */
+
+	.comment-container.parent .after-icon {
+		font-family: 'Recursive', sans-serif;
+		position: absolute;
+		top: 20px;
+		right: 20px;
+		font-size: 1.5rem;
+		font-weight: 400;
+		color: #2a2b2e;
+		background-color: var(--button-highlight);
+		padding: 6px;
+		border-radius: 6px;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		transition: color 0.2s linear;
+	}
+
+	.comment-container.parent .after-icon img {
+		filter: brightness(0.5);
+		transition: filter 0.2s linear;
+		width: 15.6px;
+		height: 15.6px;
+	}
+
+	.after-icon:hover {
+		cursor: pointer;
+	}
+	.comment-container.parent:hover {
+		cursor: default !important;
+	}
+	.comment.parent.row:hover {
+		cursor: default !important;
+	}
+
+	.comment-container.parent .after-icon:hover img {
+		filter: brightness(1);
+	}
+	.comment-container {
+		padding-left: 20px;
+		padding-top: 20px;
+	}
 </style>

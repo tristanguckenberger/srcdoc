@@ -270,20 +270,18 @@
 		gap: 9px;
 		border-radius: 30px;
 		align-items: center;
-		background-color: transparent !important;
-
-		/* background-color: #245d74 !important; */
+		background-color: var(--button-highlight) !important;
 	}
 	button.isRounded.userName:hover,
 	a.isRounded.userName:hover {
-		background-color: var(--text-box-outline) !important;
+		background-color: #252629 !important;
 	}
 	.avatar {
 		border-radius: 50%;
-		width: 24.5px;
-		height: 24.5px;
+		width: 23.5px;
+		height: 23.5px;
 		object-fit: cover;
-		border: 2px solid #e3f1f6;
+		border: 2px solid #a69160;
 		color: #e3f1f6;
 	}
 	.profile-quick-control {
@@ -294,15 +292,18 @@
 	}
 	button.showDropDown {
 		border-bottom-right-radius: 0px !important;
+		border-bottom-left-radius: 0px !important;
+		border-top-left-radius: 18px !important;
+		border-top-right-radius: 18px !important;
 		position: relative;
 		left: 10px;
 	}
 	button.profileControl {
-		padding-left: 5px;
+		padding-left: 4.67px;
 	}
 	button.logoutButton {
 		background-color: transparent !important;
-		color: var(--color-secondary) !important;
+		color: var(--color-primary) !important;
 	}
 	.dropdown-btn {
 		background-color: transparent !important;

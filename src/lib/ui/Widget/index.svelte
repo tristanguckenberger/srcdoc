@@ -53,7 +53,7 @@
 			<div class="tab btn-{i}" class:active={option === i}>
 				<Button
 					action={() => setOption(i)}
-					class="widget-button btn-{i} {avoption.name}"
+					additionalClasses={'widget-button btn-{i} {avoption.name}'}
 					label={avoption.name}
 				/>
 			</div>
@@ -67,7 +67,7 @@
 
 <style>
 	.widget-container {
-		background-color: var(--text-box);
+		/* background-color: var(--text-box); */
 		padding: 0;
 		border-radius: 4px;
 		min-height: 75px;
@@ -91,18 +91,22 @@
 		font-weight: 200;
 	}
 	.tab {
-		/* border-bottom: 1px solid var(--text-box-outline); */
 		padding: 10px;
 		position: relative;
 		top: -10px;
 		border-radius: 6px;
-		border-top-right-radius: 0;
-		border-top-left-radius: 0;
+		border-top-right-radius: 8px;
+		border-top-left-radius: 8px;
+	}
+
+	.tab :global(button) {
+		color: #cdcdcdb4 !important;
 	}
 	.tab.active {
 		/* border-bottom: 1px solid var(--text-color-highlight); */
 		/* background-color: #202124; */
 		/* color: var(--text-color-highlight); */
+		/* background: -webkit-linear-gradient(270deg, #1e1f21 0%, #1a1b1d 40%); */
 	}
 	.tab.active :global(button) {
 		color: var(--text-color-highlight) !important;
@@ -111,6 +115,10 @@
 		padding: 20px;
 		overflow-y: scroll;
 		height: 100%;
-		max-height: 50vh;
+		max-height: calc(100% - 97px);
+	}
+	.tab :global(button:hover) {
+		background-color: transparent !important;
+		color: var(--text-color-highlight) !important;
 	}
 </style>
