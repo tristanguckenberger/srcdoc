@@ -6,50 +6,60 @@
 	import Reviews from './Components/Reviews.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
 
-	export let option = 0;
+	export let selectedOption = 0;
 	export let content;
+	export let options = [];
 	let ComponentOptions = [];
 
-	$: console.log('content::', content);
+	// $: console.log('content::', content);
 
-	$: reactiveContent = content ?? {};
+	// $: reactiveContent = content ?? {};
 
-	$: reactiveContent?.comments,
-		(() =>
-			(ComponentOptions = [
-				{
-					name: 'Comments',
-					props: {
-						gameId: reactiveContent?.id,
-						comments: reactiveContent?.comments,
-						parentCommentId: null
-					},
-					component: Comments
-				},
-				{
-					name: 'Issues',
-					component: Issues
-				},
-				{
-					name: 'Reviews',
-					component: Reviews
-				}
-			]))();
+	// $: reactiveContent?.comments,
+	// 	(() =>
+	// 		(ComponentOptions = [
+	// 			{
+	// 				name: 'Comments',
+	// 				props: {
+	// 					gameId: reactiveContent?.id,
+	// 					comments: reactiveContent?.comments,
+	// 					parentCommentId: null
+	// 				},
+	// 				component: Comments
+	// 			},
+	// 			{
+	// 				name: 'Issues',
+	// 				component: Issues
+	// 			},
+	// 			{
+	// 				name: 'Reviews',
+	// 				component: Reviews
+	// 			}
+	// 		]))();
 
-	$: console.log('ComponentOptions::', ComponentOptions);
+	// $: console.log('ComponentOptions::', ComponentOptions);
 
-	$: Component = ComponentOptions[option].component;
+	$: Component = options[selectedOption].component;
 
-	const setOption = (i) => {
-		// option = i;
-		console.log('i::', i);
-		option = i;
-	};
+	// const setOption = (i) => {
+	// 	// option = i;
+	// 	console.log('i::', i);
+	// 	option = i;
+	// };
+
+	// let select;
+
+	// $: console.log('select::', select);
 </script>
 
 <div class="widget-container">
 	<div class="widget-controls">
-		{#each ComponentOptions as avoption, i (avoption.name)}
+		<!-- <select on:change={setOption(select?.value)} bind:this={select}>
+			{#each ComponentOptions as avoption, i (avoption.name)}
+				<option value={i}>{avoption.name}</option>
+			{/each}
+		</select> -->
+		<!-- {#each ComponentOptions as avoption, i (avoption.name)}
 			<div class="tab btn-{i}" class:active={option === i}>
 				<Button
 					action={() => setOption(i)}
@@ -57,11 +67,11 @@
 					label={avoption.name}
 				/>
 			</div>
-		{/each}
+		{/each} -->
 	</div>
 
 	<div class="component-container">
-		<svelte:component this={Component} {...ComponentOptions[option].props} />
+		<svelte:component this={Component} {...options[selectedOption].props} />
 	</div>
 </div>
 

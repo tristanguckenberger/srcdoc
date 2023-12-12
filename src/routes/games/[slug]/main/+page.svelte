@@ -50,12 +50,21 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import EditGameDetails from '$lib/ui/Modal/components/EditGameDetails.svelte';
 	import Widget from '$lib/ui/Widget/index.svelte';
+	import Comments from '$lib/ui/Widget/Components/Comments.svelte';
+	import Issues from '$lib/ui/Widget/Components/Issues.svelte';
+	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
+
+	import CaretDown from '$lib/assets/CaretDown.svg';
+	import CaretLeft from '$lib/assets/CaretLeft.svg';
 
 	export let data;
 
 	let imageExpanded = false;
 	let imageLoaded = false;
 	let reactiveData = {};
+	let select;
+	let selectedOption = 0;
+	let ComponentOptions = [];
 
 	function openModal() {
 		modalComponent.set(EditGameDetails);
@@ -67,6 +76,10 @@
 		});
 		modalOpenState.set(true);
 	}
+
+	const setOption = (i) => {
+		selectedOption = i;
+	};
 	onMount(() => {
 		firstRun.set(true);
 	});
@@ -87,11 +100,36 @@
 		commentStoreComments.set(null);
 	});
 
+	$: reactiveData?.comments,
+		(() =>
+			(ComponentOptions = [
+				{
+					name: 'Comments',
+					props: {
+						gameId: reactiveData?.id,
+						comments: reactiveData?.comments,
+						parentCommentId: null
+					},
+					component: Comments
+				},
+				{
+					name: 'Issues',
+					component: Issues
+				},
+				{
+					name: 'Reviews',
+					component: Reviews
+				}
+			]))();
+
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: data?.comments, (reactiveData = data ?? {});
 </script>
 
-<div class="game-info-container" style={`${themeString}`}>
+<div
+	class="game-info-container"
+	style={`${themeString} --caret-down: url('${CaretDown}'); --caret-left: url('${CaretLeft}');`}
+>
 	<div class="game-info">
 		<div class="header-detail">
 			<div class="game-header-image-container">
@@ -120,9 +158,19 @@
 				{/if}
 				<Button link={`/games/${data?.id}/engine`} label={'Open in Engine'} />
 				<div class="trailing-btn"><Button link={`/games/${data?.id}/play`} label={'Play'} /></div>
+				<div class="select-container">
+					<select on:change={setOption(select.value)} bind:this={select}>
+						{#each ComponentOptions as avoption, i (avoption.name)}
+							<option value={i}>{avoption.name}</option>
+						{/each}
+					</select>
+					<span class="indicator">
+						<img src={CaretDown} alt="caret-left" />
+					</span>
+				</div>
 			</div>
 		</div>
-		<Widget content={reactiveData} />
+		<Widget content={reactiveData} options={ComponentOptions} {selectedOption} />
 	</div>
 </div>
 
@@ -232,5 +280,45 @@
 		flex-direction: row;
 		justify-content: space-between;
 		gap: 20px;
+	}
+	.select-container {
+		display: flex;
+		background-color: var(--button-highlight);
+		border-radius: 4px;
+		justify-content: center;
+		align-items: center;
+	}
+	select {
+		appearance: none;
+		color: var(--color-primary) !important;
+		border-width: 0;
+		border-radius: 4px;
+		padding: 0 30px 0 10px;
+		background-color: var(--button-highlight);
+		text-decoration: none;
+		font-size: 1rem;
+		font-family: var(--action-font) !important;
+		text-wrap: nowrap;
+		border-style: none !important;
+		display: flex;
+		align-items: center;
+		max-height: 36.5px;
+		height: 36.5px;
+		font-weight: 500;
+		width: 100%;
+		flex-grow: 1;
+	}
+	.select-container span.indicator {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+		position: relative;
+	}
+	.select-container span.indicator img {
+		width: 15.6px;
+		height: 15.6px;
+		right: 8px;
+		position: absolute;
 	}
 </style>
