@@ -151,6 +151,7 @@
 		<div
 			class="page-container"
 			class:engineInRoute
+			class:isGameProfile={isProfilePage || playInRoute}
 			class:showSideBar={!engineInRoute && $sideBarState}
 		>
 			<div
@@ -442,12 +443,6 @@
 	.profile-info {
 		justify-content: flex-end;
 	}
-	.avatar {
-		border-radius: 50%;
-		width: 36.5px;
-		height: 36.5px;
-		object-fit: cover;
-	}
 	.isNotHomePage {
 		/* background-color: var(--color-secondary); */
 	}
@@ -455,9 +450,10 @@
 		/* overflow-y: scroll; */
 	}
 	.isProfilePage {
-		height: 100%;
+		height: calc(100% - 66.5px);
 		/* overflow-y: scroll; */
-		background-color: var(--color-secondary);
+		/* background-color: var(--color-secondary); */
+		background-color: #1a1b1d;
 	}
 
 	.more-container {
@@ -523,7 +519,7 @@
 		background-color: #202124 !important;
 	}
 	nav.gameProfile {
-		background-color: #202124 !important;
+		background-color: transparent !important;
 	}
 
 	/* SCROLL BAR */
@@ -557,8 +553,15 @@
 	.page-container.showSideBar {
 		overflow-x: hidden;
 	}
+	.page-container.isGameProfile {
+		overflow: hidden;
+	}
 	.page-container.engineInRoute {
 	}
+
+	/* .page-container {
+		height: calc(100% - 66.5px);
+	} */
 
 	.sidebar {
 		width: 230px;

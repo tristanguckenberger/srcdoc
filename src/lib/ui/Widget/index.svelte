@@ -8,26 +8,35 @@
 
 	export let option = 0;
 	export let content;
+	let ComponentOptions = [];
 
-	const ComponentOptions = [
-		{
-			name: 'Comments',
-			props: {
-				gameId: content?.gameId,
-				comments: content?.comments,
-				parentCommentId: null
-			},
-			component: Comments
-		},
-		{
-			name: 'Issues',
-			component: Issues
-		},
-		{
-			name: 'Reviews',
-			component: Reviews
-		}
-	];
+	$: console.log('content::', content);
+
+	$: reactiveContent = content ?? {};
+
+	$: reactiveContent?.comments,
+		(() =>
+			(ComponentOptions = [
+				{
+					name: 'Comments',
+					props: {
+						gameId: reactiveContent?.id,
+						comments: reactiveContent?.comments,
+						parentCommentId: null
+					},
+					component: Comments
+				},
+				{
+					name: 'Issues',
+					component: Issues
+				},
+				{
+					name: 'Reviews',
+					component: Reviews
+				}
+			]))();
+
+	$: console.log('ComponentOptions::', ComponentOptions);
 
 	$: Component = ComponentOptions[option].component;
 
@@ -40,27 +49,35 @@
 
 <div class="widget-container">
 	<div class="widget-controls">
-		{#each ComponentOptions as option, i}
-			<Button action={() => setOption(i)} class="widget-button {option.name}" label={option.name} />
+		{#each ComponentOptions as avoption, i (avoption.name)}
+			<div class="tab btn-{i}" class:active={option === i}>
+				<Button
+					action={() => setOption(i)}
+					class="widget-button btn-{i} {avoption.name}"
+					label={avoption.name}
+				/>
+			</div>
 		{/each}
 	</div>
 
-	<h3>{ComponentOptions[option].name}</h3>
-	<svelte:component this={Component} {...ComponentOptions[option].props} />
+	<div class="component-container">
+		<svelte:component this={Component} {...ComponentOptions[option].props} />
+	</div>
 </div>
 
 <style>
 	.widget-container {
 		background-color: var(--text-box);
-		padding: 10px;
+		padding: 0;
 		border-radius: 4px;
 		min-height: 75px;
+		padding-top: 10px;
 	}
 	.widget-controls {
 		display: flex;
 		flex-direction: row;
 		justify-content: flex-start;
-		gap: 10px;
+		/* gap: 10px; */
 	}
 	.widget-controls h3 {
 		font-family: var(--header-font);
@@ -70,5 +87,30 @@
 	.widget-controls :global(button) {
 		height: 36.5px;
 		background-color: transparent !important;
+		font-family: 'Geologica' !important;
+		font-weight: 200;
+	}
+	.tab {
+		/* border-bottom: 1px solid var(--text-box-outline); */
+		padding: 10px;
+		position: relative;
+		top: -10px;
+		border-radius: 6px;
+		border-top-right-radius: 0;
+		border-top-left-radius: 0;
+	}
+	.tab.active {
+		/* border-bottom: 1px solid var(--text-color-highlight); */
+		/* background-color: #202124; */
+		/* color: var(--text-color-highlight); */
+	}
+	.tab.active :global(button) {
+		color: var(--text-color-highlight) !important;
+	}
+	.component-container {
+		padding: 20px;
+		overflow-y: scroll;
+		height: 100%;
+		max-height: 50vh;
 	}
 </style>

@@ -6,6 +6,7 @@
 	export let label;
 	export let link;
 	export let action;
+	export let additionalClasses = '';
 	export let type = 'submit';
 	export let isRounded = false;
 	export let userName;
@@ -46,6 +47,8 @@
 			class:isHomePage
 			class:isIcon
 			class:userName
+			class={additionalClasses}
+			{style}
 		>
 			{#if label === 'open'}
 				<svg xmlns="http://www.w3.org/2000/svg" fill="#000000"
@@ -63,7 +66,7 @@
 					src={`${userAvatar}` ?? 'https://picsum.photos/50'}
 					alt="user avatar"
 				/><span>{userName}</span>
-				<div class="more-dropdown" on:click={action}>
+				<!-- <div class="more-dropdown" on:click={action}>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="32"
@@ -74,7 +77,7 @@
 							d="M144,128a16,16,0,1,1-16-16A16,16,0,0,1,144,128ZM60,112a16,16,0,1,0,16,16A16,16,0,0,0,60,112Zm136,0a16,16,0,1,0,16,16A16,16,0,0,0,196,112Z"
 						/></svg
 					>
-				</div>
+				</div> -->
 			{/if}
 		</a>
 	{:else}
@@ -91,6 +94,9 @@
 			class:showDropDown
 			class:profileControl
 			class:logoutButton={label === 'Logout'}
+			class:isCancelButton={label === 'Cancel'}
+			class:isDoneButton={label === 'Done'}
+			class={additionalClasses}
 			{style}
 		>
 			{#if label === 'open'}
@@ -264,13 +270,21 @@
 		gap: 9px;
 		border-radius: 30px;
 		align-items: center;
-		background-color: var(--button-highlight) !important;
+		background-color: transparent !important;
+
+		/* background-color: #245d74 !important; */
+	}
+	button.isRounded.userName:hover,
+	a.isRounded.userName:hover {
+		background-color: var(--text-box-outline) !important;
 	}
 	.avatar {
 		border-radius: 50%;
-		width: 26.5px;
-		height: 26.5px;
+		width: 24.5px;
+		height: 24.5px;
 		object-fit: cover;
+		border: 2px solid #e3f1f6;
+		color: #e3f1f6;
 	}
 	.profile-quick-control {
 		display: flex;
@@ -292,5 +306,11 @@
 	}
 	.dropdown-btn {
 		background-color: transparent !important;
+	}
+	.profile-quick-control span {
+		color: #e3f1f6;
+		font-size: 1rem;
+		font-weight: 900;
+		font-family: 'Geologica';
 	}
 </style>

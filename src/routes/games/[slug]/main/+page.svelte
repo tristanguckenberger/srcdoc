@@ -67,6 +67,10 @@
 		modalOpenState.set(true);
 	};
 	$: console.log('data::games/slug/main', data);
+
+	let reactiveData = {};
+
+	$: data?.comments, (reactiveData = data ?? {});
 </script>
 
 <div class="game-info-container" style={`${themeString}`}>
@@ -99,7 +103,7 @@
 				<div class="trailing-btn"><Button link={`/games/${data?.id}/play`} label={'Play'} /></div>
 			</div>
 		</div>
-		<Widget content={data} />
+		<Widget content={reactiveData} />
 	</div>
 </div>
 
@@ -141,6 +145,7 @@
 		font-family: var(--header-font);
 		color: var(--color-primary);
 		margin-block-start: 0;
+		margin-block-end: 0.5rem;
 	}
 	.main-action-container {
 		display: flex;
@@ -164,6 +169,9 @@
 	.game-text p {
 		color: var(--text-color-primary);
 		margin-block-start: 0;
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-weight: 400;
+		font-size: 0.9rem;
 	}
 	.game-header-placeholder {
 		width: 100%;

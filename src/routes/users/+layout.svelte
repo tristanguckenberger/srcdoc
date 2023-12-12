@@ -41,6 +41,7 @@
 		flex-direction: column;
 		height: 100%;
 		width: 100%;
-		background-color: var(--color-secondary);
+		/* background-color: var(--color-secondary); */
+		background-color: #1a1b1d;
 	}
 </style>

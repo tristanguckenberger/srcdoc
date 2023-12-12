@@ -34,7 +34,7 @@
 
 <div class="input-container modal">
 	<slot name="label" />
-	<div class="row modal">
+	<div class="row modal" class:hideMe={hidden}>
 		<slot name="icon" />
 		{#if inputCapture === 'image'}
 			<input
@@ -57,6 +57,7 @@
 			/>
 		{:else}
 			<input
+				class:hideMe={hidden}
 				type="text"
 				{hidden}
 				name={inputCapture}
@@ -116,5 +117,8 @@
 		width: 100%;
 		resize: vertical;
 		max-height: 300px;
+	}
+	.hideMe {
+		opacity: 0;
 	}
 </style>

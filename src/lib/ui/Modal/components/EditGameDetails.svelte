@@ -40,9 +40,10 @@
 		const gameId = formData.get('gameId');
 		console.log('enhance::gameId::', gameId);
 		return async ({ result }) => {
+			console.log('result::', result);
 			if (result.status === 200) {
 				modalOpenState.set(false);
-				invalidateAll();
+				await invalidateAll();
 			} else {
 				await applyAction(result);
 			}

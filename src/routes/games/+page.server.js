@@ -80,7 +80,6 @@ export const actions = {
 		}
 
 		const project = await authResponse.json();
-		console.log('project::', project);
 
 		if (project?.id) {
 			throw redirect(300, `/games/${project?.id}/main`);
@@ -120,7 +119,6 @@ export const actions = {
 			requestInit
 		);
 
-		console.log('authResponse::', authResponse);
 		if (!authResponse.ok) {
 			return {
 				status: 401,
@@ -131,7 +129,6 @@ export const actions = {
 		}
 
 		const project = await authResponse.json();
-		console.log('project::', project);
 		if (project?.id) {
 			throw redirect(300, `/games/${project?.id}/main`);
 		}
@@ -141,6 +138,141 @@ export const actions = {
 			body: {
 				message: 'add_project_success',
 				project: project
+			}
+		};
+	},
+	addNewComment: async ({ cookies, request }) => {
+		const token = cookies.get('token');
+
+		const formData = await request.formData();
+		const gameId = formData?.get('gameId');
+		const commentText = formData?.get('comment');
+
+		const requestHeaders = new Headers();
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+		const requestInit = {
+			method: 'POST',
+			headers: requestHeaders,
+			mode: 'cors',
+			body: JSON.stringify({
+				gameId,
+				commentText,
+				parentCommentId: null
+			})
+		};
+
+		const authResponse = await fetch(`${process.env.SERVER_URL}/api/comments/create`, requestInit);
+
+		if (!authResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to add comment'
+				}
+			};
+		}
+
+		const newComment = await authResponse.json();
+
+		return {
+			status: 200,
+			body: {
+				message: 'add_comment_success',
+				project: newComment
+			}
+		};
+	},
+	updateComment: async ({ cookies, request }) => {
+		const token = cookies.get('token');
+		const formData = await request.formData();
+		const commentId = formData?.get('commentId');
+		const commentText = formData?.get('commentText');
+		const requestHeaders = new Headers();
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+		const requestInit = {
+			method: 'PUT',
+			headers: requestHeaders,
+			mode: 'cors',
+			body: JSON.stringify({
+				comment_text: commentText
+			})
+		};
+
+		const authResponse = await fetch(
+			`${process.env.SERVER_URL}/api/comments/update/${commentId}`,
+			requestInit
+		);
+
+		if (!authResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to update comment'
+				}
+			};
+		}
+
+		const updatedComment = await authResponse.json();
+
+		return {
+			status: 200,
+			body: {
+				message: 'update_comment_success',
+				project: updatedComment
+			}
+		};
+	},
+	addNewReply: async ({ cookies, request }) => {
+		const token = cookies.get('token');
+
+		const formData = await request.formData();
+		const gameId = formData?.get('gameId');
+		const commentText = formData?.get('commentText');
+		const parentCommentId = formData?.get('parentCommentId');
+
+		if (!parentCommentId) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to add comment'
+				}
+			};
+		}
+
+		const requestHeaders = new Headers();
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+		const requestInit = {
+			method: 'POST',
+			headers: requestHeaders,
+			mode: 'cors',
+			body: JSON.stringify({
+				gameId,
+				commentText,
+				parentCommentId
+			})
+		};
+
+		const authResponse = await fetch(`${process.env.SERVER_URL}/api/comments/create`, requestInit);
+
+		if (!authResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to add comment'
+				}
+			};
+		}
+
+		const newComment = await authResponse.json();
+
+		return {
+			status: 200,
+			body: {
+				message: 'add_comment_success',
+				project: newComment
 			}
 		};
 	}

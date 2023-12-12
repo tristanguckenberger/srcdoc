@@ -1,8 +1,12 @@
 <script>
 	// @ts-nocheck
+	import { enhance, applyAction } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 	import { writable } from 'svelte/store';
-	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
-
+	import { afterUpdate, onMount, tick } from 'svelte';
+	import AddCommentForm from '$lib/ui/Form/AddCommentForm.svelte';
+	import AddReplyForm from '$lib/ui/Form/AddReplyForm.svelte';
+	import UpdateCommentForm from '$lib/ui/Form/UpdateCommentForm.svelte';
 	import {
 		commentSystemExpanderStore,
 		commentStoreComments,
@@ -18,47 +22,47 @@
 	export let parentCommentId;
 	export let hasChildren = false;
 
-	const commentText = writable('');
-	let threadedComments = buildItemThreads(parentCommentId, comments);
-	let isEditing = false;
-	let editingId = null;
-	let userName = '';
-	let preventOpen = false;
-	let newCommentText = '';
-	let creatingComment = false;
-	let newCommentParent = null;
-	let oldCommentText = '';
+	afterUpdate(() => {
+		if (threadedComments?.length > 0) {
+			comments.forEach((comment) => {
+				if (comment.type === 'parent') {
+					$commentSystemExpanderStore[comment.id] = true;
+				}
+			});
+			commentSystemExpanderStore.set($commentSystemExpanderStore);
+		}
+	});
+	onMount(() => {
+		init = true;
 
-	$: reactiveGameId = gameId;
-	$: reactiveUserId = userId;
-	$: hasChildren = threadedComments[0]?.children?.length >= 1;
+		if (comments /** && timeout === false*/) {
+			commentStoreComments.set(comments);
+		}
+	});
 
 	function startCreatingComment(comment) {
 		creatingComment = true;
 		newCommentParent = comment;
 		// TODO: focus on the input element
 	}
-
 	function confirmCommentCreation() {
 		createComment(newCommentText, newCommentParent, comments);
 		creatingComment = false;
 		newCommentText = '';
 		newCommentParent = null;
 	}
-
 	function cancelCommentCreation() {
 		creatingComment = false;
 		newCommentText = '';
+		commentText.set(newCommentText);
 	}
-
 	function cancelEditingComment(comment) {
 		isEditing = false;
 		editingId = null;
 		$commentText = '';
-		$commentText = oldCommentText;
+		$commentText = '';
 		preventOpen = false;
 	}
-
 	function completeEditingComment(comment) {
 		editComment(comment);
 		isEditing = false;
@@ -66,16 +70,13 @@
 		$commentText = '';
 		preventOpen = false;
 	}
-
 	function deleteComment(comment) {
 		// Add your logic to delete the comment
 		deleteComments(comment?.id, comments);
 	}
-
 	function saveComment(comment) {
 		// Add your logic to save the comment
 	}
-
 	function startEditingComment(comment) {
 		// Add your logic to edit the comment
 		oldCommentText = comment.commentText;
@@ -84,13 +85,11 @@
 		$commentText = comment.commentText;
 		preventOpen = true;
 	}
-
 	function editComment(comment) {
 		// Add your logic to edit the comment
 		submitEdit(comment.id, $commentText, comments);
 		// isEditing = false;
 	}
-
 	function buildItemThreads(parentId, items) {
 		const threads = [];
 
@@ -109,175 +108,250 @@
 
 		return threads;
 	}
-
 	function toggleComment({ id }, comment) {
 		$commentSystemExpanderStore[id] = !$commentSystemExpanderStore[id];
 		commentSystemExpanderStore.set($commentSystemExpanderStore);
 		tick();
 	}
-
-	// We want to automatically thread the comments when the comments change (aka when a new comment is created or a comment is deleted)
-	$: $commentStoreComments && $commentStoreComments?.length > 0,
-		(() => {
-			if ($commentStoreComments?.length > 0) {
-				threadedComments = buildItemThreads(parentCommentId, $commentStoreComments);
-				comments = $commentStoreComments;
-			}
-		})();
-
-	afterUpdate(() => {
-		if (threadedComments?.length > 0) {
-			comments.forEach((comment) => {
-				if (comment.type === 'parent') {
-					$commentSystemExpanderStore[comment.id] = true;
-				}
-			});
-			commentSystemExpanderStore.set($commentSystemExpanderStore);
+	function autoResize(textAreaId) {
+		console.log('autoResize::textAreaId', textAreaId);
+		console.log('autoResize::text-area-${newCommentParent}', `text-area-${newCommentParent?.id}`);
+		if (creatingComment && textAreaId !== `text-area-${newCommentParent?.id}`) {
+			return;
 		}
-	});
 
-	onMount(() => {
-		/**
-		 * check if gameId matches the current game id in the store.
-		 *
-		 * This persists the store and then wipes it ONLY if the user visits a new game.
-		 *
-		 */
-
-		if (comments /** && timeout === false*/) {
-			commentStoreComments.set(comments);
+		if (showNewCommentActions) {
+			creatingComment = false;
+			return;
 		}
-	});
 
+		if (creatingComment) {
+			showNewCommentActions = false;
+			return;
+		}
+
+		newCommentTextArea.style.height = 'fit-content';
+		let textAreaCharCount = newCommentTextArea?.value?.length;
+		const textAreaLineCount = newCommentTextArea?.value?.split('\n').length;
+		const textAreaCalculatedLineCountByCharacters = Math.floor(
+			newCommentTextArea?.style?.fontSize / newCommentTextArea?.style?.width
+		);
+
+		if (init) {
+			newCommentTextArea.style.height = 'fit-content';
+			newCommentTextArea.style.height = newCommentTextArea.scrollHeight - 20 + 'px';
+		} else if (textAreaLineCount <= 1 && textAreaCharCount < 87) {
+			newCommentTextArea.style.height = newCommentTextArea.scrollHeight - 20 + 'px';
+		} else if (newCommentTextArea.scrollHeight <= 46 && newCommentTextArea.scrollHeight > 30) {
+			newCommentTextArea.style.height = newCommentTextArea.scrollHeight + 'px';
+		} else if (newCommentTextArea.scrollHeight == 50) {
+			newCommentTextArea.style.height = newCommentTextArea.scrollHeight - 20 + 'px';
+		} else {
+			newCommentTextArea.style.height = newCommentTextArea.scrollHeight + 'px';
+		}
+
+		if (textAreaCharCount > newCommentMaxLength) {
+			// dont allow more than 1500 characters
+			newCommentTextArea.value = newCommentTextArea?.value?.slice(0, 1500);
+			textAreaCharCount = newCommentMaxLength;
+		}
+
+		init = false;
+		newCommentTotalCharacters = textAreaCharCount;
+	}
+
+	const commentText = writable('');
+	const newCommentMaxLength = 1500;
+
+	let isEditing = false;
+	let editingId = null;
+	let userName = '';
+	let preventOpen = false;
+	let newCommentText = '';
+	let creatingComment = false;
+	let newCommentParent = null;
+	let oldCommentText = '';
+	let init = false;
+	let newCommentTotalCharacters = 0;
+	let inputText = '';
+	let newCommentTextArea;
+
+	$: reactiveGameId = gameId;
+	$: reactiveUserId = userId;
+	$: hasChildren = threadedComments[0]?.children?.length >= 1;
 	$: themeString = $themeDataStore?.theme?.join(' ');
+	$: newCommentTextArea && init && autoResize(`text-area-root`);
+	$: threadedComments = buildItemThreads(parentCommentId, $commentStoreComments ?? comments);
+	$: comments, commentStoreComments.set(comments);
+
+	let showNewCommentActions = false;
 </script>
 
-<ul class="comment-tree" class:hasChildren style={themeString}>
-	{#await threadedComments then threads}
-		{#each threads as comment (comment.id)}
-			<li class="comment-item">
-				{#if comment.type === 'parent'}
-					{#if isEditing && editingId === comment.id}
-						<div
-							class="comment parent row"
-							class:expanded={$commentSystemExpanderStore[comment.id]}
-						>
-							<textarea
-								bind:value={$commentText}
-								on:blur={() => {
-									editComment(comment);
-									isEditing = false;
-									editingId = null;
-									$commentText = '';
-									preventOpen = false;
-								}}
-							/>
-							<div class="actions">
-								<Button action={() => completeEditingComment(comment)} label={'Done'} />
-								<Button action={() => cancelEditingComment(comment)} label={'Cancel'} />
+<svelte:window on:click={(e) => console.log(e.target)} />
+
+{#if parentCommentId === null}
+	<AddCommentForm {gameId} {comments} {parentCommentId} />
+{/if}
+<ul
+	class="comment-tree"
+	class:isRoot={parentCommentId === null}
+	class:hasChildren
+	style={themeString}
+	class:noComments={threadedComments.length === 0}
+>
+	{#if threadedComments?.length === 0}
+		<p class="no-comments">Be the first to leave a comment</p>
+	{:else}
+		{#await threadedComments then threads}
+			{#each threads as comment (comment.id)}
+				<li class="comment-item">
+					{#if comment.type === 'parent'}
+						{#if isEditing && editingId === comment.id}
+							<div
+								class="comment parent row"
+								class:expanded={$commentSystemExpanderStore[comment.id]}
+							>
+								<UpdateCommentForm
+									{comment}
+									bind:isEditingUpdate={isEditing}
+									inputText={comment?.commentText}
+								/>
 							</div>
+						{:else}
+							<div
+								class="comment-container parent"
+								class:expaneded={$commentSystemExpanderStore[comment.id]}
+							>
+								<Button
+									link="/users/{comment?.userId}"
+									action={() => toggleComment(comment)}
+									userName={`@${comment?.userName}`}
+									userAvatar={comment?.userAvatar}
+									style={'padding: 0 10px; background-color: transparent !important; width: fit-content !important;'}
+								/>
+								<div
+									class="comment parent row"
+									class:expanded={$commentSystemExpanderStore[comment.id]}
+									on:click={() => toggleComment(comment)}
+								>
+									<p>
+										<span class="commentText">{comment.commentText}</span>
+									</p>
+									<div class="actions">
+										<Button
+											action={() => startEditingComment(comment)}
+											label={'Edit'}
+											additionalClasses={'existing-comment-action edit'}
+										/>
+										<Button
+											action={() => startCreatingComment(comment)}
+											label={'Reply'}
+											additionalClasses={'existing-comment-action reply'}
+										/>
+									</div>
+								</div>
+							</div>
+						{/if}
+					{:else if comment.type === 'parent-no-children'}
+						{#if isEditing && editingId === comment.id}
+							<UpdateCommentForm
+								{comment}
+								bind:isEditingUpdate={isEditing}
+								inputText={comment?.commentText}
+							/>
+						{:else}
+							<div class="comment-container">
+								<Button
+									link="/users/{comment?.userId}"
+									userName={`@${comment?.userName}`}
+									userAvatar={comment?.userAvatar}
+									style={'padding: 0 10px; background-color: transparent !important; width: fit-content !important;'}
+								/>
+								<div class="comment parent-no-children row">
+									<p>
+										{comment?.commentText}
+									</p>
+									<div class="actions">
+										<Button
+											action={() => startEditingComment(comment)}
+											label={'Edit'}
+											additionalClasses={'existing-comment-action edit'}
+										/>
+										<Button
+											action={() => startCreatingComment(comment)}
+											label={'Reply'}
+											additionalClasses={'existing-comment-action reply'}
+										/>
+									</div>
+								</div>
+							</div>
+						{/if}
+					{:else if isEditing && editingId === comment.id}
+						<div class="comment child row" class:expanded={$commentSystemExpanderStore[comment.id]}>
+							<UpdateCommentForm
+								{comment}
+								bind:isEditingUpdate={isEditing}
+								inputText={comment?.commentText}
+							/>
 						</div>
 					{:else}
-						<div
-							class="comment parent row"
-							class:expanded={$commentSystemExpanderStore[comment.id]}
-							on:click={() => toggleComment(comment)}
-						>
-							<p>
-								{comment.commentText}
-							</p>
-							<div class="actions">
-								<Button action={() => startCreatingComment(comment)} label={'Reply'} />
-								<Button action={() => startEditingComment(comment)} label={'Edit'} />
+						<div class="comment-container">
+							<Button
+								link="/users/{comment?.userId}"
+								userName={`@${comment?.userName}`}
+								userAvatar={comment?.userAvatar}
+								style={'padding: 0 10px; background-color: transparent !important; width: fit-content !important;'}
+							/>
+							<div class="comment child row">
+								<p>
+									{comment?.commentText}
+								</p>
+								<div class="actions">
+									<Button
+										action={() => startEditingComment(comment)}
+										label={'Edit'}
+										additionalClasses={'existing-comment-action edit'}
+									/>
+									<Button
+										action={() => startCreatingComment(comment)}
+										label={'Reply'}
+										additionalClasses={'existing-comment-action reply'}
+									/>
+								</div>
 							</div>
 						</div>
 					{/if}
-				{:else if comment.type === 'parent-no-children'}
-					{#if isEditing && editingId === comment.id}
-						<div
-							class="comment parent-no-children row"
-							class:expanded={$commentSystemExpanderStore[comment.id]}
-						>
-							<textarea
-								bind:value={$commentText}
-								on:blur={() => {
-									editComment(comment);
-									isEditing = false;
-									editingId = null;
-									$commentText = '';
-									preventOpen = false;
-								}}
-							/>
-							<div class="actions">
-								<Button action={() => completeEditingComment(comment)} label={'Done'} />
-								<Button action={() => cancelEditingComment(comment)} label={'Cancel'} />
-							</div>
-						</div>
-					{:else}
-						<div class="comment parent-no-children row">
-							<p>
-								{comment?.commentText}
-							</p>
-							<div class="actions">
-								<Button action={() => startCreatingComment(comment)} label={'Reply'} />
-								<Button action={() => startEditingComment(comment)} label={'Edit'} />
-							</div>
-						</div>
-					{/if}
-				{:else if isEditing && editingId === comment.id}
-					<div class="comment child row" class:expanded={$commentSystemExpanderStore[comment.id]}>
-						<textarea
-							bind:value={$commentText}
-							on:blur={() => {
-								editComment(comment);
-								isEditing = false;
-								editingId = null;
-								$commentText = '';
-								preventOpen = false;
-							}}
-						/>
-						<div class="actions">
-							<Button action={() => completeEditingComment(comment)} label={'Done'} />
-							<Button action={() => cancelEditingComment(comment)} label={'Cancel'} />
-						</div>
-					</div>
-				{:else}
-					<div class="comment child row">
-						<p>
-							{comment?.commentText}
-						</p>
-						<div class="actions">
-							<Button action={() => startCreatingComment(comment)} label={'Reply'} />
-							<Button action={() => startEditingComment(comment)} label={'Edit'} />
-						</div>
-					</div>
-				{/if}
-				{#if creatingComment && newCommentParent.id === comment.id}
-					<div class="newCommentInput">
-						<CustomInput bind:inputText={$commentText} />
-						<button on:click={confirmCommentCreation}>Done</button>
-						<button on:click={cancelCommentCreation}>Cancel</button>
-					</div>
-				{/if}
-				{#if $commentSystemExpanderStore[comment.id] && comment.children && comment.children.length > 0}
-					<ul class="nested">
-						<svelte:self
+					{#if creatingComment && newCommentParent.id === comment.id}
+						<AddReplyForm
+							bind:creatingReply={creatingComment}
+							{comment}
+							userId={comment?.userId ?? comment?.user_id}
 							{comments}
-							parentCommentId={comment.id}
-							gameId={reactiveGameId}
-							userId={reactiveUserId}
-							hasChildren={true}
+							parentCommentId={newCommentParent?.id}
 						/>
-					</ul>
-				{/if}
-			</li>
-		{/each}
-	{/await}
+					{/if}
+					{#if $commentSystemExpanderStore[comment.id] && comment.children && comment.children.length > 0}
+						<ul class="nested">
+							<svelte:self
+								{comments}
+								parentCommentId={comment.id}
+								gameId={reactiveGameId}
+								userId={reactiveUserId}
+								hasChildren={true}
+							/>
+						</ul>
+					{/if}
+				</li>
+			{/each}
+		{/await}
+	{/if}
 </ul>
 
 <style>
 	.comment-tree {
-		border-left: 1px solid var(--text-box-outline);
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
 	}
 	.comment-tree,
 	.nested {
@@ -290,7 +364,8 @@
 		margin-block-start: 0;
 	}
 	.nested {
-		padding-left: 16px;
+		padding-left: 40px;
+		padding-top: 10px;
 	}
 	.comment-item {
 		padding: 0;
@@ -326,15 +401,6 @@
 	.child {
 		padding-left: 10px;
 	}
-	.comment textarea {
-		width: calc(100% - 15px);
-		height: 250px;
-		min-height: 100px;
-		border: 2px solid var(--text-box-outline);
-		border-radius: 6px;
-		min-width: calc(100% - 15px);
-		max-width: calc(100% - 15px);
-	}
 	.comment.row {
 		display: flex;
 		flex-direction: column;
@@ -346,7 +412,123 @@
 		width: 110px;
 		gap: 10px;
 	}
-	.comment-tree.hasChildren {
-		border-left: 1px solid rgb(0, 0, 0, 0.24);
+	.comment-tree.hasChildren::after {
+		/* border-left: 1px solid rgb(135, 35, 35) !important; */
+		/* content: '>'; */
 	}
+	.comment-tree.noComments {
+		border-left: 0;
+	}
+	.comment-tree.isRoot {
+		padding-top: 20px;
+	}
+	.no-comments {
+		color: var(--text-color-primary);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-weight: 400;
+		font-size: 0.9rem;
+		text-align: center;
+		margin-block-start: 4rem;
+		margin-block-end: 20vh;
+		display: none;
+	}
+	:global(button.isDoneButton:hover) {
+		background-color: #23486d !important;
+	}
+	:global(button.existing-comment-action),
+	:global(a.existing-comment-action) {
+		height: 36.5px !important;
+		background-color: transparent;
+	}
+
+	/* reply button styles */
+	:global(button.existing-comment-action.reply),
+	:global(a.existing-comment-action.reply) {
+		background-color: transparent;
+	}
+
+	/* edit button styles */
+	:global(button.existing-comment-action.edit),
+	:global(a.existing-comment-action.edit) {
+		background-color: transparent;
+		padding-left: 0;
+	}
+
+	/* edit button :hover styles */
+	:global(button.existing-comment-action.edit:hover),
+	:global(a.existing-comment-action.edit:hover) {
+		background-color: transparent !important;
+	}
+
+	/* reply button :hover styles */
+	:global(button.existing-comment-action.reply:hover),
+	:global(a.existing-comment-action.reply:hover) {
+		background-color: #23486d !important;
+	}
+	.comment p {
+		color: var(--text-color-primary);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-weight: 400;
+		font-size: 0.9rem;
+	}
+	.comment.parent.row {
+		/* padding: 0; */
+		color: var(--folder-button-color);
+		position: relative;
+	}
+	.comment.parent.row .commentText {
+		color: var(--text-color-primary);
+		font-family: 'IBM Plex Sans', sans-serif;
+		font-weight: 400;
+		font-size: 0.9rem;
+	}
+	.comment-container.parent {
+		background-color: #1d1e205c;
+		padding-top: 23px;
+		border-radius: 8px;
+		transition: background-color 0.1s linear;
+		background: hsla(0, 0%, 16%, 1);
+		background: linear-gradient(315deg, hsla(0, 0%, 16%, 1) 21%, hsla(0, 0%, 35%, 1) 76%);
+		background: -moz-linear-gradient(315deg, hsla(0, 0%, 16%, 1) 21%, hsla(0, 0%, 35%, 1) 76%);
+		background: -webkit-linear-gradient(
+			315deg,
+			hsl(218.63deg 4.85% 12.25%) 21%,
+			hsl(227.34deg 4.13% 11.31%) 76%
+		);
+	}
+
+	.comment-container.parent::after {
+		content: '<';
+		font-family: 'Recursive', sans-serif;
+		position: absolute;
+		top: 7px;
+		right: 23px;
+		font-size: 1.5rem;
+		font-weight: 400;
+		color: #2a2b2e;
+	}
+
+	.comment-container.parent.expaneded {
+		background-color: #24242447;
+		padding-top: 23px;
+		border-radius: 8px;
+	}
+	.comment-container.parent.expaneded::after {
+		content: 'v';
+		font-family: 'Recursive', sans-serif;
+		position: absolute;
+		top: 7px;
+		right: 23px;
+		font-size: 1.5rem;
+		font-weight: 400;
+		color: #2a2b2e;
+	}
+	/* .comment.parent.row p .commentText::before {
+		padding-right: 20px;
+		content: '>';
+	}
+
+	.comment.parent.row.expanded p .commentText::before {
+		content: 'v';
+	} */
 </style>
