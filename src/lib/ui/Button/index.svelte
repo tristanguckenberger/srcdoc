@@ -274,7 +274,7 @@
 	}
 	button.isRounded.userName:hover,
 	a.isRounded.userName:hover {
-		background-color: #252629 !important;
+		background-color: var(--button-highlight) !important;
 	}
 	.avatar {
 		border-radius: 50%;

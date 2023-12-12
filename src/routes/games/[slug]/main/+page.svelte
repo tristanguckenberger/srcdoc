@@ -308,6 +308,9 @@
 		width: 100%;
 		flex-grow: 1;
 	}
+	select:hover {
+		cursor: pointer;
+	}
 	.select-container span.indicator {
 		display: flex;
 		justify-content: center;

@@ -122,10 +122,10 @@
 		color: var(--text-color-highlight) !important;
 	}
 	.component-container {
-		padding: 20px;
+		padding: 0 20px 20px;
 		overflow-y: scroll;
 		height: 100%;
-		max-height: calc(100% - 97px);
+		max-height: calc(100% - 20px);
 	}
 	.tab :global(button:hover) {
 		background-color: transparent !important;

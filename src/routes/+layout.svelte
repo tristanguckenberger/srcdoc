@@ -475,7 +475,7 @@
 		display: flex;
 		height: 150px;
 		width: 200px;
-		background-color: aliceblue;
+		background-color: var(--button-highlight);
 		position: absolute;
 		top: 18px;
 		right: 10px;
@@ -506,17 +506,17 @@
 		padding-top: 10px;
 	}
 	.layout-container.isBrowsePage {
-		background-color: #1a1b1d;
+		background-color: var(--darker-bg);
 	}
 	.bg-container.engineInRoute {
-		background-color: #202124 !important;
+		background-color: var(--darker-bg) !important;
 	}
 	.bg-container.gameProfile {
-		background-color: #202124 !important;
+		background-color: var(--darker-bg) !important;
 		display: flex;
 	}
 	nav.engineInRoute {
-		background-color: #202124 !important;
+		background-color: var(--darker-bg) !important;
 	}
 	nav.gameProfile {
 		background-color: transparent !important;
