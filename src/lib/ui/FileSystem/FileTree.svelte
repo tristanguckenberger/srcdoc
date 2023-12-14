@@ -1,6 +1,5 @@
 <script>
 	// @ts-nocheck
-	import File from './File.svelte';
 	import {
 		fileSystemExpanderStore,
 		fileSystemMetaDataStore,
@@ -13,16 +12,15 @@
 		previouslyFocusedFileId,
 		createFile,
 		fileStoreFiles,
-		baseDataStore,
 		deleteFiles,
 		renameFile,
-		base64ToBlob,
-		autoCompile,
 		triggerCompile,
-		firstRun
+		firstRun,
+		filesToUpdate
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
-	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
+	import { afterUpdate, onMount, tick } from 'svelte';
+	import File from './File.svelte';
 
 	export let gameId;
 	export let userId;
@@ -36,30 +34,43 @@
 	let threadedFiles = buildItemThreads(parentFileId, files);
 	let isRenaming = false;
 	let editingId = null;
-	let fullFileName = '';
 	let folderName = '';
-
-	$: reactiveGameId = gameId;
-	$: reactiveUserId = userId;
 
 	function startCreatingFile(file) {
 		creatingFile = true;
 		newFileParent = file;
 		// TODO: focus on the input element
 	}
-
-	function confirmFileCreation() {
-		createFile(newFileName, newFileParent, files);
+	async function confirmFileCreation() {
+		const newFile = createFile(newFileName, newFileParent, files);
 		creatingFile = false;
 		newFileName = '';
 		newFileParent = null;
-	}
 
+		const returnedContent = await fetch(`/api/createFile`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ ...newFile, gameId })
+		})
+			.then((res) => res.json())
+			.then((res) => {
+				if (res?.success) {
+					return res?.data;
+				} else {
+					console.error(res?.error);
+				}
+			});
+
+		if (returnedContent) {
+			console.log('::returnedContent::', returnedContent);
+		}
+	}
 	function cancelFileCreation() {
 		creatingFile = false;
 		newFileName = '';
 	}
-
 	function handleFileDBClick(file) {
 		if (!$openFiles?.some((openFile) => openFile.id === file.id) && file.type !== 'folder') {
 			$openFiles = [...$openFiles, file];
@@ -75,8 +86,6 @@
 		clearSplit.set(true);
 		// }
 	}
-
-	// Handle File Single Click
 	async function HandleFileSingleClick(file) {
 		if (preventOpen) return;
 		const isFileAlreadyOpen = $openFiles?.some((openFile) => openFile.id === file.id);
@@ -117,62 +126,6 @@
 		triggerCompile.set(true);
 		// }
 	}
-
-	$: codePaneData = {};
-
-	$: $codePanes2,
-		(codePaneData = (() => {
-			if (!$derivedCodeData?.fileId) return;
-			if (!$derivedCodeData?.fileName) return;
-			if (!$derivedCodeData?.type) return;
-
-			let newPanes = [...$codePanes2];
-
-			if (!$openFiles?.some((openFile) => openFile.id === $derivedCodeData?.fileId)) {
-				newPanes = [];
-			}
-
-			const pane =
-				{
-					paneID: `#split-${$derivedCodeData?.fileName}-${$derivedCodeData?.type}-${$derivedCodeData?.fileId}`,
-					label: $derivedCodeData?.fileName,
-					...$derivedCodeData
-				} ?? {};
-
-			const isPaneAlreadyOpen = newPanes.includes(pane?.paneID);
-
-			const generatedPaneData = {
-				pane: isPaneAlreadyOpen ? pane.paneID : null,
-				...$derivedCodeData
-			};
-
-			if ($derivedCodeData?.openInNewPane && !isPaneAlreadyOpen) {
-				if (newPanes.length < 3) {
-					// If there's room, add the new pane
-					newPanes = [...newPanes, pane];
-					generatedPaneData.pane = pane.pandID;
-				} else {
-					// If no room, remove the oldest pane and add the new one
-					const [, ...restOfPanes] = newPanes;
-					newPanes = restOfPanes;
-					newPanes = [...newPanes, pane];
-					generatedPaneData.pane = pane.paneID;
-				}
-				// Update the codePanes store
-				codePanes2.set(newPanes);
-			} else if (!generatedPaneData.pane) {
-				// If not opening in a new pane, set the default pane
-				generatedPaneData.pane = `#split-${$derivedCodeData.type}`;
-			} else if (isPaneAlreadyOpen && $openFiles?.length > 1 && !$derivedCodeData?.openInNewPane) {
-				// If the pane is already open, set the pane to the existing pane
-				generatedPaneData.pane = pane.paneID;
-			}
-
-			openInNewPane.set(false);
-			generatedPaneData.openInNewPane = false;
-			return generatedPaneData;
-		})());
-
 	const reader = (file) =>
 		new Promise((resolve, reject) => {
 			const fr = new FileReader();
@@ -180,7 +133,6 @@
 			fr.onerror = (err) => reject(err);
 			fr.readAsDataURL(file);
 		});
-
 	async function parseFilesData(fileList) {
 		const frPromises = fileList.map((file) =>
 			reader(file).then((fr) => {
@@ -202,8 +154,6 @@
 			return;
 		}
 	}
-
-	// Handle Right Click on File (Open Context Menu for File, options include "open in new pane", "delete", "save")
 	function handleRightClick(e, file) {
 		e.preventDefault();
 
@@ -307,29 +257,39 @@
 			document.removeEventListener('click', cleanup);
 		});
 	}
-
-	// Placeholder functions for actions
 	function openNewPane(file) {
 		// Add your logic to open file in new pane
 		handleFileDBClick(file);
 		openInNewPane.set(true);
 	}
+	async function deleteFile(file) {
+		const returnedContent = await fetch(`/api/deleteFile`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ fileId: file?.id, gameId })
+		})
+			.then((res) => res.json())
+			.then((res) => {
+				if (res?.success) {
+					return res?.data;
+				} else {
+					console.error(res?.error);
+				}
+			});
 
-	// function createFile(rootFile) {}
-
-	function deleteFile(file) {
+		if (returnedContent) {
+			console.log('::returnedContent::', returnedContent);
+		}
 		// Add your logic to delete the file
 		deleteFiles(file?.id, files);
 	}
-
 	function saveFile(file) {
 		// Add your logic to save the file
 	}
-
 	function buildItemThreads(parentId, items) {
 		const threads = [];
-		// console.log('items::', items);
-
 		for (const item of items) {
 			if ((item?.parentFileId ?? item?.parent_file_id) === parentId) {
 				const children = buildItemThreads(item.id, items);
@@ -343,22 +303,11 @@
 
 		return threads;
 	}
-
 	function toggleFolder({ id }, file) {
 		$fileSystemExpanderStore[id] = !$fileSystemExpanderStore[id];
 		fileSystemExpanderStore.set($fileSystemExpanderStore);
 		tick();
 	}
-
-	// We want to automatically thread the files when the files change (aka when a new file is created or a file is deleted)
-	$: $fileStoreFiles && $fileStoreFiles?.length > 0,
-		(() => {
-			if ($fileStoreFiles?.length > 0) {
-				threadedFiles = buildItemThreads(parentFileId, $fileStoreFiles);
-				files = $fileStoreFiles;
-			}
-		})();
-
 	afterUpdate(() => {
 		if (threadedFiles?.length > 0 && $firstRun) {
 			files.forEach((file) => {
@@ -373,7 +322,6 @@
 			firstRun.set(false);
 		}
 	});
-
 	onMount(() => {
 		/**
 		 * check if gameId matches the current game id in the store.
@@ -399,6 +347,74 @@
 			fileStoreFiles.set(files);
 		}
 	});
+
+	$: reactiveGameId = gameId;
+	$: reactiveUserId = userId;
+	$: codePaneData = {};
+	$: $codePanes2,
+		(codePaneData = (() => {
+			if (!$derivedCodeData?.fileId) return;
+			if (!$derivedCodeData?.fileName) return;
+			if (!$derivedCodeData?.type) return;
+
+			let newPanes = [...$codePanes2];
+
+			if (!$openFiles?.some((openFile) => openFile.id === $derivedCodeData?.fileId)) {
+				newPanes = [];
+			}
+
+			const pane =
+				{
+					paneID: `#split-${$derivedCodeData?.fileName}-${$derivedCodeData?.type}-${$derivedCodeData?.fileId}`,
+					label: $derivedCodeData?.fileName,
+					...$derivedCodeData
+				} ?? {};
+
+			const isPaneAlreadyOpen = newPanes.includes(pane?.paneID);
+
+			const generatedPaneData = {
+				pane: isPaneAlreadyOpen ? pane.paneID : null,
+				...$derivedCodeData
+			};
+
+			if ($derivedCodeData?.openInNewPane && !isPaneAlreadyOpen) {
+				if (newPanes.length < 3) {
+					// If there's room, add the new pane
+					newPanes = [...newPanes, pane];
+					generatedPaneData.pane = pane.pandID;
+				} else {
+					// If no room, remove the oldest pane and add the new one
+					const [, ...restOfPanes] = newPanes;
+					newPanes = restOfPanes;
+					newPanes = [...newPanes, pane];
+					generatedPaneData.pane = pane.paneID;
+				}
+				// Update the codePanes store
+				codePanes2.set(newPanes);
+			} else if (!generatedPaneData.pane) {
+				// If not opening in a new pane, set the default pane
+				generatedPaneData.pane = `#split-${$derivedCodeData.type}`;
+			} else if (isPaneAlreadyOpen && $openFiles?.length > 1 && !$derivedCodeData?.openInNewPane) {
+				// If the pane is already open, set the pane to the existing pane
+				generatedPaneData.pane = pane.paneID;
+			}
+
+			openInNewPane.set(false);
+			generatedPaneData.openInNewPane = false;
+			return generatedPaneData;
+		})());
+	$: $fileStoreFiles && $fileStoreFiles?.length > 0,
+		(() => {
+			if ($fileStoreFiles?.length > 0) {
+				threadedFiles = buildItemThreads(parentFileId, $fileStoreFiles);
+				files = $fileStoreFiles;
+			}
+		})();
+	// $: console.log('derivedUpdateData::canSave::', $derivedUpdateData);
+	// $: console.log('$codePanes2::', $codePanes2);
+	// $: console.log('codePaneData::', codePaneData);
+	// $: console.log('threadedFiles::', threadedFiles);
+	// $: console.log('filesToUpdate::', $filesToUpdate);
 </script>
 
 <ul class="file-tree">

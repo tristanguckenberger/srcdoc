@@ -2,7 +2,13 @@
 	// @ts-nocheck
 	import { page } from '$app/stores';
 	import { routeHistoryStore } from '$lib/stores/routeStore.js';
-	import { autoCompile, fileSystemSidebarOpen, triggerCompile } from '$lib/stores/filesStore';
+	import {
+		autoCompile,
+		fileSystemSidebarOpen,
+		triggerCompile,
+		filesToUpdate,
+		focusedFileId
+	} from '$lib/stores/filesStore';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
 	import {
 		sideBarState,
@@ -20,7 +26,6 @@
 	import Modal from '$lib/ui/Modal/index.svelte';
 
 	$: modalIsOpen = $modalOpenState;
-	$: console.log('modalIsOpen::', modalIsOpen);
 
 	export let sessionData;
 	export let data;
@@ -36,9 +41,10 @@
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isProfilePage =
-		splitPath.some((path) => path === 'users') ||
-		(splitPath.some((path) => path === 'games') && splitPath.some((path) => path === 'main'));
-	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
+		splitPath[splitPath?.length - 1] === 'users' ||
+		(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main');
+	$: isBrowsePage =
+		splitPath[splitPath?.length - 1] === 'games' || (splitPath[1] === 'users' && !isProfilePage);
 	$: isUserGamesBrowsePage =
 		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
 	$: isHomePage = $page?.route?.id === '/';
@@ -71,6 +77,57 @@
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
+	const handleSave = async () => {
+		// $: isFocused = file?.id.toString() === $focusedFileId.toString();
+
+		const fileToUpdate = $filesToUpdate?.find((file) => file.id === $focusedFileId);
+
+		const name = fileToUpdate?.name;
+		const type = fileToUpdate?.type;
+		const content = fileToUpdate?.content;
+		const gameId = fileToUpdate?.game_id ?? fileToUpdate?.gameId;
+		const parentFileId = fileToUpdate?.parentFileId ?? fileToUpdate?.parent_file_id;
+		const fileId = fileToUpdate?.id;
+
+		if (fileId && name && type && gameId && parentFileId) {
+			const updatedFile = await fetch(`/api/updateFile`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					fileId: fileToUpdate?.id,
+					gameId,
+					name,
+					type,
+					content,
+					parentFileId
+				})
+			});
+			console.log('updatedFile::', updatedFile);
+
+			if (updatedFile?.ok) {
+				$filesToUpdate = $filesToUpdate?.filter((file) => file.id !== fileId);
+			}
+		}
+		// console.log('fileToUpdate::', fileToUpdate);
+		// const updatedFile = await fetch(`/api/updateFile`, {
+		// 	method: 'POST',
+		// 	headers: {
+		// 		'Content-Type': 'application/json'
+		// 	},
+		// 	body: JSON.stringify({
+		// 		fileId: fileToUpdate?.id,
+		// 		gameId: file?.game_id ?? file?.gameId,
+		// 		name: fileToUpdate?.name,
+		// 		type: fileToUpdate?.type,
+		// 		content: fileToUpdate?.content,
+		// 		parentFileId: fileToUpdate?.parentFileId
+		// 	})
+		// });
+
+		// console.log('updatedFile::', updatedFile);
+	};
 </script>
 
 <div
@@ -117,6 +174,11 @@
 							/>
 						</li>
 					{/if}
+					{#if engineInRoute}
+						<li class:hiddenItem={!engineInRoute}>
+							<Button action={handleSave} label={'save'} link={null} />
+						</li>
+					{/if}
 				</ul>
 				<ul class="profile-info">
 					{#if sessionData?.username || $session?.username}
@@ -153,6 +215,7 @@
 			class:engineInRoute
 			class:isGameProfile={isProfilePage || playInRoute}
 			class:showSideBar={!engineInRoute && $sideBarState}
+			class:isProfilePage
 		>
 			<div
 				class="sidebar"
@@ -355,7 +418,6 @@
 	}
 	.bg-container.isBrowsePage {
 		background-image: none;
-		overflow-y: scroll;
 	}
 	@media (max-width: 768px) {
 		.bg-container {
@@ -456,6 +518,10 @@
 		background-color: var(--darker-bg);
 	}
 
+	.isProfilePage {
+		overflow: hidden;
+	}
+
 	.more-container {
 		position: relative;
 		display: none;
@@ -522,39 +588,46 @@
 		background-color: transparent !important;
 	}
 
-	/* SCROLL BAR */
-	/* Style the scrollbar itself (width, color, etc.) */
-	::-webkit-scrollbar {
-		/* width: 10px; */
-		/* z-index: 10000;
-		position: absolute; */
-	}
-
-	/* Style the track of the scrollbar */
-	::-webkit-scrollbar-track {
-		background: var(--color-secondary);
-	}
-
-	/* Style the handle of the scrollbar */
-	::-webkit-scrollbar-thumb {
-		background: #888;
-	}
-
 	/* Handle on hover */
 	::-webkit-scrollbar-thumb:hover {
-		background: #555;
+		background: #555 !important;
+		cursor: pointer !important;
 	}
 	.page-container {
 		width: 100%;
 		height: 100%;
 		display: flex;
 		flex-direction: row;
-	}
-	.page-container.showSideBar {
 		overflow-x: hidden;
 	}
+
+	.page-container::-webkit-scrollbar {
+		background: transparent;
+		width: 10px;
+	}
+
+	.page-container::-webkit-scrollbar-track {
+		background: var(--button-highlight);
+	}
+
+	.page-container::-webkit-scrollbar:hover {
+		cursor: pointer;
+	}
+
+	.page-container::-webkit-scrollbar-thumb {
+		background: #555;
+		border-radius: 6px;
+	}
+
+	.page-container::-webkit-scrollbar-thumb:hover {
+		background: #555 !important;
+		cursor: pointer;
+	}
+
+	.page-container.showSideBar {
+	}
 	.page-container.isGameProfile {
-		overflow: hidden;
+		overflow: hidden !important;
 	}
 	.page-container.engineInRoute {
 	}

@@ -8,7 +8,8 @@
 		codePanes2,
 		focusedFileId,
 		previouslyFocusedFileId,
-		fileStoreFiles
+		fileStoreFiles,
+		filesToUpdate
 	} from '$lib/stores/filesStore.js';
 	import { onMount } from 'svelte';
 
@@ -113,6 +114,7 @@
 		bind:value={code}
 		{options}
 		on:update={(e) => {
+			console.log('E::', e);
 			openFiles.update((files) => {
 				const file = files?.find((file) => {
 					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
@@ -126,6 +128,8 @@
 				return files;
 			});
 
+			console.log('e::', e);
+
 			fileStoreFiles.update((files) => {
 				const file = files?.find((file) => {
 					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
@@ -133,7 +137,41 @@
 				});
 
 				if (file) {
+					console.log('======================================');
+					console.log('======================================');
+					console.log('found::file::', file);
+					console.log('======================================');
+					console.log('======================================');
 					file.content = e?.detail?.value;
+					console.log('file::file.content::', file);
+					console.log('======================================');
+					console.log('======================================');
+					const fileAlreadyInFilesToUpdate = $filesToUpdate?.some((fileToUpdate) => {
+						return fileToUpdate?.id === file?.id;
+					});
+
+					console.log('fileAlreadyInFilesToUpdate::', fileAlreadyInFilesToUpdate);
+					console.log('======================================');
+					console.log('======================================');
+					// if the file isnt already in the filesToUpdate array, add it
+					if (!fileAlreadyInFilesToUpdate) {
+						console.log('file not in filesToUpdate::', file);
+						console.log('filesToUpdate::before_adding_file', $filesToUpdate);
+						$filesToUpdate = [...$filesToUpdate, file];
+						console.log('filesToUpdate::after_adding_file', $filesToUpdate);
+					}
+
+					if (fileAlreadyInFilesToUpdate) {
+						$filesToUpdate = $filesToUpdate?.map((fileToUpdate) => {
+							if (fileToUpdate?.id === file?.id) {
+								if (fileToUpdate?.content !== file?.content) {
+									fileToUpdate.content = file.content;
+								}
+							}
+
+							return fileToUpdate;
+						});
+					}
 				}
 
 				return files;

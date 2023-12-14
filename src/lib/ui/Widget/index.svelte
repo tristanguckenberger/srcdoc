@@ -82,6 +82,7 @@
 		border-radius: 4px;
 		min-height: 75px;
 		padding-top: 10px;
+		height: 100%;
 	}
 	.widget-controls {
 		display: flex;
@@ -125,7 +126,27 @@
 		padding: 0 20px 20px;
 		overflow-y: scroll;
 		height: 100%;
-		max-height: calc(100% - 20px);
+		max-height: calc(100% - 30px);
+	}
+	.component-container::-webkit-scrollbar {
+		background: transparent;
+		width: 10px;
+	}
+
+	.component-container::-webkit-scrollbar:hover {
+		cursor: pointer;
+	}
+
+	/* Style the handle of the scrollbar */
+	.component-container::-webkit-scrollbar-thumb {
+		background: #555;
+		border-radius: 6px;
+	}
+
+	/* Handle on hover */
+	.component-container::-webkit-scrollbar-thumb:hover {
+		background: #555 !important;
+		cursor: pointer;
 	}
 	.tab :global(button:hover) {
 		background-color: transparent !important;

@@ -46,6 +46,11 @@
 
 	$: {
 		if (rootFileId && ($triggerCompile || $autoCompile)) {
+			console.log('$fileStoreFiles::', $fileStoreFiles);
+			console.log('rootFileId::', rootFileId);
+			console.log('width::', $editorOutContainerWidth);
+			console.log('height::', $editorOutContainerHeight);
+			console.log('gameControllerStore::', $gameControllerStore);
 			srcdoc = buildDynamicSrcDoc(
 				$fileStoreFiles,
 				rootFileId,
@@ -117,6 +122,8 @@
 			fileStoreFiles.set($derivedFileSystemData);
 		}
 	}
+
+	$: console.log('srcdoc::', srcdoc);
 </script>
 
 <div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight>

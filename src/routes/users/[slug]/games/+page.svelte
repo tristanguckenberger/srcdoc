@@ -20,7 +20,11 @@
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
 </script>
 
-<div class="page-container" class:noSideBar={!engineInRoute} class:showSideBar={$sideBarState}>
+<div
+	class="game-page-container"
+	class:noSideBar={!engineInRoute}
+	class:expandSideNav={$sideBarState}
+>
 	<div class="main grid" bind:clientWidth={$gridWidth}>
 		{#each data?.games as game, i}
 			<Card user={currentUserId} {game} thumbnail={`https://picsum.photos/${10 + i}`} />
@@ -29,15 +33,15 @@
 </div>
 
 <style>
-	.page-container {
+	.game-page-container {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
 		width: 100%;
 	}
-	.page-container.showSideBar {
+	.game-page-container.expandSideNav {
 		width: calc(100% - 230px);
-		overflow-x: hidden;
+		/* overflow-x: hidden; */
 	}
 	.main {
 		margin: 10px;

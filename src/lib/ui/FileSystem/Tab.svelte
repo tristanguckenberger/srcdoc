@@ -7,7 +7,8 @@
 		codePanes2,
 		previouslyFocusedFileId,
 		autoCompile,
-		triggerCompile
+		triggerCompile,
+		filesToUpdate
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
@@ -18,8 +19,28 @@
 	export let dragOver;
 	export let dragEnd;
 
+	let canSave = false;
+	let hideAnyway = false;
+
 	$: isFocused = file?.id.toString() === $focusedFileId.toString();
 	$: isSoftSelected = file?.id === $softSelectedFileId;
+	$: console.log('filesToUpdate::Tab', $filesToUpdate);
+	// $: $filesToUpdate,
+	// 	(() => {
+	// 		if ($filesToUpdate?.length > 0) {
+	// 			$filesToUpdate.forEach((fileToUpdate) => {
+	// 				if (fileToUpdate?.id === file?.id && canSave === false) {
+	// 					canSave = true;
+	// 				}
+	// 			});
+	// 		}
+	// 	})();
+
+	$: if ($filesToUpdate?.some((fileToUpdate) => fileToUpdate?.id === file?.id)) {
+		canSave = true;
+	} else {
+		canSave = false;
+	}
 
 	function handleClose(file) {
 		closeTab(file.id);
@@ -116,24 +137,77 @@
 	on:dragstart={(e) => dragStart(e, file)}
 	on:dragover={(e) => dragOver(e, file)}
 	on:dragend={dragEnd}
+	on:mouseover={() => {
+		if (canSave && !hideAnyway) {
+			hideAnyway = true;
+		}
+	}}
+	on:mouseout={() => {
+		hideAnyway = false;
+	}}
 >
 	<span
 		class:isSoftSelected
 		on:click={() => HandleFileSingleClick(file)}
 		on:dblclick={() => handleFileDBClick(file)}>{file.name}.{file.type}</span
 	>
-	{#if $openFiles.find((openFile) => openFile.id === file.id)?.needsSave}
-		<span class="white-dot" />
-	{/if}
-	<button class="tab-close" on:click={() => handleClose(file)}>X</button>
+	<button
+		class="tab-close"
+		on:click={() => handleClose(file)}
+		class:canSave
+		class:showAnyway={hideAnyway}>X</button
+	>
+	<div
+		class="white-dot-container"
+		class:canSave
+		on:mouseover={() => {
+			if (canSave && !hideAnyway) {
+				hideAnyway = true;
+			}
+		}}
+		on:mouseout={() => {
+			hideAnyway = false;
+		}}
+	>
+		<span class="white-dot" class:canSave class:hideAnyway />
+	</div>
 </div>
 
 <style>
+	.white-dot-container {
+		width: 20px;
+		height: 20px;
+		position: absolute;
+		right: 0px;
+		top: 3px;
+	}
+	.white-dot-container:hover {
+		/* display: none !important; */
+	}
+	.white-dot {
+		display: none;
+		width: 3px;
+		height: 7px;
+		background-color: var(--text-color-primary);
+		border-radius: 50% 50%;
+		margin-left: 5px;
+		position: relative;
+		top: 6px;
+		right: -1.5px;
+	}
+	.white-dot.canSave {
+		display: block;
+	}
+	.white-dot:hover {
+		/* display: none !important; */
+	}
 	.tab {
 		display: flex;
 		flex-direction: row;
 		background-color: var(--color-secondary);
-		padding: 4px 5px 4px 5px;
+		padding: 4px 5px 3px 5px;
+		border-radius: 4px;
+		position: relative;
 	}
 
 	.tab:hover {
@@ -154,16 +228,20 @@
 		padding: 0;
 		margin: 0;
 		opacity: 0;
+		z-index: 30 !important;
 	}
 
 	.tab:hover > .tab-close {
 		opacity: 1;
 	}
+
+	.tab.canSave > .tab-close {
+		opacity: 0;
+	}
 	.tab.isFocused {
 		background-color: var(--button-highlight);
 		border-bottom: 4px solid var(--color-accent);
-		border-top-right-radius: 4px;
-		border-top-left-radius: 4px;
+		border-radius: 4px;
 	}
 	.tab span {
 		color: var(--folder-button-color);
@@ -175,12 +253,30 @@
 		color: var(--text-color-highlight);
 		font-style: italic;
 	}
-	.white-dot {
+	/* .white-dot {
 		display: inline-block;
 		width: 8px;
 		height: 8px;
 		background-color: white;
 		border-radius: 50%;
 		margin-left: 5px;
+	} */
+	button.canSave {
+		/* display: none; */
+		/* opacity: 0 !important; */
+	}
+	button.canSave:hover {
+		/* opacity: 1 !important; */
+		/* cursor: pointer; */
+		/* display: block !important; */
+	}
+	.hideAnyway {
+		display: none !important;
+	}
+	.showAnyway {
+		display: block !important;
+		opacity: 1 !important;
+		z-index: 30 !important;
+		cursor: pointer;
 	}
 </style>

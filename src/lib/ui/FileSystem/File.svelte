@@ -17,8 +17,36 @@
 	export let editingId = null;
 
 	let fullFileName = `${file.name}.${file.type}`;
+
+	async function handleFileUpdate(fileToUpdate) {
+		console.log('fileToUpdate::', fileToUpdate);
+		const updatedFile = await fetch(`/api/updateFile`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				fileId: fileToUpdate?.id,
+				gameId: file?.game_id ?? file?.gameId,
+				name: fileToUpdate?.name,
+				type: fileToUpdate?.type,
+				content: fileToUpdate?.content,
+				parentFileId: fileToUpdate?.parentFileId
+			})
+		});
+
+		console.log('updatedFile::', updatedFile);
+	}
+
 	$: isSoftSelected = file?.id === $softSelectedFileId;
 	$: themeString = $themeDataStore?.theme?.join(' ');
+	$: file,
+		(() => {
+			const extractedFile = allFiles?.filter((f) => f.id === file.id)[0];
+
+			console.log('extractedFile::', extractedFile);
+		})();
+	$: console.log('file::', file);
 </script>
 
 <div class="file-line" style={`${themeString}`}>
@@ -28,7 +56,10 @@
 			bind:value={fullFileName}
 			on:blur={() => {
 				const [name, type] = fullFileName.split('.');
-				renameFile(file.id, name, type ?? 'folder', allFiles);
+				const fileToUpdate = renameFile(file.id, name, type ?? 'folder', allFiles);
+				console.log('fileToUpdate::', fileToUpdate);
+				handleFileUpdate(fileToUpdate);
+
 				isRenaming = false;
 				editingId = null;
 				fullFileName = '';

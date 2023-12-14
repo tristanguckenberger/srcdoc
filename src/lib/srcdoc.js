@@ -56,23 +56,63 @@ const findFileById = (files, id) => {
  * @returns {FileObject[]|ErrorObject}
  */
 const findChildren = (files, parentId) => {
+	console.log('==============================');
+	console.log('==============================');
+	console.log('findChildren::files::', files);
+	console.log('==============================');
+	console.log('==============================');
+	console.log('findChildren::parentId::', parentId);
+	console.log('==============================');
+	console.log('==============================');
 	if (!files || files.length === 0) {
+		console.log('error...', `No files found!`);
 		return {
 			errorMessage: 'No files found!'
 		};
 	}
 
 	if (!parentId) {
+		console.log('error...', `No parentId provided!`);
 		return {
 			errorMessage: 'No parentId provided!'
 		};
 	}
 
-	return (
-		files.filter((file) => file.parentFileId === parentId) ?? {
-			errorMessage: `No children found for file with id ${parentId}!`
+	const childrenFound = files?.filter((file) => {
+		if (file?.name === 'src') {
+			console.log('======================================');
+			console.log('======================================');
+			console.log('======================================');
+			console.log('parentId::', parentId);
+			console.log('======================================');
+			console.log('======================================');
+			console.log(
+				'isChild?::',
+				file?.parentFileId?.toString() === parentId?.toString() ??
+					file?.parent_file_id?.toString() === parentId?.toString()
+			);
+			console.log('======================================');
+			console.log('file::', file);
+			console.log('======================================');
+			console.log('file::parentFileId::', file?.parent_file_id);
+			console.log('======================================');
+			console.log('file::parentId::', parentId);
+			console.log('======================================');
+			console.log(
+				'equivalence::',
+				file?.parent_file_id === parentId,
+				file?.parent_file_id,
+				parentId
+			);
+			console.log('======================================');
 		}
-	);
+
+		return file?.parent_file_id === parentId;
+	}) ?? {
+		errorMessage: `No children found for file with id ${parentId}!`
+	};
+
+	return childrenFound;
 };
 
 /**
@@ -87,6 +127,10 @@ const findChildren = (files, parentId) => {
  * @returns {FileObject[]|ErrorObject}
  */
 const collectFiles = (files, rootId, collected = []) => {
+	console.log('collectFiles::building_srcdoc::files::', files);
+	console.log('collectFiles::building_srcdoc::rootId::', rootId);
+	console.log('collectFiles::building_srcdoc::collected::', collected);
+
 	if (!files || files.length === 0) {
 		return {
 			errorMessage: 'No files found!'
@@ -101,22 +145,32 @@ const collectFiles = (files, rootId, collected = []) => {
 
 	const rootFile = findFileById(files, rootId);
 
+	console.log('building_srcdoc::rootFile::', rootFile);
+
 	if (!rootFile) {
+		console.log('error...', `No file found with id ${rootId}!`);
+		console.log('building_srcdoc::rootFile::', rootFile);
 		return {
 			errorMessage: `No file found with id ${rootId}!`
 		};
 	}
 
 	if ('type' in rootFile && rootFile.type === 'folder') {
+		console.log('right...building_srcdoc::rootFile::', rootFile);
 		const children = findChildren(files, rootId);
+		console.log('right...building_srcdoc::children::', children);
 		if (Array.isArray(children)) {
 			children.forEach((child) => collectFiles(files, child.id, collected));
 		}
+	} else {
+		console.log('not_right...building_srcdoc::rootFile::', rootFile);
+		// collected.push(rootFile);
 	}
 
 	if ('type' in rootFile) {
 		collected.push(rootFile);
 	}
+	console.log('building_srcdoc::collected::', collected);
 	return collected;
 };
 
@@ -172,12 +226,13 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 	let jsContent = '';
 
 	files?.forEach((file) => {
+		console.log('building_srcdoc_files::', files);
 		const resolvedContent = resolveDependencies(file, files);
 
 		if (file.type === 'html') {
 			htmlContent += resolvedContent;
 		} else if (file.type === 'css') {
-			cssContent += `<style>${resolvedContent}</style>`;
+			cssContent += `<style>html{height:100%;}body{margin:0;height:100%;}${resolvedContent}</style>`;
 		} else if (file.type === 'js') {
 			jsContent += `<script>${resolvedContent}</script>`;
 		}
@@ -337,6 +392,7 @@ const buildDynamicSrcDoc = (files, rootId, clientDimensions, gameControllerStore
 	}
 
 	const relevantFiles = collectFiles(files, rootId);
+	console.log('building_srdoc::relevantFiles::', relevantFiles);
 	if (!relevantFiles) {
 		return {
 			errorMessage: `No files found with rootId ${rootId}!`

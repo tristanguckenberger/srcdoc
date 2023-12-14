@@ -44,6 +44,9 @@ export const codePanes = writable(['#split-html', '#split-css', '#split-js']); /
 
 export const baseDataStore = writable([]);
 
+// Initil data store for the file system
+export const filesToUpdate = writable([]);
+
 export const codePanes2 = writable([]);
 
 // derived code data store will be the single source of truth for the focused file in a code editor
@@ -92,8 +95,8 @@ export const derivedUpdateData = derived([baseDataStore, openFiles], ([$baseData
 			name: file.name,
 			type: file.type,
 			content: file.content,
-			parentFileId: file.parentFileId,
-			gameId: file.gameId
+			parentFileId: file?.parentFileId ?? file?.parent_file_id,
+			gameId: file.gameId ?? file.game_id
 		};
 		return update;
 	});
@@ -147,13 +150,15 @@ export function createFile(fileName, parentFile, files, fileContent) {
 		name,
 		type: type ?? 'folder',
 		content: fileContent ?? (type === 'folder' ? null : ''),
-		gameId: parentFile?.gameId,
+		gameId: parentFile?.gameId ?? parentFile?.game_id,
 		parentFileId: parentFile?.id,
 		createdAt: '',
 		updatedAt: ''
 	};
 
 	fileStoreFiles.set([...files, newFile]);
+
+	return newFile;
 }
 
 // Delete a file or folder
@@ -163,9 +168,9 @@ export function deleteFiles(targetId, files) {
 
 	// recursively find and mark files/folders for deletion
 	function recursiveDelete(id) {
-		idsToDelete.add(id); // Mark the current id for deletion
-		files.forEach((file) => {
-			if (file.parentFileId === id) {
+		idsToDelete?.add(id); // Mark the current id for deletion
+		files?.forEach((file) => {
+			if (file?.parentFileId === id ?? file?.parent_file_id === id) {
 				// if it's child of the folder, mark its children for deletion as well
 				recursiveDelete(file.id);
 			}
@@ -185,10 +190,18 @@ export function deleteFiles(targetId, files) {
 export function renameFile(targetId, newName, newType, files) {
 	const updatedFiles = files.map((file) => {
 		if (file.id === targetId) {
+			const gameId = file?.gameId ?? file?.game_id;
+			const parentFileId = file?.parentFileId ?? file?.parent_file_id;
+
+			console.log('gameId at file update::', gameId);
+			console.log('parentFileId at file update::', parentFileId);
+
 			return {
 				...file,
 				name: newName,
-				type: newType
+				type: newType,
+				gameId,
+				parentFileId
 			};
 		}
 
@@ -196,6 +209,7 @@ export function renameFile(targetId, newName, newType, files) {
 	});
 
 	fileStoreFiles.set(updatedFiles);
+	return updatedFiles?.filter((file) => file?.id === targetId)[0];
 }
 
 export function uploadAndCompressAsset(file) {
