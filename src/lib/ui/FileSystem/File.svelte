@@ -19,8 +19,7 @@
 	let fullFileName = `${file.name}.${file.type}`;
 
 	async function handleFileUpdate(fileToUpdate) {
-		console.log('fileToUpdate::', fileToUpdate);
-		const updatedFile = await fetch(`/api/updateFile`, {
+		await fetch(`/api/updateFile`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -34,8 +33,6 @@
 				parentFileId: fileToUpdate?.parentFileId
 			})
 		});
-
-		console.log('updatedFile::', updatedFile);
 	}
 
 	$: isSoftSelected = file?.id === $softSelectedFileId;
@@ -43,10 +40,7 @@
 	$: file,
 		(() => {
 			const extractedFile = allFiles?.filter((f) => f.id === file.id)[0];
-
-			console.log('extractedFile::', extractedFile);
 		})();
-	$: console.log('file::', file);
 </script>
 
 <div class="file-line" style={`${themeString}`}>

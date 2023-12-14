@@ -1,9 +1,8 @@
 <script>
 	// @ts-nocheck
-	import { openFiles } from '$lib/stores/filesStore.js';
+	import { initialDataStore, openFiles } from '$lib/stores/filesStore.js';
 	import MonacoEditorScripts from './MonacoEditorScripts.svelte';
 	import {
-		baseDataStore,
 		derivedCodeData,
 		codePanes2,
 		focusedFileId,
@@ -114,8 +113,7 @@
 		bind:value={code}
 		{options}
 		on:update={(e) => {
-			console.log('E::', e);
-			openFiles.update((files) => {
+			openFiles?.update((files) => {
 				const file = files?.find((file) => {
 					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
 					return newId === id;
@@ -128,37 +126,38 @@
 				return files;
 			});
 
-			console.log('e::', e);
-
-			fileStoreFiles.update((files) => {
+			fileStoreFiles?.update((files) => {
 				const file = files?.find((file) => {
 					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;
 					return newId === id;
 				});
 
 				if (file) {
-					console.log('======================================');
-					console.log('======================================');
-					console.log('found::file::', file);
-					console.log('======================================');
-					console.log('======================================');
 					file.content = e?.detail?.value;
-					console.log('file::file.content::', file);
-					console.log('======================================');
-					console.log('======================================');
+					let shouldFileBeAdded = $initialDataStore?.files?.some((initialFile) => {
+						if (initialFile?.id === file?.id) {
+							console.log('MATCH');
+							console.log(
+								'::initialFileContent === fileContent::',
+								initialFile?.content === file?.content
+							);
+							console.log('::initialFileContent::', initialFile?.content);
+							console.log('::fileContent::', file?.content);
+							return initialFile?.content !== file?.content;
+						}
+
+						return false;
+					});
+
 					const fileAlreadyInFilesToUpdate = $filesToUpdate?.some((fileToUpdate) => {
 						return fileToUpdate?.id === file?.id;
 					});
 
-					console.log('fileAlreadyInFilesToUpdate::', fileAlreadyInFilesToUpdate);
-					console.log('======================================');
-					console.log('======================================');
 					// if the file isnt already in the filesToUpdate array, add it
 					if (!fileAlreadyInFilesToUpdate) {
-						console.log('file not in filesToUpdate::', file);
-						console.log('filesToUpdate::before_adding_file', $filesToUpdate);
-						$filesToUpdate = [...$filesToUpdate, file];
-						console.log('filesToUpdate::after_adding_file', $filesToUpdate);
+						if (shouldFileBeAdded) {
+							$filesToUpdate = [...$filesToUpdate, file];
+						}
 					}
 
 					if (fileAlreadyInFilesToUpdate) {
@@ -168,12 +167,10 @@
 									fileToUpdate.content = file.content;
 								}
 							}
-
 							return fileToUpdate;
 						});
 					}
 				}
-
 				return files;
 			});
 		}}

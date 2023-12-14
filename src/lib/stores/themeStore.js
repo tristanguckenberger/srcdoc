@@ -20,7 +20,8 @@ const baseTheme = readable([
 	'--deep-blue: #043757;',
 	'--purple-main: #46255F;',
 	'--green-main: #043C3F;',
-	'--home-bg: #faf8f4;'
+	'--home-bg: #faf8f4;',
+	'--sidbar-highlight: #242528;'
 ]);
 
 const lightTheme = readable([

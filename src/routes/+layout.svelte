@@ -7,7 +7,8 @@
 		fileSystemSidebarOpen,
 		triggerCompile,
 		filesToUpdate,
-		focusedFileId
+		focusedFileId,
+		initialDataStore
 	} from '$lib/stores/filesStore';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
 	import {
@@ -51,6 +52,7 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
 	$: sessionData = data?.sessionData ?? $session;
+	$: console.log($routeHistoryStore);
 
 	const updateTheme = (e) => {
 		themeKeyStore.set(e.matches ? 'light' : 'dark');
@@ -104,29 +106,28 @@
 					parentFileId
 				})
 			});
-			console.log('updatedFile::', updatedFile);
 
 			if (updatedFile?.ok) {
-				$filesToUpdate = $filesToUpdate?.filter((file) => file.id !== fileId);
+				// If the file successfully updated:
+				// - remove it from the filesToUpdate array
+				// - update the initialDataStore so we can check for future changes
+				const updatedData = $initialDataStore?.files?.map((file) => {
+					if (file?.id === fileId) {
+						file.content = content;
+					}
+					return file;
+				});
+
+				$filesToUpdate = $filesToUpdate?.filter((file) => file?.id !== fileId);
+				// Since only files are updated, we can spread all the existing data and just update the files
+				// also need to remove the sessionData, that shouldnt be in there
+				initialDataStore?.set({
+					...$initialDataStore,
+					files: JSON.parse(JSON.stringify(updatedData)),
+					sessionData: null
+				});
 			}
 		}
-		// console.log('fileToUpdate::', fileToUpdate);
-		// const updatedFile = await fetch(`/api/updateFile`, {
-		// 	method: 'POST',
-		// 	headers: {
-		// 		'Content-Type': 'application/json'
-		// 	},
-		// 	body: JSON.stringify({
-		// 		fileId: fileToUpdate?.id,
-		// 		gameId: file?.game_id ?? file?.gameId,
-		// 		name: fileToUpdate?.name,
-		// 		type: fileToUpdate?.type,
-		// 		content: fileToUpdate?.content,
-		// 		parentFileId: fileToUpdate?.parentFileId
-		// 	})
-		// });
-
-		// console.log('updatedFile::', updatedFile);
 	};
 </script>
 
@@ -704,13 +705,13 @@
 
 	.sidebar-section ul a:hover,
 	.sidebar-section ul .sidebar-action:hover {
-		background-color: var(--button-highlight);
+		background-color: var(--sidbar-highlight);
 		color: var(--color-primary);
 		cursor: pointer;
 	}
 	.sidebar-section ul a.active,
 	.sidebar-section ul .sidebar-action.active {
-		background-color: var(--button-highlight);
+		background-color: var(--sidbar-highlight);
 		color: var(--color-primary);
 	}
 	.sidebar-action :global(button) {

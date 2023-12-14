@@ -7,7 +7,9 @@ export const visitedRoutes = writable([]);
 export const routeHistoryStore = derived([page, visitedRoutes], ([$page, $visitedRoutes]) => {
 	let route = $page?.url?.pathname;
 	if (route) {
+		console.log('route::', route);
 		if ($visitedRoutes[$visitedRoutes?.length - 1] !== route) {
+			console.log('route::', route);
 			visitedRoutes.set([...$visitedRoutes, route]);
 		}
 	}

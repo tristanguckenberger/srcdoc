@@ -44,7 +44,10 @@ export const codePanes = writable(['#split-html', '#split-css', '#split-js']); /
 
 export const baseDataStore = writable([]);
 
-// Initil data store for the file system
+// Initil data store for the file system, updates only when new data is fetched, i.e. after a save
+export const initialDataStore = writable([]);
+
+// Tracks the files that need to be updated or 'saved'
 export const filesToUpdate = writable([]);
 
 export const codePanes2 = writable([]);

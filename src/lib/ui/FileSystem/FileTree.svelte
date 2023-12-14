@@ -16,7 +16,9 @@
 		renameFile,
 		triggerCompile,
 		firstRun,
-		filesToUpdate
+		filesToUpdate,
+		baseDataStore,
+		initialDataStore
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { afterUpdate, onMount, tick } from 'svelte';
@@ -35,6 +37,7 @@
 	let isRenaming = false;
 	let editingId = null;
 	let folderName = '';
+	let init = true;
 
 	function startCreatingFile(file) {
 		creatingFile = true;
@@ -346,6 +349,13 @@
 		if (files /** && timeout === false*/) {
 			fileStoreFiles.set(files);
 		}
+
+		// initialize the initialDataStore, used for checking when to save a file
+		if (init) {
+			console.log('IN_FILETREE::onMount::initializing_initialDataStore');
+			initialDataStore?.set(JSON.parse(JSON.stringify($baseDataStore)));
+			init = false;
+		}
 	});
 
 	$: reactiveGameId = gameId;
@@ -410,11 +420,6 @@
 				files = $fileStoreFiles;
 			}
 		})();
-	// $: console.log('derivedUpdateData::canSave::', $derivedUpdateData);
-	// $: console.log('$codePanes2::', $codePanes2);
-	// $: console.log('codePaneData::', codePaneData);
-	// $: console.log('threadedFiles::', threadedFiles);
-	// $: console.log('filesToUpdate::', $filesToUpdate);
 </script>
 
 <ul class="file-tree">

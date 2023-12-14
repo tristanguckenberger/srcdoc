@@ -62,6 +62,7 @@
 		))();
 	$: isSideBarOpen = $fileSystemSidebarOpen;
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
+	$: console.log('previousRoute::', $routeHistoryStore);
 
 	onDestroy(() => {
 		fileStoreFiles.set(null);
