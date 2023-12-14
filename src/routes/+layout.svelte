@@ -1,7 +1,13 @@
 <script>
 	// @ts-nocheck
+
+	// SVELTE IMPORTS
+	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
-	import { routeHistoryStore } from '$lib/stores/routeStore.js';
+	import { browser } from '$app/environment';
+	import { enhance } from '$app/forms';
+
+	// CUSTOM STORE IMPORTS
 	import {
 		autoCompile,
 		fileSystemSidebarOpen,
@@ -10,65 +16,27 @@
 		focusedFileId,
 		initialDataStore
 	} from '$lib/stores/filesStore';
-	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
-	import {
-		sideBarState,
-		sideBarWidth,
-		modalStateStore,
-		modalOpenState
-	} from '$lib/stores/layoutStore.js';
-	import { onMount, onDestroy } from 'svelte';
+	import { sideBarState, sideBarWidth, modalOpenState } from '$lib/stores/layoutStore.js';
 	import { session } from '$lib/stores/sessionStore.js';
-	import { browser } from '$app/environment';
-	import Button from '$lib/ui/Button/index.svelte';
-	import bgFadedMono13 from '$lib/assets/bgFadedMono13.svg';
-	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
-	import { enhance } from '$app/forms';
+	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
+
+	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
+	import Button from '$lib/ui/Button/index.svelte';
 
-	$: modalIsOpen = $modalOpenState;
+	// ASSET IMPORTS
+	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
 
-	export let sessionData;
-	export let data;
+	// PROPS
+	export let sessionData; // TODO, ensure this isn't being used and remove it
+	export let data; // This is the data from the server, includes `sessionData`
 
-	let preferedThemeMode;
-
+	// Variables
 	const browseOptions = [{ option: 'Home' }, { option: 'Quick Play' }, { option: 'Favorites' }];
-
-	$: currentBrowseOptionSelection = browseOptions[0];
-
-	// controls file system sidebar toggle button visibility
-	$: splitPath = $page?.route?.id?.split('/') ?? [];
-	$: engineInRoute = splitPath.some((path) => path === 'engine');
-	$: playInRoute = splitPath.some((path) => path === 'play');
-	$: isProfilePage =
-		splitPath[splitPath?.length - 1] === 'users' ||
-		(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main');
-	$: isBrowsePage =
-		splitPath[splitPath?.length - 1] === 'games' || (splitPath[1] === 'users' && !isProfilePage);
-	$: isUserGamesBrowsePage =
-		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
-	$: isHomePage = $page?.route?.id === '/';
-	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
-	$: sessionData = data?.sessionData ?? $session;
-	$: console.log($routeHistoryStore);
-
-	const updateTheme = (e) => {
-		themeKeyStore.set(e.matches ? 'light' : 'dark');
-	};
-
-	// menu and sidebar toggle funcs
+	let preferedThemeMode;
 	let dropDownToggle = false;
-	const toggleDropDown = () => {
-		dropDownToggle = !dropDownToggle;
-	};
-	const toggleSideBar = () => {
-		$sideBarState = !$sideBarState;
-	};
-	const toggleFileSystemSidebar = () => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen);
 
-	// lifecycle funcs
+	// FUNCTIONS
 	onMount(() => {
 		if (browser) {
 			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
@@ -79,11 +47,18 @@
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
+	const toggleFileSystemSidebar = () => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen);
+	const updateTheme = (e) => {
+		themeKeyStore.set(e.matches ? 'light' : 'dark');
+	};
+	const toggleDropDown = () => {
+		dropDownToggle = !dropDownToggle;
+	};
+	const toggleSideBar = () => {
+		$sideBarState = !$sideBarState;
+	};
 	const handleSave = async () => {
-		// $: isFocused = file?.id.toString() === $focusedFileId.toString();
-
 		const fileToUpdate = $filesToUpdate?.find((file) => file.id === $focusedFileId);
-
 		const name = fileToUpdate?.name;
 		const type = fileToUpdate?.type;
 		const content = fileToUpdate?.content;
@@ -129,12 +104,30 @@
 			}
 		}
 	};
+
+	// REACTIVE VARIABLES & STATEMENTS
+	$: currentBrowseOptionSelection = browseOptions[0];
+	$: splitPath = $page?.route?.id?.split('/') ?? [];
+	$: engineInRoute = splitPath.some((path) => path === 'engine');
+	$: playInRoute = splitPath.some((path) => path === 'play');
+	$: isProfilePage =
+		splitPath[splitPath?.length - 1] === 'users' ||
+		(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main');
+	$: isBrowsePage =
+		splitPath[splitPath?.length - 1] === 'games' || (splitPath[1] === 'users' && !isProfilePage);
+	$: isUserGamesBrowsePage =
+		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
+	$: isHomePage = $page?.route?.id === '/';
+	$: themeString = $themeDataStore?.theme?.join(' ');
+	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
+	$: sessionData = data?.sessionData ?? $session;
+	$: modalIsOpen = $modalOpenState;
 </script>
 
 <div
 	class="layout-container"
 	class:isBrowsePage
-	style="--svg-bg: url('{bgFadedMono16}'); --svg-dark-bg: url('{bgFadedMono13}'); height: 100%; width: 100%; {themeString}"
+	style="--svg-bg: url('{bgFadedMono16}'); height: 100%; width: 100%; {themeString}"
 >
 	<div
 		class="bg-container"
@@ -408,7 +401,6 @@
 		background: linear-gradient(135deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
 		background: -moz-linear-gradient(135deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
 		background: -webkit-linear-gradient(333deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
-		/* background-color: #fffcec; */
 	}
 	.bg-container {
 		height: 100%;
@@ -462,6 +454,7 @@
 		padding: 0;
 		gap: 10px;
 		align-items: center;
+		height: 36.5px;
 		/* justify-content: space-between; */
 	}
 
@@ -472,9 +465,6 @@
 	}
 	li.hiddenItem {
 		display: none;
-	}
-	main.scrollable {
-		/* overflow-y: scroll !important; */
 	}
 	main.editor {
 		height: calc(100% - 66.5px) !important;
@@ -505,12 +495,6 @@
 	}
 	.profile-info {
 		justify-content: flex-end;
-	}
-	.isNotHomePage {
-		/* background-color: var(--color-secondary); */
-	}
-	.isBrowsePage {
-		/* overflow-y: scroll; */
 	}
 	.isProfilePage {
 		height: calc(100% - 66.5px);
@@ -624,19 +608,9 @@
 		background: #555 !important;
 		cursor: pointer;
 	}
-
-	.page-container.showSideBar {
-	}
 	.page-container.isGameProfile {
 		overflow: hidden !important;
 	}
-	.page-container.engineInRoute {
-	}
-
-	/* .page-container {
-		height: calc(100% - 66.5px);
-	} */
-
 	.sidebar {
 		width: 230px;
 		display: none;
@@ -709,8 +683,7 @@
 		color: var(--color-primary);
 		cursor: pointer;
 	}
-	.sidebar-section ul a.active,
-	.sidebar-section ul .sidebar-action.active {
+	.sidebar-section ul a.active {
 		background-color: var(--sidbar-highlight);
 		color: var(--color-primary);
 	}

@@ -414,7 +414,7 @@
 	.hero {
 		width: 400px;
 		position: relative;
-		bottom: 6vh;
+		bottom: 0;
 		left: 0px;
 		z-index: 1;
 	}
@@ -424,20 +424,12 @@
 		left: 7.335px;
 		position: relative;
 	}
-	/* .sign-in-split {
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-items: center;
-		width: 130%;
-		align-self: center;
+
+	:global(.showSideBar) .hero,
+	:global(.showSideBar) .auth-container {
+		right: 115px;
+		left: unset;
 	}
-	.sign-in-split span {
-		font-family: 'Nunito', sans-serif;
-		font-weight: 600;
-		font-size: 0.9rem;
-		color: #2e324cab;
-	} */
 	.form-container {
 		display: flex;
 		width: fit-content;
@@ -462,7 +454,6 @@
 		align-items: center;
 		gap: 0px;
 	}
-
 	.form-action span {
 		font-family: 'Nunito', sans-serif;
 		font-weight: 600;
@@ -475,7 +466,7 @@
 		justify-content: center;
 		align-items: flex-start;
 		position: relative;
-		bottom: 14vh;
+		bottom: 7vh;
 	}
 	@media (max-width: 768px) {
 		.form-container {
