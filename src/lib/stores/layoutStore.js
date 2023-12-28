@@ -35,6 +35,7 @@ export const showPreferences = writable(false);
 export const isDarkModeStore = createWritableStore('isDarkModeStore', false);
 export const redirected = writable(false);
 export const isVertical = writable(true);
+export const appClientWidth = writable(null);
 
 export const gridWidth = writable(0);
 

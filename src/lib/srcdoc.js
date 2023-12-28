@@ -157,7 +157,7 @@ const resolveDependencies = (file, files) => {
  * @returns {string|ErrorObject}
  */
 const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
-	if (!files || files.length === 0) {
+	if (!files || files?.length === 0) {
 		return {
 			errorMessage: 'No files provided!'
 		};
@@ -174,11 +174,11 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 
 	files?.forEach((file) => {
 		const resolvedContent = resolveDependencies(file, files);
-		if (file.type === 'html') {
+		if (file?.type === 'html') {
 			htmlContent += resolvedContent;
-		} else if (file.type === 'css') {
+		} else if (file?.type === 'css') {
 			cssContent += `<style>html{height:100%;}body{margin:0;height:100%;}${resolvedContent}</style>`;
-		} else if (file.type === 'js') {
+		} else if (file?.type === 'js') {
 			jsContent += `<script>${resolvedContent}</script>`;
 		}
 	});
@@ -186,9 +186,9 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 	// get all assets and build a lookup table
 	const assetLookupString = () => {
 		const assetLookup = {};
-		files.forEach((file) => {
-			if (file.type === 'image' || file.type === 'audio' || file.type === 'png') {
-				assetLookup[`${file.name}.${file.type}`] = file.content;
+		files?.forEach((file) => {
+			if (file?.type === 'image' || file?.type === 'audio' || file?.type === 'png') {
+				assetLookup[`${file.name}.${file.type}`] = file?.content;
 			}
 		});
 
@@ -244,9 +244,9 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 	`;
 
 	function onKeyDown(keyEvent, gameControllerStore, update) {
-		if (keyEvent.target !== document.body) return;
+		if (keyEvent?.target !== document?.body) return;
 
-		gameControllerStore.previous = gameControllerStore.current;
+		gameControllerStore.previous = gameControllerStore?.current;
 		gameControllerStore.current = {
 			keyEvent,
 			pressedTime: Date.now(),
@@ -259,14 +259,14 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 
 	// Function to handle keyup events
 	function onKeyUp(keyEvent, gameControllerStore, update) {
-		if (keyEvent.target !== document.body) return;
+		if (keyEvent?.target !== document?.body) return;
 
 		update({
 			current: {
-				...gameControllerStore.current,
+				...gameControllerStore?.current,
 				releasedTime: Date.now()
 			},
-			previous: gameControllerStore.previous,
+			previous: gameControllerStore?.previous,
 			pressed: false
 		});
 	}

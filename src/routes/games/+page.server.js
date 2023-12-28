@@ -1,12 +1,23 @@
 // @ts-nocheck
 import { gameData } from '$lib/mockData/gameData.js';
+import { gamesData } from '$lib/stores/gamesStore.js';
 import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 
 export async function load({ cookies }) {
+	const token = cookies.get('token');
+	let sessionValue = null;
 	session.subscribe(async (session) => {
 		try {
-			session?.token && cookies.set('token', session?.token);
+			if (session?.token && !token) {
+				cookies.set('token', session?.token, {
+					secure: false
+				});
+				sessionValue = session;
+			} else if (!session?.token && token) {
+				session.token = token;
+				sessionValue = session;
+			}
 		} catch (error) {
 			console.log('error::', error);
 		}
@@ -39,17 +50,23 @@ export async function load({ cookies }) {
 
 	const user = await getCurrentUser();
 
-	if (user && !user?.is_active) {
+	console.log('USER::', user);
+
+	if (!user?.is_active ?? !user?.isActive) {
+		// console.log(user);
 		throw redirect(300, `/users/${user?.id}/verify`);
 	}
 
 	session.set({
+		...sessionValue,
 		...user,
 		password: ''
 	});
 
+	gamesData.set([...gameData].reverse());
+
 	return {
-		games: [...gameData],
+		games: [...gameData].reverse(),
 		sessionData: {
 			...user,
 			password: ''

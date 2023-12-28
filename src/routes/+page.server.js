@@ -56,7 +56,10 @@ export async function load({ cookies }) {
 
 	session.subscribe(async (session) => {
 		try {
-			session?.token && cookies.set('token', session?.token);
+			session?.token &&
+				cookies.set('token', session?.token, {
+					secure: false
+				});
 		} catch (error) {
 			console.log('error::', error);
 		}

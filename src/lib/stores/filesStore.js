@@ -196,8 +196,8 @@ export function renameFile(targetId, newName, newType, files) {
 			const gameId = file?.gameId ?? file?.game_id;
 			const parentFileId = file?.parentFileId ?? file?.parent_file_id;
 
-			console.log('gameId at file update::', gameId);
-			console.log('parentFileId at file update::', parentFileId);
+			// console.log('gameId at file update::', gameId);
+			// console.log('parentFileId at file update::', parentFileId);
 
 			return {
 				...file,

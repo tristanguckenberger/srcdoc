@@ -31,7 +31,13 @@
 	// custom store imports
 	import { themeDataStore } from '$lib/stores/themeStore.js';
 	import { commentStoreComments } from '$lib/stores/commentStore.js';
-	import { modalOpenState, modalComponent, modalProps } from '$lib/stores/layoutStore.js';
+	import {
+		modalOpenState,
+		modalComponent,
+		modalProps,
+		appClientWidth,
+		sideBarState
+	} from '$lib/stores/layoutStore.js';
 	import {
 		fileSystemSidebarWidth,
 		fileSystemSidebarOpen,
@@ -61,10 +67,12 @@
 
 	let imageExpanded = false;
 	let imageLoaded = false;
+	let flipLayout = false;
 	let reactiveData = {};
 	let select;
 	let selectedOption = 0;
 	let ComponentOptions = [];
+	let pageWidth = 0;
 
 	function openModal() {
 		modalComponent.set(EditGameDetails);
@@ -82,6 +90,10 @@
 	};
 	onMount(() => {
 		firstRun.set(true);
+
+		if ($appClientWidth && $appClientWidth < 498) {
+			sideBarState.set(false);
+		}
 	});
 	onDestroy(() => {
 		fileStoreFiles.set(null);
@@ -121,14 +133,17 @@
 					component: Reviews
 				}
 			]))();
-
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: data?.comments, (reactiveData = data ?? {});
+	$: if (pageWidth < 500) {
+		flipLayout = true;
+	}
 </script>
 
 <div
 	class="game-info-container"
 	style={`${themeString} --caret-down: url('${CaretDown}'); --caret-left: url('${CaretLeft}');`}
+	bind:clientWidth={pageWidth}
 >
 	<div class="game-info">
 		<div class="header-detail">
@@ -144,13 +159,23 @@
 				/>
 				<div class="game-header-placeholder" class:hidePlaceholder={imageLoaded} />
 			</div>
+			{#if !flipLayout}
+				<div class="game-details">
+					<h1>{data?.title}</h1>
+					<div class="game-text">
+						<p>{data?.description}</p>
+					</div>
+				</div>
+			{/if}
+		</div>
+		{#if flipLayout}
 			<div class="game-details">
 				<h1>{data?.title}</h1>
 				<div class="game-text">
 					<p>{data?.description}</p>
 				</div>
 			</div>
-		</div>
+		{/if}
 		<div class="game-controls">
 			<div class="main-action-container">
 				{#if data?.user_id === data?.sessionData?.id}
@@ -183,7 +208,7 @@
 	}
 	.game-info {
 		height: 100%;
-		padding: 0 20px;
+		padding: 0 10px;
 		display: flex;
 		flex-direction: column;
 		min-width: 250px;
@@ -267,8 +292,12 @@
 	@media (max-width: 490px) {
 		.main-action-container {
 			padding: 10px 0 20px 0;
-			flex-direction: column;
-			justify-content: flex-end;
+			flex-direction: row;
+			flex-wrap: wrap;
+			width: 100%;
+		}
+		.game-info {
+			padding: 0 10px;
 		}
 	}
 	.main-action-container div.edit :global(button) {
@@ -323,5 +352,10 @@
 		height: 15.6px;
 		right: 8px;
 		position: absolute;
+	}
+	@media (max-width: 498px) {
+		.select-container {
+			width: 100%;
+		}
 	}
 </style>

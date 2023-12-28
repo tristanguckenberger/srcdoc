@@ -10,7 +10,9 @@
 	import {
 		editorOutContainerWidth,
 		editorOutContainerHeight,
-		isVertical
+		isVertical,
+		sideBarState,
+		appClientWidth
 	} from '$lib/stores/layoutStore';
 	import {
 		editorElement,
@@ -36,14 +38,13 @@
 	import FileTree from '$lib/ui/FileSystem/FileTree.svelte';
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { routeHistoryStore } from '$lib/stores/routeStore.js';
 
 	export let data;
 	const play = false;
 
 	$: if (data) {
-		// console.log('data:::::::::::::', data.files);
 		// this will be our data's starting point
 		// We will need to update this data on every keystroke
 		baseDataStore.set(data);
@@ -64,6 +65,14 @@
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
 	$: console.log('previousRoute::', $routeHistoryStore);
 
+	onMount(() => {
+		// firstRun.set(true);
+
+		if ($appClientWidth && $appClientWidth < 498) {
+			sideBarState.set(false);
+		}
+	});
+
 	onDestroy(() => {
 		fileStoreFiles.set(null);
 		focusedFileId.set(null);
@@ -81,7 +90,7 @@
 	});
 </script>
 
-<div class="main">
+<div class="main" class:isSideBarOpen>
 	<SplitPane
 		panes={['#split-file-explorer', '#split-input-output']}
 		sizes={[20, 80]}
@@ -145,11 +154,9 @@
 		margin: 0;
 	}
 	.main {
-		margin: 0 10px 10px 11px;
-		/* height: calc(100% - 20px);
-		width: calc(100% - 20px); */
-		/* overflow-y: hidden; */
-		max-height: calc(100vh - 101.5px);
+		margin: 0 10px 10px 10px;
+		max-height: unset;
+		max-height: calc(100% - 106.5px);
 	}
 	:global(#split-output) {
 		height: 100%;
@@ -206,10 +213,14 @@
 	#split-input-output.isSideBarOpen {
 		max-width: calc(100% - var(--sidebar-width) + 4px);
 		min-width: calc(100% - 275px);
+		max-height: unset !important;
 	}
 	.sidebar-divider {
 		border: 1px solid #f6f6f605;
 		border-radius: 25px;
 		width: 90%;
+	}
+	:global(#editor-layout.engineInRoute) .main.isSideBarOpen {
+		max-height: unset;
 	}
 </style>

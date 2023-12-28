@@ -72,8 +72,18 @@ export const themeDataStore = derived(
 			themeKey: $themeKeyStore,
 			theme:
 				$themeKeyStore === 'light'
-					? [...$baseTheme, ...$lightTheme, ...$fontTheme, `--nav-width: ${$gridWidth}px;`]
-					: [...$baseTheme, ...$darkTheme, ...$fontTheme, `--nav-width: ${$gridWidth}px;`]
+					? [
+							...$baseTheme,
+							...$lightTheme,
+							...$fontTheme,
+							`--nav-width: ${$gridWidth ? $gridWidth + 'px' : '100%'} ;`
+					  ]
+					: [
+							...$baseTheme,
+							...$darkTheme,
+							...$fontTheme,
+							`--nav-width: ${$gridWidth ? $gridWidth + 'px' : '100%'} ;`
+					  ]
 		};
 	}
 );

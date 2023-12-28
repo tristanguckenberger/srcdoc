@@ -29,8 +29,8 @@
 	</a>
 	<div class="card-info">
 		<a href={`/games/${game?.id}/main`}>
-			<h3>{game.title}</h3>
-			<p>{game.description}</p>
+			<h3>{game?.title}</h3>
+			<p>{game?.description}</p>
 		</a>
 		<div class="card-action-container">
 			<div class="btn-flex">
@@ -43,7 +43,7 @@
 					}}
 				/>
 			</div>
-			{#if user.toString() === gameUserID.toString()}
+			{#if user?.toString() === gameUserID?.toString()}
 				<Button link={`/games/${game?.id}/engine`} label={'Edit in Engine'} />
 			{/if}
 			<!-- <Button link={`/games/${game?.id}/engine`} label={'Open in Engine'} /> -->
@@ -57,12 +57,9 @@
 		flex-direction: column;
 		width: calc(100% - 20px);
 		height: calc(100% - 20px);
-		/* border: 1px solid #fbfbfb; */
-		/* background-color: #fbfbfb; */
 		border-radius: 6px;
 		margin: 0;
-		padding: 10px;
-		/* background-color: #202021; */
+		padding: 0 10px;
 	}
 	.game:hover {
 		/* background-color: #333; */

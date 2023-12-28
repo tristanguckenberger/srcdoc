@@ -136,13 +136,6 @@
 					file.content = e?.detail?.value;
 					let shouldFileBeAdded = $initialDataStore?.files?.some((initialFile) => {
 						if (initialFile?.id === file?.id) {
-							console.log('MATCH');
-							console.log(
-								'::initialFileContent === fileContent::',
-								initialFile?.content === file?.content
-							);
-							console.log('::initialFileContent::', initialFile?.content);
-							console.log('::fileContent::', file?.content);
 							return initialFile?.content !== file?.content;
 						}
 

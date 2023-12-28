@@ -2,31 +2,32 @@
 // import { gameData } from '$lib/mockData/gameData.js';
 import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
+import { gamesData } from '$lib/stores/gamesStore.js';
 
-// const getCurrentUser = async (cookies) => {
-// 	const token = cookies.get('token');
-// 	if (token) {
-// 		const userReqHeaders = new Headers();
-// 		userReqHeaders?.append('Authorization', `Bearer ${token}`);
-// 		const userReqInit = {
-// 			method: 'GET',
-// 			headers: userReqHeaders
-// 		};
+const getCurrentUser = async (cookies) => {
+	const token = cookies.get('token');
+	if (token) {
+		const userReqHeaders = new Headers();
+		userReqHeaders?.append('Authorization', `Bearer ${token}`);
+		const userReqInit = {
+			method: 'GET',
+			headers: userReqHeaders
+		};
 
-// 		const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
-// 		if (!userResponse.ok) {
-// 			return {
-// 				status: 401,
-// 				body: {
-// 					message: 'Authentication failed'
-// 				}
-// 			};
-// 		}
+		const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
+		if (!userResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Authentication failed'
+				}
+			};
+		}
 
-// 		const user = await userResponse.json();
-// 		return user;
-// 	}
-// };
+		const user = await userResponse.json();
+		return user;
+	}
+};
 
 const getAllGamesByUser = async (userId) => {
 	const userReqHeaders = new Headers();
@@ -55,28 +56,41 @@ const getAllGamesByUser = async (userId) => {
 export async function load({ cookies, params }) {
 	session.subscribe(async (session) => {
 		try {
-			session?.token && cookies.set('token', session?.token);
+			const token = cookies?.get('token');
+			if (session?.token && !token) {
+				cookies?.set('token', session?.token);
+			}
 		} catch (error) {
 			console.log('error::', error);
 		}
 	});
 
-	// const user = await getCurrentUser(cookies);
+	const user = await getCurrentUser(cookies);
+
+	if (!user) {
+		return redirect(300, '/games');
+	}
 	const userGames = await getAllGamesByUser(params?.slug);
 
-	// console.log('user::::', user);
+	console.log('user::::', user);
 
-	// if (user && !user?.is_active) {
+	// if (user && (!user?.is_active ?? !user?.isActive)) {
 	// 	throw redirect(300, `/users/${user?.id}/verify`);
 	// }
 
-	// session.set({
-	// 	...user,
-	// 	password: ''
-	// });
+	session.set({
+		...user,
+		password: ''
+	});
+
+	gamesData.set([...userGames].reverse());
 
 	return {
-		games: [...userGames]
+		games: [...userGames].reverse(),
+		sessionData: {
+			...user,
+			password: ''
+		}
 	};
 }
 

@@ -1,9 +1,11 @@
 <script>
+	// @ts-nocheck
 	import Card from '$lib/ui/Card/index.svelte';
-	import { gridWidth } from '$lib/stores/layoutStore.js';
+	import { gridWidth, appClientWidth, sideBarState } from '$lib/stores/layoutStore.js';
 	import { onMount } from 'svelte';
 	import { firstRun } from '$lib/stores/filesStore.js';
 	import { page } from '$app/stores';
+	import { gamesData } from '$lib/stores/gamesStore.js';
 
 	export let data;
 
@@ -13,11 +15,19 @@
 
 	onMount(() => {
 		firstRun.set(true);
+
+		if ($appClientWidth && $appClientWidth < 498) {
+			sideBarState.set(false);
+		}
+		if (data?.games) {
+			gamesData.set([...data?.games]);
+		}
 	});
 
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
 </script>
 
+// @ts-nocheck
 <div class="page-container" class:noSideBar={!engineInRoute}>
 	<div class="main grid" bind:clientWidth={$gridWidth}>
 		{#each data?.games as game, i}
@@ -36,11 +46,11 @@
 	.main {
 		margin: 10px;
 		height: calc(100% - 20px);
-		width: calc(100% - 20px);
+		width: 100%;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		justify-content: space-evenly;
+		justify-content: space-between;
 	}
 	.main.grid {
 		display: grid;

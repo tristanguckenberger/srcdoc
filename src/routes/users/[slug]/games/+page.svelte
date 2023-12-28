@@ -3,9 +3,10 @@
 	import Card from '$lib/ui/Card/index.svelte';
 	import { gridWidth } from '$lib/stores/layoutStore.js';
 	import { onMount } from 'svelte';
-	import { sideBarState, sideBarWidth } from '$lib/stores/layoutStore.js';
+	import { sideBarState, sideBarWidth, appClientWidth } from '$lib/stores/layoutStore.js';
 	// import { firstRun } from '$lib/stores/filesStore.js';
 	import { page } from '$app/stores';
+	import { gamesData } from '$lib/stores/gamesStore.js';
 
 	export let data;
 
@@ -15,6 +16,14 @@
 
 	onMount(() => {
 		// firstRun.set(true);
+
+		if ($appClientWidth && $appClientWidth < 498) {
+			sideBarState.set(false);
+		}
+
+		if (data?.games) {
+			gamesData.set([...data?.games]);
+		}
 	});
 
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
@@ -46,7 +55,7 @@
 	.main {
 		margin: 10px;
 		height: calc(100% - 20px);
-		width: calc(100% - 20px);
+		width: calc(100% - 0px);
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
@@ -60,8 +69,15 @@
 		/* grid-template-rows: minmax(242px, 367px); */
 		margin: 0;
 		height: fit-content;
+		width: calc(100% - 100px);
 	}
 	.noSideBar {
 		align-items: center;
+	}
+
+	@media (max-width: 498px) {
+		.main.grid {
+			width: calc(100% - 0px);
+		}
 	}
 </style>

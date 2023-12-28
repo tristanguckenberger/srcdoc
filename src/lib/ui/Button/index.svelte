@@ -246,6 +246,8 @@
 		height: 36.5px !important;
 		max-width: 36.5px !important;
 		max-height: 36.5px !important;
+		background-color: #1c1d1fab !important;
+		backdrop-filter: saturate(180%) blur(20px);
 	}
 
 	a.showSideBarToggle {
@@ -253,6 +255,8 @@
 		height: 36.5px !important;
 		max-width: 36.5px !important;
 		max-height: 36.5px !important;
+		background-color: #1c1d1fab !important;
+		backdrop-filter: saturate(180%) blur(20px);
 	}
 	button.follow {
 		margin-right: 10px;
@@ -282,11 +286,12 @@
 		gap: 9px;
 		border-radius: 30px;
 		align-items: center;
-		background-color: var(--button-highlight) !important;
+		background-color: #1c1d1fab !important;
+		backdrop-filter: saturate(180%) blur(20px);
 	}
 	button.isRounded.userName:hover,
 	a.isRounded.userName:hover {
-		background-color: var(--button-highlight) !important;
+		/* background-color: var(--button-highlight) !important; */
 	}
 	.avatar {
 		border-radius: 50%;

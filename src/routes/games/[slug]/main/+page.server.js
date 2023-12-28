@@ -21,6 +21,7 @@ const getSingleGame = async (slug) => {
 	}
 
 	const game = await gameResponse.json();
+	console.log('game::', game);
 	return game;
 };
 

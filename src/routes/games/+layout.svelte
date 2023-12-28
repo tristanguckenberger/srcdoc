@@ -10,10 +10,10 @@
 
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
+	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: isSideBarOpen = $fileSystemSidebarOpen ?? $sideBarState;
-
 	$: engineInRoute && sideBarState?.set(false);
 	let preferedThemeMode;
 
@@ -40,6 +40,8 @@
 	class:noSideBar={!engineInRoute}
 	class:modifiedWidth={!isSideBarOpen}
 	class:showSideBar={$sideBarState}
+	class:engineInRoute
+	class:playInRoute
 	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px; {themeString}"
 >
 	<div
@@ -97,5 +99,22 @@
 	}
 	#editor-layout.showSideBar {
 		width: calc(100% - 230px);
+	}
+	#editor-layout :global(.main),
+	#editor-layout :global(.main.grid) {
+		width: calc(100% - 100px);
+	}
+	@media (max-width: 498px) {
+		#editor-layout :global(.main),
+		#editor-layout :global(.main.grid) {
+			width: 100%;
+		}
+	}
+	#editor-layout.engineInRoute :global(.main) {
+		width: calc(100% - 20px) !important;
+	}
+	#editor-layout.playInRoute :global(.main),
+	#editor-layout.playInRoute :global(.main.grid) {
+		width: calc(100% - 20px);
 	}
 </style>

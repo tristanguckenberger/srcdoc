@@ -16,9 +16,15 @@
 		focusedFileId,
 		initialDataStore
 	} from '$lib/stores/filesStore';
-	import { sideBarState, sideBarWidth, modalOpenState } from '$lib/stores/layoutStore.js';
+	import {
+		sideBarState,
+		sideBarWidth,
+		modalOpenState,
+		appClientWidth
+	} from '$lib/stores/layoutStore.js';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
+	import { routeHistoryStore } from '$lib/stores/routeStore';
 
 	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
@@ -110,11 +116,13 @@
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
+	$: isVerifyPage = splitPath[splitPath?.length - 1] === 'verify';
 	$: isProfilePage =
 		splitPath[splitPath?.length - 1] === 'users' ||
 		(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main');
 	$: isBrowsePage =
-		splitPath[splitPath?.length - 1] === 'games' || (splitPath[1] === 'users' && !isProfilePage);
+		splitPath[splitPath?.length - 1] === 'games' ||
+		(splitPath[1] === 'users' && !isProfilePage && !splitPath.some((path) => path === 'users'));
 	$: isUserGamesBrowsePage =
 		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
 	$: isHomePage = $page?.route?.id === '/';
@@ -135,6 +143,7 @@
 		class:isBrowsePage
 		class:engineInRoute
 		class:gameProfile={(isProfilePage || playInRoute) && !engineInRoute}
+		bind:clientWidth={$appClientWidth}
 	>
 		<nav
 			class="top"
@@ -143,6 +152,8 @@
 			class:engineInRoute
 			class:gameProfile={(isProfilePage || playInRoute) && !engineInRoute}
 			class:showSideBar={$sideBarState}
+			class:isBrowsePage
+			class:isUserGamesBrowsePage
 		>
 			<ul class:matchGridWidth={!engineInRoute && isBrowsePage}>
 				<ul>
@@ -174,7 +185,7 @@
 						</li>
 					{/if}
 				</ul>
-				<ul class="profile-info">
+				<ul class="profile-info" class:showSideBar={$sideBarState}>
 					{#if sessionData?.username || $session?.username}
 						<li>
 							<Button
@@ -190,6 +201,9 @@
 					<div class="more-container" class:dropDownToggle>
 						<div class="more" class:dropDownToggle class:isBrowsePage>
 							<ul>
+								<li>
+									<Button label="Home" link="/games" />
+								</li>
 								<li>
 									<form class="logout-form" action="/?/logout" method="POST">
 										<Button class="logout" label="Logout" />
@@ -372,6 +386,11 @@
 							>
 							<span>Settings</span>
 						</a>
+						{#if sessionData?.id && !sessionData?.is_active && !$session?.is_active}
+							<a href="/users/{sessionData?.id}/verify" class:active={isVerifyPage}>
+								Account Verfication
+							</a>
+						{/if}
 						{#if !sessionData?.username && !$session?.username}
 							<a href="/" class:active={isHomePage}>Sign In or Register</a>
 						{/if}
@@ -428,19 +447,19 @@
 		flex-direction: row;
 		max-width: 100%;
 		padding-top: 56.5px;
-		/* background-color: var(--home-bg); */
+	}
+	main.isProfilePage {
+		padding-top: 56.5px;
 	}
 	:global(.main) {
 		/* margin: 10px; */
 		height: calc(100% - 20px);
-		width: calc(100% - 20px);
+		width: calc(100% - 10px);
 		max-width: calc(100%);
 	}
 	nav {
 		color: var(--color-primary);
-		padding: 10px;
-		/* background-color: #fff9d7; */
-		/* border-bottom: 2px solid #fff9d7; */
+		padding: 10px 10px;
 		position: fixed;
 		top: 0;
 		z-index: 10;
@@ -455,13 +474,12 @@
 		gap: 10px;
 		align-items: center;
 		height: 36.5px;
-		/* justify-content: space-between; */
+		width: 100%;
 	}
 
 	nav.matchGridWidth {
-		justify-content: center;
+		justify-content: flex-start;
 		display: flex;
-		/* background-color: var(--color-secondary); */
 	}
 	li.hiddenItem {
 		display: none;
@@ -481,7 +499,7 @@
 		justify-self: flex-end;
 	} */
 	ul.matchGridWidth {
-		width: calc(var(--nav-width) - 20px);
+		/* width: calc(var(--nav-width) - 20px); */
 	}
 	ul ul {
 		flex-grow: 1;
@@ -542,9 +560,10 @@
 		height: 100%;
 		width: 100%;
 		display: flex;
-		justify-content: flex-end;
-		align-items: flex-start;
+		justify-content: flex-start;
+		align-items: flex-end;
 		padding: 0 10px;
+		flex-direction: column;
 	}
 
 	.more ul > li {
@@ -570,12 +589,41 @@
 		background-color: var(--darker-bg) !important;
 	}
 	nav.gameProfile {
+		/* background-color: transparent !important; */
+		background-color: #121314 !important;
+	}
+	nav.gameProfile.showSideBar {
 		background-color: transparent !important;
 	}
 
 	/* Handle on hover */
+	/* body {
+		scrollbar-width: thin;
+		scrollbar-color: #4d7fff #ddd;
+	}
+
+	body::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+
+	body::-webkit-scrollbar-thumb {
+		background: linear-gradient(to bottom right, #4d7fff 0%, #1a56ff 100%);
+		border-radius: 5px;
+	}
+
+	body::-webkit-scrollbar-track {
+		background-color: #ddd;
+		border: 1px solid #ccc;
+	}
+
+	body::-webkit-scrollbar-button {
+		background-color: #4d7fff;
+		border-radius: 5px;
+	} */
+
 	::-webkit-scrollbar-thumb:hover {
-		background: #555 !important;
+		/* background: #555 !important; */
 		cursor: pointer !important;
 	}
 	.page-container {
@@ -584,15 +632,24 @@
 		display: flex;
 		flex-direction: row;
 		overflow-x: hidden;
+		overflow-y: hidden;
+	}
+	.page-container:hover,
+	.page-container:active,
+	.page-container:focus {
+		overflow-y: scroll;
+	}
+	:global(body) {
+		scrollbar-width: thin !important;
 	}
 
 	.page-container::-webkit-scrollbar {
-		background: transparent;
-		width: 10px;
+		/* background: transparent; */
+		/* width: 10px; */
 	}
 
 	.page-container::-webkit-scrollbar-track {
-		background: var(--button-highlight);
+		/* background: var(--button-highlight); */
 	}
 
 	.page-container::-webkit-scrollbar:hover {
@@ -600,13 +657,13 @@
 	}
 
 	.page-container::-webkit-scrollbar-thumb {
-		background: #555;
-		border-radius: 6px;
+		background: #b9b9b9;
+		/* border-radius: 6px; */
 	}
 
 	.page-container::-webkit-scrollbar-thumb:hover {
-		background: #555 !important;
-		cursor: pointer;
+		/* background: #555 !important; */
+		/* cursor: pointer; */
 	}
 	.page-container.isGameProfile {
 		overflow: hidden !important;
@@ -619,6 +676,23 @@
 
 		flex-direction: column;
 		position: fixed;
+	}
+	@media (max-width: 498px) {
+		.sidebar {
+			width: 100%;
+			z-index: 1;
+			overflow-y: scroll;
+			overflow-x: hidden;
+			background-color: #1c1d1fed !important;
+			backdrop-filter: saturate(180%) blur(20px);
+		}
+		.sidebar-action ul a.active {
+			background-color: #2b2c2ded !important;
+		}
+		.profile-info.showSideBar {
+			position: absolute;
+			right: 0;
+		}
 	}
 	.sidebar.showSideBar {
 		display: flex;
@@ -651,8 +725,13 @@
 		color: var(--color-primary);
 		padding-block: 0;
 		border-width: 0;
+		border-top-width: 0px;
+		border-right-width: 0px;
+		border-bottom-width: 0px;
+		border-left-width: 0px;
 		border-radius: 4px;
 		padding: 10px;
+		margin-right: 10px;
 		text-decoration: none;
 		font-size: 0.9rem;
 		font-family: var(--action-font) !important;
@@ -663,11 +742,6 @@
 		max-height: 36.5px;
 		height: 16.5px;
 		font-weight: 500;
-	}
-	.sidebar-section ul a,
-	.sidebar-section ul .sidebar-action {
-		color: var(--color-primary);
-		text-decoration: none;
 	}
 
 	.sidebar-section ul a svg,
@@ -702,18 +776,24 @@
 		padding: 10px;
 		position: fixed;
 		top: 0;
-		left: 230px;
+		left: 330px;
 		z-index: 10;
-		width: calc(100% - 250px);
+		width: calc(100% - 350px);
 	}
 	.sidebar-toggle {
 		position: absolute;
 	}
 	.sidebar-toggle.showSideBar {
-		left: -220px;
+		left: -320px;
 	}
 
 	#primary-actions {
 		margin-block-start: 40px;
+	}
+	nav.isBrowsePage {
+		/* padding: 10px 10px 0 20px; */
+	}
+	nav.isUserGamesBrowsePage {
+		padding: 10px 10px 0 10px;
 	}
 </style>

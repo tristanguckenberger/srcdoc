@@ -5,7 +5,7 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { goto } from '$app/navigation';
 	import { userStore } from '$lib/stores/authStore.js';
-	import { onMount } from 'svelte';
+	import { onMount, afterUpdate } from 'svelte';
 	import playbg from '$lib/assets/playbg.svg';
 	import bg from '$lib/assets/bg.svg';
 	import Frame from '$lib/assets/Frame.svg';
@@ -50,8 +50,44 @@
 	// sync the user store data from the server with the user store on the client
 	$: data?.users?.length && userStore.set(data?.users);
 
+	$: {
+		console.log('==============================');
+		console.log('==============================');
+		console.log('session::', $session);
+		console.log('==============================');
+		console.log('==============================');
+		console.log('data::', data);
+		console.log('==============================');
+		console.log('==============================');
+		console.log('browser::', browser);
+		console.log('==============================');
+		console.log('==============================');
+	}
+
 	// if the user is logged in, redirect to the games page
-	$: ($session?.is_active || data?.sessionData?.is_active) && browser && goto('/games');
+	// $: (($session?.is_active ?? $session?.isActive) ||
+	// 	(data?.sessionData?.is_active ?? data?.sessionData?.isActive)) &&
+	// 	browser &&
+	// 	goto('/games');
+
+	afterUpdate(async () => {
+		// const shouldNavigate =
+		// 	($session?.is_active ??
+		// 		$session?.isActive ??
+		// 		data?.sessionData?.is_active ??
+		// 		data?.sessionData?.isActive) &&
+		// 	browser;
+
+		// console.log('shouldNavigate::', shouldNavigate);
+		// console.log('user_is_active::', data?.sessionData?.is_active);
+		if (data?.sessionData?.is_active) {
+			const navigation = await goto('http://127.0.0.1:5173/games');
+
+			console.log('navigation::', navigation);
+		} else {
+			console.log('cannot navigate::', data?.sessionData);
+		}
+	});
 
 	$: quickHide && setTimeout(() => (quickHide = false), 1000);
 </script>

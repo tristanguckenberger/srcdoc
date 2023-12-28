@@ -3,6 +3,7 @@
 
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
+	import { src_build } from '$lib/stores/gamesStore';
 	import {
 		fileStoreFiles,
 		derivedFileSystemData,
@@ -16,6 +17,7 @@
 
 	export let relaxed = false;
 	export let play = false;
+	export let srcdocBuilt;
 
 	let id = 0;
 	let iframe;
@@ -23,6 +25,7 @@
 	let rootFileId;
 
 	$: {
+		console.log('$fileStoreFiles::', $fileStoreFiles);
 		(async () => {
 			// Automatically find the ID of the file named 'index' with type 'html'
 			const gameName = $baseDataStore?.title;
@@ -46,20 +49,22 @@
 
 	$: {
 		if (rootFileId && ($triggerCompile || $autoCompile)) {
-			console.log('$fileStoreFiles::', $fileStoreFiles);
-			console.log('rootFileId::', rootFileId);
-			console.log('width::', $editorOutContainerWidth);
-			console.log('height::', $editorOutContainerHeight);
-			console.log('gameControllerStore::', $gameControllerStore);
-			srcdoc = buildDynamicSrcDoc(
-				$fileStoreFiles,
-				rootFileId,
-				{
-					width: $editorOutContainerWidth,
-					height: $editorOutContainerHeight
-				},
-				$gameControllerStore
-			);
+			// console.log('$fileStoreFiles::', $fileStoreFiles);
+			// console.log('rootFileId::', rootFileId);
+			// console.log('width::', $editorOutContainerWidth);
+			// console.log('height::', $editorOutContainerHeight);
+			// console.log('gameControllerStore::', $gameControllerStore);
+			srcdoc =
+				$src_build ||
+				buildDynamicSrcDoc(
+					$fileStoreFiles,
+					rootFileId,
+					{
+						width: $editorOutContainerWidth,
+						height: $editorOutContainerHeight
+					},
+					$gameControllerStore
+				);
 			setTimeout(() => {
 				triggerCompile.set(false);
 			}, 400);
@@ -75,28 +80,32 @@
 		})();
 
 	afterUpdate(() => {
-		if (rootFileId && ($triggerCompile || $autoCompile || triggerUpdate)) {
-			srcdoc = buildDynamicSrcDoc(
-				$fileStoreFiles,
-				rootFileId,
-				{
-					width: $editorOutContainerWidth,
-					height: $editorOutContainerHeight
-				},
-				$gameControllerStore
-			);
-			const blob = new Blob([srcdoc], { type: 'text/html' });
+		if ((rootFileId && ($triggerCompile || $autoCompile || triggerUpdate)) || play || srcdocBuilt) {
+			srcdoc =
+				$src_build ||
+				buildDynamicSrcDoc(
+					$fileStoreFiles,
+					rootFileId,
+					{
+						width: $editorOutContainerWidth,
+						height: $editorOutContainerHeight
+					},
+					$gameControllerStore
+				);
+			const blob = new Blob([srcdocBuilt ?? srcdoc], { type: 'text/html' });
 			const blobUrl = URL.createObjectURL(blob);
 			iframe.src = blobUrl;
 			id++;
 			setTimeout(() => {
 				triggerCompile.set(false);
 				triggerUpdate = false;
+				play = false;
 			}, 400);
 		}
 	});
 
 	function receiveMessage(event) {
+		console.log('event::', event);
 		// Check for the right message type and possibly origin for security
 		if (event.origin === 'http://127.0.0.1:5173' && event.data.type === 'updateStore') {
 			gameControllerStore.set(event.data.value);
@@ -124,6 +133,7 @@
 	}
 
 	$: console.log('srcdoc::', srcdoc);
+	$: console.log('src_build::', $src_build);
 </script>
 
 <div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight>
