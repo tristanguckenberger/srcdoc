@@ -25,7 +25,7 @@
 	let rootFileId;
 
 	$: {
-		console.log('$fileStoreFiles::', $fileStoreFiles);
+		// console.log('$fileStoreFiles::', $fileStoreFiles);
 		(async () => {
 			// Automatically find the ID of the file named 'index' with type 'html'
 			const gameName = $baseDataStore?.title;
@@ -79,7 +79,7 @@
 			triggerUpdate = true;
 		})();
 
-	afterUpdate(() => {
+	afterUpdate(async () => {
 		if ((rootFileId && ($triggerCompile || $autoCompile || triggerUpdate)) || play || srcdocBuilt) {
 			srcdoc =
 				$src_build ||
@@ -105,7 +105,7 @@
 	});
 
 	function receiveMessage(event) {
-		console.log('event::', event);
+		// console.log('event::', event);
 		// Check for the right message type and possibly origin for security
 		if (event.origin === 'http://127.0.0.1:5173' && event.data.type === 'updateStore') {
 			gameControllerStore.set(event.data.value);
@@ -132,8 +132,8 @@
 		}
 	}
 
-	$: console.log('srcdoc::', srcdoc);
-	$: console.log('src_build::', $src_build);
+	// $: console.log('srcdoc::', srcdoc);
+	// $: console.log('src_build::', $src_build);
 </script>
 
 <div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight>
