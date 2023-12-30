@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 
 /**
  * With this file I eventually want to move towards a time-checked-hydration model (this probably has a name)
@@ -25,10 +25,21 @@ import { writable } from 'svelte/store';
  *
  */
 export const gamesData = writable([]);
-export const currentGame = writable(null);
-export const src_build = writable(null);
 
+export const topGame = writable(null);
+export const currentGame = writable(null);
+export const bottomGame = writable(null);
+
+export const gameCarousel = derived(
+	[currentGame, topGame, bottomGame],
+	([$currentGame, $topGame, $bottomGame]) => {
+		return [$topGame, $currentGame, $bottomGame];
+	}
+);
+
+export const src_build = writable(null);
 export const playButton = writable(false);
+export const actionMenuOpen = writable(false);
 
 // export const availableGames = derived([baseDataStore, openFiles], ([$baseDataStore]) => {
 // 	return openFiles.map((file) => {

@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { gameData } from '$lib/mockData/gameData.js';
+import { gamesData } from '$lib/stores/gamesStore.js';
 import { session } from '$lib/stores/sessionStore.js';
 
 const getSingleGame = async (slug) => {
@@ -111,6 +112,36 @@ export async function load({ cookies, params }) {
 		}
 	});
 
+	let allGames = [];
+	gamesData.subscribe(async (gamesData) => {
+		try {
+			if (!gamesData?.length) {
+				const gamesReqHeaders = new Headers();
+				const gamesReqInit = {
+					method: 'GET',
+					headers: gamesReqHeaders
+				};
+
+				const gamesResponse = await fetch(`${process.env.SERVER_URL}/api/games`, gamesReqInit);
+				// if (!gamesResponse.ok) {
+				// 	return {
+				// 		status: 401,
+				// 		body: {
+				// 			message: 'Authentication failed'
+				// 		}
+				// 	};
+				// }
+
+				const games = await gamesResponse.json();
+				gamesData = games;
+			}
+
+			allGames = gamesData;
+		} catch (error) {
+			console.log('error::', error);
+		}
+	});
+
 	const user = await getCurrentUser(cookies);
 	let userGames;
 
@@ -124,8 +155,42 @@ export async function load({ cookies, params }) {
 	const game =
 		(await getSingleGame(slug)) ?? gameData.find((game) => game?.id.toString() === slug.toString());
 
+	const currentIndexByGameID = allGames?.findIndex(
+		(gam) => gam?.id?.toString() === game?.id?.toString()
+	);
+	const currentIndexIsLast = allGames?.length - 1 === currentIndexByGameID;
+	const currentIndexIsFirst = 0 === currentIndexByGameID;
+
+	let topGame;
+	let fetchedTopGame;
+
+	let bottomGame;
+	let fetchedBottomGame;
+
+	if (currentIndexIsLast) {
+		topGame = allGames[0];
+		bottomGame = allGames[currentIndexByGameID - 1];
+	} else if (currentIndexIsFirst) {
+		topGame = allGames[allGames?.length - 1];
+		bottomGame = allGames[currentIndexByGameID + 1];
+	} else {
+		topGame = allGames[currentIndexByGameID + 1];
+		bottomGame = allGames[currentIndexByGameID - 1];
+	}
+
+	if (topGame) {
+		fetchedTopGame = await getSingleGame(topGame?.id);
+	}
+
+	if (bottomGame) {
+		fetchedBottomGame = await getSingleGame(bottomGame?.id);
+	}
+
 	return {
 		...game,
+		currentGame: { ...game },
+		topGame: { ...topGame, ...fetchedTopGame },
+		bottomGame: { ...bottomGame, ...fetchedBottomGame },
 		baseGames,
 		userGames
 	};

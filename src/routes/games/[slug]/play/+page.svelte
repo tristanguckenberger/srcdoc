@@ -1,12 +1,18 @@
 <script>
 	// @ts-nocheck
-	import { browser } from '$app/environment';
 	import { invalidate } from '$app/navigation';
 	import Output from '$lib/ui/Output/Output.svelte';
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { getRootFileId } from '$lib/utils/getter.js';
 	import { goto } from '$app/navigation';
-	import { gamesData, currentGame, src_build, playButton } from '$lib/stores/gamesStore.js';
+	import {
+		gamesData,
+		currentGame,
+		topGame,
+		bottomGame,
+		src_build,
+		playButton
+	} from '$lib/stores/gamesStore.js';
 	import { derived } from 'svelte/store';
 	import {
 		editorOutContainerWidth,
@@ -33,96 +39,16 @@
 	import { swipe, pan, tap } from 'svelte-gestures';
 	import SwipeArrow from '$lib/assets/SwipeArrow.svg';
 
-	function handleSwipe(direction) {
-		console.log(`Swiped ${direction}`);
-		console.log('swipedData::', data);
-		// Handle swipe direction here
-	}
+	import { tweened } from 'svelte/motion';
+	import { linear } from 'svelte/easing';
 
 	// Expiremental
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
 
 	export let data;
 	export let thumbnail;
+
 	let play;
-
-	$: play = $playButton;
-
-	$: {
-		if (!$gamesData || $gamesData?.length < 1) {
-			newGamesData = data?.userGames ?? data?.baseGames;
-			gamesData.set(newGamesData);
-		}
-	}
-
-	$: data,
-		(() => {
-			// console.log('data::game::', data);
-			// this will be our data's starting point
-			// We will need to update this data on every keystroke
-			if (data) baseDataStore.set(data);
-			fileStoreFiles.set($derivedFileSystemData);
-		})();
-	$: srcdocBuild = (async () =>
-		buildDynamicSrcDoc(
-			$fileStoreFiles,
-			getRootFileId($fileStoreFiles),
-			{
-				width: $editorOutContainerWidth,
-				height: $editorOutContainerHeight
-			},
-			$gameControllerStore
-		))();
-
-	const srcbuild = derived(
-		[fileStoreFiles, editorOutContainerWidth, editorOutContainerHeight, gameControllerStore],
-		([
-			$fileStoreFiles,
-			$editorOutContainerWidth,
-			$editorOutContainerHeight,
-			$gameControllerStore
-		]) => {
-			return buildDynamicSrcDoc(
-				$fileStoreFiles,
-				getRootFileId($fileStoreFiles),
-				{
-					width: $editorOutContainerWidth,
-					height: $editorOutContainerHeight
-				},
-				$gameControllerStore
-			);
-		}
-	);
-
-	// $: console.log('SRCBUILD::', $srcbuild);
-
-	$: src_build.set($srcbuild);
-	$: console.log('play_page::data::', data);
-
-	onMount(() => {
-		firstRun.set(true);
-
-		if ($appClientWidth && $appClientWidth < 498) {
-			sideBarState.set(false);
-		}
-	});
-
-	onDestroy(() => {
-		fileStoreFiles.set(null);
-		focusedFileId.set(null);
-		fileSystemExpanderStore.set({});
-		fileSystemMetaDataStore.set({
-			gameId: null,
-			userId: null
-		});
-		previouslyFocusedFileId.set(null);
-		softSelectedFileId.set(null);
-		openFiles.set([]);
-		fileSystemSidebarWidth.set(200);
-		fileSystemSidebarOpen.set(true);
-		codePanes2.set([]);
-	});
-
 	let direction;
 	let tapRipple = false;
 	let countPanTime = false;
@@ -132,28 +58,16 @@
 	let pan_time;
 	let tap_x;
 	let tap_y;
-	let clip_offset_height;
-	let clip_offset_width;
 	let hidden = true;
 	let navActionHeight;
 	let tapCenter;
 	let touchCoordinatesY;
-	let disablePan = false;
 	let disableTap = false;
+	let gamesAvailable = [];
+	let panCoorY = pan_y;
+	let panDirection;
+	let panDistance = 0;
 
-	// function handleTouchStart(event) {
-	// 	touchStartX = event.touches[0].clientX;
-	// 	touchStartY = event.touches[0].clientY;
-	// }
-
-	// function handleTouchMove(event) {
-	// 	touchEndX = event.touches[0].clientX;
-	// 	touchEndY = event.touches[0].clientY;
-	// }
-
-	// function handleTouchEnd(event) {
-	// 	// Handle the end of the swipe gesture
-	// }
 	function handlePan(event) {
 		disableTap = true;
 		hidden = false;
@@ -161,9 +75,14 @@
 		pan_x = event.detail.x;
 		pan_y = event.detail.y;
 		last_pan_time = Date.now();
+
 		setTimeout(() => {
 			disableTap = false;
+			// pan_y = null;
 		}, 300);
+		setTimeout(() => {
+			panDistance = 0;
+		}, 100);
 	}
 	async function handleTap(event) {
 		if (disableTap) return;
@@ -228,7 +147,85 @@
 		// 	console.log('error_handling_navigation_swipe::error::', error);
 		// }
 	}
+	async function handler(event) {
+		hidden = false;
+		disableTap = true;
+		countPanTime = true;
+		direction = event.detail.direction;
+		const currentIndexByGameID = $gamesData?.findIndex(
+			(game) => game?.id?.toString() === data?.id?.toString()
+		);
+		const currentIndexIsLast = $gamesData?.length - 1 === currentIndexByGameID;
+		const currentIndexIsFirst = 0 === currentIndexByGameID;
 
+		console.log('swipe::direction::', direction);
+		try {
+			if (direction === 'top') {
+				const nextGame = !currentIndexIsLast
+					? $gamesData?.[currentIndexByGameID + 1]
+					: $gamesData[0];
+
+				if (nextGame?.id) {
+					setTimeout(async () => {
+						await goto(`/games/${nextGame?.id}/play`);
+						await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
+					}, 500);
+				}
+			} else if (direction === 'bottom') {
+				const nextGame = !currentIndexIsFirst
+					? $gamesData[currentIndexByGameID - 1]
+					: $gamesData[$gamesData?.length - 1];
+
+				if (nextGame?.id) {
+					setTimeout(async () => {
+						await goto(`/games/${nextGame?.id}/play`);
+						await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
+					}, 500);
+				}
+			}
+		} catch (error) {
+			console.log('error_handling_navigation_swipe::error::', error);
+		}
+		setTimeout(() => {
+			disableTap = false;
+		}, 300);
+	}
+	const progress = tweened(0, {
+		duration: 200,
+		easing: linear
+	});
+	const srcbuild = derived(
+		[fileStoreFiles, editorOutContainerWidth, editorOutContainerHeight, gameControllerStore],
+		([
+			$fileStoreFiles,
+			$editorOutContainerWidth,
+			$editorOutContainerHeight,
+			$gameControllerStore
+		]) => {
+			return buildDynamicSrcDoc(
+				$fileStoreFiles,
+				getRootFileId($fileStoreFiles),
+				{
+					width: $editorOutContainerWidth,
+					height: $editorOutContainerHeight
+				},
+				$gameControllerStore
+			);
+		}
+	);
+
+	$: play = $playButton;
+	$: {
+		if (!$gamesData || $gamesData?.length < 1) {
+			newGamesData = data?.userGames ?? data?.baseGames;
+			gamesData.set(newGamesData);
+		}
+	}
+	$: data,
+		(() => {
+			if (data) baseDataStore.set(data);
+			fileStoreFiles.set($derivedFileSystemData);
+		})();
 	$: pan_time = Date.now() - last_pan_time;
 	$: if (pan_time > 300) {
 		pan_x = null;
@@ -242,46 +239,6 @@
 			countPanTime = false;
 			hidden = true;
 		}, 300);
-
-	async function handler(event) {
-		hidden = false;
-		disableTap = true;
-		countPanTime = true;
-		direction = event.detail.direction;
-		const currentIndexByGameID = $gamesData?.findIndex(
-			(game) => game?.id?.toString() === data?.id?.toString()
-		);
-		const currentIndexIsLast = $gamesData?.length - 1 === currentIndexByGameID;
-		const currentIndexIsFirst = 0 === currentIndexByGameID;
-
-		try {
-			if (direction === 'top') {
-				const nextGame = !currentIndexIsLast
-					? $gamesData?.[currentIndexByGameID + 1]
-					: $gamesData[0];
-
-				if (nextGame?.id) {
-					await goto(`/games/${nextGame?.id}/play`);
-					await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
-				}
-			} else if (direction === 'bottom') {
-				const nextGame = !currentIndexIsFirst
-					? $gamesData[currentIndexByGameID - 1]
-					: $gamesData[$gamesData?.length - 1];
-
-				if (nextGame?.id) {
-					await goto(`/games/${nextGame?.id}/play`);
-					await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
-				}
-			}
-		} catch (error) {
-			console.log('error_handling_navigation_swipe::error::', error);
-		}
-		setTimeout(() => {
-			disableTap = false;
-		}, 300);
-	}
-
 	$: pan_y,
 		tapCenter,
 		(touchCoordinatesY = (() => {
@@ -291,66 +248,123 @@
 				return tapCenter;
 			}
 		})());
-
-	$: srcdocBuilt = (async () => {
-		if (play) {
-			return $srcbuild;
+	$: data,
+		() => {
+			if (data?.currentGame) {
+				currentGame.set(data?.currentGame);
+			}
+			if (data?.topGame) {
+				topGame.set(data?.topGame);
+			}
+			if (data?.bottomGame) {
+				bottomGame.set(data?.bottomGame);
+			}
+		};
+	$: data,
+		(() => {
+			if (data?.currentGame && data?.topGame && data?.bottomGame) {
+				gamesAvailable = [data?.topGame, data?.currentGame, data?.bottomGame];
+			} else if (data?.currentGame && data?.topGame) {
+				gamesAvailable = [data?.topGame, data?.currentGame];
+			} else if (data?.currentGame && data?.bottomGame) {
+				gamesAvailable = [data?.currentGame, data?.bottomGame];
+			} else if (data?.currentGame) {
+				gamesAvailable = [data?.currentGame];
+			}
+		})();
+	$: navActionCenter = navActionHeight / 2;
+	$: if (pan_y !== panCoorY) {
+		if (pan_y > panCoorY) {
+			console.log('pan_y is increasing');
+			panDirection = 'bottom';
 		} else {
-			return null;
+			console.log('pan_y is decreasing');
+			panDirection = 'top';
 		}
-	})();
+		// Update the previousCount after comparison
+		panCoorY = pan_y;
+	}
+	$: panDistance = pan_y - navActionCenter;
+
+	// $: panDirection,
+	// 	(() => {
+	// 		if (pan_y && navActionCenter) {
+	// 			panDistance = pan_y - navActionCenter;
+	// 		}
+	// 	})();
+	$: console.log('panDistance::', panDistance);
+	$: progress.set(panDistance);
+	$: src_build.set($srcbuild);
+
+	onMount(() => {
+		firstRun.set(true);
+
+		if ($appClientWidth && $appClientWidth < 498) {
+			sideBarState.set(false);
+		}
+	});
+
+	onDestroy(() => {
+		fileStoreFiles.set(null);
+		focusedFileId.set(null);
+		fileSystemExpanderStore.set({});
+		fileSystemMetaDataStore.set({
+			gameId: null,
+			userId: null
+		});
+		previouslyFocusedFileId.set(null);
+		softSelectedFileId.set(null);
+		openFiles.set([]);
+		fileSystemSidebarWidth.set(200);
+		fileSystemSidebarOpen.set(true);
+		codePanes2.set([]);
+		topGame.set(null);
+		bottomGame.set(null);
+		currentGame.set(null);
+	});
 </script>
 
 <div
 	class="main"
 	class:isNotMobile={$appClientWidth && $appClientWidth > 498}
-	style="--touch-coordinates-x: {pan_x}px; --touch-coordinates-y: {touchCoordinatesY}px; --swipe-arrow: src('{SwipeArrow}'); --mid-point: {navActionHeight /
+	style="--pan-distance: {$progress ??
+		0}px;--touch-coordinates-x: {pan_x}px; --touch-coordinates-y: {direction === 'top'
+		? ''
+		: '-'}{touchCoordinatesY}px; --swipe-arrow: src('{SwipeArrow}'); --mid-point: {navActionHeight /
 		2}px;"
 >
-	<div class="output-play-action-overlay">
-		{#if play}
-			<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} />
-		{:else}
-			<div class="output-paused-overlay">
-				<!-- <img
-					class="output-paused-overlay-image"
-					class:showImage={!play}
-					src={thumbnail ?? 'https://picsum.photos/600/600'}
-					on:load={() => {
-						imageLoaded = true;
-					}}
-				/> -->
-				<div class="overlay-blur" />
-				<div class="overlay-light-fade" />
-				<!--
-						Add these to nav-action div if you want to use pan and tap events
-						-------------------------- 
-						use:pan={{ delay: 300 }}
-						on:pan={handlePan}
-						use:tap={{ timeframe: 300 }}
-						on:tap={handleTap} -->
-				<div
-					class="nav-action"
-					use:swipe={{ timeframe: 300, minSwipeDistance: 20 }}
-					on:swipe={handler}
-					bind:clientHeight={navActionHeight}
-				>
-					<div class="action-rift">
-						<!-- <img class="action-icon" src={SwipeArrow} alt="Swipe Action Icon" /> -->
-						<div
-							class="rift-clip"
-							class:tapRipple
-							bind:offsetHeight={clip_offset_height}
-							bind:offsetWidth={clip_offset_width}
-							class:hidden
-						/>
+	<div
+		class="output-play-action-overlay"
+		use:pan={{ delay: 300 }}
+		on:pan={handlePan}
+		on:swipe={handler}
+		use:swipe={{ timeframe: 300, minSwipeDistance: 20 }}
+	>
+		{#if gamesAvailable}
+			{#if play}
+				<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} />
+			{:else}
+				{#each gamesAvailable as game, i (game?.id)}
+					<div
+						class="output-paused-overlay"
+						class:isTop={i === 0}
+						class:isCurrent={i === 1}
+						class:isBottom={i === 2}
+					>
+						<div class="overlay-blur" />
+						<div class="overlay-light-fade" />
+						<div class="nav-action" bind:clientHeight={navActionHeight}>
+							<div class="action-rift">
+								<div class="rift-clip" />
+							</div>
+						</div>
+						<div class="info-container">
+							<h1>{game?.title}</h1>
+							<p>{game?.description}</p>
+						</div>
 					</div>
-				</div>
-				<div class="info-container">
-					<h1>{data?.title}</h1>
-					<p>{data?.description}</p>
-				</div>
-			</div>
+				{/each}
+			{/if}
 		{/if}
 	</div>
 </div>
@@ -377,6 +391,7 @@
 		border-radius: 8px;
 		top: 0px;
 		overflow: hidden;
+		z-index: 100;
 	}
 	.action-rift {
 		position: absolute;
@@ -386,100 +401,11 @@
 		left: calc(50% - 2.5px);
 		z-index: 10;
 	}
-	.rift-clip {
-		width: 100px;
-		height: 100px;
-		z-index: 11;
-		position: absolute;
-		background: rgba(255, 255, 255, 0.227);
-		border-radius: 6px;
-		/* background: radial-gradient(circle, hsla(0, 0%, 100%, 1) 25%, hsla(0, 0%, 100%, 0) 50%);
-		background: -moz-radial-gradient(circle, hsla(0, 0%, 100%, 1) 25%, hsla(0, 0%, 100%, 0) 50%);
-		background: -webkit-radial-gradient(circle, hsla(0, 0%, 100%, 1) 25%, hsla(0, 0%, 100%, 0) 50%); */
-		/* background: hsla(0, 0%, 100%, 1);
-		background: linear-gradient(
-			135deg,
-			hsla(0, 0%, 100%, 1) 1%,
-			hsla(0, 0%, 100%, 1) 50%,
-			hsla(0, 0%, 100%, 1) 100%
-		);
-		background: -moz-linear-gradient(
-			135deg,
-			hsla(0, 0%, 100%, 1) 1%,
-			hsla(0, 0%, 100%, 1) 50%,
-			hsla(0, 0%, 100%, 1) 100%
-		);
-		background: -webkit-linear-gradient(
-			135deg,
-			hsla(0, 0%, 100%, 0) 1%,
-			hsla(0, 0%, 100%, 1) 50%,
-			hsla(0, 0%, 100%, 0) 100%
-		); */
-		overflow: hidden;
-		left: calc(50% - (50px));
-		top: var(--touch-coordinates-y);
-		display: block;
-		opacity: 1;
-		transition: opacity 0.3s linear;
-		/* clip-path: ellipse(25% 6% at 50% 50%); */
-	}
-	.rift-clip.hidden {
-		opacity: 0;
-	}
-	/* create ripple animation */
-	@keyframes ripple {
-		0% {
-			transform: scale(0);
-			opacity: 1;
-		}
-		50% {
-			transform: scale(2);
-			opacity: 0.5;
-		}
-		100% {
-			transform: scale(4);
-			opacity: 0;
-		}
-	}
-
-	.rift-clip.tapRipple {
-		/* opacity: 1; */
-		animation: ripple 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
-	}
-
-	/* .rift-clip.tapRipple {
-		opacity: 0;
-	} */
-	.action-icon {
-		position: absolute;
-		top: calc(50% - 30px);
-		left: calc(50% - 36.34px / 2);
-		height: 50%;
-		filter: invert(1) brightness(0.5);
-	}
-	.play-button {
-		position: absolute;
-		z-index: 100000;
-		width: 36.5px;
-		height: 36.5px;
-		border-radius: 6px;
-		bottom: 20px;
-		right: 20px;
-	}
-	.play-button.hidden {
-		display: none;
-	}
 	.output-paused-overlay {
 		width: 100%;
 		height: 100%;
 		position: relative;
 		overflow: hidden;
-		border-radius: 8px;
-	}
-	.output-paused-overlay-image {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
 		border-radius: 8px;
 	}
 	.overlay-blur {
@@ -524,18 +450,16 @@
 		margin-block-start: 0;
 		text-shadow: 1px 2px 20px #0000003b;
 	}
-	.action-button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background-color: transparent;
-		border: none;
+	.isTop {
+		transform: translateY(calc(-100% - 10px + var(--pan-distance)));
+		opacity: 1;
 	}
-	.action-button:hover {
-		cursor: pointer;
+	.isCurrent {
+		transform: translateY(calc(-100% + var(--pan-distance)));
+		opacity: 1;
 	}
-	.action-button-icon {
-		width: 36.5px;
-		height: 100%;
+	.isBottom {
+		transform: translateY(calc(-100% + 10px + var(--pan-distance)));
+		opacity: 1;
 	}
 </style>
