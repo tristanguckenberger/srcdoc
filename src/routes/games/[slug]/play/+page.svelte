@@ -43,6 +43,7 @@
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
 
 	export let data;
+	export let thumbnail;
 	let play = false;
 
 	$: {
@@ -94,6 +95,7 @@
 	// $: console.log('SRCBUILD::', $srcbuild);
 
 	$: src_build.set($srcbuild);
+	$: console.log('play_page::data::', data);
 
 	onMount(() => {
 		firstRun.set(true);
@@ -306,33 +308,65 @@
 		{#if play}
 			<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} />
 		{:else}
-			<button
-				class="play-button"
-				class:play-button-hidden={play}
-				on:click={() => {
-					play = true;
-				}}>Play</button
-			>
-			<div
-				class="nav-action"
-				use:swipe={{ timeframe: 300, minSwipeDistance: 20 }}
-				on:swipe={handler}
-				use:pan={{ delay: 300 }}
-				on:pan={handlePan}
-				use:tap={{ timeframe: 300 }}
-				on:tap={handleTap}
-				bind:clientHeight={navActionHeight}
-			>
-				<div class="action-rift">
-					<img class="action-icon" src={SwipeArrow} alt="Swipe Action Icon" />
-					<div
-						class="rift-clip"
-						class:tapRipple
-						bind:offsetHeight={clip_offset_height}
-						bind:offsetWidth={clip_offset_width}
-						class:hidden
-					/>
+			<div class="output-paused-overlay">
+				<!-- <img
+					class="output-paused-overlay-image"
+					class:showImage={!play}
+					src={thumbnail ?? 'https://picsum.photos/600/600'}
+					on:load={() => {
+						imageLoaded = true;
+					}}
+				/> -->
+				<div class="overlay-blur" />
+				<div class="overlay-light-fade" />
+				<!--
+						Add these to nav-action div if you want to use pan and tap events
+						-------------------------- 
+						use:pan={{ delay: 300 }}
+						on:pan={handlePan}
+						use:tap={{ timeframe: 300 }}
+						on:tap={handleTap} -->
+				<div
+					class="nav-action"
+					use:swipe={{ timeframe: 300, minSwipeDistance: 20 }}
+					on:swipe={handler}
+					bind:clientHeight={navActionHeight}
+				>
+					<div class="action-rift">
+						<!-- <img class="action-icon" src={SwipeArrow} alt="Swipe Action Icon" /> -->
+						<div
+							class="rift-clip"
+							class:tapRipple
+							bind:offsetHeight={clip_offset_height}
+							bind:offsetWidth={clip_offset_width}
+							class:hidden
+						/>
+					</div>
 				</div>
+				<div class="info-container">
+					<h1>{data?.title}</h1>
+					<p>{data?.description}</p>
+				</div>
+				<button
+					class="action-button play-button"
+					class:play-button-hidden={play}
+					on:click={() => {
+						play = true;
+					}}
+					><svg
+						class="action-button-icon"
+						width="37"
+						height="44"
+						viewBox="0 0 37 44"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M36.5 21.5692C36.5014 22.1325 36.3569 22.6866 36.0807 23.1776C35.8045 23.6685 35.406 24.0797 34.9239 24.371L5.04364 42.65C4.53987 42.9585 3.96288 43.1269 3.37226 43.1379C2.78165 43.1488 2.19882 43.0019 1.68398 42.7122C1.17403 42.4271 0.749237 42.0113 0.453271 41.5076C0.157306 41.0039 0.000852063 40.4304 0 39.8462V3.29226C0.000852063 2.70802 0.157306 2.13455 0.453271 1.63082C0.749237 1.1271 1.17403 0.711297 1.68398 0.426177C2.19882 0.136559 2.78165 -0.0103683 3.37226 0.000568957C3.96288 0.0115063 4.53987 0.179912 5.04364 0.488393L34.9239 18.7674C35.406 19.0587 35.8045 19.4699 36.0807 19.9608C36.3569 20.4518 36.5014 21.0059 36.5 21.5692Z"
+							fill="white"
+						/>
+					</svg>
+				</button>
 			</div>
 		{/if}
 	</div>
@@ -350,12 +384,10 @@
 	}
 	.nav-action {
 		position: absolute;
-		z-index: 100000;
-		width: 100px;
-		height: 30%;
-		border-radius: 6px;
-		top: 66.5px;
-		right: 10px;
+		width: 100%;
+		height: 100%;
+		border-radius: 8px;
+		top: 0px;
 		overflow: hidden;
 	}
 	.action-rift {
@@ -440,13 +472,82 @@
 	.play-button {
 		position: absolute;
 		z-index: 100000;
-		width: 100px;
-		height: 30%;
+		width: 36.5px;
+		height: 36.5px;
 		border-radius: 6px;
-		top: (50% - 15%);
-		left: calc(50% - 100px);
+		bottom: 20px;
+		right: 20px;
 	}
 	.play-button.hidden {
 		display: none;
+	}
+	.output-paused-overlay {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		overflow: hidden;
+		border-radius: 8px;
+	}
+	.output-paused-overlay-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 8px;
+	}
+	.overlay-blur {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		background-image: url(https://picsum.photos/600/600);
+		border-radius: 8px;
+		filter: saturate(180%) blur(20px);
+		top: 0;
+	}
+	.overlay-light-fade {
+		background-color: rgba(255, 255, 255, 0.1);
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		border-radius: 8px;
+	}
+	.info-container {
+		position: absolute;
+		width: 72%;
+		height: 100%;
+		top: -55px;
+		display: flex;
+		flex-direction: column;
+		left: 10vw;
+		justify-content: center;
+		align-items: flex-start;
+		padding: 0 20px;
+		color: #fff;
+	}
+	.info-container h1 {
+		font-family: 'Inter';
+		font-size: 2.75rem;
+		margin-block-end: 0;
+		text-shadow: 1px 2px 20px #0000003b;
+	}
+	.info-container p {
+		font-family: 'Montserrat';
+		font-size: 1rem;
+		font-weight: 300;
+		margin-block-start: 0;
+		text-shadow: 1px 2px 20px #0000003b;
+	}
+	.action-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: transparent;
+		border: none;
+	}
+	.action-button:hover {
+		cursor: pointer;
+	}
+	.action-button-icon {
+		width: 36.5px;
+		height: 100%;
 	}
 </style>
