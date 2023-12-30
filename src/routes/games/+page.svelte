@@ -9,8 +9,6 @@
 
 	export let data;
 
-	// $: console.log('data::', data);
-
 	$: currentUserId = data?.sessionData?.id;
 
 	onMount(() => {
@@ -24,12 +22,12 @@
 		}
 	});
 
+	$: isMobile = $appClientWidth < 768;
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
 </script>
 
-// @ts-nocheck
 <div class="page-container" class:noSideBar={!engineInRoute}>
-	<div class="main grid" bind:clientWidth={$gridWidth}>
+	<div class="main grid" bind:clientWidth={$gridWidth} class:isMobile>
 		{#each data?.games as game, i}
 			<Card user={currentUserId} {game} thumbnail={`https://picsum.photos/${10 + i}`} />
 		{/each}
@@ -56,8 +54,6 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 		gap: 10px;
-		/* max-width: 1400px; */
-		/* grid-template-rows: minmax(242px, 367px); */
 		margin: 0;
 		height: fit-content;
 	}

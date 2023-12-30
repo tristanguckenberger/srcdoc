@@ -28,6 +28,8 @@ export const gamesData = writable([]);
 export const currentGame = writable(null);
 export const src_build = writable(null);
 
+export const playButton = writable(false);
+
 // export const availableGames = derived([baseDataStore, openFiles], ([$baseDataStore]) => {
 // 	return openFiles.map((file) => {
 // 		const baseFile = $baseDataStore.find((baseFile) => baseFile.id === file.id);

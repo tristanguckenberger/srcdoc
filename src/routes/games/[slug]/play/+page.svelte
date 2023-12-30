@@ -6,7 +6,7 @@
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { getRootFileId } from '$lib/utils/getter.js';
 	import { goto } from '$app/navigation';
-	import { gamesData, currentGame, src_build } from '$lib/stores/gamesStore.js';
+	import { gamesData, currentGame, src_build, playButton } from '$lib/stores/gamesStore.js';
 	import { derived } from 'svelte/store';
 	import {
 		editorOutContainerWidth,
@@ -44,7 +44,9 @@
 
 	export let data;
 	export let thumbnail;
-	let play = false;
+	let play;
+
+	$: play = $playButton;
 
 	$: {
 		if (!$gamesData || $gamesData?.length < 1) {
@@ -301,6 +303,7 @@
 
 <div
 	class="main"
+	class:isNotMobile={$appClientWidth && $appClientWidth > 498}
 	style="--touch-coordinates-x: {pan_x}px; --touch-coordinates-y: {touchCoordinatesY}px; --swipe-arrow: src('{SwipeArrow}'); --mid-point: {navActionHeight /
 		2}px;"
 >
@@ -347,26 +350,6 @@
 					<h1>{data?.title}</h1>
 					<p>{data?.description}</p>
 				</div>
-				<button
-					class="action-button play-button"
-					class:play-button-hidden={play}
-					on:click={() => {
-						play = true;
-					}}
-					><svg
-						class="action-button-icon"
-						width="37"
-						height="44"
-						viewBox="0 0 37 44"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M36.5 21.5692C36.5014 22.1325 36.3569 22.6866 36.0807 23.1776C35.8045 23.6685 35.406 24.0797 34.9239 24.371L5.04364 42.65C4.53987 42.9585 3.96288 43.1269 3.37226 43.1379C2.78165 43.1488 2.19882 43.0019 1.68398 42.7122C1.17403 42.4271 0.749237 42.0113 0.453271 41.5076C0.157306 41.0039 0.000852063 40.4304 0 39.8462V3.29226C0.000852063 2.70802 0.157306 2.13455 0.453271 1.63082C0.749237 1.1271 1.17403 0.711297 1.68398 0.426177C2.19882 0.136559 2.78165 -0.0103683 3.37226 0.000568957C3.96288 0.0115063 4.53987 0.179912 5.04364 0.488393L34.9239 18.7674C35.406 19.0587 35.8045 19.4699 36.0807 19.9608C36.3569 20.4518 36.5014 21.0059 36.5 21.5692Z"
-							fill="white"
-						/>
-					</svg>
-				</button>
 			</div>
 		{/if}
 	</div>
@@ -381,6 +364,11 @@
 		margin: 10px;
 		height: calc(100% - 20px);
 		width: calc(100% - 20px);
+	}
+	.main.isNotMobile {
+		margin-top: 0;
+		margin-bottom: 0;
+		height: calc(100% - 10px);
 	}
 	.nav-action {
 		position: absolute;
