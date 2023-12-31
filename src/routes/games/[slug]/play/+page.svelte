@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import { invalidate } from '$app/navigation';
+	import { afterNavigate, invalidate } from '$app/navigation';
 	import Output from '$lib/ui/Output/Output.svelte';
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { getRootFileId } from '$lib/utils/getter.js';
@@ -35,9 +35,8 @@
 		firstRun,
 		derivedFileSystemData
 	} from '$lib/stores/filesStore.js';
-	import { onDestroy, onMount, tick } from 'svelte';
+	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 	import { swipe, pan, tap } from 'svelte-gestures';
-	import SwipeArrow from '$lib/assets/SwipeArrow.svg';
 
 	import { tweened } from 'svelte/motion';
 	import { linear } from 'svelte/easing';
@@ -53,7 +52,7 @@
 	let tapRipple = false;
 	let countPanTime = false;
 	let pan_x;
-	let pan_y;
+	let pan_y = 0;
 	let last_pan_time;
 	let pan_time;
 	let tap_x;
@@ -67,7 +66,119 @@
 	let panCoorY = pan_y;
 	let panDirection;
 	let panDistance = 0;
+	let panStart = null;
+	let panEnd = null;
+	let panning = false;
+	let distanceTop;
+	let distanceBottom;
+	let absDistance = 0;
+	let handlingPanUp = false;
+	let topIsNext = false; // css class for carousel
+	let bottomIsNext = false; // css class for carousel
+	let topElement;
+	let currentElement;
+	let bottomElement;
+	let newPan = false;
+	let isPanning = false;
 
+	async function handlePanUp(event) {
+		isPanning = false;
+		handlingPanUp = true;
+		newPan = false;
+
+		if (panStart > panEnd) {
+			// panDirection = 'top';
+			absDistance = panStart - panEnd;
+		} else if (panStart < panEnd) {
+			// panDirection = 'bottom';
+			absDistance = panEnd - panStart;
+		}
+
+		const currentIndexByGameID = $gamesData?.findIndex(
+			(game) => game?.id?.toString() === data?.id?.toString()
+		);
+		const currentIndexIsLast = $gamesData?.length - 1 === currentIndexByGameID;
+		const currentIndexIsFirst = 0 === currentIndexByGameID;
+
+		if (panDirection === 'bottom') {
+			if (navActionHeight - absDistance < navActionCenter) {
+				progress.set(navActionHeight + 10);
+
+				const nextGame = !currentIndexIsLast
+					? $gamesData?.[currentIndexByGameID + 1]
+					: $gamesData[0];
+
+				if (nextGame?.id) {
+					const topGameElement = document.querySelector('.game_option_0');
+					const bottomGameElement = document.querySelector('.game_option_2');
+
+					// topIsNext = true;
+					// bottomIsNext = false;
+
+					// bottomGameElement.classList.remove('isNext');
+					// topGameElement.classList.add('isNext');
+
+					setTimeout(async () => {
+						// progress.set(0, { duration: 0 });
+						await goto(`/games/${nextGame?.id}/play`);
+						await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`, {
+							replaceState: true
+						});
+					}, 500);
+				}
+			} else {
+				absDistance = 0;
+				progress.set(0);
+			}
+		}
+		if (panDirection === 'top') {
+			if (absDistance >= navActionCenter) {
+				progress.set(0 - navActionHeight);
+				const nextGame = !currentIndexIsFirst
+					? $gamesData[currentIndexByGameID - 1]
+					: $gamesData[$gamesData?.length - 1];
+
+				if (nextGame?.id) {
+					// shuffle the games so that the top game becomes the current game,
+					// the current game becomes the top game, and the top game becomes the bottom game
+					// get the element that is the current game 'game_option_{1}''
+					const topGameElement = document.querySelector('.game_option_0');
+					const bottomGameElement = document.querySelector('.game_option_2');
+
+					// topIsNext = false;
+					// bottomIsNext = true;
+
+					// topGameElement.classList.remove('isNext');
+					// bottomGameElement.classList.add('isNext');
+
+					setTimeout(async () => {
+						// progress.set(0, { duration: 0 });
+						await goto(`/games/${nextGame?.id}/play`);
+						await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`, {
+							replaceState: true
+						});
+					}, 500);
+				}
+			} else {
+				absDistance = 0;
+				progress.set(0);
+			}
+		}
+
+		// setTimeout(() => {
+		// 	absDistance = 0;
+		// 	panDirection = null;
+		// }, 200);
+		handlingPanUp = false;
+	}
+	function handlePanDown(event) {
+		console.log('handlePanDown::event::', event);
+		panStart = null;
+		panEnd = null;
+		absDistance = 0;
+		newPan = true;
+		isPanning = true;
+	}
 	function handlePan(event) {
 		disableTap = true;
 		hidden = false;
@@ -75,77 +186,6 @@
 		pan_x = event.detail.x;
 		pan_y = event.detail.y;
 		last_pan_time = Date.now();
-
-		setTimeout(() => {
-			disableTap = false;
-			// pan_y = null;
-		}, 300);
-		setTimeout(() => {
-			panDistance = 0;
-		}, 100);
-	}
-	async function handleTap(event) {
-		if (disableTap) return;
-		hidden = false;
-		tapRipple = true;
-		setTimeout(() => {
-			tapRipple = false;
-		}, 300);
-
-		const { x, y } = event.detail;
-		tap_x = x;
-		tap_y = y;
-
-		const tapContainerHeight = navActionHeight / 2;
-		if (tap_y < navActionHeight / 2) {
-			direction = 'top';
-			// divide navActionHeight by 3 to the center of the top navAction and the center of the bottom navAction
-			// tap_y = navActionHeight / 3;
-		} else {
-			direction = 'bottom';
-			// tap_y = navActionHeight / 3 + navActionHeight / 2;
-		}
-
-		console.log('tap::direction::', direction);
-
-		if (direction === 'top') {
-			tapCenter = tapContainerHeight / 2 - 50;
-		} else if (direction === 'bottom') {
-			tapCenter = tapContainerHeight + tapContainerHeight / 2 - 50;
-		}
-
-		console.log('tapCenter::', tapCenter);
-
-		const currentIndexByGameID = $gamesData?.findIndex(
-			(game) => game?.id?.toString() === data?.id?.toString()
-		);
-		// check to ensure the index isnt the last in the array
-		const currentIndexIsLast = $gamesData?.length - 1 === currentIndexByGameID;
-		// check to ensure the index isnt the last in the array
-		const currentIndexIsFirst = 0 === currentIndexByGameID;
-		// try {
-		// 	if (direction === 'top') {
-		// 		// and then get the id of the games index + 1
-		// 		const nextGame = !currentIndexIsLast
-		// 			? $gamesData?.[currentIndexByGameID + 1]
-		// 			: $gamesData[0];
-		// 		if (nextGame?.id) {
-		// 			await goto(`/games/${nextGame?.id}/play`);
-		// 			await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
-		// 		}
-		// 	} else if (direction === 'bottom') {
-		// 		const nextGame = !currentIndexIsFirst
-		// 			? $gamesData[currentIndexByGameID - 1]
-		// 			: $gamesData[$gamesData?.length - 1];
-
-		// 		if (nextGame?.id) {
-		// 			await goto(`/games/${nextGame?.id}/play`);
-		// 			await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
-		// 		}
-		// 	}
-		// } catch (error) {
-		// 	console.log('error_handling_navigation_swipe::error::', error);
-		// }
 	}
 	async function handler(event) {
 		hidden = false;
@@ -158,7 +198,6 @@
 		const currentIndexIsLast = $gamesData?.length - 1 === currentIndexByGameID;
 		const currentIndexIsFirst = 0 === currentIndexByGameID;
 
-		console.log('swipe::direction::', direction);
 		try {
 			if (direction === 'top') {
 				const nextGame = !currentIndexIsLast
@@ -184,13 +223,18 @@
 				}
 			}
 		} catch (error) {
-			console.log('error_handling_navigation_swipe::error::', error);
+			console.error('error_handling_navigation_swipe::error::', error);
 		}
 		setTimeout(() => {
 			disableTap = false;
 		}, 300);
 	}
 	const progress = tweened(0, {
+		duration: 200,
+		easing: linear
+	});
+
+	const progressReversed = tweened(0, {
 		duration: 200,
 		easing: linear
 	});
@@ -239,15 +283,6 @@
 			countPanTime = false;
 			hidden = true;
 		}, 300);
-	$: pan_y,
-		tapCenter,
-		(touchCoordinatesY = (() => {
-			if (pan_y) {
-				return navActionHeight / 2 - 225 - pan_y;
-			} else if (tapCenter && !pan_y) {
-				return tapCenter;
-			}
-		})());
 	$: data,
 		() => {
 			if (data?.currentGame) {
@@ -260,49 +295,169 @@
 				bottomGame.set(data?.bottomGame);
 			}
 		};
-	$: data,
+	$: $currentGame,
+		$topGame,
+		$bottomGame,
+		data,
 		(() => {
-			if (data?.currentGame && data?.topGame && data?.bottomGame) {
-				gamesAvailable = [data?.topGame, data?.currentGame, data?.bottomGame];
-			} else if (data?.currentGame && data?.topGame) {
-				gamesAvailable = [data?.topGame, data?.currentGame];
-			} else if (data?.currentGame && data?.bottomGame) {
-				gamesAvailable = [data?.currentGame, data?.bottomGame];
-			} else if (data?.currentGame) {
-				gamesAvailable = [data?.currentGame];
+			if (
+				($currentGame ?? data?.currentGame) &&
+				($topGame ?? data?.topGame) &&
+				($bottomGame ?? data?.bottomGame)
+			) {
+				gamesAvailable = [
+					$topGame ?? data?.topGame,
+					$currentGame ?? data?.currentGame,
+					$bottomGame ?? data?.bottomGame
+				];
+			} else if (($currentGame ?? data?.currentGame) && ($topGame ?? data?.topGame)) {
+				gamesAvailable = [$topGame ?? data?.topGame, $currentGame ?? data?.currentGame];
+			} else if (($currentGame ?? data?.currentGame) && ($bottomGame ?? data?.bottomGame)) {
+				gamesAvailable = [$currentGame ?? data?.currentGame, $bottomGame ?? data?.bottomGame];
+			} else if ($currentGame ?? data?.currentGame) {
+				gamesAvailable = [$currentGame ?? data?.currentGame];
 			}
 		})();
 	$: navActionCenter = navActionHeight / 2;
-	$: if (pan_y !== panCoorY) {
-		if (pan_y > panCoorY) {
-			console.log('pan_y is increasing');
-			panDirection = 'bottom';
-		} else {
-			console.log('pan_y is decreasing');
-			panDirection = 'top';
-		}
-		// Update the previousCount after comparison
-		panCoorY = pan_y;
-	}
-	$: panDistance = pan_y - navActionCenter;
+	$: pan_y,
+		(() => {
+			if (pan_y !== panCoorY) {
+				if (pan_y > panCoorY) {
+					panDirection = 'bottom';
+				} else if (pan_y < panCoorY) {
+					panDirection = 'top';
+				}
 
-	// $: panDirection,
-	// 	(() => {
-	// 		if (pan_y && navActionCenter) {
-	// 			panDistance = pan_y - navActionCenter;
-	// 		}
-	// 	})();
-	$: console.log('panDistance::', panDistance);
-	$: progress.set(panDistance);
+				// Update the previousCount after comparison
+				panCoorY = pan_y;
+
+				if (panStart === null) {
+					panStart = pan_y;
+				} else if (panStart !== null && panEnd === null && panning === false) {
+					panEnd = pan_y;
+				}
+			}
+		})();
+	$: panEnd = pan_y;
+	$: pan_y,
+		(() => {
+			if (!handlingPanUp) {
+				absDistance = panEnd - panStart;
+				progress.set(absDistance);
+			}
+		})();
 	$: src_build.set($srcbuild);
+	$: console.log('gamesAvailable::', gamesAvailable);
+
+	let initialId = data?.id;
+
+	$: console.log('newPan::', newPan);
+
+	$: (() => {
+		if (!newPan && $progress !== 0 && panDirection) {
+			console.log('finished panning!::', !newPan);
+			console.log('progress::', `${$progress}px`);
+			console.log('absDistance::', `${absDistance}px`);
+			console.log('navActionCenter::', `${navActionCenter}px`);
+			console.log('panDirection::', panDirection);
+
+			if (Math.abs($progress) > navActionCenter && panDirection === 'top') {
+				const topGameElement = document.querySelector('.game_option_0');
+				const bottomGameElement = document.querySelector('.game_option_2');
+
+				// progressReversed.set(0 - $progress);
+				progress.set(0 - navActionHeight - 10);
+
+				// topIsNext = false;
+				// bottomIsNext = true;
+
+				// topGameElement.classList.remove('isNext');
+				// bottomGameElement.classList.add('isNext');
+			}
+
+			if (Math.abs($progress) > navActionCenter && panDirection === 'bottom') {
+				const topGameElement = document.querySelector('.game_option_0');
+				const bottomGameElement = document.querySelector('.game_option_2');
+
+				progress.set(navActionHeight + 10);
+
+				// topIsNext = true;
+				// bottomIsNext = false;
+
+				// bottomGameElement.classList.remove('isNext');
+				// topGameElement.classList.add('isNext');
+			}
+		}
+	})();
+
+	$: (() => {})();
+
+	$: gamesAvailable, progress.set(0, { duration: 0 });
 
 	onMount(() => {
+		if ($progress !== 0) {
+			console.log('resetting progress!');
+			progress.set(0);
+		} else {
+			console.log('progress is 0!');
+		}
+		// progress.set(0);
 		firstRun.set(true);
 
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
 		}
+
+		if (document) {
+			topElement = document.querySelector('.game_option_0');
+			currentElement = document.querySelector('.game_option_1');
+			bottomElement = document.querySelector('.game_option_2');
+		}
 	});
+
+	afterUpdate(() => {
+		// console.log('afterUpdate::$progress::', $progress);
+		// console.log('afterUpdate::$absDistance::', absDistance);
+		// console.log('afterUpdate::$panDirection::', panDirection);
+		// console.log('afterUpdate::$panStart::', panStart);
+		// console.log('afterUpdate::$panEnd::', panEnd);
+		// console.log('afterUpdate::$pan_y::', pan_y);
+		// console.log('afterUpdate::$panCoorY::', panCoorY);
+		// console.log('afterUpdate::data::', data);
+		// console.log('afterUpdate::gameId::', data?.id);
+		// console.log('afterUpdate::initialId::', initialId);
+		// if (data?.id !== initialId && $progress !== 0 && !isPanning) {
+		// 	console.log('resetting progress!');
+		// 	progress.set(0, { duration: 0 });
+		// }
+		// if ($progress === 0 && data?.id === initialId && !isPanning) {
+		// 	console.log('resetting initialId!');
+		// 	initialId = data?.id;
+		// }
+	});
+
+	afterNavigate(async () => {
+		setTimeout(async () => {
+			console.log('afterNavigate::');
+			await tick();
+			if (browser) progress.set(0, { duration: 0 });
+			await tick();
+			console.log('afterNavigate::$progress::', $progress);
+			panStart = null;
+			panEnd = null;
+			absDistance = 0;
+			distanceMoved = $progress;
+		}, 1000);
+	});
+
+	$: console.log('progress::distanceMoved::', $progress, distanceMoved);
+
+	// $: distanceMoved,
+	// 	() => {
+	// 		progress.set(0, { duration: 0 });
+
+	// 		distanceMoved = null;
+	// 	};
 
 	onDestroy(() => {
 		fileStoreFiles.set(null);
@@ -321,22 +476,24 @@
 		topGame.set(null);
 		bottomGame.set(null);
 		currentGame.set(null);
+		// progress.set(0);
 	});
+
+	let distanceMoved = null;
 </script>
 
 <div
 	class="main"
 	class:isNotMobile={$appClientWidth && $appClientWidth > 498}
-	style="--pan-distance: {$progress ??
-		0}px;--touch-coordinates-x: {pan_x}px; --touch-coordinates-y: {direction === 'top'
-		? ''
-		: '-'}{touchCoordinatesY}px; --swipe-arrow: src('{SwipeArrow}'); --mid-point: {navActionHeight /
-		2}px;"
+	style="--pan-distance: {$progress}px; --mid-point: {navActionHeight /
+		2}px; --page-height: {navActionHeight}px;"
 >
 	<div
 		class="output-play-action-overlay"
 		use:pan={{ delay: 300 }}
 		on:pan={handlePan}
+		on:panup={handlePanUp}
+		on:pandown={handlePanDown}
 		on:swipe={handler}
 		use:swipe={{ timeframe: 300, minSwipeDistance: 20 }}
 	>
@@ -344,12 +501,14 @@
 			{#if play}
 				<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} />
 			{:else}
-				{#each gamesAvailable as game, i (game?.id)}
+				{#each gamesAvailable as game, i (`${game?.id}_index_${i}`)}
 					<div
-						class="output-paused-overlay"
+						class="output-paused-overlay game_option_{i}"
 						class:isTop={i === 0}
 						class:isCurrent={i === 1}
 						class:isBottom={i === 2}
+						class:topIsNext
+						class:bottomIsNext
 					>
 						<div class="overlay-blur" />
 						<div class="overlay-light-fade" />
@@ -451,15 +610,44 @@
 		text-shadow: 1px 2px 20px #0000003b;
 	}
 	.isTop {
-		transform: translateY(calc(-100% - 10px + var(--pan-distance)));
+		transform: translateY(calc((-10px - var(--page-height)) + var(--pan-distance)));
 		opacity: 1;
+		/* transition: transform 0.2s ease-in-out; */
+	}
+	.isTop.bottomIsNext {
+		transform: translateY(calc(106% - 10px + var(--pan-distance)));
+		opacity: 1;
+		transition: none;
 	}
 	.isCurrent {
-		transform: translateY(calc(-100% + var(--pan-distance)));
+		transform: translateY(calc((0px - var(--page-height)) + var(--pan-distance)));
+		opacity: 1;
+		/* transition: transform 0.2s ease-in-out; */
+	}
+	.isCurrent.topIsNext {
+		transform: translateY(calc(100% + var(--pan-distance)));
+		opacity: 1;
+	}
+	.isCurrent.bottomIsNext {
+		transform: translateY(calc(-206% - var(--pan-distance)));
 		opacity: 1;
 	}
 	.isBottom {
 		transform: translateY(calc(-100% + 10px + var(--pan-distance)));
+	}
+	.isBottom.topIsNext {
+		transform: translateY(calc(-100% + 10px + var(--pan-distance)));
+		opacity: 1;
+		transition: none;
+	}
+
+	.isNext {
+		transform: translateY(calc(0% + var(--pan-distance)));
+		opacity: 1;
+	}
+
+	.isBottom.isNext {
+		transform: translateY(calc(-200% + var(--pan-distance)));
 		opacity: 1;
 	}
 </style>
