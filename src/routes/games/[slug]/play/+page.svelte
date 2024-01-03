@@ -84,6 +84,7 @@
 	let bottomElement;
 	let newPan = false;
 	let isPanning = false;
+	let initialId = data?.id;
 
 	async function handlePanUp(event) {
 		isPanning = false;
@@ -166,48 +167,6 @@
 		pan_y = event.detail.y;
 		last_pan_time = Date.now();
 	}
-	// async function handler(event) {
-	// 	hidden = false;
-	// 	disableTap = true;
-	// 	countPanTime = true;
-	// 	direction = event.detail.direction;
-	// 	const currentIndexByGameID = $gamesData?.findIndex(
-	// 		(game) => game?.id?.toString() === data?.id?.toString()
-	// 	);
-	// 	const currentIndexIsLast = $gamesData?.length - 1 === currentIndexByGameID;
-	// 	const currentIndexIsFirst = 0 === currentIndexByGameID;
-
-	// 	try {
-	// 		if (direction === 'top') {
-	// 			const nextGame = !currentIndexIsLast
-	// 				? $gamesData?.[currentIndexByGameID + 1]
-	// 				: $gamesData[0];
-
-	// 			if (nextGame?.id) {
-	// 				setTimeout(async () => {
-	// 					await goto(`/games/${nextGame?.id}/play`);
-	// 					await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
-	// 				}, 500);
-	// 			}
-	// 		} else if (direction === 'bottom') {
-	// 			const nextGame = !currentIndexIsFirst
-	// 				? $gamesData[currentIndexByGameID - 1]
-	// 				: $gamesData[$gamesData?.length - 1];
-
-	// 			if (nextGame?.id) {
-	// 				setTimeout(async () => {
-	// 					await goto(`/games/${nextGame?.id}/play`);
-	// 					await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
-	// 				}, 500);
-	// 			}
-	// 		}
-	// 	} catch (error) {
-	// 		console.error('error_handling_navigation_swipe::error::', error);
-	// 	}
-	// 	setTimeout(() => {
-	// 		disableTap = false;
-	// 	}, 300);
-	// }
 	const srcbuild = derived(
 		[fileStoreFiles, editorOutContainerWidth, editorOutContainerHeight, gameControllerStore],
 		([
@@ -298,7 +257,6 @@
 					panDirection = 'top';
 				}
 
-				// Update the previousCount after comparison
 				panCoorY = pan_y;
 
 				if (panStart === null) {
@@ -317,9 +275,6 @@
 			}
 		})();
 	$: src_build.set($srcbuild);
-
-	let initialId = data?.id;
-
 	$: (() => {
 		if (!newPan && $progress !== 0 && !handlingPanUp && !$resetProgress) {
 			if (Math.abs($progress) > navActionCenter && panDirection === 'top') {
@@ -335,7 +290,6 @@
 			}
 		}
 	})();
-
 	$: gamesAvailable, progress.set(0, { duration: 0 });
 
 	onMount(() => {
@@ -361,11 +315,11 @@
 		(() => {
 			if ($resetProgress) {
 				progressState.set(0);
-				distanceMoved = 0; //
+				distanceMoved = 0;
 				progress.set(0, { duration: 0 });
 				absDistance = 0;
 			} else {
-				progressState.set($progress); //$progressState set to progress
+				progressState.set($progress);
 			}
 		})();
 
@@ -436,7 +390,7 @@
 >
 	<div
 		class="output-play-action-overlay"
-		use:pan={{ delay: 50 }}
+		use:pan={{ delay: 0 }}
 		on:pan={handlePan}
 		on:panup={handlePanUp}
 		on:pandown={handlePanDown}
