@@ -547,6 +547,24 @@
   "resolved" "https://registry.npmjs.org/dotenv/-/dotenv-16.3.1.tgz"
   "version" "16.3.1"
 
+"embla-carousel-reactive-utils@8.0.0-rc17":
+  "integrity" "sha512-eluEOK/u5HdjYaTLC4bUG3iTCnyX7RsYix3il0aH4ZECOKa5fS+pVK2vrM17Mgw6C5Hyjcr3r3lfJtGerVzVsQ=="
+  "resolved" "https://registry.npmjs.org/embla-carousel-reactive-utils/-/embla-carousel-reactive-utils-8.0.0-rc17.tgz"
+  "version" "8.0.0-rc17"
+
+"embla-carousel-svelte@^8.0.0-rc17":
+  "integrity" "sha512-Kgs8Bj2dQgnXQdTMHF2nnd7lxtfPx645RFNgqKfvbJ0EqVG6eBUCdpxlrhRFOlRvAA4muQk+22Pu8/ydRZ+pkw=="
+  "resolved" "https://registry.npmjs.org/embla-carousel-svelte/-/embla-carousel-svelte-8.0.0-rc17.tgz"
+  "version" "8.0.0-rc17"
+  dependencies:
+    "embla-carousel" "8.0.0-rc17"
+    "embla-carousel-reactive-utils" "8.0.0-rc17"
+
+"embla-carousel@8.0.0-rc17":
+  "integrity" "sha512-evF49b88VOitvqFtlvhvKVSu96Y8A+QSFdhok87Bfm8R7OYuk95FT+o8+M1GQLi/EhGDUlT193HTVAR0Wt2neQ=="
+  "resolved" "https://registry.npmjs.org/embla-carousel/-/embla-carousel-8.0.0-rc17.tgz"
+  "version" "8.0.0-rc17"
+
 "es6-promise@^3.1.2":
   "integrity" "sha512-SOp9Phqvqn7jtEUxPWdWfWoLmyt2VaJ6MpvP9Comy1MceMXqE6bxvaTu4iaxpYYPzhny28Lc+M87/c2cPK6lDg=="
   "resolved" "https://registry.npmjs.org/es6-promise/-/es6-promise-3.3.1.tgz"
@@ -1537,7 +1555,7 @@
     "sorcery" "^0.11.0"
     "strip-indent" "^3.0.0"
 
-"svelte@^3.19.0 || ^4.0.0", "svelte@^3.2.0 || ^4.0.0-next.0", "svelte@^3.23.0 || ^4.0.0-next.0 || ^4.0.0", "svelte@^3.37.0 || ^4.0.0", "svelte@^3.54.0 || ^4.0.0", "svelte@^3.54.0 || ^4.0.0 || ^5.0.0-next.0", "svelte@^3.54.0 || ^4.0.0-next.0 || ^5.0.0-next.0", "svelte@^3.55.0 || ^4.0.0-next.0 || ^4.0.0", "svelte@^4.0.5":
+"svelte@^3.19.0 || ^4.0.0", "svelte@^3.2.0 || ^4.0.0-next.0", "svelte@^3.23.0 || ^4.0.0-next.0 || ^4.0.0", "svelte@^3.37.0 || ^4.0.0", "svelte@^3.49.0 || ^4.0.0", "svelte@^3.54.0 || ^4.0.0", "svelte@^3.54.0 || ^4.0.0 || ^5.0.0-next.0", "svelte@^3.54.0 || ^4.0.0-next.0 || ^5.0.0-next.0", "svelte@^3.55.0 || ^4.0.0-next.0 || ^4.0.0", "svelte@^4.0.5":
   "integrity" "sha512-LpLqY2Jr7cRxkrTc796/AaaoMLF/1ax7cto8Ot76wrvKQhrPmZ0JgajiWPmg9mTSDqO16SSLiD17r9MsvAPTmw=="
   "resolved" "https://registry.npmjs.org/svelte/-/svelte-4.2.1.tgz"
   "version" "4.2.1"

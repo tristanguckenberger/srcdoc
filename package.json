@@ -33,6 +33,7 @@
 	},
 	"dependencies": {
 		"dotenv": "^16.3.1",
+		"embla-carousel-svelte": "^8.0.0-rc17",
 		"monaco-editor": "^0.43.0",
 		"split.js": "^1.6.5",
 		"svelte-gestures": "^1.5.2",
