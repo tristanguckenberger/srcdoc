@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import { afterNavigate, invalidate } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, invalidate, invalidateAll } from '$app/navigation';
 	import Output from '$lib/ui/Output/Output.svelte';
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { getRootFileId } from '$lib/utils/getter.js';
@@ -11,9 +11,13 @@
 		topGame,
 		bottomGame,
 		src_build,
-		playButton
+		playButton,
+		progressState,
+		resetProgress,
+		progress,
+		progressResetCheck
 	} from '$lib/stores/gamesStore.js';
-	import { derived } from 'svelte/store';
+	import { derived, writable } from 'svelte/store';
 	import {
 		editorOutContainerWidth,
 		editorOutContainerHeight,
@@ -100,79 +104,54 @@
 		const currentIndexIsLast = $gamesData?.length - 1 === currentIndexByGameID;
 		const currentIndexIsFirst = 0 === currentIndexByGameID;
 
-		if (panDirection === 'bottom') {
+		if (panDirection === 'bottom' && absDistance > 0) {
 			if (navActionHeight - absDistance < navActionCenter) {
 				progress.set(navActionHeight + 10);
 
-				const nextGame = !currentIndexIsLast
-					? $gamesData?.[currentIndexByGameID + 1]
-					: $gamesData[0];
-
+				let nextGame = gamesAvailable[0];
 				if (nextGame?.id) {
-					const topGameElement = document.querySelector('.game_option_0');
-					const bottomGameElement = document.querySelector('.game_option_2');
-
-					// topIsNext = true;
-					// bottomIsNext = false;
-
-					// bottomGameElement.classList.remove('isNext');
-					// topGameElement.classList.add('isNext');
-
 					setTimeout(async () => {
-						// progress.set(0, { duration: 0 });
 						await goto(`/games/${nextGame?.id}/play`);
 						await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`, {
-							replaceState: true
+							replaceState: false
 						});
+						await invalidateAll();
+						progress.set(0, { duration: 0 });
 					}, 500);
 				}
 			} else {
 				absDistance = 0;
 				progress.set(0);
+				progressState.set(0);
 			}
 		}
 		if (panDirection === 'top') {
+			console.log('in::top::panDirection::', panDirection);
 			if (absDistance >= navActionCenter) {
+				console.log('in::top::absDistance::', absDistance);
 				progress.set(0 - navActionHeight);
-				const nextGame = !currentIndexIsFirst
-					? $gamesData[currentIndexByGameID - 1]
-					: $gamesData[$gamesData?.length - 1];
 
+				let nextGame = gamesAvailable[2];
 				if (nextGame?.id) {
-					// shuffle the games so that the top game becomes the current game,
-					// the current game becomes the top game, and the top game becomes the bottom game
-					// get the element that is the current game 'game_option_{1}''
-					const topGameElement = document.querySelector('.game_option_0');
-					const bottomGameElement = document.querySelector('.game_option_2');
-
-					// topIsNext = false;
-					// bottomIsNext = true;
-
-					// topGameElement.classList.remove('isNext');
-					// bottomGameElement.classList.add('isNext');
-
 					setTimeout(async () => {
-						// progress.set(0, { duration: 0 });
 						await goto(`/games/${nextGame?.id}/play`);
 						await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`, {
-							replaceState: true
+							replaceState: false
 						});
+						await invalidateAll();
+						progress.set(0, { duration: 0 });
 					}, 500);
 				}
 			} else {
+				console.log('hit::top::else::', absDistance);
 				absDistance = 0;
+				progressState.set(0);
 				progress.set(0);
 			}
 		}
-
-		// setTimeout(() => {
-		// 	absDistance = 0;
-		// 	panDirection = null;
-		// }, 200);
 		handlingPanUp = false;
 	}
 	function handlePanDown(event) {
-		console.log('handlePanDown::event::', event);
 		panStart = null;
 		panEnd = null;
 		absDistance = 0;
@@ -187,57 +166,48 @@
 		pan_y = event.detail.y;
 		last_pan_time = Date.now();
 	}
-	async function handler(event) {
-		hidden = false;
-		disableTap = true;
-		countPanTime = true;
-		direction = event.detail.direction;
-		const currentIndexByGameID = $gamesData?.findIndex(
-			(game) => game?.id?.toString() === data?.id?.toString()
-		);
-		const currentIndexIsLast = $gamesData?.length - 1 === currentIndexByGameID;
-		const currentIndexIsFirst = 0 === currentIndexByGameID;
+	// async function handler(event) {
+	// 	hidden = false;
+	// 	disableTap = true;
+	// 	countPanTime = true;
+	// 	direction = event.detail.direction;
+	// 	const currentIndexByGameID = $gamesData?.findIndex(
+	// 		(game) => game?.id?.toString() === data?.id?.toString()
+	// 	);
+	// 	const currentIndexIsLast = $gamesData?.length - 1 === currentIndexByGameID;
+	// 	const currentIndexIsFirst = 0 === currentIndexByGameID;
 
-		try {
-			if (direction === 'top') {
-				const nextGame = !currentIndexIsLast
-					? $gamesData?.[currentIndexByGameID + 1]
-					: $gamesData[0];
+	// 	try {
+	// 		if (direction === 'top') {
+	// 			const nextGame = !currentIndexIsLast
+	// 				? $gamesData?.[currentIndexByGameID + 1]
+	// 				: $gamesData[0];
 
-				if (nextGame?.id) {
-					setTimeout(async () => {
-						await goto(`/games/${nextGame?.id}/play`);
-						await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
-					}, 500);
-				}
-			} else if (direction === 'bottom') {
-				const nextGame = !currentIndexIsFirst
-					? $gamesData[currentIndexByGameID - 1]
-					: $gamesData[$gamesData?.length - 1];
+	// 			if (nextGame?.id) {
+	// 				setTimeout(async () => {
+	// 					await goto(`/games/${nextGame?.id}/play`);
+	// 					await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
+	// 				}, 500);
+	// 			}
+	// 		} else if (direction === 'bottom') {
+	// 			const nextGame = !currentIndexIsFirst
+	// 				? $gamesData[currentIndexByGameID - 1]
+	// 				: $gamesData[$gamesData?.length - 1];
 
-				if (nextGame?.id) {
-					setTimeout(async () => {
-						await goto(`/games/${nextGame?.id}/play`);
-						await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
-					}, 500);
-				}
-			}
-		} catch (error) {
-			console.error('error_handling_navigation_swipe::error::', error);
-		}
-		setTimeout(() => {
-			disableTap = false;
-		}, 300);
-	}
-	const progress = tweened(0, {
-		duration: 200,
-		easing: linear
-	});
-
-	const progressReversed = tweened(0, {
-		duration: 200,
-		easing: linear
-	});
+	// 			if (nextGame?.id) {
+	// 				setTimeout(async () => {
+	// 					await goto(`/games/${nextGame?.id}/play`);
+	// 					await invalidate((url) => url.pathname === `/games/${nextGame?.id}/play`);
+	// 				}, 500);
+	// 			}
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('error_handling_navigation_swipe::error::', error);
+	// 	}
+	// 	setTimeout(() => {
+	// 		disableTap = false;
+	// 	}, 300);
+	// }
 	const srcbuild = derived(
 		[fileStoreFiles, editorOutContainerWidth, editorOutContainerHeight, gameControllerStore],
 		([
@@ -341,67 +311,38 @@
 	$: panEnd = pan_y;
 	$: pan_y,
 		(() => {
-			if (!handlingPanUp) {
+			if (!handlingPanUp || !$resetProgress) {
 				absDistance = panEnd - panStart;
 				progress.set(absDistance);
 			}
 		})();
 	$: src_build.set($srcbuild);
-	$: console.log('gamesAvailable::', gamesAvailable);
 
 	let initialId = data?.id;
 
-	$: console.log('newPan::', newPan);
-
 	$: (() => {
-		if (!newPan && $progress !== 0 && panDirection) {
-			console.log('finished panning!::', !newPan);
-			console.log('progress::', `${$progress}px`);
-			console.log('absDistance::', `${absDistance}px`);
-			console.log('navActionCenter::', `${navActionCenter}px`);
-			console.log('panDirection::', panDirection);
-
+		if (!newPan && $progress !== 0 && !handlingPanUp && !$resetProgress) {
 			if (Math.abs($progress) > navActionCenter && panDirection === 'top') {
-				const topGameElement = document.querySelector('.game_option_0');
-				const bottomGameElement = document.querySelector('.game_option_2');
-
-				// progressReversed.set(0 - $progress);
-				progress.set(0 - navActionHeight - 10);
-
-				// topIsNext = false;
-				// bottomIsNext = true;
-
-				// topGameElement.classList.remove('isNext');
-				// bottomGameElement.classList.add('isNext');
+				progress.set(0 - navActionHeight - 10, { duration: 200 });
+			} else if (!Boolean(Math.abs($progress) > navActionCenter) && panDirection === 'top') {
+				progress.set(0, { duration: 200 });
 			}
 
 			if (Math.abs($progress) > navActionCenter && panDirection === 'bottom') {
-				const topGameElement = document.querySelector('.game_option_0');
-				const bottomGameElement = document.querySelector('.game_option_2');
-
-				progress.set(navActionHeight + 10);
-
-				// topIsNext = true;
-				// bottomIsNext = false;
-
-				// bottomGameElement.classList.remove('isNext');
-				// topGameElement.classList.add('isNext');
+				progress.set(navActionHeight + 10, { duration: 200 });
+			} else if (!Boolean(Math.abs($progress) > navActionCenter) && panDirection === 'bottom') {
+				progress.set(0, { duration: 200 });
 			}
 		}
 	})();
-
-	$: (() => {})();
 
 	$: gamesAvailable, progress.set(0, { duration: 0 });
 
 	onMount(() => {
 		if ($progress !== 0) {
-			console.log('resetting progress!');
-			progress.set(0);
-		} else {
-			console.log('progress is 0!');
+			progress.set(0, { duration: 0 });
 		}
-		// progress.set(0);
+
 		firstRun.set(true);
 
 		if ($appClientWidth && $appClientWidth < 498) {
@@ -413,51 +354,51 @@
 			currentElement = document.querySelector('.game_option_1');
 			bottomElement = document.querySelector('.game_option_2');
 		}
+		resetProgress.set(false);
 	});
 
-	afterUpdate(() => {
-		// console.log('afterUpdate::$progress::', $progress);
-		// console.log('afterUpdate::$absDistance::', absDistance);
-		// console.log('afterUpdate::$panDirection::', panDirection);
-		// console.log('afterUpdate::$panStart::', panStart);
-		// console.log('afterUpdate::$panEnd::', panEnd);
-		// console.log('afterUpdate::$pan_y::', pan_y);
-		// console.log('afterUpdate::$panCoorY::', panCoorY);
-		// console.log('afterUpdate::data::', data);
-		// console.log('afterUpdate::gameId::', data?.id);
-		// console.log('afterUpdate::initialId::', initialId);
-		// if (data?.id !== initialId && $progress !== 0 && !isPanning) {
-		// 	console.log('resetting progress!');
-		// 	progress.set(0, { duration: 0 });
-		// }
-		// if ($progress === 0 && data?.id === initialId && !isPanning) {
-		// 	console.log('resetting initialId!');
-		// 	initialId = data?.id;
-		// }
-	});
+	$: $resetProgress,
+		(() => {
+			if ($resetProgress) {
+				progressState.set(0);
+				distanceMoved = 0; //
+				progress.set(0, { duration: 0 });
+				absDistance = 0;
+			} else {
+				progressState.set($progress); //$progressState set to progress
+			}
+		})();
+
+	afterUpdate(() => {});
+
+	$: $resetProgress,
+		(() => {
+			if ($resetProgress) {
+				handlingPanUp = true;
+				progressResetCheck.set(true);
+				setTimeout(() => {
+					progress.set(0, { duration: 0 });
+					absDistance = 0;
+					initialId = data?.id;
+					setTimeout(() => {
+						handlingPanUp = false;
+						resetProgress.set(false);
+					}, 300);
+				}, 300);
+			}
+		})();
+
+	beforeNavigate(async () => {});
 
 	afterNavigate(async () => {
-		setTimeout(async () => {
-			console.log('afterNavigate::');
-			await tick();
-			if (browser) progress.set(0, { duration: 0 });
-			await tick();
-			console.log('afterNavigate::$progress::', $progress);
-			panStart = null;
-			panEnd = null;
-			absDistance = 0;
-			distanceMoved = $progress;
-		}, 1000);
+		panDirection = null;
+		panStart = null;
+		panEnd = null;
+		absDistance = 0;
+
+		progressResetCheck.set(true);
+		$resetProgress = true;
 	});
-
-	$: console.log('progress::distanceMoved::', $progress, distanceMoved);
-
-	// $: distanceMoved,
-	// 	() => {
-	// 		progress.set(0, { duration: 0 });
-
-	// 		distanceMoved = null;
-	// 	};
 
 	onDestroy(() => {
 		fileStoreFiles.set(null);
@@ -476,26 +417,29 @@
 		topGame.set(null);
 		bottomGame.set(null);
 		currentGame.set(null);
-		// progress.set(0);
+		progress.set(0, { duration: 0 });
+		resetProgress.set(false);
 	});
 
-	let distanceMoved = null;
+	// distanceMoved is the distance the pan has moved
+	// setting it this way allows us to reset the distanceMoved to 0
+	// and then reset the carousel to the original position, without
+	// having to worry about the carousel jumping around
+	$: distanceMoved = $progressState;
 </script>
 
 <div
 	class="main"
 	class:isNotMobile={$appClientWidth && $appClientWidth > 498}
-	style="--pan-distance: {$progress}px; --mid-point: {navActionHeight /
-		2}px; --page-height: {navActionHeight}px;"
+	style="--pan-distance: {distanceMoved}px; --mid-point: {navActionHeight /
+		2}px; --page-height: {navActionHeight}px; --after-nav-distance: {distanceMoved}px;"
 >
 	<div
 		class="output-play-action-overlay"
-		use:pan={{ delay: 300 }}
+		use:pan={{ delay: 50 }}
 		on:pan={handlePan}
 		on:panup={handlePanUp}
 		on:pandown={handlePanDown}
-		on:swipe={handler}
-		use:swipe={{ timeframe: 300, minSwipeDistance: 20 }}
 	>
 		{#if gamesAvailable}
 			{#if play}
@@ -509,6 +453,7 @@
 						class:isBottom={i === 2}
 						class:topIsNext
 						class:bottomIsNext
+						class:resetProgress={$resetProgress}
 					>
 						<div class="overlay-blur" />
 						<div class="overlay-light-fade" />
@@ -649,5 +594,18 @@
 	.isBottom.isNext {
 		transform: translateY(calc(-200% + var(--pan-distance)));
 		opacity: 1;
+	}
+	.resetProgress {
+		transition: none !important;
+	}
+	/* --after-nav-distance */
+	.isCurrent.resetProgress {
+		transform: translateY(calc((0px - var(--page-height)) + 0px));
+	}
+	.isTop.resetProgress {
+		transform: translateY(calc((-10px - var(--page-height)) + 0px));
+	}
+	.isBottom.resetProgress {
+		transform: translateY(calc(-100% + 10px + 0px));
 	}
 </style>

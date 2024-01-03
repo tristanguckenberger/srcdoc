@@ -57,11 +57,13 @@ export async function load({ cookies }) {
 		throw redirect(300, `/users/${user?.id}/verify`);
 	}
 
-	session.set({
-		...sessionValue,
-		...user,
-		password: ''
-	});
+	if (user && user?.status !== 401) {
+		session.set({
+			...sessionValue,
+			...user,
+			password: ''
+		});
+	}
 
 	gamesData.set([...gameData].reverse());
 

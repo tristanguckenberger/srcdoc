@@ -1,4 +1,6 @@
 import { writable, derived } from 'svelte/store';
+import { tweened } from 'svelte/motion';
+import { linear } from 'svelte/easing';
 
 /**
  * With this file I eventually want to move towards a time-checked-hydration model (this probably has a name)
@@ -29,6 +31,9 @@ export const gamesData = writable([]);
 export const topGame = writable(null);
 export const currentGame = writable(null);
 export const bottomGame = writable(null);
+export const resetProgress = writable(false);
+export const progressState = writable(null);
+export const progressResetCheck = writable(false);
 
 export const gameCarousel = derived(
 	[currentGame, topGame, bottomGame],
@@ -41,38 +46,10 @@ export const src_build = writable(null);
 export const playButton = writable(false);
 export const actionMenuOpen = writable(false);
 
-// export const availableGames = derived([baseDataStore, openFiles], ([$baseDataStore]) => {
-// 	return openFiles.map((file) => {
-// 		const baseFile = $baseDataStore.find((baseFile) => baseFile.id === file.id);
+export const progress = tweened(0, {
+	duration: 0,
+	easing: linear
+});
 
-// 		if (baseFile?.content !== file.content) {
-// 			openFiles.update((files) => {
-// 				const update = {
-// 					...file,
-// 					canSave: true
-// 				};
-// 				return files.map((file) => (file.id === update.id ? update : file));
-// 			});
-// 		} else {
-// 			openFiles.update((files) => {
-// 				const update = {
-// 					...file,
-// 					canSave: false
-// 				};
-// 				return files.map((file) => (file.id === update.id ? update : file));
-// 			});
-// 		}
-
-// 		const update = {
-// 			id: file.id,
-// 			name: file.name,
-// 			type: file.type,
-// 			content: file.content,
-// 			parentFileId: file?.parentFileId ?? file?.parent_file_id,
-// 			gameId: file.gameId ?? file.game_id
-// 		};
-// 		return update;
-// 	});
-// });
-
-// export const lastUpdated = writable(null);
+// This is the distance the slide will travel when the user swipes
+// top or bottom, it's specific to the game carousel

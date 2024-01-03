@@ -121,17 +121,7 @@ export async function load({ cookies, params }) {
 					method: 'GET',
 					headers: gamesReqHeaders
 				};
-
 				const gamesResponse = await fetch(`${process.env.SERVER_URL}/api/games`, gamesReqInit);
-				// if (!gamesResponse.ok) {
-				// 	return {
-				// 		status: 401,
-				// 		body: {
-				// 			message: 'Authentication failed'
-				// 		}
-				// 	};
-				// }
-
 				const games = await gamesResponse.json();
 				gamesData = games;
 			}
@@ -151,7 +141,6 @@ export async function load({ cookies, params }) {
 
 	const baseGames = [...gameData].reverse();
 
-	// find the game by slug
 	const game =
 		(await getSingleGame(slug)) ?? gameData.find((game) => game?.id.toString() === slug.toString());
 
@@ -168,14 +157,14 @@ export async function load({ cookies, params }) {
 	let fetchedBottomGame;
 
 	if (currentIndexIsLast) {
-		topGame = allGames[0];
-		bottomGame = allGames[currentIndexByGameID - 1];
+		topGame = allGames[currentIndexByGameID - 1];
+		bottomGame = allGames[0];
 	} else if (currentIndexIsFirst) {
 		topGame = allGames[allGames?.length - 1];
 		bottomGame = allGames[currentIndexByGameID + 1];
 	} else {
-		topGame = allGames[currentIndexByGameID + 1];
-		bottomGame = allGames[currentIndexByGameID - 1];
+		topGame = allGames[currentIndexByGameID - 1];
+		bottomGame = allGames[currentIndexByGameID + 1];
 	}
 
 	if (topGame) {
