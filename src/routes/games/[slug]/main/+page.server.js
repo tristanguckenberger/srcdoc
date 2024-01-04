@@ -86,6 +86,9 @@ const getAllCommentsForAGame = async (slug) => {
 };
 
 export async function load({ params }) {
+	// setHeaders({
+	// 	'cache-control': 'max-age=60'
+	// });
 	modalOpenState.set(false);
 	const { slug } = params;
 

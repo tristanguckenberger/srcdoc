@@ -83,6 +83,9 @@ const getSingleGame = async (slug, token) => {
 };
 
 export async function load({ params, cookies }) {
+	// setHeaders({
+	// 	'cache-control': 'max-age=60'
+	// });
 	const { slug } = params;
 	const token = cookies.get('token');
 

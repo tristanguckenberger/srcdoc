@@ -3,7 +3,7 @@
 
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	import { src_build } from '$lib/stores/gamesStore';
+	import { src_build, currentGame, screenshot } from '$lib/stores/gamesStore';
 	import {
 		fileStoreFiles,
 		derivedFileSystemData,
@@ -15,7 +15,9 @@
 	import { gameControllerStore } from '$lib/stores/gameControllerStore';
 	import { browser } from '$app/environment';
 
-	export let relaxed = false;
+	import * as htmlToImage from 'html-to-image';
+
+	export let relaxed = true;
 	export let play = false;
 	export let srcdocBuilt;
 
@@ -23,6 +25,8 @@
 	let iframe;
 	let srcdoc;
 	let rootFileId;
+	let thumbnail;
+	let loaded = false;
 
 	$: {
 		// console.log('$fileStoreFiles::', $fileStoreFiles);
@@ -132,6 +136,33 @@
 		}
 	}
 
+	$: $screenshot,
+		(() => {
+			if (screenshot && loaded) {
+				// relaxed = true;
+				setTimeout(() => {
+					try {
+						let doc = iframe?.contentDocument;
+						console.log('doc::', doc);
+						console.log('doc::body::', doc?.body);
+						// console.log('iframe::', iframe?.contentWindow?.document);
+						htmlToImage.toPng(doc?.body).then(function (dataUrl) {
+							// download(dataUrl, 'my-node.png');
+							console.log('dataUrl::', dataUrl);
+							thumbnail = dataUrl;
+						});
+						relaxed = false;
+						$screenshot = false;
+						console.log('$currentGame::', $currentGame);
+					} catch (error) {
+						console.log('error:;', error);
+					}
+				}, 2000);
+			}
+		})();
+
+	$: console.log('thumbnail::', thumbnail);
+
 	// $: console.log('srcdoc::', srcdoc);
 	// $: console.log('src_build::', $src_build);
 </script>
@@ -152,6 +183,9 @@
 			'allow-modals',
 			relaxed ? 'allow-same-origin' : ''
 		].join(' ')}
+		on:load={() => {
+			loaded = true;
+		}}
 	/>
 </div>
 

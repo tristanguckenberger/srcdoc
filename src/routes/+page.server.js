@@ -24,32 +24,40 @@ const getAllUsers = async () => {
 	return users;
 };
 
-const getCurrentUser = async (cookies) => {
-	const token = cookies.get('token');
-	if (token) {
-		const userReqHeaders = new Headers();
-		userReqHeaders?.append('Authorization', `Bearer ${token}`);
-		const userReqInit = {
-			method: 'GET',
-			headers: userReqHeaders
-		};
+const getCurrentUser = async (eventFetch) => {
+	// const token = cookies.get('token');
+	// if (token) {
+	// 	const userReqHeaders = new Headers();
+	// 	userReqHeaders?.append('Authorization', `Bearer ${token}`);
+	// 	const userReqInit = {
+	// 		method: 'GET',
+	// 		headers: userReqHeaders
+	// 	};
 
-		const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
-		if (!userResponse.ok) {
-			return {
-				status: 401,
-				body: {
-					message: 'Authentication failed'
-				}
-			};
-		}
+	// 	const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
+	// 	if (!userResponse.ok) {
+	// 		return {
+	// 			status: 401,
+	// 			body: {
+	// 				message: 'Authentication failed'
+	// 			}
+	// 		};
+	// 	}
 
-		const user = await userResponse.json();
-		return user;
-	}
+	// 	const user = await userResponse.json();
+	// 	return user;
+	// }
+
+	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
+	const user = await userResponse.json();
+
+	return user;
 };
 
-export async function load({ cookies }) {
+export async function load({ cookies, fetch }) {
+	// setHeaders({
+	// 	'cache-control': 'max-age=60'
+	// });
 	if (cookies.get('token')) {
 		throw redirect(300, '/games');
 	}
@@ -65,7 +73,7 @@ export async function load({ cookies }) {
 		}
 	});
 
-	const user = await getCurrentUser(cookies);
+	const user = await getCurrentUser(fetch);
 
 	if (user?.is_active) {
 		throw redirect(300, `/games`);
@@ -90,7 +98,7 @@ export async function load({ cookies }) {
 }
 
 export const actions = {
-	login: async ({ request }) => {
+	login: async ({ request, fetch }) => {
 		const data = await request.formData();
 		const email = data.get('email');
 		const password = data.get('password');
@@ -117,24 +125,26 @@ export const actions = {
 
 		const token = (await authResponse.json()).token;
 		if (token) {
-			const userReqHeaders = new Headers();
-			userReqHeaders?.append('Authorization', `Bearer ${token}`);
-			const userReqInit = {
-				method: 'GET',
-				headers: userReqHeaders
-			};
+			// // const userReqHeaders = new Headers();
+			// // userReqHeaders?.append('Authorization', `Bearer ${token}`);
+			// // const userReqInit = {
+			// // 	method: 'GET',
+			// // 	headers: userReqHeaders
+			// // };
 
-			const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
-			if (!userResponse.ok) {
-				return {
-					status: 401,
-					body: {
-						message: 'Authentication failed'
-					}
-				};
-			}
+			// const userResponse = await getCurrentUser(request.fetch);
+			// if (!userResponse.ok) {
+			// 	return {
+			// 		status: 401,
+			// 		body: {
+			// 			message: 'Authentication failed'
+			// 		}
+			// 	};
+			// }
 
-			const user = await userResponse.json();
+			// const user = await userResponse.json();
+
+			const user = await getCurrentUser(fetch);
 
 			return {
 				status: 200,

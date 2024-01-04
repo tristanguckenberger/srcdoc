@@ -21,6 +21,10 @@ const getAllUsers = async () => {
 };
 
 export async function GET({ params }) {
+	// setHeaders({
+	// 	'cache-control': 'max-age=60'
+	// });
+
 	const users = await getAllUsers();
 
 	return new Response(

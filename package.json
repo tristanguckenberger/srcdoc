@@ -34,6 +34,8 @@
 	"dependencies": {
 		"dotenv": "^16.3.1",
 		"embla-carousel-svelte": "^8.0.0-rc17",
+		"html-to-image": "^1.11.11",
+		"html2canvas": "^1.4.1",
 		"monaco-editor": "^0.43.0",
 		"split.js": "^1.6.5",
 		"svelte-gestures": "^1.5.2",

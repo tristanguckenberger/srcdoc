@@ -34,6 +34,7 @@ export const bottomGame = writable(null);
 export const resetProgress = writable(false);
 export const progressState = writable(null);
 export const progressResetCheck = writable(false);
+export const screenshot = writable(false);
 
 export const gameCarousel = derived(
 	[currentGame, topGame, bottomGame],

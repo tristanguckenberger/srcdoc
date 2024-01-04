@@ -4,7 +4,10 @@ import { gamesData } from '$lib/stores/gamesStore.js';
 import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 
-export async function load({ cookies }) {
+export async function load({ cookies, setHeaders }) {
+	setHeaders({
+		'cache-control': 'max-age=60'
+	});
 	const token = cookies.get('token');
 	let sessionValue = null;
 	session.subscribe(async (session) => {

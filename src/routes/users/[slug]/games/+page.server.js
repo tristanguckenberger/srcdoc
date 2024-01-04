@@ -1,5 +1,4 @@
 // @ts-nocheck
-// import { gameData } from '$lib/mockData/gameData.js';
 import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 import { gamesData } from '$lib/stores/gamesStore.js';
@@ -29,31 +28,13 @@ const getCurrentUser = async (cookies) => {
 	}
 };
 
-const getAllGamesByUser = async (userId) => {
-	const userReqHeaders = new Headers();
-	const userReqInit = {
-		method: 'GET',
-		headers: userReqHeaders
-	};
-
-	const userResponse = await fetch(
-		`${process.env.SERVER_URL}/api/games/user/${userId}`,
-		userReqInit
-	);
-	if (!userResponse.ok) {
-		return {
-			status: 401,
-			body: {
-				message: 'Authentication failed'
-			}
-		};
-	}
-
-	const games = await userResponse.json();
+const getAllGamesByUser = async (userId, eventFetch) => {
+	const gamesRes = await eventFetch(`/api/games/getAllGamesByUser/${userId}`);
+	const games = await gamesRes.json();
 	return games;
 };
 
-export async function load({ cookies, params }) {
+export async function load({ cookies, params, fetch }) {
 	session.subscribe(async (session) => {
 		try {
 			const token = cookies?.get('token');
@@ -70,13 +51,7 @@ export async function load({ cookies, params }) {
 	if (!user) {
 		return redirect(300, '/games');
 	}
-	const userGames = await getAllGamesByUser(params?.slug);
-
-	console.log('user::::', user);
-
-	// if (user && (!user?.is_active ?? !user?.isActive)) {
-	// 	throw redirect(300, `/users/${user?.id}/verify`);
-	// }
+	const userGames = await getAllGamesByUser(params?.slug, fetch);
 
 	session.set({
 		...user,

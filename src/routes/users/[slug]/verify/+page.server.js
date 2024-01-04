@@ -1,5 +1,6 @@
 // @ts-nocheck
-import { session } from '$lib/stores/sessionStore.js';
+// import { session } from '$lib/stores/sessionStore.js';
+import { redirect } from '@sveltejs/kit';
 
 const getCurrentUser = async (cookies) => {
 	const token = cookies.get('token');
@@ -28,18 +29,16 @@ const getCurrentUser = async (cookies) => {
 
 export async function load({ cookies }) {
 	if (!cookies.get('token')) {
-		session.subscribe(async (session) => {
-			try {
-				session?.token &&
-					cookies.set('token', session?.token, {
-						secure: false
-					});
-			} catch (error) {
-				console.log('error::', error);
-			}
-		});
+		redirect('/');
+		return {
+			status: 300,
+			redirect: '/',
+			headers: {
+				'Cache-Control': 'no-store, max-age=0'
+			},
+			body: {}
+		};
 	}
-
 	const user = await getCurrentUser(cookies);
 
 	return {

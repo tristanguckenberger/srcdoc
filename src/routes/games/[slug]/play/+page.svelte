@@ -3,6 +3,7 @@
 	import Output from '$lib/ui/Output/Output.svelte';
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { getRootFileId } from '$lib/utils/getter.js';
+	import { json } from '@sveltejs/kit';
 	import {
 		gamesData,
 		currentGame,
@@ -12,7 +13,7 @@
 		playButton,
 		progressState
 	} from '$lib/stores/gamesStore.js';
-	import { derived } from 'svelte/store';
+	import { derived, get } from 'svelte/store';
 	import {
 		editorOutContainerWidth,
 		editorOutContainerHeight,
@@ -38,6 +39,8 @@
 	// Expiremental
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
 	import Slider from '$lib/ui/Slider/index.svelte';
+	import * as htmlToImage from 'html-to-image';
+	import { browser } from '$app/environment';
 
 	export let data;
 	export let thumbnail;
@@ -93,6 +96,16 @@
 		currentGame.set(null);
 	});
 
+	const getThumbnail = async (srcdoc) => {
+		let thumbnail;
+		htmlToImage.toPng(srcdoc).then(function (dataUrl) {
+			console.log('getThumbnail::dataUrl::', dataUrl);
+			thumbnail = dataUrl;
+		});
+
+		return thumbnail;
+	};
+
 	// distanceMoved is the distance the pan has moved
 	// setting it this way allows us to reset the distanceMoved to 0
 	// and then reset the carousel to the original position, without
@@ -146,14 +159,21 @@
 		})();
 	$: src_build.set($srcbuild);
 	$: distanceMoved = $progressState;
+	$: console.log('::gamesAvailable::', gamesAvailable);
+	$: $srcbuild,
+		(async () => {
+			if ($srcbuild) {
+				console.log('::$srcbuild::', $srcbuild);
+				let thumbnail = await getThumbnail($srcbuild);
+				if (thumbnail) {
+					console.log('::thumbnail::', thumbnail);
+					$currentGame.thumbnail = thumbnail;
+				}
+			}
+		})();
 </script>
 
-<div
-	class="main"
-	class:isNotMobile={$appClientWidth && $appClientWidth > 498}
-	style="--pan-distance: {distanceMoved}px; --mid-point: {navActionHeight /
-		2}px; --page-height: {navActionHeight}px; --after-nav-distance: {distanceMoved}px;"
->
+<div class="main" class:isNotMobile={$appClientWidth && $appClientWidth > 498}>
 	<div class="output-play-action-overlay">
 		{#if gamesAvailable}
 			{#if play}
