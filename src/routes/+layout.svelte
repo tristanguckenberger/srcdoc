@@ -9,7 +9,7 @@
 	import { slide, fade } from 'svelte/transition';
 
 	// CUSTOM STORE IMPORTS
-	import { playButton, actionMenuOpen, screenshot } from '$lib/stores/gamesStore.js';
+	import { playButton, actionMenuOpen, screenshot, currentGame } from '$lib/stores/gamesStore.js';
 	import {
 		autoCompile,
 		fileSystemSidebarOpen,
@@ -431,6 +431,19 @@
 								in:fade={{ delay: 350, duration: 200 }}
 								out:fade={{ delay: 0, duration: 200 }}
 							>
+								<!-- <Button link={`/games/${$currentGame?.id}/engine`} label={'engine-edit'} /> -->
+								<a class="action-button button" href={`/games/${$currentGame?.id}/engine`}>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="36"
+										height="36"
+										fill="#ffffff"
+										viewBox="0 0 256 256"
+										><path
+											d="M69.12,94.15,28.5,128l40.62,33.85a8,8,0,1,1-10.24,12.29l-48-40a8,8,0,0,1,0-12.29l48-40a8,8,0,0,1,10.24,12.3Zm176,27.7-48-40a8,8,0,1,0-10.24,12.3L227.5,128l-40.62,33.85a8,8,0,1,0,10.24,12.29l48-40a8,8,0,0,0,0-12.29ZM162.73,32.48a8,8,0,0,0-10.25,4.79l-64,176a8,8,0,0,0,4.79,10.26A8.14,8.14,0,0,0,96,224a8,8,0,0,0,7.52-5.27l64-176A8,8,0,0,0,162.73,32.48Z"
+										/></svg
+									>
+								</a>
 								<button
 									class="action-button button"
 									on:click={() => {
@@ -946,6 +959,9 @@
 	}
 	nav.isMobile {
 		display: none;
+	}
+	nav.isMobile.engineInRoute {
+		display: block;
 	}
 
 	main.editor.isPlayPage.isMobile {

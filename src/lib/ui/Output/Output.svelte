@@ -26,7 +26,7 @@
 	let srcdoc;
 	let rootFileId;
 	let thumbnail;
-	let loaded = false;
+	// let loaded = false;
 
 	$: {
 		// console.log('$fileStoreFiles::', $fileStoreFiles);
@@ -138,7 +138,7 @@
 
 	$: $screenshot,
 		(() => {
-			if (screenshot && loaded) {
+			if ($screenshot) {
 				// relaxed = true;
 				setTimeout(() => {
 					try {
@@ -183,9 +183,6 @@
 			'allow-modals',
 			relaxed ? 'allow-same-origin' : ''
 		].join(' ')}
-		on:load={() => {
-			loaded = true;
-		}}
 	/>
 </div>
 

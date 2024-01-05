@@ -1,6 +1,7 @@
 <script>
 	// @ts-nocheck
 	import { page } from '$app/stores';
+	import { derived } from 'svelte/store';
 	import { default as EditorInput } from '$lib/layout/EditorLayouts/Base/Input.svelte';
 	import SplitPane from '$lib/layout/SplitPane/index.svelte';
 	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
@@ -64,6 +65,26 @@
 	$: isSideBarOpen = $fileSystemSidebarOpen;
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
 	$: console.log('previousRoute::', $routeHistoryStore);
+
+	const srcbuild = derived(
+		[fileStoreFiles, editorOutContainerWidth, editorOutContainerHeight, gameControllerStore],
+		([
+			$fileStoreFiles,
+			$editorOutContainerWidth,
+			$editorOutContainerHeight,
+			$gameControllerStore
+		]) => {
+			return buildDynamicSrcDoc(
+				$fileStoreFiles,
+				getRootFileId($fileStoreFiles),
+				{
+					width: $editorOutContainerWidth,
+					height: $editorOutContainerHeight
+				},
+				$gameControllerStore
+			);
+		}
+	);
 
 	onMount(() => {
 		// firstRun.set(true);
@@ -139,7 +160,9 @@
 					bind:clientHeight={$editorOutContainerHeight}
 				>
 					<Pane id={'split-output'} label={'output'}>
-						<Output slot="pane-content" srcdocBuilt={srcdocBuild} {play} />
+						<!-- {#if play} -->
+						<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} />
+						<!-- {/if} -->
 					</Pane>
 				</section>
 			</SplitPane>

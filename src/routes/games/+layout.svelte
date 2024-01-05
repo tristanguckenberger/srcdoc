@@ -4,7 +4,7 @@
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
 	import { fileSystemSidebarWidth, fileSystemSidebarOpen } from '$lib/stores/filesStore.js';
 	import { themeKeyStore, themeDataStore } from '$lib/stores/themeStore';
-	import { sideBarState, sideBarWidth } from '$lib/stores/layoutStore.js';
+	import { sideBarState, sideBarWidth, appClientWidth } from '$lib/stores/layoutStore.js';
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 
@@ -15,6 +15,7 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: isSideBarOpen = $fileSystemSidebarOpen ?? $sideBarState;
 	$: engineInRoute && sideBarState?.set(false);
+	$: isMobile = $appClientWidth < 768;
 	let preferedThemeMode;
 
 	const updateTheme = (e) => {
@@ -39,6 +40,7 @@
 	class:isBrowsePage
 	class:noSideBar={!engineInRoute}
 	class:modifiedWidth={!isSideBarOpen}
+	class:isMobile
 	class:showSideBar={$sideBarState}
 	class:engineInRoute
 	class:playInRoute
@@ -76,6 +78,16 @@
 		width: calc(100% + 10px) !important;
 		position: absolute;
 		left: -10px;
+	}
+	.engineInRoute.isMobile {
+		top: 56.5px;
+		position: absolute;
+		height: calc(100% - 56.5px) !important;
+	}
+	.engineInRoute.isMobile.modifiedWidth {
+		top: 56.5px;
+		position: absolute;
+		height: calc(101%) !important;
 	}
 	.sidebar-container {
 		display: flex;
