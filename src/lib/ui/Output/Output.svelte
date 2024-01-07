@@ -26,10 +26,8 @@
 	let srcdoc;
 	let rootFileId;
 	let thumbnail;
-	// let loaded = false;
 
 	$: {
-		// console.log('$fileStoreFiles::', $fileStoreFiles);
 		(async () => {
 			// Automatically find the ID of the file named 'index' with type 'html'
 			const gameName = $baseDataStore?.title;
@@ -53,11 +51,6 @@
 
 	$: {
 		if (rootFileId && ($triggerCompile || $autoCompile)) {
-			// console.log('$fileStoreFiles::', $fileStoreFiles);
-			// console.log('rootFileId::', rootFileId);
-			// console.log('width::', $editorOutContainerWidth);
-			// console.log('height::', $editorOutContainerHeight);
-			// console.log('gameControllerStore::', $gameControllerStore);
 			srcdoc =
 				$src_build ||
 				buildDynamicSrcDoc(
@@ -109,8 +102,6 @@
 	});
 
 	function receiveMessage(event) {
-		// console.log('event::', event);
-		// Check for the right message type and possibly origin for security
 		if (event.origin === 'http://127.0.0.1:5173' && event.data.type === 'updateStore') {
 			gameControllerStore.set(event.data.value);
 		}
@@ -131,7 +122,6 @@
 		if (play) {
 			$editorOutContainerHeight = clientHeight;
 			$editorOutContainerWidth = clientWidth;
-
 			fileStoreFiles.set($derivedFileSystemData);
 		}
 	}
@@ -139,32 +129,20 @@
 	$: $screenshot,
 		(() => {
 			if ($screenshot) {
-				// relaxed = true;
 				setTimeout(() => {
 					try {
 						let doc = iframe?.contentDocument;
-						console.log('doc::', doc);
-						console.log('doc::body::', doc?.body);
-						// console.log('iframe::', iframe?.contentWindow?.document);
 						htmlToImage.toPng(doc?.body).then(function (dataUrl) {
-							// download(dataUrl, 'my-node.png');
-							console.log('dataUrl::', dataUrl);
 							thumbnail = dataUrl;
 						});
 						relaxed = false;
 						$screenshot = false;
-						console.log('$currentGame::', $currentGame);
 					} catch (error) {
 						console.log('error:;', error);
 					}
 				}, 2000);
 			}
 		})();
-
-	$: console.log('thumbnail::', thumbnail);
-
-	// $: console.log('srcdoc::', srcdoc);
-	// $: console.log('src_build::', $src_build);
 </script>
 
 <div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight>

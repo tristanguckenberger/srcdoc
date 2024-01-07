@@ -43,8 +43,7 @@ export async function load({ cookies }) {
 
 	return {
 		sessionData: {
-			...user,
-			password: ''
+			...user
 		}
 	};
 }

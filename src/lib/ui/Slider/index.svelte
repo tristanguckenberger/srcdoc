@@ -28,7 +28,6 @@
 	let hideActionNav = true;
 
 	onMount(() => {
-		console.log('onMount::gamesAvailable::', gamesAvailable);
 		hideActionNav = false;
 		$actionMenuOpen = true;
 	});
@@ -54,28 +53,10 @@
 	const onScroll = async () => {
 		let nextGame;
 		if (!pointerDown && emblaApi.slidesInView()?.length === 1) {
-			// await tick();
 			slideInView = emblaApi?.selectedScrollSnap();
 			nextGame = gamesAvailable[slideInView];
 			slidesSettled = true;
-			// console.log('current slide is::', emblaApi.selectedScrollSnap());
 		}
-		// console.log('current slide is::', emblaApi.selectedScrollSnap()
-
-		/**
-		 * If the current index is not 1
-		 * and the nextGame is not the same as the game at index 1
-		 * then navigate to the nextGame
-		 */
-		if (emblaApi?.selectedScrollSnap() !== 1 && nextGame?.id) {
-			// console.log('onScroll::nextGame::', nextGame);
-			// shouldNavigate = true;
-			// currentGame = nextGame;
-		}
-		// handle navigation here
-		// if (emblaApi.selectedScrollSnap() !== 1) {
-		// shouldNavigate = true;
-		// }
 	};
 	const onPointerDown = (event) => {
 		pointerDown = true;
@@ -91,16 +72,9 @@
 		// Handle navigation here
 	};
 
-	$: console.log('onScroll::Current Index::', emblaApi?.selectedScrollSnap());
-	$: console.log('thumbnail::', $currentGameStore?.thumbnail);
 	const onSelect = async () => {
 		const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
-		// if (!pointerDown && emblaApi.slidesInView()?.length === 1) {
-		// 	await tick();
-		// 	slideInView = emblaApi.slidesInView()[0];
-		// }
-		console.log('onSelect::nextGame::', nextGame);
-		console.log('onSelect::currentGame::', currentGame);
+
 		if (nextGame?.id !== currentGame?.id) {
 			setTimeout(async () => {
 				currentGame = nextGame;
@@ -154,29 +128,9 @@
 		emblaApi?.destroy();
 	});
 
-	$: gamesAvailable,
-		(() => {
-			// Update Top Game
-			// if (gamesAvailable?.[0]) {
-			// 	topGame.set({ ...gamesAvailable?.[0] });
-			// }
-
-			// // Update Middle/Current Game
-
-			// // Update Bottom Game
-			// if (gamesAvailable?.[2]) {
-			// 	bottomGame.set({ ...gamesAvailable?.[2] });
-			// }
-
-			console.log('gamesAvailable::', gamesAvailable);
-		})();
-
 	$: $currentGameStore = currentGame;
 
 	$: hideActionNav = !$actionMenuOpen;
-	// $: console.log('shouldNavigate::', shouldNavigate);
-	$: console.log('$currentGameStore::', $currentGameStore);
-	$: console.log('gamesAvailable::', gamesAvailable);
 </script>
 
 <div class="embla" use:emblaCarouselSvelte={{ options }} on:emblaInit={onInit}>
@@ -196,10 +150,10 @@
 
 				<div class="info-container">
 					{#if $actionMenuOpen}
-						<h1 in:fade={{ delay: 350, duration: 300 }} out:fade={{ delay: 0, duration: 200 }}>
+						<h1 in:fade={{ delay: 350, duration: 400 }} out:fade={{ delay: 0, duration: 200 }}>
 							{game?.title}
 						</h1>
-						<p in:fade={{ delay: 350, duration: 300 }} out:fade={{ delay: 0, duration: 200 }}>
+						<p in:fade={{ delay: 350, duration: 400 }} out:fade={{ delay: 0, duration: 200 }}>
 							{game?.description}
 						</p>
 					{/if}

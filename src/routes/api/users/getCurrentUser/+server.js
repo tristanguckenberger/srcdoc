@@ -1,6 +1,10 @@
 import { json } from '@sveltejs/kit';
 
 export async function GET({ setHeaders, cookies }) {
+	setHeaders({
+		'cache-control': 'max-age=60'
+	});
+
 	const token = cookies.get('token');
 	if (!token) {
 		return json({
@@ -19,6 +23,7 @@ export async function GET({ setHeaders, cookies }) {
 
 	const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
 	if (!userResponse.ok) {
+		cookies.delete('token', { path: '/' });
 		return json({
 			status: 401,
 			body: {
@@ -27,11 +32,12 @@ export async function GET({ setHeaders, cookies }) {
 		});
 	}
 
-	const user = await userResponse.json();
+	let user = await userResponse.json();
 
-	setHeaders({
-		'cache-control': 'max-age=60'
-	});
+	delete user?.password;
+	user = { ...user };
+	delete user?.token;
+	user = { ...user };
 
 	return json(user);
 }

@@ -1,6 +1,7 @@
 // @ts-nocheck
-import { session } from '$lib/stores/sessionStore.js';
+// import { session } from '$lib/stores/sessionStore.js';
 import { userStore } from '$lib/stores/authStore.js';
+import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 
 const getAllUsers = async () => {
@@ -25,29 +26,6 @@ const getAllUsers = async () => {
 };
 
 const getCurrentUser = async (eventFetch) => {
-	// const token = cookies.get('token');
-	// if (token) {
-	// 	const userReqHeaders = new Headers();
-	// 	userReqHeaders?.append('Authorization', `Bearer ${token}`);
-	// 	const userReqInit = {
-	// 		method: 'GET',
-	// 		headers: userReqHeaders
-	// 	};
-
-	// 	const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
-	// 	if (!userResponse.ok) {
-	// 		return {
-	// 			status: 401,
-	// 			body: {
-	// 				message: 'Authentication failed'
-	// 			}
-	// 		};
-	// 	}
-
-	// 	const user = await userResponse.json();
-	// 	return user;
-	// }
-
 	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
 	const user = await userResponse.json();
 
@@ -58,47 +36,43 @@ export async function load({ cookies, fetch }) {
 	// setHeaders({
 	// 	'cache-control': 'max-age=60'
 	// });
-	if (cookies.get('token')) {
-		throw redirect(300, '/games');
+	const token = cookies?.get('token');
+
+	const users = await getAllUsers();
+	users?.length && userStore.set(users);
+
+	if (!token) {
+		return {
+			users: users
+		};
 	}
 
-	session.subscribe(async (session) => {
-		try {
-			session?.token &&
-				cookies.set('token', session?.token, {
-					secure: false
-				});
-		} catch (error) {
-			console.log('error::', error);
-		}
-	});
+	// let sessionValue = null;
+	// session.subscribe(async (session) => {
+	// 	try {
+	// 		if (session?.token && !token) {
+	// 			cookies.set('token', session?.token, {
+	// 				secure: false
+	// 			});
+	// 			sessionValue = session;
+	// 		} else if (!session?.token && token) {
+	// 			session.token = token;
+	// 			sessionValue = session;
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('error::', error);
+	// 	}
+	// });
 
 	const user = await getCurrentUser(fetch);
 
 	if (user?.is_active) {
-		throw redirect(300, `/games`);
+		throw redirect(307, `/games`);
 	}
-
-	const users = await getAllUsers();
-
-	users?.length && userStore.set(users);
-
-	session.set({
-		...user,
-		password: ''
-	});
-
-	return {
-		users: users,
-		sessionData: {
-			...user,
-			password: ''
-		}
-	};
 }
 
 export const actions = {
-	login: async ({ request, fetch }) => {
+	login: async ({ request, fetch, cookies }) => {
 		const data = await request.formData();
 		const email = data.get('email');
 		const password = data.get('password');
@@ -125,34 +99,27 @@ export const actions = {
 
 		const token = (await authResponse.json()).token;
 		if (token) {
-			// // const userReqHeaders = new Headers();
-			// // userReqHeaders?.append('Authorization', `Bearer ${token}`);
-			// // const userReqInit = {
-			// // 	method: 'GET',
-			// // 	headers: userReqHeaders
-			// // };
-
-			// const userResponse = await getCurrentUser(request.fetch);
-			// if (!userResponse.ok) {
-			// 	return {
-			// 		status: 401,
-			// 		body: {
-			// 			message: 'Authentication failed'
-			// 		}
-			// 	};
-			// }
-
-			// const user = await userResponse.json();
+			cookies.set('token', token, { path: '/' });
 
 			const user = await getCurrentUser(fetch);
 
-			return {
-				status: 200,
-				body: {
-					message: 'login_success',
-					user: { token, ...user, password: '' }
+			if (user) {
+				session.set({
+					...user
+				});
+
+				if (user?.is_active) {
+					throw redirect(303, `/games`);
 				}
-			};
+			}
+
+			// return {
+			// 	status: 200,
+			// 	body: {
+			// 		message: 'login_success',
+			// 		user: { token, ...user, password: '' }
+			// 	}
+			// };
 		}
 	},
 	register: async ({ request }) => {
@@ -235,7 +202,7 @@ export const actions = {
 		// throw redirect(300, '/');
 
 		return {
-			status: 300,
+			status: 307,
 			redirect: '/',
 			body: {
 				message: 'logout_success'
@@ -272,13 +239,12 @@ export const actions = {
 		}
 
 		const project = await authResponse.json();
-		// console.log('project::', project);
 
 		if (project?.id) {
-			throw redirect(300, `/games/${project?.id}/main`);
+			throw redirect(302, `/games/${project?.id}/main`);
 		}
 		return {
-			status: 300,
+			status: 302,
 			redirect: `/games/${project?.id}/main`,
 			body: {
 				message: 'add_project_success',

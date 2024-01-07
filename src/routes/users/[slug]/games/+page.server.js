@@ -3,29 +3,11 @@ import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 import { gamesData } from '$lib/stores/gamesStore.js';
 
-const getCurrentUser = async (cookies) => {
-	const token = cookies.get('token');
-	if (token) {
-		const userReqHeaders = new Headers();
-		userReqHeaders?.append('Authorization', `Bearer ${token}`);
-		const userReqInit = {
-			method: 'GET',
-			headers: userReqHeaders
-		};
+const getCurrentUser = async (eventFetch) => {
+	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
+	const user = await userResponse.json();
 
-		const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
-		if (!userResponse.ok) {
-			return {
-				status: 401,
-				body: {
-					message: 'Authentication failed'
-				}
-			};
-		}
-
-		const user = await userResponse.json();
-		return user;
-	}
+	return user;
 };
 
 const getAllGamesByUser = async (userId, eventFetch) => {
@@ -35,27 +17,23 @@ const getAllGamesByUser = async (userId, eventFetch) => {
 };
 
 export async function load({ cookies, params, fetch }) {
-	session.subscribe(async (session) => {
-		try {
-			const token = cookies?.get('token');
-			if (session?.token && !token) {
-				cookies?.set('token', session?.token);
-			}
-		} catch (error) {
-			console.log('error::', error);
-		}
-	});
+	if (!params?.slug) {
+		return redirect(303, '/games');
+	}
 
-	const user = await getCurrentUser(cookies);
+	const token = cookies?.get('token');
+	if (!token) {
+		throw redirect(303, '/');
+	}
 
-	if (!user) {
-		return redirect(300, '/games');
+	const user = await getCurrentUser(fetch);
+	if (!user || user?.status === 401) {
+		throw redirect(303, '/games');
 	}
 	const userGames = await getAllGamesByUser(params?.slug, fetch);
 
 	session.set({
-		...user,
-		password: ''
+		...user
 	});
 
 	gamesData.set([...userGames].reverse());
@@ -63,8 +41,7 @@ export async function load({ cookies, params, fetch }) {
 	return {
 		games: [...userGames].reverse(),
 		sessionData: {
-			...user,
-			password: ''
+			...user
 		}
 	};
 }
@@ -92,7 +69,6 @@ export const actions = {
 		}
 
 		const project = await authResponse.json();
-		console.log('project::', project);
 
 		if (project?.id) {
 			throw redirect(300, `/games/${project?.id}/main`);

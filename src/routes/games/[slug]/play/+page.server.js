@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { gameData } from '$lib/mockData/gameData.js';
 import { gamesData } from '$lib/stores/gamesStore.js';
-import { session } from '$lib/stores/sessionStore.js';
 
 const getAllFilesBySingleGame = async (slug, eventFetch) => {
 	const gameFilesRes = await eventFetch(`/api/games/getSingleGame/${slug}/files`);
@@ -11,56 +10,14 @@ const getAllFilesBySingleGame = async (slug, eventFetch) => {
 };
 
 const getSingleGame = async (slug, eventFetch) => {
-	// const gameReqHeaders = new Headers();
-	// const gameReqInit = {
-	// 	method: 'GET',
-	// 	headers: gameReqHeaders
-	// };
 	const gameResponse = await eventFetch(`/api/games/getSingleGame/${slug}`);
-	// const gameResponse = await fetch(`${process.env.SERVER_URL}/api/games/${slug}`, gameReqInit);
-	// if (!gameResponse.ok) {
-	// 	return {
-	// 		status: 401,
-	// 		body: {
-	// 			message: 'Authentication failed'
-	// 		}
-	// 	};
-	// }
-
 	const gameInfo = await gameResponse.json();
-
-	console.log('cached::gameInfo::', gameInfo);
-
 	return gameInfo;
 };
 
 const getCurrentUser = async (eventFetch) => {
-	// const token = cookies.get('token');
-	// if (token) {
-	// 	const userReqHeaders = new Headers();
-	// 	userReqHeaders?.append('Authorization', `Bearer ${token}`);
-	// 	const userReqInit = {
-	// 		method: 'GET',
-	// 		headers: userReqHeaders
-	// 	};
-
-	// 	const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
-	// 	if (!userResponse.ok) {
-	// 		return {
-	// 			status: 401,
-	// 			body: {
-	// 				message: 'Authentication failed'
-	// 			}
-	// 		};
-	// 	}
-
-	// 	const user = await userResponse.json();
-	// 	return user;
-	// }
-
 	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
 	const user = await userResponse.json();
-
 	return user;
 };
 
@@ -71,22 +28,8 @@ const getAllGamesByUser = async (userId, eventFetch) => {
 	return games;
 };
 
-export async function load({ cookies, params, fetch }) {
-	// setHeaders({
-	// 	'cache-control': 'max-age=60'
-	// });
-
+export async function load({ params, fetch }) {
 	const { slug } = params;
-	session.subscribe(async (session) => {
-		try {
-			const token = cookies?.get('token');
-			if (session?.token && !token) {
-				cookies?.set('token', session?.token);
-			}
-		} catch (error) {
-			console.log('error::', error);
-		}
-	});
 
 	let allGames = [];
 	gamesData.subscribe(async (gamesData) => {
@@ -110,7 +53,6 @@ export async function load({ cookies, params, fetch }) {
 
 	const user = await getCurrentUser(fetch);
 	let userGames = [];
-
 	if (user) {
 		userGames = await getAllGamesByUser(user?.id, fetch);
 	}
@@ -122,7 +64,6 @@ export async function load({ cookies, params, fetch }) {
 
 	if (game?.id) {
 		const gameFiles = await getAllFilesBySingleGame(game?.id ?? slug, fetch);
-		// console.log('gameFiles::', gameFiles); // GOOD
 		game.files = gameFiles ?? [];
 	}
 

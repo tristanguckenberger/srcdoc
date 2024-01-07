@@ -9,14 +9,13 @@
 
 	export let data;
 
-	$: currentUserId = data?.sessionData?.id;
-
 	onMount(() => {
 		firstRun.set(true);
 
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
 		}
+
 		if (data?.games) {
 			gamesData.set([...data?.games]);
 		}
@@ -24,6 +23,7 @@
 
 	$: isMobile = $appClientWidth < 768;
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
+	$: currentUserId = data?.sessionData?.id;
 </script>
 
 <div class="page-container" class:noSideBar={!engineInRoute}>

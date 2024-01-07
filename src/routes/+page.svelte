@@ -73,7 +73,7 @@
 	let selected = authFlowOptions[0];
 
 	// sync the session store data from the server with the session store on the client
-	$: browser && form, session.set(form?.body?.user);
+	$: browser && form, session.set({ ...form?.body?.user });
 
 	// sync the user store data from the server with the user store on the client
 	$: data?.users?.length && userStore.set(data?.users);

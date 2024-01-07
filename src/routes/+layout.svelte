@@ -50,6 +50,9 @@
 			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
 			preferedThemeMode?.addEventListener('change', updateTheme);
 			updateTheme(preferedThemeMode);
+			if (sessionData && !$session) {
+				session.set(sessionData);
+			}
 		}
 	});
 	onDestroy(() => {

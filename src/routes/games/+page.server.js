@@ -1,81 +1,40 @@
 // @ts-nocheck
 import { gameData } from '$lib/mockData/gameData.js';
 import { gamesData } from '$lib/stores/gamesStore.js';
-import { session } from '$lib/stores/sessionStore.js';
+// import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 
-export async function load({ cookies, setHeaders }) {
-	setHeaders({
-		'cache-control': 'max-age=60'
-	});
-	const token = cookies.get('token');
-	let sessionValue = null;
-	session.subscribe(async (session) => {
-		try {
-			if (session?.token && !token) {
-				cookies.set('token', session?.token, {
-					secure: false
-				});
-				sessionValue = session;
-			} else if (!session?.token && token) {
-				session.token = token;
-				sessionValue = session;
-			}
-		} catch (error) {
-			console.log('error::', error);
-		}
-	});
+const getCurrentUser = async (eventFetch) => {
+	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
+	const user = await userResponse.json();
 
-	const getCurrentUser = async () => {
-		const token = cookies.get('token');
-		if (token) {
-			const userReqHeaders = new Headers();
-			userReqHeaders?.append('Authorization', `Bearer ${token}`);
-			const userReqInit = {
-				method: 'GET',
-				headers: userReqHeaders
-			};
+	return user;
+};
 
-			const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
-			if (!userResponse.ok) {
-				return {
-					status: 401,
-					body: {
-						message: 'Authentication failed'
-					}
-				};
-			}
+export async function load({ cookies, fetch }) {
+	const token = cookies?.get('token');
 
-			const user = await userResponse.json();
-			return user;
-		}
-	};
-
-	const user = await getCurrentUser();
-
-	console.log('USER::', user);
-
-	if (!user?.is_active ?? !user?.isActive) {
-		// console.log(user);
-		throw redirect(300, `/users/${user?.id}/verify`);
+	if (!token) {
+		return {
+			games: [...gameData].reverse()
+		};
 	}
 
-	if (user && user?.status !== 401) {
-		session.set({
-			...sessionValue,
-			...user,
-			password: ''
-		});
+	let sessionData;
+
+	if (token && !sessionData) {
+		const user = await getCurrentUser(fetch);
+		sessionData = {
+			...user
+		};
+
+		delete sessionData?.token && delete sessionData?.password;
 	}
 
 	gamesData.set([...gameData].reverse());
 
 	return {
-		games: [...gameData].reverse(),
-		sessionData: {
-			...user,
-			password: ''
-		}
+		games: [...gameData].reverse()
 	};
 }
 
@@ -104,10 +63,10 @@ export const actions = {
 		const project = await authResponse.json();
 
 		if (project?.id) {
-			throw redirect(300, `/games/${project?.id}/main`);
+			throw redirect(307, `/games/${project?.id}/main`);
 		}
 		return {
-			status: 300,
+			status: 307,
 			redirect: `/games/${project?.id}/main`,
 			body: {
 				message: 'add_project_success',
@@ -152,10 +111,10 @@ export const actions = {
 
 		const project = await authResponse.json();
 		if (project?.id) {
-			throw redirect(300, `/games/${project?.id}/main`);
+			throw redirect(307, `/games/${project?.id}/main`);
 		}
 		return {
-			status: 300,
+			status: 307,
 			redirect: `/games/${project?.id}/main`,
 			body: {
 				message: 'add_project_success',

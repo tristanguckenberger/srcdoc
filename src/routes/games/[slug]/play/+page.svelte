@@ -3,7 +3,6 @@
 	import Output from '$lib/ui/Output/Output.svelte';
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { getRootFileId } from '$lib/utils/getter.js';
-	import { json } from '@sveltejs/kit';
 	import {
 		gamesData,
 		currentGame,
@@ -39,11 +38,9 @@
 	// Expiremental
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
 	import Slider from '$lib/ui/Slider/index.svelte';
-	import * as htmlToImage from 'html-to-image';
-	import { browser } from '$app/environment';
 
 	export let data;
-	export let thumbnail;
+	// export let thumbnail;
 
 	let play;
 	let navActionHeight;
@@ -96,15 +93,14 @@
 		currentGame.set(null);
 	});
 
-	const getThumbnail = async (srcdoc) => {
-		let thumbnail;
-		htmlToImage.toPng(srcdoc).then(function (dataUrl) {
-			console.log('getThumbnail::dataUrl::', dataUrl);
-			thumbnail = dataUrl;
-		});
+	// const getThumbnail = async (srcdoc) => {
+	// 	let thumbnail;
+	// 	htmlToImage?.toPng(srcdoc).then(function (dataUrl) {
+	// 		thumbnail = dataUrl;
+	// 	});
 
-		return thumbnail;
-	};
+	// 	return thumbnail;
+	// };
 
 	// distanceMoved is the distance the pan has moved
 	// setting it this way allows us to reset the distanceMoved to 0
@@ -159,18 +155,6 @@
 		})();
 	$: src_build.set($srcbuild);
 	$: distanceMoved = $progressState;
-	$: console.log('::gamesAvailable::', gamesAvailable);
-	$: $srcbuild,
-		(async () => {
-			if ($srcbuild) {
-				console.log('::$srcbuild::', $srcbuild);
-				let thumbnail = await getThumbnail($srcbuild);
-				if (thumbnail) {
-					console.log('::thumbnail::', thumbnail);
-					$currentGame.thumbnail = thumbnail;
-				}
-			}
-		})();
 </script>
 
 <div class="main" class:isNotMobile={$appClientWidth && $appClientWidth > 498}>
