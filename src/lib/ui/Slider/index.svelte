@@ -5,7 +5,12 @@
 	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { fade } from 'svelte/transition';
-	import { actionMenuOpen, currentGame as currentGameStore } from '$lib/stores/gamesStore';
+	import {
+		actionMenuOpen,
+		currentGame as currentGameStore,
+		topGame,
+		bottomGame
+	} from '$lib/stores/gamesStore';
 
 	export let navActionHeight = 0;
 	export let gamesAvailable = [];
@@ -149,6 +154,23 @@
 		emblaApi?.destroy();
 	});
 
+	$: gamesAvailable,
+		(() => {
+			// Update Top Game
+			// if (gamesAvailable?.[0]) {
+			// 	topGame.set({ ...gamesAvailable?.[0] });
+			// }
+
+			// // Update Middle/Current Game
+
+			// // Update Bottom Game
+			// if (gamesAvailable?.[2]) {
+			// 	bottomGame.set({ ...gamesAvailable?.[2] });
+			// }
+
+			console.log('gamesAvailable::', gamesAvailable);
+		})();
+
 	$: $currentGameStore = currentGame;
 
 	$: hideActionNav = !$actionMenuOpen;
@@ -163,8 +185,7 @@
 			<div class="output-paused-overlay game_option_{i} embla__slide">
 				<div
 					class="overlay-blur blur_{i}"
-					style="--bg_{i}: url('{$currentGameStore?.thumbnail ??
-						'https://picsum.photos/600/600'}');"
+					style="--bg_{i}: url('{game?.thumbnail ?? 'https://picsum.photos/600/600'}');"
 				/>
 				<div class="overlay-light-fade" />
 				<div class="nav-action" bind:clientHeight={navActionHeight}>
