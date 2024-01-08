@@ -4,6 +4,7 @@
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
 	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
+	import { drawerOpen } from '$lib/stores/drawerStore';
 	import { fade } from 'svelte/transition';
 	import {
 		actionMenuOpen,
@@ -148,7 +149,7 @@
 					</div>
 				</div>
 
-				<div class="info-container">
+				<div class="info-container" class:drawerOpen={$drawerOpen}>
 					{#if $actionMenuOpen}
 						<h1 in:fade={{ delay: 350, duration: 400 }} out:fade={{ delay: 0, duration: 200 }}>
 							{game?.title}
@@ -225,6 +226,7 @@
 		align-items: flex-start;
 		padding: 0 20px;
 		color: #fff;
+		transition: transform 0.3s ease-in-out;
 	}
 	.info-container h1 {
 		font-family: 'Inter';
@@ -238,6 +240,12 @@
 		font-weight: 300;
 		margin-block-start: 0;
 		text-shadow: 1px 2px 20px #0000003b;
+	}
+	.info-container.drawerOpen {
+		/* top: unset;
+		position: relative; */
+		transform: translateY(-35%);
+		transition-delay: 2ms;
 	}
 	.embla {
 		overflow: hidden;

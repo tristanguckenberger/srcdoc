@@ -17,7 +17,8 @@
 		editorOutContainerWidth,
 		editorOutContainerHeight,
 		appClientWidth,
-		sideBarState
+		sideBarState,
+		clientWidth
 	} from '$lib/stores/layoutStore';
 	import {
 		fileSystemSidebarWidth,
@@ -38,6 +39,12 @@
 	// Expiremental
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
 	import Slider from '$lib/ui/Slider/index.svelte';
+	import Drawer from '$lib/ui/Drawer/index.svelte';
+	import { screenHeight } from '$lib/stores/drawerStore';
+	import Widget from '$lib/ui/Widget/index.svelte';
+	import Comments from '$lib/ui/Widget/Components/Comments.svelte';
+	import Issues from '$lib/ui/Widget/Components/Issues.svelte';
+	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
 
 	export let data;
 	// export let thumbnail;
@@ -45,6 +52,9 @@
 	let play;
 	let navActionHeight;
 	let gamesAvailable = [];
+	let reactiveData = {};
+	let selectedOption = 0;
+	let ComponentOptions = [];
 
 	const srcbuild = derived(
 		[fileStoreFiles, editorOutContainerWidth, editorOutContainerHeight, gameControllerStore],
@@ -155,9 +165,36 @@
 		})();
 	$: src_build.set($srcbuild);
 	$: distanceMoved = $progressState;
+
+	$: reactiveData?.comments,
+		(() =>
+			(ComponentOptions = [
+				{
+					name: 'Comments',
+					props: {
+						gameId: reactiveData?.id,
+						comments: reactiveData?.comments,
+						parentCommentId: null
+					},
+					component: Comments
+				},
+				{
+					name: 'Issues',
+					component: Issues
+				},
+				{
+					name: 'Reviews',
+					component: Reviews
+				}
+			]))();
+	$: data?.comments, (reactiveData = data ?? {});
 </script>
 
-<div class="main" class:isNotMobile={$appClientWidth && $appClientWidth > 498}>
+<div
+	class="main"
+	class:isNotMobile={$appClientWidth && $appClientWidth > 498}
+	bind:clientHeight={$screenHeight}
+>
 	<div class="output-play-action-overlay">
 		{#if gamesAvailable}
 			{#if play}
@@ -167,6 +204,11 @@
 			{/if}
 		{/if}
 	</div>
+	<Drawer>
+		<div slot="drawer-component" class="drawer-component">
+			<Widget content={reactiveData} options={ComponentOptions} {selectedOption} />
+		</div>
+	</Drawer>
 </div>
 
 <style>
@@ -183,5 +225,9 @@
 		margin-top: 0;
 		margin-bottom: 0;
 		height: calc(100% - 10px);
+	}
+	.drawer-component {
+		/* overflow-y: scroll; */
+		height: 100%;
 	}
 </style>

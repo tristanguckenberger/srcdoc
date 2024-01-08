@@ -27,6 +27,7 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
 	import { routeHistoryStore } from '$lib/stores/routeStore';
+	import { drawerOpen, screenHeight } from '$lib/stores/drawerStore.js';
 
 	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
@@ -115,6 +116,19 @@
 			}
 		}
 	};
+	const toggleDrawer = () => {
+		drawerOpen.set(true);
+	};
+	const playToggle = () => {
+		console.log('HIT playToggle');
+		console.log('playToggle::$drawerOpen', $drawerOpen);
+
+		if ($drawerOpen) {
+			$playButton = false;
+		} else {
+			$playButton = !play;
+		}
+	};
 
 	// REACTIVE VARIABLES & STATEMENTS
 	$: currentBrowseOptionSelection = browseOptions[0];
@@ -139,12 +153,15 @@
 	$: isMobile = $appClientWidth < 768;
 	$: play = $playButton;
 	$: actionOpen = $actionMenuOpen;
+	$: console.log('routeHistory:', $routeHistoryStore);
+	$: actionHideDuration = $drawerOpen ? 0 : 200;
 </script>
 
 <div
 	class="layout-container"
 	class:isBrowsePage
-	style="--svg-bg: url('{bgFadedMono16}'); height: 100%; width: 100%; {themeString}"
+	style="--svg-bg: url('{bgFadedMono16}'); --screenHeight: {$screenHeight -
+		15}px; height: 100%; width: 100%; {themeString}"
 >
 	<div
 		class="bg-container"
@@ -424,9 +441,9 @@
 					<Button action={toggleSideBar} label={$sideBarState ? 'close' : 'open'} link={null} />
 				</li>
 			{/if}
-			{#if isPlayPage && !$sideBarState}
+			{#if isPlayPage}
 				{#if !$playButton}
-					{#if $actionMenuOpen}
+					{#if $actionMenuOpen && !$drawerOpen}
 						<ul class="action-menu">
 							<!-- {#if $actionMenuOpen} -->
 							<div
@@ -477,11 +494,9 @@
 								</button>
 								<button
 									class="action-button button"
-									on:click={() => {
-										// $playButton = !play;
-									}}
+									on:click={toggleDrawer}
 									in:fade={{ duration: 300 }}
-									out:fade={{ duration: 200 }}
+									out:fade={{ duration: actionHideDuration }}
 								>
 									<svg
 										width="27"
@@ -499,9 +514,7 @@
 								</button>
 								<button
 									class="action-button button"
-									on:click={() => {
-										$playButton = !play;
-									}}
+									on:click={playToggle}
 									in:fade={{ duration: 300 }}
 									out:fade={{ duration: 200 }}
 								>
@@ -524,44 +537,45 @@
 					{/if}
 				{/if}
 				{#if $actionMenuOpen}
-					<button
-						class="action-button play-button"
-						on:click={() => {
-							$playButton = !play;
-						}}
-						in:fade={{ delay: 350, duration: 200 }}
-						out:fade={{ delay: 0, duration: 200 }}
-					>
-						{#if !$playButton}
-							<svg
-								class="action-button-icon"
-								width="37"
-								height="44"
-								viewBox="0 0 37 44"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									d="M36.5 21.5692C36.5014 22.1325 36.3569 22.6866 36.0807 23.1776C35.8045 23.6685 35.406 24.0797 34.9239 24.371L5.04364 42.65C4.53987 42.9585 3.96288 43.1269 3.37226 43.1379C2.78165 43.1488 2.19882 43.0019 1.68398 42.7122C1.17403 42.4271 0.749237 42.0113 0.453271 41.5076C0.157306 41.0039 0.000852063 40.4304 0 39.8462V3.29226C0.000852063 2.70802 0.157306 2.13455 0.453271 1.63082C0.749237 1.1271 1.17403 0.711297 1.68398 0.426177C2.19882 0.136559 2.78165 -0.0103683 3.37226 0.000568957C3.96288 0.0115063 4.53987 0.179912 5.04364 0.488393L34.9239 18.7674C35.406 19.0587 35.8045 19.4699 36.0807 19.9608C36.3569 20.4518 36.5014 21.0059 36.5 21.5692Z"
-									fill="white"
-								/>
-							</svg>
-						{:else}
-							<svg
-								class="action-button-icon"
-								width="25"
-								height="27"
-								viewBox="0 0 25 27"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									d="M24.75 2.25V24.75C24.75 25.3467 24.5129 25.919 24.091 26.341C23.669 26.7629 23.0967 27 22.5 27H16.875C16.2783 27 15.706 26.7629 15.284 26.341C14.8621 25.919 14.625 25.3467 14.625 24.75V2.25C14.625 1.65326 14.8621 1.08097 15.284 0.65901C15.706 0.237053 16.2783 0 16.875 0H22.5C23.0967 0 23.669 0.237053 24.091 0.65901C24.5129 1.08097 24.75 1.65326 24.75 2.25ZM7.875 0H2.25C1.65326 0 1.08097 0.237053 0.65901 0.65901C0.237053 1.08097 0 1.65326 0 2.25V24.75C0 25.3467 0.237053 25.919 0.65901 26.341C1.08097 26.7629 1.65326 27 2.25 27H7.875C8.47174 27 9.04403 26.7629 9.46599 26.341C9.88795 25.919 10.125 25.3467 10.125 24.75V2.25C10.125 1.65326 9.88795 1.08097 9.46599 0.65901C9.04403 0.237053 8.47174 0 7.875 0Z"
-									fill="white"
-								/>
-							</svg>
-						{/if}
-					</button>
+					<div class="play-button-container">
+						<button
+							class="action-button play-button"
+							class:drawerOpen={$drawerOpen}
+							on:click={playToggle}
+							in:fade={{ delay: 350, duration: 200 }}
+							out:fade={{ delay: 0, duration: 200 }}
+						>
+							{#if !$playButton}
+								<svg
+									class="action-button-icon"
+									width="37"
+									height="44"
+									viewBox="0 0 37 44"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M36.5 21.5692C36.5014 22.1325 36.3569 22.6866 36.0807 23.1776C35.8045 23.6685 35.406 24.0797 34.9239 24.371L5.04364 42.65C4.53987 42.9585 3.96288 43.1269 3.37226 43.1379C2.78165 43.1488 2.19882 43.0019 1.68398 42.7122C1.17403 42.4271 0.749237 42.0113 0.453271 41.5076C0.157306 41.0039 0.000852063 40.4304 0 39.8462V3.29226C0.000852063 2.70802 0.157306 2.13455 0.453271 1.63082C0.749237 1.1271 1.17403 0.711297 1.68398 0.426177C2.19882 0.136559 2.78165 -0.0103683 3.37226 0.000568957C3.96288 0.0115063 4.53987 0.179912 5.04364 0.488393L34.9239 18.7674C35.406 19.0587 35.8045 19.4699 36.0807 19.9608C36.3569 20.4518 36.5014 21.0059 36.5 21.5692Z"
+										fill="white"
+									/>
+								</svg>
+							{:else}
+								<svg
+									class="action-button-icon"
+									width="25"
+									height="27"
+									viewBox="0 0 25 27"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M24.75 2.25V24.75C24.75 25.3467 24.5129 25.919 24.091 26.341C23.669 26.7629 23.0967 27 22.5 27H16.875C16.2783 27 15.706 26.7629 15.284 26.341C14.8621 25.919 14.625 25.3467 14.625 24.75V2.25C14.625 1.65326 14.8621 1.08097 15.284 0.65901C15.706 0.237053 16.2783 0 16.875 0H22.5C23.0967 0 23.669 0.237053 24.091 0.65901C24.5129 1.08097 24.75 1.65326 24.75 2.25ZM7.875 0H2.25C1.65326 0 1.08097 0.237053 0.65901 0.65901C0.237053 1.08097 0 1.65326 0 2.25V24.75C0 25.3467 0.237053 25.919 0.65901 26.341C1.08097 26.7629 1.65326 27 2.25 27H7.875C8.47174 27 9.04403 26.7629 9.46599 26.341C9.88795 25.919 10.125 25.3467 10.125 24.75V2.25C10.125 1.65326 9.88795 1.08097 9.46599 0.65901C9.04403 0.237053 8.47174 0 7.875 0Z"
+										fill="white"
+									/>
+								</svg>
+							{/if}
+						</button>
+					</div>
 				{/if}
 			{/if}
 		</div>
@@ -655,6 +669,7 @@
 		width: calc(100% - 230px);
 		left: 230px;
 		position: relative;
+		background-color: #121314;
 	}
 	:global(.main.showSideBar) {
 		width: calc(100% - 230px);
@@ -860,6 +875,7 @@
 	}
 	.sidebar.showSideBar {
 		display: flex;
+		z-index: 8;
 	}
 	.sidebar-section {
 		display: flex;
@@ -949,6 +965,7 @@
 	}
 	.sidebar-toggle.showSideBar {
 		left: -320px;
+		z-index: 10;
 	}
 
 	#primary-actions {
@@ -993,37 +1010,55 @@
 		width: 36.5px;
 		height: 100%;
 	}
-	.play-button {
+	.play-button-container {
 		position: absolute;
-		z-index: 100000;
-		width: 36.5px;
-		height: 36.5px;
-		border-radius: 6px;
 		bottom: 30px;
-		right: 30px;
+		right: 26px;
+		height: 100%;
 	}
 	.action-menu {
 		position: absolute;
-		z-index: 100000;
+		z-index: 1;
 		display: flex;
 		flex-direction: column;
 		gap: 40px;
 		align-items: center;
-		bottom: 103.5px;
+		bottom: 81.5px;
 		right: 25px;
 	}
+
 	.sub-action-menu {
 		display: flex;
 		flex-direction: column;
 		gap: 40px;
 		align-items: center;
 	}
-
 	.action-menu .button {
 		transition: transform 0.2s cubic-bezier(0.65, 0.05, 0.36, 1);
 	}
-
 	.action-menu .button.actionMenuOpen {
 		transform: rotate(90deg);
+	}
+	.play-button {
+		position: relative;
+		z-index: 1;
+		width: 36.5px;
+		height: 36.5px;
+		border-radius: 6px;
+
+		transform: translateY(var(--screenHeight));
+	}
+	.play-button.drawerOpen {
+		transform: translateY(422%);
+		transition: transform 0.3s linear 0.03s;
+	}
+	.play-button.drawerOpen svg {
+		filter: brightness(0.4);
+	}
+
+	@media (min-width: 768px) {
+		.play-button-container {
+			bottom: -13px;
+		}
 	}
 </style>

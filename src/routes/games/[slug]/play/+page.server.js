@@ -28,6 +28,66 @@ const getAllGamesByUser = async (userId, eventFetch) => {
 	return games;
 };
 
+const getUser = async (/** @type {String} */ id) => {
+	if (id) {
+		const userReqHeaders = new Headers();
+		userReqHeaders?.append(`content-type`, `application/json`);
+		const userReqInit = {
+			method: 'GET',
+			headers: userReqHeaders
+		};
+
+		const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/${id}`, userReqInit);
+		if (!userResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'No User found with id provided'
+				}
+			};
+		}
+
+		const user = await userResponse.json();
+		return user;
+	}
+};
+
+const getAllCommentsForAGame = async (slug) => {
+	const commentReqHeaders = new Headers();
+	const commentReqInit = {
+		method: 'GET',
+		headers: commentReqHeaders
+	};
+
+	const commentResponse = await fetch(
+		`${process.env.SERVER_URL}/api/comments/game/${slug}`,
+		commentReqInit
+	);
+	if (!commentResponse.ok) {
+		return {
+			status: 401,
+			body: {
+				message: 'Request failed'
+			}
+		};
+	}
+
+	const commentsRaw = await commentResponse.json();
+	const comments = commentsRaw.map(async (comment) => {
+		const user = await getUser(comment?.user_id);
+		return {
+			id: comment?.id,
+			userId: comment?.user_id,
+			userName: user?.username,
+			userAvatar: user?.profile_photo,
+			gameId: comment?.game_id,
+			parentCommentId: comment?.parent_comment_id,
+			commentText: comment?.comment_text
+		};
+	});
+	return Promise.all(comments);
+};
+
 export async function load({ params, fetch }) {
 	const { slug } = params;
 
@@ -67,6 +127,8 @@ export async function load({ params, fetch }) {
 		game.files = gameFiles ?? [];
 	}
 
+	const comments = await getAllCommentsForAGame(slug);
+
 	const currentIndexByGameID = allGames?.findIndex(
 		(gam) => gam?.id?.toString() === game?.id?.toString()
 	);
@@ -104,6 +166,7 @@ export async function load({ params, fetch }) {
 		topGame: { ...topGame, ...fetchedTopGame },
 		bottomGame: { ...bottomGame, ...fetchedBottomGame },
 		baseGames,
-		userGames: [...userGames].reverse() ?? []
+		userGames: [...userGames].reverse() ?? [],
+		comments: [...comments]
 	};
 }
