@@ -16,7 +16,7 @@
 </script>
 
 <div class="game" style={`${themeString}`}>
-	<a href={`/games/${game?.id}/main`}>
+	<a href={`/games/${game?.id}/play`}>
 		<img
 			class="card-thumbnail"
 			class:showImage={imageLoaded}
@@ -28,7 +28,7 @@
 		<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
 	</a>
 	<div class="card-info">
-		<a href={`/games/${game?.id}/main`}>
+		<a href={`/games/${game?.id}/play`}>
 			<h3>{game?.title}</h3>
 			<p>{game?.description}</p>
 		</a>

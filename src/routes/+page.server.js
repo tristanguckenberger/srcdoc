@@ -241,11 +241,11 @@ export const actions = {
 		const project = await authResponse.json();
 
 		if (project?.id) {
-			throw redirect(302, `/games/${project?.id}/main`);
+			throw redirect(302, `/games/${project?.id}/play`);
 		}
 		return {
 			status: 302,
-			redirect: `/games/${project?.id}/main`,
+			redirect: `/games/${project?.id}/play`,
 			body: {
 				message: 'add_project_success',
 				project: project
