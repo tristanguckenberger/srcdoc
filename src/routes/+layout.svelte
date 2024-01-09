@@ -472,14 +472,14 @@
 									>
 								</a>
 								<button
-									class="action-button button"
+									class="action-button button favorites"
 									on:click={() => {
-										$actionMenuOpen = !actionOpen;
+										// $actionMenuOpen = !actionOpen;
 										setTimeout(() => {
-											$playButton = !play;
-											setTimeout(() => {
-												$screenshot = true;
-											}, 200);
+											// $playButton = !play;
+											// setTimeout(() => {
+											// 	$screenshot = true;
+											// }, 200);
 										}, 200);
 									}}
 									in:fade={{ duration: 300 }}
@@ -498,7 +498,7 @@
 											fill-opacity="0.81"
 										/>
 									</svg>
-									{#if $gameFavoriteCount}<span>{$gameFavoriteCount}</span>{/if}
+									{#if $gameFavoriteCount}<span class="favorite">{$gameFavoriteCount}</span>{/if}
 								</button>
 								<button
 									class="action-button button"
@@ -1068,5 +1068,8 @@
 		.play-button-container {
 			bottom: -13px;
 		}
+	}
+	.favorites {
+		color: #dadada;
 	}
 </style>
