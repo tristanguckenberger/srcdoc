@@ -225,6 +225,6 @@
 		background-color: #23486d !important;
 	}
 	.new-reply-form {
-		padding-left: 20px;
+		padding-left: 40px;
 	}
 </style>

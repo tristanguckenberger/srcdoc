@@ -33,9 +33,6 @@ const getCurrentUser = async (eventFetch) => {
 };
 
 export async function load({ cookies, fetch }) {
-	// setHeaders({
-	// 	'cache-control': 'max-age=60'
-	// });
 	const token = cookies?.get('token');
 
 	const users = await getAllUsers();
@@ -46,23 +43,6 @@ export async function load({ cookies, fetch }) {
 			users: users
 		};
 	}
-
-	// let sessionValue = null;
-	// session.subscribe(async (session) => {
-	// 	try {
-	// 		if (session?.token && !token) {
-	// 			cookies.set('token', session?.token, {
-	// 				secure: false
-	// 			});
-	// 			sessionValue = session;
-	// 		} else if (!session?.token && token) {
-	// 			session.token = token;
-	// 			sessionValue = session;
-	// 		}
-	// 	} catch (error) {
-	// 		console.log('error::', error);
-	// 	}
-	// });
 
 	const user = await getCurrentUser(fetch);
 

@@ -2,7 +2,7 @@
 	// @ts-nocheck
 
 	// SVELTE IMPORTS
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, afterUpdate } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
@@ -14,7 +14,8 @@
 		actionMenuOpen,
 		screenshot,
 		currentGame,
-		gameFavoriteCount
+		gameFavoriteCount,
+		gameFavorites
 	} from '$lib/stores/gamesStore.js';
 	import {
 		autoCompile,
@@ -41,6 +42,7 @@
 
 	// ASSET IMPORTS
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
+	import { beforeNavigate } from '$app/navigation';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
@@ -50,6 +52,8 @@
 	const browseOptions = [{ option: 'Home' }, { option: 'Quick Play' }, { option: 'Favorites' }];
 	let preferedThemeMode;
 	let dropDownToggle = false;
+	let isFavorited = false;
+	let deleteOrCreateFav = false;
 
 	// FUNCTIONS
 	onMount(() => {
@@ -61,6 +65,18 @@
 				session.set(sessionData);
 			}
 		}
+	});
+	beforeNavigate(() => {
+		isFavorited = false;
+	});
+	afterUpdate(() => {
+		$gameFavorites?.favorites?.some((fav) => {
+			isFavorited = fav?.user_id === sessionData?.id ?? false;
+		});
+
+		deleteOrCreateFav = isFavorited ?? false;
+
+		console.log('deleteOrCreateFav::', deleteOrCreateFav);
 	});
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
@@ -126,9 +142,6 @@
 		drawerOpen.set(true);
 	};
 	const playToggle = () => {
-		// console.log('HIT playToggle');
-		// console.log('playToggle::$drawerOpen', $drawerOpen);
-
 		if ($drawerOpen) {
 			$playButton = false;
 		} else {
@@ -150,6 +163,9 @@
 		(splitPath[1] === 'users' && !isProfilePage && !splitPath.some((path) => path === 'users'));
 	$: isUserGamesBrowsePage =
 		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
+	$: isUserFavoritesBrowsePage =
+		splitPath[splitPath?.length - 1] === 'favorites' && splitPath[1] === 'games';
+
 	$: isHomePage = $page?.route?.id === '/';
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
@@ -161,7 +177,16 @@
 	$: actionOpen = $actionMenuOpen;
 	$: console.log('routeHistory:', $routeHistoryStore);
 	$: actionHideDuration = $drawerOpen ? 0 : 200;
-	$: console.log('gameFavoriteCount::', $gameFavoriteCount);
+	$: console.log('gameFav::gameFavorites::', $gameFavorites?.favorites?.includes(sessionData?.id));
+	$: console.log('gameFav::sessionData::', sessionData);
+	// $: isFavorited = sessionData && $gameFavorites?.includes(sessionData?.id);
+	$: (() => {
+		$gameFavorites?.favorites?.some((fav) => {
+			isFavorited = fav?.user_id === sessionData?.id ?? false;
+		});
+	})();
+	// $: deleteOrCreateFav = isFavorited ?? false;
+	// $: console.log('deleteOrCreateFav::', deleteOrCreateFav);
 </script>
 
 <div
@@ -187,6 +212,7 @@
 			class:showSideBar={$sideBarState}
 			class:isBrowsePage
 			class:isUserGamesBrowsePage
+			class:isUserFavoritesBrowsePage
 			class:isPlayPage
 			class:isMobile
 		>
@@ -259,6 +285,9 @@
 			class:isGameProfile={isProfilePage || playInRoute}
 			class:showSideBar={!engineInRoute && $sideBarState}
 			class:isProfilePage
+			class:isBrowsePage
+			class:isUserGamesBrowsePage
+			class:isUserFavoritesBrowsePage
 		>
 			<div
 				class="sidebar"
@@ -294,7 +323,7 @@
 							>
 							<span>Quick Play</span>
 						</a>
-						<a href="">
+						<a href="/games/favorites" class:active={isUserFavoritesBrowsePage}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -458,7 +487,6 @@
 								in:fade={{ delay: 350, duration: 200 }}
 								out:fade={{ delay: 0, duration: 200 }}
 							>
-								<!-- <Button link={`/games/${$currentGame?.id}/engine`} label={'engine-edit'} /> -->
 								<a class="action-button button" href={`/games/${$currentGame?.id}/engine`}>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -471,35 +499,60 @@
 										/></svg
 									>
 								</a>
-								<button
-									class="action-button button favorites"
-									on:click={() => {
-										// $actionMenuOpen = !actionOpen;
-										setTimeout(() => {
-											// $playButton = !play;
-											// setTimeout(() => {
-											// 	$screenshot = true;
-											// }, 200);
-										}, 200);
+								<form
+									class="gameDetails new-project-form modal"
+									method="POST"
+									action="/games/?/{isFavorited ? 'deleteFavorite' : 'createFavorite'}"
+									use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+										return async ({ result }) => {
+											if (result.status === 200) {
+												gameFavorites.set(result?.data?.body?.favorites);
+												gameFavoriteCount.set(result?.data?.body?.favorites?.length);
+												isFavorited = !isFavorited;
+											}
+										};
 									}}
-									in:fade={{ duration: 300 }}
-									out:fade={{ duration: 200 }}
 								>
-									<svg
-										width="27"
-										height="23"
-										viewBox="0 0 27 23"
-										fill="none"
-										xmlns="http://www.w3.org/2000/svg"
+									<input type="hidden" name="gameId" value={$currentGame?.id} />
+									<button
+										class="action-button button favorites"
+										on:click={() => {
+											// $actionMenuOpen = !actionOpen;
+											setTimeout(() => {
+												// $playButton = !play;
+												// setTimeout(() => {
+												// 	$screenshot = true;
+												// }, 200);
+											}, 200);
+										}}
+										in:fade={{ duration: 300 }}
+										out:fade={{ duration: 200 }}
 									>
-										<path
-											d="M26.21 7.25455C26.21 15.4452 14.0656 22.0749 13.5485 22.3487C13.4122 22.422 13.2598 22.4604 13.105 22.4604C12.9502 22.4604 12.7978 22.422 12.6615 22.3487C12.1444 22.0749 0 15.4452 0 7.25455C0.00216787 5.33119 0.767181 3.48723 2.1272 2.1272C3.48723 0.767181 5.33119 0.00216787 7.25455 0C9.67079 0 11.7863 1.03904 13.105 2.79534C14.4237 1.03904 16.5392 0 18.9554 0C20.8788 0.00216787 22.7228 0.767181 24.0828 2.1272C25.4428 3.48723 26.2078 5.33119 26.21 7.25455Z"
-											fill="white"
-											fill-opacity="0.81"
-										/>
-									</svg>
-									{#if $gameFavoriteCount}<span class="favorite">{$gameFavoriteCount}</span>{/if}
-								</button>
+										<!-- {#if isFavorited && $gameFavoriteCount > 0} -->
+										<svg
+											width="27"
+											height="23"
+											viewBox="0 0 27 23"
+											fill="red"
+											xmlns="http://www.w3.org/2000/svg"
+											in:fade={{ duration: 300 }}
+											out:fade={{ duration: 50 }}
+											class="fav"
+											class:isFavorited={isFavorited && $gameFavoriteCount > 0}
+										>
+											<path
+												d="M26.21 7.25455C26.21 15.4452 14.0656 22.0749 13.5485 22.3487C13.4122 22.422 13.2598 22.4604 13.105 22.4604C12.9502 22.4604 12.7978 22.422 12.6615 22.3487C12.1444 22.0749 0 15.4452 0 7.25455C0.00216787 5.33119 0.767181 3.48723 2.1272 2.1272C3.48723 0.767181 5.33119 0.00216787 7.25455 0C9.67079 0 11.7863 1.03904 13.105 2.79534C14.4237 1.03904 16.5392 0 18.9554 0C20.8788 0.00216787 22.7228 0.767181 24.0828 2.1272C25.4428 3.48723 26.2078 5.33119 26.21 7.25455Z"
+												fill="white"
+												fill-opacity="0.81"
+											/>
+										</svg>
+										<span
+											class="favorite"
+											in:fade={{ delay: 550, duration: 400 }}
+											out:fade={{ duration: 200 }}>{$gameFavoriteCount ?? 0}</span
+										>
+									</button>
+								</form>
 								<button
 									class="action-button button"
 									on:click={toggleDrawer}
@@ -650,6 +703,7 @@
 		top: 0;
 		z-index: 10;
 		width: calc(100% - 20px);
+		background: #121314;
 	}
 
 	nav ul {
@@ -821,36 +875,46 @@
 		overflow-x: hidden;
 		overflow-y: hidden;
 	}
-	.page-container:hover,
+
+	.page-container.isBrowsePage,
+	.page-container.isUserGamesBrowsePage,
+	.page-container.isUserFavoritesBrowsePage {
+		overflow-y: scroll;
+	}
+	/* 	
 	.page-container:active,
 	.page-container:focus {
 		overflow-y: scroll;
-	}
+	} */
 	:global(body) {
 		scrollbar-width: thin !important;
 	}
 
 	.page-container::-webkit-scrollbar {
-		/* background: transparent; */
-		/* width: 10px; */
+		background: transparent;
+		display: none;
 	}
 
 	.page-container::-webkit-scrollbar-track {
-		/* background: var(--button-highlight); */
+		background: transparent;
+		/* width: 0px; */
 	}
 
 	.page-container::-webkit-scrollbar:hover {
-		cursor: pointer;
+		/* cursor: pointer; */
+		background-color: transparent;
 	}
 
 	.page-container::-webkit-scrollbar-thumb {
-		background: #b9b9b9;
+		/* background: #b9b9b9; */
 		/* border-radius: 6px; */
+		background-color: transparent;
 	}
 
 	.page-container::-webkit-scrollbar-thumb:hover {
 		/* background: #555 !important; */
 		/* cursor: pointer; */
+		background-color: transparent;
 	}
 	.page-container.isGameProfile {
 		overflow: hidden !important;
@@ -967,6 +1031,8 @@
 		left: 330px;
 		z-index: 10;
 		width: calc(100% - 350px);
+		background: none;
+		z-index: 9;
 	}
 	.sidebar-toggle {
 		position: absolute;
@@ -982,7 +1048,8 @@
 	nav.isBrowsePage {
 		/* padding: 10px 10px 0 20px; */
 	}
-	nav.isUserGamesBrowsePage {
+	nav.isUserGamesBrowsePage,
+	nav.isUserFavoritesBrowsePage {
 		padding: 10px 10px 0 10px;
 	}
 	nav.isMobile {
@@ -1070,6 +1137,32 @@
 		}
 	}
 	.favorites {
+		font-family: 'Inter';
 		color: #dadada;
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		font-weight: 400;
+		text-shadow: 0 0 3px black;
+	}
+	svg.fav path {
+		/* transition: fill 0.3s ease; */
+	}
+	svg.isFavorited path {
+		fill: red;
+	}
+	.action-menu button:focus {
+		outline: none;
+	}
+	.action-menu button:focus-within {
+		outline: none;
+	}
+	.action-menu button:focus-visible {
+		outline: none;
+	}
+	@media (max-width: 498px) {
+		main.editor.isPlayPage.isMobile {
+			height: 100% !important;
+		}
 	}
 </style>

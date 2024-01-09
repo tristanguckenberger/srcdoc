@@ -11,6 +11,13 @@ const getCurrentUser = async (eventFetch) => {
 	return user;
 };
 
+const getAllFavoritesSingleGame = async (slug, eventFetch) => {
+	const favoritesRes = await eventFetch(`/api/favorites/${slug}/getAllFavoritesSingleGame`);
+	const favorites = await favoritesRes.json();
+
+	return favorites;
+};
+
 export async function load({ cookies, fetch }) {
 	const token = cookies?.get('token');
 
@@ -254,6 +261,87 @@ export const actions = {
 			body: {
 				message: 'add_comment_success',
 				project: newComment
+			}
+		};
+	},
+	createFavorite: async ({ cookies, request, fetch }) => {
+		const token = cookies.get('token');
+		const formData = await request.formData();
+		const gameId = formData?.get('gameId');
+		const requestHeaders = new Headers();
+
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+
+		const requestInit = {
+			method: 'POST',
+			headers: requestHeaders,
+			mode: 'cors',
+			body: JSON.stringify({
+				gameId
+			})
+		};
+
+		const favResponse = await fetch(`${process.env.SERVER_URL}/api/favorites/add`, requestInit);
+
+		if (!favResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to create new favorite'
+				}
+			};
+		}
+
+		const favorites = await getAllFavoritesSingleGame(gameId, fetch);
+
+		return {
+			status: 200,
+			body: {
+				message: 'create_fav_success',
+				favorited: true,
+				favorites
+			}
+		};
+	},
+	deleteFavorite: async ({ cookies, request, fetch }) => {
+		const token = cookies.get('token');
+		const formData = await request.formData();
+		const id = formData?.get('gameId');
+		const requestHeaders = new Headers();
+
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+
+		const requestInit = {
+			method: 'DELETE',
+			headers: requestHeaders,
+			mode: 'cors'
+		};
+
+		const favResponse = await fetch(
+			`${process.env.SERVER_URL}/api/favorites/delete/${id}`,
+			requestInit
+		);
+		console.log('favResponse::', favResponse);
+
+		if (!favResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to create new project'
+				}
+			};
+		}
+
+		const favorites = await getAllFavoritesSingleGame(id, fetch);
+
+		return {
+			status: 200,
+			body: {
+				message: 'create_fav_success',
+				favorited: true,
+				favorites
 			}
 		};
 	}

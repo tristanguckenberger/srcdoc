@@ -232,4 +232,18 @@
 		/* overflow-y: scroll; */
 		height: 100%;
 	}
+	:global(#editor-layout.playInRoute.isMobile) {
+		margin-top: 0;
+		margin-bottom: 0;
+		height: calc(100%);
+		padding-top: 10px;
+	}
+	@media (max-width: 498px) {
+		:global(#editor-layout.playInRoute.isMobile) {
+			margin-top: 0;
+			margin-bottom: 0;
+			height: calc(100%);
+			padding-top: 0px;
+		}
+	}
 </style>

@@ -37,6 +37,7 @@ export const progressResetCheck = writable(false);
 export const screenshot = writable(false);
 export const gameCommentCount = writable(0);
 export const gameFavoriteCount = writable(0);
+export const gameFavorites = writable([]);
 
 export const gameCarousel = derived(
 	[currentGame, topGame, bottomGame],

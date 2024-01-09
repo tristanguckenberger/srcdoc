@@ -45,7 +45,7 @@
 		flex-direction: row;
 		justify-content: flex-end;
 		align-items: center;
-		background-color: var(--color-secondary);
+		background-color: #151617;
 		border-top-right-radius: 15px;
 		border-top-left-radius: 15px;
 	}

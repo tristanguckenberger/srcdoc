@@ -49,8 +49,18 @@
 		width: 100%;
 	}
 	.game-page-container.expandSideNav {
-		width: calc(100% - 230px);
+		/* width: calc(100% - 230px); */
 		/* overflow-x: hidden; */
+		background-color: #121314;
+	}
+	.game {
+		display: flex;
+		flex-direction: column;
+		width: calc(100% - 20px);
+		height: calc(100% - 20px);
+		border-radius: 6px;
+		margin: 0;
+		padding: 0 10px;
 	}
 	.main {
 		margin: 10px;
@@ -65,14 +75,15 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 		gap: 10px;
-		/* max-width: 1400px; */
-		/* grid-template-rows: minmax(242px, 367px); */
 		margin: 0;
 		height: fit-content;
-		width: calc(100% - 100px);
+		width: calc(100% - 100px) !important;
 	}
 	.noSideBar {
 		align-items: center;
+	}
+	:global(.page-container.isUserFavoritesBrowsePage) {
+		background-color: #121314;
 	}
 
 	@media (max-width: 498px) {

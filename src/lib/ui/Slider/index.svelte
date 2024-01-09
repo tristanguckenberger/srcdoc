@@ -12,7 +12,8 @@
 		topGame,
 		bottomGame,
 		gameCommentCount,
-		gameFavoriteCount
+		gameFavoriteCount,
+		gameFavorites
 	} from '$lib/stores/gamesStore';
 
 	export let navActionHeight = 0;
@@ -25,7 +26,7 @@
 	$: favoritesCount = favoritesObj?.count;
 
 	let emblaApi;
-	let options = { axis: 'y' };
+	let options = { axis: 'y', duration: 60 };
 	let slideInView = 1;
 	let pointerDown = false;
 	let currentGame;
@@ -37,12 +38,15 @@
 	onMount(() => {
 		hideActionNav = false;
 		$actionMenuOpen = true;
-		if (favoritesCount > 0) {
-			gameFavoriteCount.set(favoritesCount);
-		}
+		// if (favoritesCount > 0) {
+
+		// }
 	});
 
-	afterUpdate(() => {});
+	afterUpdate(() => {
+		gameFavoriteCount.set(favoritesCount);
+		gameFavorites.set(favoritesObj);
+	});
 
 	const onInit = (event) => {
 		// Get the Embla API
@@ -92,7 +96,7 @@
 				await tick();
 				await goto(`/games/${nextGame?.id}/play`);
 				await invalidateAll();
-			}, 350);
+			}, 200);
 		}
 	};
 	const onSettle = async () => {
@@ -110,6 +114,15 @@
 		// 	await invalidateAll();
 		// 	currentGame = nextGame;
 		// }
+	};
+	const handleKeyUp = async (event) => {
+		if (event.key === 'ArrowUp') {
+			emblaApi?.scrollPrev();
+		}
+
+		if (event.key === 'ArrowDown') {
+			emblaApi?.scrollNext();
+		}
 	};
 	beforeNavigate(async () => {
 		// slideInView = 1;
@@ -138,6 +151,8 @@
 	$: $currentGameStore = currentGame;
 	$: hideActionNav = !$actionMenuOpen;
 </script>
+
+<svelte:window on:keyup={handleKeyUp} />
 
 <div class="embla" use:emblaCarouselSvelte={{ options }} on:emblaInit={onInit}>
 	<div class="embla__container">

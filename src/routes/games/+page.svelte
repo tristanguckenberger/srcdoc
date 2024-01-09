@@ -22,11 +22,25 @@
 	});
 
 	$: isMobile = $appClientWidth < 768;
+	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
 	$: currentUserId = data?.sessionData?.id;
+	$: isProfilePage =
+		splitPath[splitPath?.length - 1] === 'users' ||
+		(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main');
+	$: isBrowsePage =
+		splitPath[splitPath?.length - 1] === 'games' ||
+		(splitPath[1] === 'users' && !isProfilePage && !splitPath.some((path) => path === 'users'));
+	$: isUserGamesBrowsePage =
+		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
 </script>
 
-<div class="page-container" class:noSideBar={!engineInRoute}>
+<div
+	class="page-container"
+	class:noSideBar={!engineInRoute}
+	class:isBrowsePage
+	class:isUserGamesBrowsePage
+>
 	<div class="main grid" bind:clientWidth={$gridWidth} class:isMobile>
 		{#each data?.games as game, i}
 			<Card user={currentUserId} {game} thumbnail={`https://picsum.photos/${10 + i}`} />

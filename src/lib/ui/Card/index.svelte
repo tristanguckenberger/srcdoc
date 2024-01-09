@@ -1,18 +1,76 @@
 <script>
 	// @ts-nocheck
+	import { afterUpdate, onMount } from 'svelte';
+	import { writable } from 'svelte/store';
+	import { beforeNavigate, invalidateAll } from '$app/navigation';
+	import { enhance } from '$app/forms';
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import Button from '$lib/ui/Button/index.svelte';
-	// import { session } from ''
+	import { session } from '$lib/stores/sessionStore.js';
+	import { playButton } from '$lib/stores/gamesStore.js';
+	import { browser } from '$app/environment';
+	import { fade } from 'svelte/transition';
 
 	export let game;
 	export let thumbnail;
 	export let user;
+
+	// STORES
+	const favoritesStore = writable([]);
+
 	let imageLoaded = false;
+	let isFavorited = false;
+	let deleteOrCreateFav = false;
+	let favorites = [];
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: gameUserID = game?.userId ?? game?.user_id;
+	$: console.log('game::', game);
 
-	// $: console.log('game::UID', gameUserID);
+	// FUNCTIONS
+	const getAllFavoritesSingleGame = async (slug, eventFetch) => {
+		const favoritesRes = await eventFetch(`/api/favorites/${slug}/getAllFavoritesSingleGame`);
+		const favorites = await favoritesRes.json();
+
+		return favorites;
+	};
+	onMount(async () => {
+		if (browser && game?.id) {
+			const favoritesRes = await getAllFavoritesSingleGame(game?.id, fetch);
+
+			if (favoritesRes) {
+				console.log('onMount::favoritesRes::', favoritesRes);
+				favoritesStore.set(favoritesRes);
+			}
+		}
+	});
+	beforeNavigate(() => {
+		isFavorited = false;
+	});
+	afterUpdate(() => {
+		$favoritesStore?.some((fav) => {
+			if (fav?.user_id === $session?.id && fav?.game_id === game?.id) {
+				isFavorited = true;
+			} else {
+				isFavorited = false;
+			}
+		});
+	});
+
+	// REACTIVE VARIABLES & STATEMENTS
+	$: play = $playButton;
+
+	$: (() => {
+		$favoritesStore?.some((fav) => {
+			if (fav?.user_id === $session?.id && fav?.game_id === game?.id) {
+				isFavorited = true;
+			} else {
+				isFavorited = false;
+			}
+		});
+	})();
+	// $: deleteOrCreateFav = isFavorited ?? false;
+	// $: console.log('deleteOrCreateFav::', deleteOrCreateFav);
 </script>
 
 <div class="game" style={`${themeString}`}>
@@ -35,13 +93,59 @@
 		<div class="card-action-container">
 			<div class="btn-flex">
 				<Button link={`/games/${game?.id}/play`} label={'Play'} />
-				<Button
-					link={null}
-					label={'fav'}
-					action={() => {
-						console.log('fav');
+				<form
+					class="gameDetails new-project-form modal"
+					method="POST"
+					action="/games/?/{isFavorited ? 'deleteFavorite' : 'createFavorite'}"
+					use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+						return async ({ result }) => {
+							if (result.status === 200) {
+								favoritesStore.set(result?.data?.body?.favorites);
+								isFavorited = !isFavorited;
+								await invalidateAll();
+							}
+						};
 					}}
-				/>
+				>
+					<input type="hidden" name="gameId" value={game?.id} />
+					<button
+						class="action-button button favorites"
+						on:click={() => {
+							// $actionMenuOpen = !actionOpen;
+							setTimeout(() => {
+								// $playButton = !play;
+								// setTimeout(() => {
+								// 	$screenshot = true;
+								// }, 200);
+							}, 200);
+						}}
+						in:fade={{ duration: 300 }}
+						out:fade={{ duration: 200 }}
+					>
+						<svg
+							width="27"
+							height="23"
+							viewBox="0 0 27 23"
+							fill="red"
+							xmlns="http://www.w3.org/2000/svg"
+							in:fade={{ duration: 300 }}
+							out:fade={{ duration: 50 }}
+							class="fav"
+							class:isFavorited={isFavorited && $favoritesStore?.length > 0}
+						>
+							<path
+								d="M26.21 7.25455C26.21 15.4452 14.0656 22.0749 13.5485 22.3487C13.4122 22.422 13.2598 22.4604 13.105 22.4604C12.9502 22.4604 12.7978 22.422 12.6615 22.3487C12.1444 22.0749 0 15.4452 0 7.25455C0.00216787 5.33119 0.767181 3.48723 2.1272 2.1272C3.48723 0.767181 5.33119 0.00216787 7.25455 0C9.67079 0 11.7863 1.03904 13.105 2.79534C14.4237 1.03904 16.5392 0 18.9554 0C20.8788 0.00216787 22.7228 0.767181 24.0828 2.1272C25.4428 3.48723 26.2078 5.33119 26.21 7.25455Z"
+								fill="white"
+								fill-opacity="0.81"
+							/>
+						</svg>
+						<span
+							class="favorite"
+							in:fade={{ delay: 550, duration: 400 }}
+							out:fade={{ duration: 200 }}>{$favoritesStore?.length ?? 0}</span
+						>
+					</button>
+				</form>
 			</div>
 			{#if user?.toString() === gameUserID?.toString()}
 				<Button link={`/games/${game?.id}/engine`} label={'Edit in Engine'} />
@@ -135,5 +239,23 @@
 		align-items: center;
 		width: 100%;
 		gap: 10px;
+	}
+	svg.isFavorited path {
+		fill: red;
+	}
+	button.action-button.favorites {
+		background-color: transparent;
+		border-style: none;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 5px;
+		text-shadow: 0 0 3px black;
+	}
+
+	button.action-button.favorites span {
+		color: #dadada;
+		font-family: 'Inter', sans-serif;
+		font-weight: 500;
 	}
 </style>
