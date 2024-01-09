@@ -88,7 +88,7 @@
 
 	@media (max-width: 498px) {
 		.main.grid {
-			width: calc(100% - 0px);
+			width: calc(100% - 0px) !important;
 		}
 	}
 </style>
