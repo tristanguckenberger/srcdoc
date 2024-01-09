@@ -458,6 +458,18 @@
 						{#if !sessionData?.username && !$session?.username}
 							<a href="/" class:active={isHomePage}>Sign In or Register</a>
 						{/if}
+						{#if (sessionData?.username || $session?.username) && isMobile}
+							<li class="mobile-profile-btn">
+								<Button
+									link="/users/{sessionData?.id}"
+									userName={sessionData?.username ?? $session?.username}
+									userAvatar={sessionData?.profile_photo ?? $session?.profile_photo}
+									isRounded
+									action={toggleDropDown}
+									showDropDown={dropDownToggle}
+								/>
+							</li>
+						{/if}
 					</ul>
 				</div>
 			</div>
@@ -1159,6 +1171,11 @@
 	}
 	.action-menu button:focus-visible {
 		outline: none;
+	}
+	.mobile-profile-btn {
+		display: flex;
+		align-items: center;
+		padding-left: 10px;
 	}
 	@media (max-width: 498px) {
 		main.editor.isPlayPage.isMobile {
