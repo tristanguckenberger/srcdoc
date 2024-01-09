@@ -9,7 +9,13 @@
 	import { slide, fade } from 'svelte/transition';
 
 	// CUSTOM STORE IMPORTS
-	import { playButton, actionMenuOpen, screenshot, currentGame } from '$lib/stores/gamesStore.js';
+	import {
+		playButton,
+		actionMenuOpen,
+		screenshot,
+		currentGame,
+		gameFavoriteCount
+	} from '$lib/stores/gamesStore.js';
 	import {
 		autoCompile,
 		fileSystemSidebarOpen,
@@ -120,8 +126,8 @@
 		drawerOpen.set(true);
 	};
 	const playToggle = () => {
-		console.log('HIT playToggle');
-		console.log('playToggle::$drawerOpen', $drawerOpen);
+		// console.log('HIT playToggle');
+		// console.log('playToggle::$drawerOpen', $drawerOpen);
 
 		if ($drawerOpen) {
 			$playButton = false;
@@ -155,6 +161,7 @@
 	$: actionOpen = $actionMenuOpen;
 	$: console.log('routeHistory:', $routeHistoryStore);
 	$: actionHideDuration = $drawerOpen ? 0 : 200;
+	$: console.log('gameFavoriteCount::', $gameFavoriteCount);
 </script>
 
 <div
@@ -491,6 +498,7 @@
 											fill-opacity="0.81"
 										/>
 									</svg>
+									{#if $gameFavoriteCount}<span>{$gameFavoriteCount}</span>{/if}
 								</button>
 								<button
 									class="action-button button"

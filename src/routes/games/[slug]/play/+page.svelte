@@ -55,6 +55,7 @@
 	let reactiveData = {};
 	let selectedOption = 0;
 	let ComponentOptions = [];
+	let favoriteData = {};
 
 	const srcbuild = derived(
 		[fileStoreFiles, editorOutContainerWidth, editorOutContainerHeight, gameControllerStore],
@@ -188,6 +189,7 @@
 				}
 			]))();
 	$: data?.comments, (reactiveData = data ?? {});
+	$: data?.favorites, (favoriteData = data?.favorites ?? {});
 </script>
 
 <div
@@ -200,7 +202,7 @@
 			{#if play}
 				<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} />
 			{:else}
-				<Slider {gamesAvailable} bind:navActionHeight />
+				<Slider {gamesAvailable} bind:favoritesObj={favoriteData} bind:navActionHeight />
 			{/if}
 		{/if}
 	</div>

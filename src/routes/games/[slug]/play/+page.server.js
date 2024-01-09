@@ -2,6 +2,13 @@
 import { gameData } from '$lib/mockData/gameData.js';
 import { gamesData } from '$lib/stores/gamesStore.js';
 
+const getAllFavoritesSingleGame = async (slug, eventFetch) => {
+	const favoritesRes = await eventFetch(`/api/favorites/${slug}/getAllFavoritesSingleGame`);
+	const favorites = await favoritesRes.json();
+
+	return favorites;
+};
+
 const getAllFilesBySingleGame = async (slug, eventFetch) => {
 	const gameFilesRes = await eventFetch(`/api/games/getSingleGame/${slug}/files`);
 	const gameFiles = await gameFilesRes.json();
@@ -127,6 +134,10 @@ export async function load({ params, fetch }) {
 		game.files = gameFiles ?? [];
 	}
 
+	const favorites = await getAllFavoritesSingleGame(slug, fetch);
+
+	console.log('favorites::', favorites);
+
 	const comments = await getAllCommentsForAGame(slug);
 
 	const currentIndexByGameID = allGames?.findIndex(
@@ -137,6 +148,7 @@ export async function load({ params, fetch }) {
 
 	let topGame;
 	let fetchedTopGame;
+	let favsObj;
 
 	let bottomGame;
 	let fetchedBottomGame;
@@ -160,6 +172,13 @@ export async function load({ params, fetch }) {
 		fetchedBottomGame = await getSingleGame(bottomGame?.id, fetch);
 	}
 
+	if (favorites?.length) {
+		favsObj = {
+			count: favorites?.length,
+			favorites: [...favorites]
+		};
+	}
+
 	return {
 		...game,
 		currentGame: { ...game },
@@ -167,6 +186,7 @@ export async function load({ params, fetch }) {
 		bottomGame: { ...bottomGame, ...fetchedBottomGame },
 		baseGames,
 		userGames: [...userGames].reverse() ?? [],
-		comments: [...comments]
+		comments: [...comments],
+		favorites: { ...favsObj }
 	};
 }

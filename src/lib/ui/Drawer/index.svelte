@@ -4,6 +4,7 @@
 	import { fly, slide } from 'svelte/transition';
 	import { quartInOut } from 'svelte/easing';
 	import { drawerOpen } from '$lib/stores/drawerStore';
+	import { sideBarState } from '$lib/stores/layoutStore';
 	import Button from '$lib/ui/Button/index.svelte';
 
 	const close = () => {
@@ -19,6 +20,7 @@
 	<div
 		class="drawer-container"
 		class:drawerOpen={$drawerOpen}
+		class:sideBarState={$sideBarState}
 		in:slide={{ y: 800, duration: 200, quartInOut, delay: 190 }}
 		out:slide={{ y: 800, duration: 200, quartInOut }}
 	>
@@ -47,6 +49,9 @@
 		border-top-right-radius: 15px;
 		border-top-left-radius: 15px;
 	}
+	.drawer-container.sideBarState {
+		width: calc(100% - 230px);
+	}
 	.drawer-container.drawerOpen {
 		display: block;
 	}
@@ -70,6 +75,13 @@
 	}
 	.drawer-container .drawer-button-container :global(button.drawer-action) {
 		background-color: transparent !important;
+	}
+	@media (min-width: 498px) {
+		.drawer-container.sideBarState {
+			width: calc(100% - 230px);
+			left: unset;
+			right: 0;
+		}
 	}
 	/* .drawer:first-child,
 	.drawer > div {

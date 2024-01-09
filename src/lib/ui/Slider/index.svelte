@@ -10,13 +10,19 @@
 		actionMenuOpen,
 		currentGame as currentGameStore,
 		topGame,
-		bottomGame
+		bottomGame,
+		gameCommentCount,
+		gameFavoriteCount
 	} from '$lib/stores/gamesStore';
 
 	export let navActionHeight = 0;
 	export let gamesAvailable = [];
 	export let currentIndex = 0;
 	export let thumbnail;
+	export let favoritesObj = {};
+
+	$: console.log('slider::favoritesObj::', favoritesObj);
+	$: favoritesCount = favoritesObj?.count;
 
 	let emblaApi;
 	let options = { axis: 'y' };
@@ -31,7 +37,12 @@
 	onMount(() => {
 		hideActionNav = false;
 		$actionMenuOpen = true;
+		if (favoritesCount > 0) {
+			gameFavoriteCount.set(favoritesCount);
+		}
 	});
+
+	afterUpdate(() => {});
 
 	const onInit = (event) => {
 		// Get the Embla API
@@ -50,7 +61,6 @@
 		currentGame = gamesAvailable[slideInView];
 		initialId = gamesAvailable[slideInView]?.id;
 	};
-	let prevScrollSnap = 0;
 	const onScroll = async () => {
 		let nextGame;
 		if (!pointerDown && emblaApi.slidesInView()?.length === 1) {
@@ -72,7 +82,6 @@
 
 		// Handle navigation here
 	};
-
 	const onSelect = async () => {
 		const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
 
@@ -86,7 +95,6 @@
 			}, 350);
 		}
 	};
-
 	const onSettle = async () => {
 		// const nextGame = gamesAvailable[slideInView];
 		// slidesSettled = true;
@@ -103,12 +111,10 @@
 		// 	currentGame = nextGame;
 		// }
 	};
-
 	beforeNavigate(async () => {
 		// slideInView = 1;
 		// shouldNavigate = false;
 	});
-
 	afterNavigate(async () => {
 		if (emblaApi && !pointerDown) {
 			emblaApi.scrollTo(1, true);
@@ -130,7 +136,6 @@
 	});
 
 	$: $currentGameStore = currentGame;
-
 	$: hideActionNav = !$actionMenuOpen;
 </script>
 
