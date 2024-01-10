@@ -92,6 +92,8 @@
 		min-height: 75px;
 		padding-top: 10px;
 		height: 100%;
+		display: flex;
+		justify-content: center;
 	}
 	.widget-controls {
 		display: flex;
@@ -169,8 +171,19 @@
 	}
 	@media (max-width: 498px) {
 		.component-container {
-			width: calc(100% - 40px);
-			padding: 0 20px 0 20px;
+			/* width: calc(100% - 40px);
+			padding: 0 20px 0 20px; */
+			max-width: calc(100% - 20px);
+		}
+	}
+	@media (min-width: 498px) {
+		.component-container {
+			/* width: calc(100% - 200px);
+			padding: 0 100px 0 100px; */
+			max-width: 1000px;
+			/* display: flex;
+    justify-content: center;
+    align-items: center; */
 		}
 	}
 </style>
