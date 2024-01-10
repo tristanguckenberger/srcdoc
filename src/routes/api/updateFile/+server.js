@@ -1,5 +1,5 @@
 // @ts-nocheck
-export async function POST({ request, params, cookies }) {
+export async function POST({ request, cookies }) {
 	// Extract the data from the request body
 	const data = await request.json();
 	const token = cookies.get('token');
@@ -12,8 +12,6 @@ export async function POST({ request, params, cookies }) {
 		mode: 'cors',
 		body: JSON.stringify(data)
 	};
-
-	console.log('+server_data::', data, params);
 
 	const { gameId, fileId, name, type, content, parentFileId } = data;
 

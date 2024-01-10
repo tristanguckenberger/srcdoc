@@ -78,8 +78,19 @@ export const actions = {
 		}
 
 		const token = (await authResponse.json()).token;
+
 		if (token) {
-			cookies.set('token', token, { path: '/' });
+			try {
+				cookies.set('token', token, {
+					path: '/'
+				});
+			} catch (error) {
+				console.log('cookieError::', error);
+			}
+
+			const cookie_token = cookies?.get('token');
+
+			console.log('cookie_token:::::::::::::', cookie_token);
 
 			const user = await getCurrentUser(fetch);
 

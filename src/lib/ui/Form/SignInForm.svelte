@@ -1,13 +1,43 @@
 <script>
 	// @ts-nocheck
+	import { browser } from '$app/environment';
 	import EmailInput from '$lib/ui/Input/EmailInput.svelte';
 	import PasswordInput from '$lib/ui/Input/PasswordInput.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
 	import { icons } from '$lib/stores/themeStore.js';
+	import { enhance } from '$app/forms';
+
+	const getCurrentUser = async () => {
+		const userResponse = await fetch(`/api/users/getCurrentUser`);
+		const user = await userResponse.json();
+
+		return user;
+	};
 </script>
 
+<!-- ADD THIS use:enhance for handling tokens with localstorage -->
+<!-- use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+	return async ({ result }) => {
+		if (result.status === 200) {
+			if (browser) {
+				console.log('result::', result?.data?.body?.user?.token);
+				const token = result?.data?.body?.user?.token;
+				if (token) {
+					localStorage.setItem('token', token);
+					// Redirect or update UI as necessary
+
+					const user = await getCurrentUser(token);
+					console.log('user::', user);
+				}
+			}
+			// gameFavorites.set(result?.data?.body?.favorites);
+			// gameFavoriteCount.set(result?.data?.body?.favorites?.length);
+			// isFavorited = !isFavorited;
+		}
+	};
+}} -->
 <form action="?/login" method="POST">
-	<div class="tagline">
+	<!-- <div class="tagline">
 		<Button label="Continue with Google" isRounded />
 		<Button label="Continue with GitHub" isRounded />
 		<div class="sign-in-split">
@@ -15,7 +45,7 @@
 			<span>or continue with email</span>
 			<hr />
 		</div>
-	</div>
+	</div> -->
 	<EmailInput formType={'login'}>
 		<span slot="label" class="input-label">Email</span>
 		<div slot="icon" class="input-icon">

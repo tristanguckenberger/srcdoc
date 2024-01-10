@@ -1,5 +1,4 @@
 // @ts-nocheck
-import { gameData } from '$lib/mockData/gameData.js';
 import { gamesData } from '$lib/stores/gamesStore.js';
 // import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
@@ -9,6 +8,11 @@ const getCurrentUser = async (eventFetch) => {
 	const user = await userResponse.json();
 
 	return user;
+};
+
+const getAllGames = async (eventFetch) => {
+	const allGamesRes = await eventFetch(`/api/games/getAllGames`);
+	return await allGamesRes.json();
 };
 
 const getAllFavoritesSingleGame = async (slug, eventFetch) => {
@@ -21,11 +25,11 @@ const getAllFavoritesSingleGame = async (slug, eventFetch) => {
 export async function load({ cookies, fetch }) {
 	const token = cookies?.get('token');
 
-	if (!token) {
-		return {
-			games: [...gameData].reverse()
-		};
-	}
+	// if (!token) {
+	// 	return {
+	// 		games: [...gameData].reverse()
+	// 	};
+	// }
 
 	let sessionData;
 
@@ -38,10 +42,13 @@ export async function load({ cookies, fetch }) {
 		delete sessionData?.token && delete sessionData?.password;
 	}
 
-	gamesData.set([...gameData].reverse());
+	const allGames = await getAllGames(fetch);
+
+	const publishedGames = allGames?.filter((game) => game.published);
+	gamesData.set([...publishedGames].reverse());
 
 	return {
-		games: [...gameData].reverse()
+		games: [...publishedGames].reverse()
 	};
 }
 

@@ -10,7 +10,7 @@
 </script>
 
 <form action="?/register" method="POST">
-	<div class="tagline">
+	<!-- <div class="tagline">
 		<Button label="Sign Up with Google" isRounded />
 		<Button label="Sign Up with GitHub" isRounded />
 		<div class="sign-in-split">
@@ -18,7 +18,7 @@
 			<span>or continue with email</span>
 			<hr />
 		</div>
-	</div>
+	</div> -->
 	<div class="email-username">
 		<EmailInput formType={'register'}>
 			<span slot="label" class="input-label">Email</span>

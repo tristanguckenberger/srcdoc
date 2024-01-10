@@ -2,7 +2,7 @@
 export async function POST({ request, cookies }) {
 	// Extract the data from the request body
 	const data = await request.json();
-	const token = cookies.get('token');
+	const token = cookies.get('token') ?? localStorage?.getItem('token');
 	const requestHeaders = new Headers();
 	requestHeaders.append('Content-Type', 'application/json');
 	requestHeaders.append('Authorization', `Bearer ${token}`);
