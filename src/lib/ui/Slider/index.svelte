@@ -28,7 +28,7 @@
 	$: favoritesCount = favoritesObj?.count;
 
 	let emblaApi;
-	let options = { axis: 'y', duration: 60 };
+	let options = { axis: 'y', duration: 25, inViewThreshold: 0.7 };
 	let slideInView = 1;
 	let pointerDown = false;
 	let currentGame;
@@ -69,6 +69,7 @@
 	};
 	const onScroll = async () => {
 		let nextGame;
+		console.log('slidesSettled::emblaApi.slidesInView()::', emblaApi.slidesInView());
 		if (!pointerDown && emblaApi.slidesInView()?.length === 1) {
 			slideInView = emblaApi?.selectedScrollSnap();
 			nextGame = gamesAvailable[slideInView];
@@ -90,15 +91,16 @@
 	};
 	const onSelect = async () => {
 		const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
-
+		console.log('pointerDown', pointerDown);
 		if (nextGame?.id !== currentGame?.id) {
 			setTimeout(async () => {
 				currentGame = nextGame;
 				$currentGameStore = currentGame;
-				await tick();
+				//
 				await goto(`/games/${nextGame?.id}/play`);
 				await invalidateAll();
-			}, 200);
+				await tick();
+			}, 550);
 		}
 	};
 	const onSettle = async () => {
@@ -134,7 +136,7 @@
 		if (emblaApi && !pointerDown) {
 			emblaApi.scrollTo(1, true);
 			if (!pointerDown && emblaApi.slidesInView()?.length === 1) {
-				await tick();
+				tick();
 				currentGame = gamesAvailable[1];
 				slideInView = 1;
 			}
