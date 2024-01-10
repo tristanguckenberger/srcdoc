@@ -34,7 +34,7 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
 	import { routeHistoryStore } from '$lib/stores/routeStore';
-	import { drawerOpen, screenHeight } from '$lib/stores/drawerStore.js';
+	import { drawerOpen, screenHeight, selectedOption } from '$lib/stores/drawerStore.js';
 
 	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
@@ -528,15 +528,7 @@
 									<input type="hidden" name="gameId" value={$currentGame?.id} />
 									<button
 										class="action-button button favorites"
-										on:click={() => {
-											// $actionMenuOpen = !actionOpen;
-											setTimeout(() => {
-												// $playButton = !play;
-												// setTimeout(() => {
-												// 	$screenshot = true;
-												// }, 200);
-											}, 200);
-										}}
+										on:click={() => {}}
 										in:fade={{ duration: 300 }}
 										out:fade={{ duration: 200 }}
 									>
@@ -567,7 +559,15 @@
 								</form>
 								<button
 									class="action-button button"
-									on:click={toggleDrawer}
+									on:click={() => {
+										$playButton = false;
+										browser && selectedOption.set(0);
+										// setTimeout(() => {
+										// playToggle();
+										$playButton = false;
+										drawerOpen.set(true);
+										// }, 200);
+									}}
 									in:fade={{ duration: 300 }}
 									out:fade={{ duration: actionHideDuration }}
 								>
@@ -587,7 +587,9 @@
 								</button>
 								<button
 									class="action-button button"
-									on:click={playToggle}
+									on:click={() => {
+										// $playButton = false;
+									}}
 									in:fade={{ duration: 300 }}
 									out:fade={{ duration: 200 }}
 								>
@@ -1101,7 +1103,8 @@
 		position: absolute;
 		bottom: 30px;
 		right: 26px;
-		height: 100%;
+		height: 50px;
+		top: 11px;
 	}
 	.action-menu {
 		position: absolute;
@@ -1136,16 +1139,16 @@
 		transform: translateY(var(--screenHeight));
 	}
 	.play-button.drawerOpen {
-		transform: translateY(422%);
+		transform: translateY(370%);
 		transition: transform 0.3s linear 0.03s;
 	}
 	.play-button.drawerOpen svg {
 		filter: brightness(0.4);
 	}
 
-	@media (min-width: 768px) {
+	@media (max-width: 768px) {
 		.play-button-container {
-			bottom: -13px;
+			top: -34px;
 		}
 	}
 	.favorites {

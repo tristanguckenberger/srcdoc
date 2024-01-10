@@ -7,6 +7,8 @@
 	import { goto } from '$app/navigation';
 	import { redirect } from '@sveltejs/kit';
 	import { invalidate, invalidateAll } from '$app/navigation';
+	import { drawerOpen } from '$lib/stores/drawerStore';
+	import { currentGame } from '$lib/stores/gamesStore';
 
 	export let gameId = $modalProps?.gameId;
 	export let title = $modalProps?.title;
@@ -14,6 +16,7 @@
 	export let headerImage;
 
 	$: console.log('EditGameDetails::gameId::', gameId);
+	$: console.log('EditGameDetails::$currentGame::', $currentGame);
 
 	// const updateGameDetails = async () => {
 	//     const response = await fetch(`/api/games/${gameId}`, {
@@ -40,9 +43,11 @@
 		const gameId = formData.get('gameId');
 		console.log('enhance::gameId::', gameId);
 		return async ({ result }) => {
-			console.log('result::', result);
+			console.log('result::', result?.data?.body?.project);
 			if (result.status === 200) {
+				currentGame.set({ ...$currentGame, ...result?.data?.body?.project });
 				modalOpenState.set(false);
+				drawerOpen.set(false);
 				await invalidateAll();
 			} else {
 				await applyAction(result);
@@ -62,7 +67,6 @@
 
 <style>
 	form {
-		padding: 20px;
 		width: 100%;
 		height: 100%;
 		display: flex;

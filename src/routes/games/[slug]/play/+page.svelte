@@ -35,16 +35,17 @@
 		firstRun,
 		derivedFileSystemData
 	} from '$lib/stores/filesStore.js';
-	import { onDestroy, onMount } from 'svelte';
+	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	// Expiremental
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
 	import Slider from '$lib/ui/Slider/index.svelte';
 	import Drawer from '$lib/ui/Drawer/index.svelte';
-	import { screenHeight } from '$lib/stores/drawerStore';
+	import { screenHeight, selectedOption, drawerOpen } from '$lib/stores/drawerStore';
 	import Widget from '$lib/ui/Widget/index.svelte';
 	import Comments from '$lib/ui/Widget/Components/Comments.svelte';
 	import Issues from '$lib/ui/Widget/Components/Issues.svelte';
 	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
+	import EditDetails from '$lib/ui/Widget/Components/EditDetails.svelte';
 
 	export let data;
 	// export let thumbnail;
@@ -53,7 +54,6 @@
 	let navActionHeight;
 	let gamesAvailable = [];
 	let reactiveData = {};
-	let selectedOption = 0;
 	let ComponentOptions = [];
 	let favoriteData = {};
 
@@ -77,6 +77,9 @@
 		}
 	);
 
+	afterUpdate(() => {
+		console.log('selectedOption::', $selectedOption);
+	});
 	onMount(() => {
 		firstRun.set(true);
 
@@ -167,29 +170,41 @@
 	$: src_build.set($srcbuild);
 	$: distanceMoved = $progressState;
 
-	$: reactiveData?.comments,
-		(() =>
-			(ComponentOptions = [
-				{
-					name: 'Comments',
-					props: {
-						gameId: reactiveData?.id,
-						comments: reactiveData?.comments,
-						parentCommentId: null
-					},
-					component: Comments
+	// $: console.log('reactive data::', reactiveData);
+
+	$: (() => {
+		return (ComponentOptions = [
+			{
+				name: 'Comments',
+				props: {
+					gameId: reactiveData?.id,
+					comments: reactiveData?.comments,
+					parentCommentId: null
 				},
-				{
-					name: 'Issues',
-					component: Issues
+				component: Comments
+			},
+			{
+				name: 'Issues',
+				component: Issues
+			},
+			{
+				name: 'Reviews',
+				component: Reviews
+			},
+			{
+				name: 'EditDetails',
+				props: {
+					gameId: reactiveData?.id,
+					title: reactiveData?.title,
+					description: reactiveData?.description
 				},
-				{
-					name: 'Reviews',
-					component: Reviews
-				}
-			]))();
+				component: EditDetails
+			}
+		]);
+	})();
 	$: data?.comments, (reactiveData = data ?? {});
 	$: data?.favorites, (favoriteData = data?.favorites ?? {});
+	$: console.log('drawerOpen::', $drawerOpen);
 </script>
 
 <div
@@ -208,7 +223,7 @@
 	</div>
 	<Drawer>
 		<div slot="drawer-component" class="drawer-component">
-			<Widget content={reactiveData} options={ComponentOptions} {selectedOption} />
+			<Widget content={reactiveData} options={ComponentOptions} />
 		</div>
 	</Drawer>
 </div>

@@ -1,12 +1,14 @@
 <script>
 	// @ts-nocheck
+	import { browser } from '$app/environment';
 	import { onDestroy, onMount } from 'svelte';
 	import Comments from './Components/Comments.svelte';
 	import Issues from './Components/Issues.svelte';
 	import Reviews from './Components/Reviews.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
+	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 
-	export let selectedOption = 0;
+	// export let selectedOption = 0;
 	export let content;
 	export let options = [];
 	let ComponentOptions = [];
@@ -39,7 +41,10 @@
 
 	// $: console.log('ComponentOptions::', ComponentOptions);
 
-	$: Component = options[selectedOption].component;
+	$: Component = browser && options[$selectedOption].component;
+	$: console.log($selectedOption);
+
+	$: console.log('$option:::::::::', browser && $selectedOption);
 
 	// const setOption = (i) => {
 	// 	// option = i;
@@ -50,6 +55,10 @@
 	// let select;
 
 	// $: console.log('select::', select);
+	onDestroy(() => {
+		// drawerOpen.set(false);
+		// selectedOption.set(0);
+	});
 </script>
 
 <div class="widget-container">
@@ -71,7 +80,7 @@
 	</div>
 
 	<div class="component-container">
-		<svelte:component this={Component} {...options[selectedOption].props} />
+		<svelte:component this={Component} {...options[$selectedOption]?.props} />
 	</div>
 </div>
 
@@ -123,33 +132,45 @@
 		color: var(--text-color-highlight) !important;
 	}
 	.component-container {
-		padding: 0 20px 20px;
 		overflow-y: scroll;
+		overflow-x: hidden;
 		height: 100%;
 		max-height: calc(100% - 30px);
+		width: 80%;
+		padding: 0;
 	}
 	.component-container::-webkit-scrollbar {
 		background: transparent;
 		width: 10px;
+		display: none;
 	}
 
 	.component-container::-webkit-scrollbar:hover {
 		cursor: pointer;
+		display: none;
 	}
 
 	/* Style the handle of the scrollbar */
 	.component-container::-webkit-scrollbar-thumb {
 		background: #555;
 		border-radius: 6px;
+		display: none;
 	}
 
 	/* Handle on hover */
 	.component-container::-webkit-scrollbar-thumb:hover {
 		background: #555 !important;
 		cursor: pointer;
+		display: none;
 	}
 	.tab :global(button:hover) {
 		background-color: transparent !important;
 		color: var(--text-color-highlight) !important;
+	}
+	@media (max-width: 498px) {
+		.component-container {
+			width: calc(100% - 40px);
+			padding: 0 20px 0 20px;
+		}
 	}
 </style>

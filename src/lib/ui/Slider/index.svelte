@@ -1,11 +1,13 @@
 <script>
 	// @ts-nocheck
+	import { browser } from '$app/environment';
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
 	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
-	import { drawerOpen } from '$lib/stores/drawerStore';
+	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 	import { fade } from 'svelte/transition';
+	import { session } from '$lib/stores/sessionStore';
 	import {
 		actionMenuOpen,
 		currentGame as currentGameStore,
@@ -22,7 +24,7 @@
 	export let thumbnail;
 	export let favoritesObj = {};
 
-	$: console.log('slider::favoritesObj::', favoritesObj);
+	$: console.log('slider::drawerOpen::', $drawerOpen);
 	$: favoritesCount = favoritesObj?.count;
 
 	let emblaApi;
@@ -160,6 +162,7 @@
 			<div class="output-paused-overlay game_option_{i} embla__slide">
 				<div
 					class="overlay-blur blur_{i}"
+					class:drawerOpen={$drawerOpen}
 					style="--bg_{i}: url('{game?.thumbnail ?? 'https://picsum.photos/600/600'}');"
 				/>
 				<div class="overlay-light-fade" />
@@ -168,6 +171,31 @@
 						<div class="rift-clip" />
 					</div>
 				</div>
+
+				{#if $session?.id === game?.user_id}
+					<button
+						class="settings-action"
+						class:drawerOpen={$drawerOpen}
+						on:click={() => {
+							browser && selectedOption.set(3);
+							drawerOpen.set(true);
+						}}
+						in:fade={{ delay: 350, duration: 200 }}
+						out:fade={{ delay: 0, duration: 200 }}
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="36"
+							height="36"
+							fill="#ffffff"
+							viewBox="0 0 256 256"
+							class="action-button-icon"
+							><path
+								d="M216,130.16q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.6,107.6,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.29,107.29,0,0,0-26.25-10.86,8,8,0,0,0-7.06,1.48L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.6,107.6,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"
+							/></svg
+						>
+					</button>
+				{/if}
 
 				<div class="info-container" class:drawerOpen={$drawerOpen}>
 					{#if $actionMenuOpen}
@@ -253,6 +281,7 @@
 		font-size: 2.75rem;
 		margin-block-end: 0;
 		text-shadow: 1px 2px 20px #0000003b;
+		overflow-wrap: anywhere;
 	}
 	.info-container p {
 		font-family: 'Montserrat';
@@ -260,12 +289,17 @@
 		font-weight: 300;
 		margin-block-start: 0;
 		text-shadow: 1px 2px 20px #0000003b;
+		overflow-wrap: anywhere;
 	}
 	.info-container.drawerOpen {
 		/* top: unset;
 		position: relative; */
 		transform: translateY(-35%);
 		transition-delay: 2ms;
+	}
+	.info-container.drawerOpen h1,
+	.info-container.drawerOpen p {
+		filter: brightness(0.4);
 	}
 	.embla {
 		overflow: hidden;
@@ -280,5 +314,19 @@
 	.embla__slide {
 		flex: 0 0 100%;
 		min-width: 0;
+	}
+	button.settings-action {
+		position: absolute;
+		top: 20px;
+		right: 16px;
+		z-index: 1000000000000000;
+		background: unset;
+		border-style: unset;
+	}
+	button.settings-action:hover {
+		cursor: pointer;
+	}
+	.overlay-blur.drawerOpen {
+		filter: saturate(180%) blur(20px) brightness(0.4);
 	}
 </style>

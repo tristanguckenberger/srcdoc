@@ -146,6 +146,8 @@
 		height: fit-content;
 		width: 100%;
 		resize: none;
+		box-sizing: border-box;
+		padding-bottom: 22px;
 		overflow: hidden;
 		background-color: transparent;
 		color: var(--text-color-primary);

@@ -3,7 +3,7 @@
 	import { onDestroy } from 'svelte';
 	import { fly, slide } from 'svelte/transition';
 	import { quartInOut } from 'svelte/easing';
-	import { drawerOpen } from '$lib/stores/drawerStore';
+	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 	import { sideBarState } from '$lib/stores/layoutStore';
 	import Button from '$lib/ui/Button/index.svelte';
 
@@ -13,6 +13,7 @@
 
 	onDestroy(() => {
 		drawerOpen.set(false);
+		// selectedOption.set(0);
 	});
 </script>
 
