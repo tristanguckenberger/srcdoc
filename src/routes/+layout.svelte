@@ -208,6 +208,7 @@
 			class:matchGridWidth={!engineInRoute && isBrowsePage}
 			class:isNotHomePage={!isHomePage}
 			class:engineInRoute
+			class:isHomePage
 			class:gameProfile={(isProfilePage || playInRoute) && !engineInRoute}
 			class:showSideBar={$sideBarState}
 			class:isBrowsePage
@@ -718,6 +719,9 @@
 		z-index: 10;
 		width: calc(100% - 20px);
 		background: #121314;
+	}
+	nav.isHomePage {
+		background: transparent;
 	}
 
 	nav ul {

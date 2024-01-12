@@ -29,8 +29,7 @@
 
 <style>
 	.input-container {
-		display: column;
-		flex-direction: row;
+		width: 100%;
 	}
 	.row {
 		display: flex;

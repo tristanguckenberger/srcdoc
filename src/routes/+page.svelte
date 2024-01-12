@@ -15,6 +15,7 @@
 	import playenginelogo from '$lib/assets/playenginelogo.svg';
 	import SignInForm from '$lib/ui/Form/SignInForm.svelte';
 	import SignUpForm from '$lib/ui/Form/SignUpForm.svelte';
+	import { sideBarState } from '$lib/stores/layoutStore.js';
 
 	const getAllUsers = async () => {
 		const userReqHeaders = new Headers();
@@ -88,9 +89,14 @@
 	$: quickHide && setTimeout(() => (quickHide = false), 1000);
 </script>
 
-<div class="main" style="--svg-bg: url('{Frame}');">
+<div class="main" style="--svg-bg: url('{Frame}');" class:sideBarOpen={$sideBarState}>
 	<div class="hero">
-		<!-- <img src={playenginelogo} alt="Play Engine's Logo" /> -->
+		<!-- <div class="horizontal-slider">
+			<div class="slide item1" style="--multiplyer: 1;">1</div>
+			<div class="slide item2" style="--multiplyer: 2;">2</div>
+			<div class="slide item3" style="--multiplyer: 3;">3</div>
+			<div class="slide item4" style="--multiplyer: 4;">4</div>
+		</div> -->
 		<svg
 			width="3354"
 			height="2087"
@@ -346,8 +352,7 @@
 	<div class="auth-container">
 		<div class="authentication" class:quickHide>
 			<div class="form-container" class:isSignIn={selected === authFlowOptions[1]}>
-				<div class="flexed-form">
-					<!-- <SignInForm /> -->
+				<div class="flexed-form" class:sideBarOpen={$sideBarState}>
 					<svelte:component this={selected.component} />
 					<div class="form-action">
 						<span>{formSwitchText}</span>
@@ -384,6 +389,16 @@
 		border-left: 0;
 		border-top: 0;
 		border-top-right-radius: 55px; */
+
+		height: calc(100%);
+		width: calc(100%);
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+	}
+	.main.sideBarOpen {
+		width: calc(100% - 230px);
 	}
 	:global(#split-output) {
 		height: 100%;
@@ -404,42 +419,56 @@
 		flex-grow: 1;
 	}
 	.auth-container {
-		flex-grow: 1;
+		/* flex-grow: 1; */
 		/* position: relative; */
 		/* top: -77px; */
+		/* display: flex; */
+		/* justify-content: center; */
+		/* align-items: center; */
+		/* padding-top: 56.5px; */
+
 		display: flex;
 		justify-content: center;
-		align-items: center;
+		align-items: flex-start;
+		position: relative;
+		top: -57px;
+		width: 50%;
+		height: 112%;
+		background-color: #2e324c;
 	}
 	.hero {
-		width: 400px;
-		position: relative;
-		bottom: 0;
-		left: 0px;
+		width: 39%;
+		height: 25%;
+		position: absolute;
+		top: 0;
+		/* left: 20px; */
 		z-index: 1;
+		display: none;
 	}
 	.hero svg {
 		width: 100%;
 		height: 100%;
-		left: 7.335px;
+		/* left: 7.335px; */
 		position: relative;
 	}
 
 	:global(.showSideBar) .hero,
 	:global(.showSideBar) .auth-container {
-		right: 115px;
-		left: unset;
+		/* right: 115px; */
+		/* left: unset; */
 	}
 	.form-container {
 		display: flex;
-		width: fit-content;
-		background-color: #fff9d7;
+		width: 100%;
+		box-sizing: border-box;
+
+		/* background-color: #fff9d7;
 		border-radius: 60px;
 		padding: 8px;
-		transition: all 0.5s linear;
+		transition: all 0.5s linear; */
 	}
 	.form-container {
-		width: 613px;
+		/* width: 613px; */
 	}
 	:global(form h1) {
 		font-family: 'Rubik', sans-serif;
@@ -495,25 +524,95 @@
 		transition: animation 0.5s linear;
 		animation: clockwise 10s infinite linear;
 		transform-origin: 2746.21px 607.41px;
+		x: 10%;
 	}
 	/* .gPath:hover {
 		animation: counter-clockwise 10s infinite linear;
 	} */
 	.flexed-form {
-		width: calc(100% - 20px);
-		height: calc(100% - 20px);
-		border-radius: 55px;
-		background-color: #2e324c;
+		width: 100%;
+		height: 100%;
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
-		padding: 92.58px 80px 25px 80px;
+		padding: 56.5px 24%;
+		top: 350px;
+		position: relative;
+	}
+	.flexed-form.sideBarOpen {
+		padding: 49% 24%;
 	}
 	.authentication {
 		/* transition: opacity 5ms linear; */
 		max-height: 716.08px;
+		width: 100%;
 	}
 	.authentication.quickHide {
 		/* opacity: 0; */
+	}
+	.horizontal-slider {
+		height: 100%;
+		width: 100%;
+		background: red;
+		z-index: 10000;
+		position: relative;
+		display: flex;
+	}
+	.slide {
+		width: 100%;
+		height: 100%;
+		overflow-x: scroll;
+		scroll-snap-align: center;
+		position: absolute;
+	}
+	@media (max-width: 768px) {
+		.form-container {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			justify-content: center;
+		}
+		:global(.email-username) {
+			gap: 30px !important;
+			flex-direction: column !important;
+		}
+		.flexed-form {
+			padding: 0;
+			width: 80%;
+		}
+	}
+	@media (max-width: 498px) {
+		.hero {
+			width: 78%;
+			height: 30%;
+			position: absolute;
+			top: 0;
+			left: 53px;
+			z-index: 1;
+			display: none;
+		}
+		.authentication {
+			max-height: unset;
+		}
+		.form-container {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			justify-content: center;
+		}
+		.flexed-form {
+			width: 80%;
+			padding: 0;
+			/* height: 100%;
+			display: flex;
+			flex-direction: column;
+			gap: 20px; */
+			/* padding-top: 85%;
+			padding: 90% 0 0 0; */
+		}
+		:global(.email-username) {
+			gap: 30px !important;
+			flex-direction: column !important;
+		}
 	}
 </style>

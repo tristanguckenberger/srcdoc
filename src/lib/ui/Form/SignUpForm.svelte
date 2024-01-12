@@ -94,5 +94,6 @@
 		display: flex;
 		flex-direction: row;
 		gap: 20px;
+		width: 100%;
 	}
 </style>
