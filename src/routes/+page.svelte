@@ -582,6 +582,10 @@
 		}
 	}
 	@media (max-width: 498px) {
+		.auth-container {
+			top: unset;
+			bottom: unset;
+		}
 		.hero {
 			width: 78%;
 			height: 30%;
