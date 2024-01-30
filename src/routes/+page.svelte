@@ -535,12 +535,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
-		padding: 56.5px 24%;
+		padding: 0 24%;
 		top: 350px;
 		position: relative;
 	}
 	.flexed-form.sideBarOpen {
-		padding: 49% 24%;
+		padding: 0 24%;
 	}
 	.authentication {
 		/* transition: opacity 5ms linear; */
