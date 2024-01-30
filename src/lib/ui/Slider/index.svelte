@@ -6,7 +6,7 @@
 	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
-	import { fade } from 'svelte/transition';
+	// import { fade } from 'svelte/transition';
 	import { session } from '$lib/stores/sessionStore';
 	import {
 		actionMenuOpen,
@@ -182,8 +182,6 @@
 							browser && selectedOption.set(3);
 							drawerOpen.set(true);
 						}}
-						in:fade={{ delay: 350, duration: 200 }}
-						out:fade={{ delay: 0, duration: 200 }}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -200,14 +198,12 @@
 				{/if}
 
 				<div class="info-container" class:drawerOpen={$drawerOpen}>
-					{#if $actionMenuOpen}
-						<h1 in:fade={{ delay: 350, duration: 400 }} out:fade={{ delay: 0, duration: 200 }}>
-							{game?.title}
-						</h1>
-						<p in:fade={{ delay: 350, duration: 400 }} out:fade={{ delay: 0, duration: 200 }}>
-							{game?.description}
-						</p>
-					{/if}
+					<h1>
+						{game?.title}
+					</h1>
+					<p>
+						{game?.description}
+					</p>
 				</div>
 			</div>
 		{/each}

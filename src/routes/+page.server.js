@@ -60,6 +60,8 @@ export const actions = {
 		const credentials = JSON.stringify({ email, password });
 		const requestHeaders = new Headers();
 		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Access-Control-Allow-Origin', '*');
+		requestHeaders.append('credentials', 'include');
 		const requestInit = {
 			method: 'POST',
 			headers: requestHeaders,
@@ -68,6 +70,10 @@ export const actions = {
 		};
 
 		const authResponse = await fetch(`${process.env.SERVER_URL}/api/auth/login`, requestInit);
+		console.log(
+			'authResponse::cookies::::::::::::::::::::::::::::::::::::::',
+			authResponse.cookies
+		);
 		if (!authResponse.ok) {
 			return {
 				status: 401,
@@ -77,7 +83,11 @@ export const actions = {
 			};
 		}
 
-		const token = (await authResponse.json()).token;
+		const resAuth = await authResponse.json();
+
+		console.log('authResponse::::::::::::::::::::::::::::::::::::::::', resAuth);
+
+		const token = resAuth?.token;
 
 		if (token) {
 			try {
@@ -99,18 +109,18 @@ export const actions = {
 					...user
 				});
 
-				if (user?.is_active) {
-					throw redirect(303, `/games`);
-				}
+				// if (user?.is_active) {
+				// 	throw redirect(303, `/games`);
+				// }
 			}
 
-			// return {
-			// 	status: 200,
-			// 	body: {
-			// 		message: 'login_success',
-			// 		user: { token, ...user, password: '' }
-			// 	}
-			// };
+			return {
+				status: 200,
+				body: {
+					message: 'login_success',
+					user: { token, ...user, password: '' }
+				}
+			};
 		}
 	},
 	register: async ({ request }) => {
@@ -122,6 +132,8 @@ export const actions = {
 		const credentials = JSON.stringify({ email, username, password });
 		const requestHeaders = new Headers();
 		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Access-Control-Allow-Origin', '*');
+		requestHeaders.append('Credentials', 'Include');
 		const requestInit = {
 			method: 'POST',
 			headers: requestHeaders,

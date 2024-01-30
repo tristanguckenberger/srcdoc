@@ -9,7 +9,7 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { playButton } from '$lib/stores/gamesStore.js';
 	import { browser } from '$app/environment';
-	import { fade } from 'svelte/transition';
+	// import { fade } from 'svelte/transition';
 
 	export let game;
 	export let thumbnail;
@@ -119,8 +119,6 @@
 								// }, 200);
 							}, 200);
 						}}
-						in:fade={{ duration: 300 }}
-						out:fade={{ duration: 200 }}
 					>
 						<svg
 							width="27"
@@ -128,8 +126,6 @@
 							viewBox="0 0 27 23"
 							fill="red"
 							xmlns="http://www.w3.org/2000/svg"
-							in:fade={{ duration: 300 }}
-							out:fade={{ duration: 50 }}
 							class="fav"
 							class:isFavorited={isFavorited && $favoritesStore?.length > 0}
 						>
@@ -139,11 +135,7 @@
 								fill-opacity="0.81"
 							/>
 						</svg>
-						<span
-							class="favorite"
-							in:fade={{ delay: 550, duration: 400 }}
-							out:fade={{ duration: 200 }}>{$favoritesStore?.length ?? 0}</span
-						>
+						<span class="favorite">{$favoritesStore?.length ?? 0}</span>
 					</button>
 				</form>
 			</div>
