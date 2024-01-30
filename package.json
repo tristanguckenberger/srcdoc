@@ -32,6 +32,7 @@
 		"vitest": "^0.32.2"
 	},
 	"dependencies": {
+		"@vercel/analytics": "^1.1.2",
 		"dotenv": "^16.3.1",
 		"embla-carousel-svelte": "^8.0.0-rc17",
 		"html-to-image": "^1.11.11",
