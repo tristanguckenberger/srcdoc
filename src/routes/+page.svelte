@@ -607,7 +607,7 @@
 		.flexed-form {
 			width: 80%;
 			padding: 0;
-			top: 250px;
+			top: 100px;
 			/* height: 100%;
 			display: flex;
 			flex-direction: column;
