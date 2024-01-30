@@ -90,14 +90,14 @@
 </script>
 
 <div class="main" style="--svg-bg: url('{Frame}');" class:sideBarOpen={$sideBarState}>
-	<div class="hero">
-		<!-- <div class="horizontal-slider">
+	<!-- <div class="hero"> -->
+	<!-- <div class="horizontal-slider">
 			<div class="slide item1" style="--multiplyer: 1;">1</div>
 			<div class="slide item2" style="--multiplyer: 2;">2</div>
 			<div class="slide item3" style="--multiplyer: 3;">3</div>
 			<div class="slide item4" style="--multiplyer: 4;">4</div>
 		</div> -->
-		<svg
+	<!-- <svg
 			width="3354"
 			height="2087"
 			viewBox="0 0 3354 2087"
@@ -347,8 +347,8 @@
 				fill="#2E324C"
 				mask="url(#path-21-outside-2_111_218)"
 			/>
-		</svg>
-	</div>
+		</svg> -->
+	<!-- </div> -->
 	<div class="auth-container">
 		<div class="authentication" class:quickHide>
 			<div class="form-container" class:isSignIn={selected === authFlowOptions[1]}>
