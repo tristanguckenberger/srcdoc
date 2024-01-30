@@ -93,8 +93,6 @@ export async function load({ params, cookies }) {
 	const game =
 		(await getSingleGame(slug, token)) ??
 		gameData.find((game) => game?.id.toString() === slug?.toString());
-
-	console.log('game:::::::', game);
 	return {
 		...game
 	};

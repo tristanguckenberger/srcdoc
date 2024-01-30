@@ -25,7 +25,6 @@
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: gameUserID = game?.userId ?? game?.user_id;
-	$: console.log('game::', game);
 
 	// FUNCTIONS
 	const getAllFavoritesSingleGame = async (slug, eventFetch) => {
