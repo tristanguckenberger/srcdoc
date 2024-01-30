@@ -472,6 +472,13 @@
 									showDropDown={dropDownToggle}
 								/>
 							</li>
+							{#if dropDownToggle}
+								<li>
+									<form class="logout-form" action="/?/logout" method="POST">
+										<Button class="logout" label="Logout" />
+									</form>
+								</li>
+							{/if}
 						{/if}
 					</ul>
 				</div>
