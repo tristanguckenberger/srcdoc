@@ -39,7 +39,7 @@
 			const favoritesRes = await getAllFavoritesSingleGame(game?.id, fetch);
 
 			if (favoritesRes) {
-				console.log('onMount::favoritesRes::', favoritesRes);
+				// console.log('onMount::favoritesRes::', favoritesRes);
 				favoritesStore.set(favoritesRes);
 			}
 		}

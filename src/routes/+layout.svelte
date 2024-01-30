@@ -79,8 +79,6 @@
 		});
 
 		deleteOrCreateFav = isFavorited ?? false;
-
-		console.log('deleteOrCreateFav::', deleteOrCreateFav);
 	});
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
@@ -179,10 +177,10 @@
 	$: isMobile = $appClientWidth < 768;
 	$: play = $playButton;
 	$: actionOpen = $actionMenuOpen;
-	$: console.log('routeHistory:', $routeHistoryStore);
+	// $: console.log('routeHistory:', $routeHistoryStore);
 	$: actionHideDuration = $drawerOpen ? 0 : 200;
-	$: console.log('gameFav::gameFavorites::', $gameFavorites?.favorites?.includes(sessionData?.id));
-	$: console.log('gameFav::sessionData::', sessionData);
+	// $: console.log('gameFav::gameFavorites::', $gameFavorites?.favorites?.includes(sessionData?.id));
+	// $: console.log('gameFav::sessionData::', sessionData);
 	// $: isFavorited = sessionData && $gameFavorites?.includes(sessionData?.id);
 	$: (() => {
 		$gameFavorites?.favorites?.some((fav) => {
