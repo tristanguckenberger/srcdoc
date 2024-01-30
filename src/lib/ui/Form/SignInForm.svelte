@@ -103,4 +103,9 @@
 		color: #2e324c;
 		margin-block-start: 1.5rem;
 	}
+	@media (max-width: 498px) {
+		form {
+			height: unset;
+		}
+	}
 </style>

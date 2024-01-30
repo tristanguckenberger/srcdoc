@@ -79,8 +79,8 @@
 	form {
 		width: 100%;
 		height: 100%;
-		display: flex;
-		flex-direction: column;
+		/* display: flex;
+		flex-direction: column; */
 		gap: 30px;
 	}
 	:global(form h1) {
@@ -95,5 +95,10 @@
 		flex-direction: row;
 		gap: 20px;
 		width: 100%;
+	}
+	@media (max-width: 498px) {
+		form {
+			height: unset;
+		}
 	}
 </style>
