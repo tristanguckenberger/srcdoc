@@ -109,9 +109,9 @@ export const actions = {
 					...user
 				});
 
-				// if (user?.is_active) {
-				// 	throw redirect(303, `/games`);
-				// }
+				if (user?.is_active) {
+					throw redirect(303, `/games`);
+				}
 			}
 
 			return {
