@@ -60,8 +60,8 @@
 
 	// FUNCTIONS
 	onMount(() => {
+		inject({ mode: dev ? 'development' : 'production' });
 		if (browser) {
-			inject({ mode: dev ? 'development' : 'production' });
 			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
 			preferedThemeMode?.addEventListener('change', updateTheme);
 			updateTheme(preferedThemeMode);
