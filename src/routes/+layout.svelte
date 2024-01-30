@@ -4,8 +4,6 @@
 	import { dev } from '$app/environment';
 	import { inject } from '@vercel/analytics';
 
-	inject({ mode: dev ? 'development' : 'production' });
-
 	// SVELTE IMPORTS
 	import { onMount, onDestroy, afterUpdate } from 'svelte';
 	import { page } from '$app/stores';
@@ -63,6 +61,7 @@
 	// FUNCTIONS
 	onMount(() => {
 		if (browser) {
+			inject({ mode: dev ? 'development' : 'production' });
 			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
 			preferedThemeMode?.addEventListener('change', updateTheme);
 			updateTheme(preferedThemeMode);
