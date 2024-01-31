@@ -503,6 +503,7 @@
 			</div>
 			<main
 				class:isProfilePage
+				class:isPWA={isInPwaMode}
 				class:scrollable={!engineInRoute && !playInRoute && isBrowsePage}
 				class:editor={(engineInRoute || playInRoute) && !isBrowsePage}
 				class:showSideBar={$sideBarState}
@@ -716,6 +717,9 @@
 		height: calc(100% - 20px);
 		width: calc(100% - 10px);
 		max-width: calc(100%);
+	}
+	main.isPWA :global(.editor-layout .main) {
+		padding-bottom: 70px;
 	}
 	nav {
 		color: var(--color-primary);
@@ -1208,6 +1212,6 @@
 		transition: opacity 0.3s linear 0.06s;
 	}
 	.layout-container.isPWA {
-		background-color: red !important;
+		background-color: transparent !important;
 	}
 </style>
