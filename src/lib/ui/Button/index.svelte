@@ -248,7 +248,7 @@
 	}
 	button.isHomePage,
 	a.isHomePage {
-		background-color: #2e324c !important;
+		background-color: unset !important;
 		color: #ffffff !important;
 		height: calc(100% - 20px);
 	}
