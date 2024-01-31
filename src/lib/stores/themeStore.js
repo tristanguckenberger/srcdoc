@@ -41,7 +41,8 @@ const lightTheme = readable([
 	'--nav-dropdown: #ededed;',
 	'--slider-drawer: #fefefe;',
 	'--action-total-text-color: #12131494;',
-	'--input-bg: #ededed4f;'
+	'--input-bg: #ededed4f;',
+	'--meun-blur-bg: #e4e5e7ed;'
 ]);
 
 const darkTheme = readable([
@@ -64,7 +65,8 @@ const darkTheme = readable([
 	'--nav-dropdown: #1c1d1fab;',
 	'--slider-drawer: #151617;',
 	'--action-total-text-color: #dadada;',
-	'--input-bg: #ededed;'
+	'--input-bg: #ededed;',
+	'--meun-blur-bg: #1c1d1fed;'
 ]);
 
 const fontTheme = readable([

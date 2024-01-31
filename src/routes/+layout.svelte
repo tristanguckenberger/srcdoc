@@ -940,7 +940,7 @@
 			z-index: 1;
 			overflow-y: scroll;
 			overflow-x: hidden;
-			background-color: #1c1d1fed !important;
+			background-color: var(--meun-blur-bg) !important;
 			backdrop-filter: saturate(180%) blur(20px);
 		}
 		.sidebar-action ul a.active {
