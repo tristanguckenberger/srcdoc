@@ -95,6 +95,7 @@ export const actions = {
 		const gameId = formData?.get('gameId');
 		const title = formData?.get('title');
 		const description = formData?.get('description');
+		const published = formData?.get('published');
 
 		const requestHeaders = new Headers();
 		requestHeaders.append('Content-Type', 'application/json');
@@ -105,7 +106,8 @@ export const actions = {
 			mode: 'cors',
 			body: JSON.stringify({
 				title,
-				description
+				description,
+				published
 			})
 		};
 
@@ -118,7 +120,7 @@ export const actions = {
 			return {
 				status: 401,
 				body: {
-					message: 'Failed to create new project'
+					message: 'Failed to update project'
 				}
 			};
 		}

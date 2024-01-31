@@ -214,7 +214,8 @@
 				props: {
 					gameId: reactiveData?.id,
 					title: reactiveData?.title,
-					description: reactiveData?.description
+					description: reactiveData?.description,
+					published: Boolean(reactiveData?.published)
 				},
 				component: EditDetails
 			}

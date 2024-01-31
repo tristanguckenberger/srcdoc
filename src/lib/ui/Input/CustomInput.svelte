@@ -1,12 +1,21 @@
 <script>
 	// @ts-nocheck
-	import { gameDetails, gameTitle, gameDescription, gameImage } from '$lib/stores/gameDetailsStore';
+	import {
+		gameDetails,
+		gameTitle,
+		gameDescription,
+		gameIsPublished,
+		gameImage
+	} from '$lib/stores/gameDetailsStore';
 	import { modalProps } from '$lib/stores/layoutStore.js';
 
 	export let blurAction = () => {};
 	export let inputCapture;
 	export let inputText;
+	export let inputValue;
 	export let hidden = false;
+
+	$: checked = inputValue ? 'true' : 'false';
 
 	$: inputText,
 		(() => {
@@ -23,13 +32,14 @@
 					gameImage.set(inputText ?? $modalProps?.image);
 					inputText = $gameImage;
 					break;
+				case 'published':
+					gameIsPublished.set(inputValue ?? $modalProps?.published);
+					inputValue = $gameIsPublished;
+					break;
 				default:
 					break;
 			}
 		})();
-
-	// $: console.log('inputText::', inputText);
-	// $: console.log('$modalProps::', $modalProps);
 </script>
 
 <div class="input-container modal">
@@ -42,6 +52,17 @@
 				{hidden}
 				name={inputCapture}
 				bind:value={inputText}
+				on:blur={() => {
+					blurAction();
+				}}
+			/>
+		{:else if inputCapture === 'published'}
+			<input
+				class:hideMe={hidden}
+				type="text"
+				{hidden}
+				name={inputCapture}
+				bind:value={checked}
 				on:blur={() => {
 					blurAction();
 				}}

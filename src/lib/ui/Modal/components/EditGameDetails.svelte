@@ -9,10 +9,12 @@
 	import { invalidate, invalidateAll } from '$app/navigation';
 	import { drawerOpen } from '$lib/stores/drawerStore';
 	import { currentGame } from '$lib/stores/gamesStore';
+	import ToggleSwitch from '$lib/ui/ToggleSwitch/index.svelte';
 
 	export let gameId = $modalProps?.gameId;
 	export let title = $modalProps?.title;
 	export let description = $modalProps?.description;
+	export let published = $modalProps?.published;
 	export let headerImage;
 
 	$: console.log('EditGameDetails::gameId::', gameId);
@@ -62,6 +64,8 @@
 		<span slot="label" class="input-label modal">Description</span>
 	</CustomInput>
 	<CustomInput inputCapture={'gameId'} inputText={gameId} hidden />
+	<CustomInput inputCapture={'published'} inputValue={published} hidden />
+	<ToggleSwitch bind:value={published} label="Published" design="slider" />
 	<Button label="Update Details" isRounded />
 </form>
 
