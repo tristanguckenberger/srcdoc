@@ -50,6 +50,23 @@
 		gameFavorites.set(favoritesObj);
 	});
 
+	async function shareGame() {
+		if (navigator.share) {
+			try {
+				await navigator.share({
+					title: 'Check out this game!',
+					text: 'I found this amazing game on [Your App Name]. Check it out!',
+					url: 'https://yourapp.com/game-link' // The URL to the game or content you want to share
+				});
+				console.log('Content shared successfully');
+			} catch (error) {
+				console.error('Error sharing content', error);
+			}
+		} else {
+			console.log('Web Share API is not supported in your browser.');
+			// Implement a fallback sharing mechanism here if necessary
+		}
+	}
 	const onInit = (event) => {
 		// Get the Embla API
 		emblaApi = event.detail;
@@ -204,6 +221,7 @@
 					<p>
 						{game?.description}
 					</p>
+					<button on:click={shareGame}>Share This Game</button>
 				</div>
 			</div>
 		{/each}
