@@ -177,6 +177,16 @@
 		})();
 	$: src_build.set($srcbuild);
 	$: distanceMoved = $progressState;
+	$: isInPwaMode = (() => {
+		if (browser) {
+			return (
+				window.matchMedia('(display-mode: standalone)').matches ||
+				window.navigator.standalone === true
+			);
+		}
+
+		return false;
+	})();
 
 	$: console.log('reactive data::', reactiveData);
 
@@ -216,7 +226,8 @@
 </script>
 
 <div
-	class="main"
+	class="main playPage"
+	class:isPWA={isInPwaMode}
 	class:isNotMobile={$appClientWidth && $appClientWidth > 498}
 	bind:clientHeight={$screenHeight}
 >
@@ -268,5 +279,8 @@
 			height: calc(100%);
 			padding-top: 0px;
 		}
+	}
+	.main.playPage.isPWA {
+		padding-bottom: 50px;
 	}
 </style>
