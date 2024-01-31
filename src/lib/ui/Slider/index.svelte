@@ -17,6 +17,7 @@
 		gameFavoriteCount,
 		gameFavorites
 	} from '$lib/stores/gamesStore';
+	import { page } from '$app/stores';
 
 	export let navActionHeight = 0;
 	export let gamesAvailable = [];
@@ -24,7 +25,6 @@
 	export let thumbnail;
 	export let favoritesObj = {};
 
-	$: console.log('slider::drawerOpen::', $drawerOpen);
 	$: favoritesCount = favoritesObj?.count;
 
 	let emblaApi;
@@ -51,12 +51,15 @@
 	});
 
 	async function shareGame() {
+		// if (browser) {
+		// 	console.log('shareGame::page::', $page);
+		// }
 		if (navigator.share) {
 			try {
 				await navigator.share({
 					title: 'Check out this game!',
-					text: 'I found this amazing game on [Your App Name]. Check it out!',
-					url: 'https://yourapp.com/game-link' // The URL to the game or content you want to share
+					text: 'I found this cool game on Play Engine. Check it out!',
+					url: $page?.url?.href // The URL to the game or content you want to share
 				});
 				console.log('Content shared successfully');
 			} catch (error) {
