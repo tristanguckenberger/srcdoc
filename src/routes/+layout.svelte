@@ -1127,7 +1127,7 @@
 		flex-direction: column;
 		gap: 40px;
 		align-items: center;
-		bottom: 81.5px;
+		bottom: 145.5px;
 		right: 25px;
 	}
 
@@ -1149,8 +1149,7 @@
 		width: 36.5px;
 		height: 36.5px;
 		border-radius: 6px;
-
-		transform: translateY(var(--screenHeight));
+		transform: translateY(calc(var(--screenHeight) - 50px));
 	}
 	.play-button.drawerOpen {
 		transform: translateY(370%);
