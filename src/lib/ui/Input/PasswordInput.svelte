@@ -55,6 +55,9 @@
 		font-family: var(--paragraph-font), sans-serif;
 		color: var(--darker-bg);
 	}
+	input:focus:not(.focus-visible) {
+		outline: none;
+	}
 	input:focus-visible {
 		outline: var(--vibrant-orange) auto 1px;
 	}

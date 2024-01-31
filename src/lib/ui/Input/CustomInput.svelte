@@ -104,6 +104,9 @@
 	input:focus-visible {
 		outline: var(--vibrant-orange) auto 1px;
 	}
+	input:focus:not(.focus-visible) {
+		outline: none;
+	}
 	:global(.input-icon) {
 		display: flex;
 		justify-content: center;
