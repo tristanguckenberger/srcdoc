@@ -177,16 +177,16 @@
 		})();
 	$: src_build.set($srcbuild);
 	$: distanceMoved = $progressState;
-	$: isInPwaMode = (() => {
-		if (browser) {
-			return (
-				window.matchMedia('(display-mode: standalone)').matches ||
-				window.navigator.standalone === true
-			);
-		}
+	// $: isInPwaMode = (() => {
+	// 	if (browser) {
+	// 		return (
+	// 			window.matchMedia('(display-mode: standalone)').matches ||
+	// 			window.navigator.standalone === true
+	// 		);
+	// 	}
 
-		return false;
-	})();
+	// 	return false;
+	// })();
 
 	$: console.log('reactive data::', reactiveData);
 
@@ -227,7 +227,6 @@
 
 <div
 	class="main playPage"
-	class:isPWA={isInPwaMode}
 	class:isNotMobile={$appClientWidth && $appClientWidth > 498}
 	bind:clientHeight={$screenHeight}
 >
@@ -280,7 +279,7 @@
 			padding-top: 0px;
 		}
 	}
-	.main.playPage.isPWA {
-		padding-bottom: 50px;
-	}
+	/* .main.playPage.isPWA { */
+	/* padding-bottom: 50px; */
+	/* } */
 </style>

@@ -192,25 +192,24 @@
 			isFavorited = fav?.user_id === sessionData?.id ?? false;
 		});
 	})();
-	$: isInPwaMode = (() => {
-		if (browser) {
-			return (
-				window.matchMedia('(display-mode: standalone)').matches ||
-				window.navigator.standalone === true
-			);
-		}
+	// $: isInPwaMode = (() => {
+	// 	if (browser) {
+	// 		return (
+	// 			window.matchMedia('(display-mode: standalone)').matches ||
+	// 			window.navigator.standalone === true
+	// 		);
+	// 	}
 
-		return false;
-	})();
+	// 	return false;
+	// })();
 
-	$: console.log('isInPwaMode', isInPwaMode);
+	// $: console.log('isInPwaMode', isInPwaMode);
 	// $: deleteOrCreateFav = isFavorited ?? false;
 	// $: console.log('deleteOrCreateFav::', deleteOrCreateFav);
 </script>
 
 <div
 	class="layout-container"
-	class:isPWA={isInPwaMode}
 	class:isBrowsePage
 	style="--svg-bg: url('{bgFadedMono16}'); --screenHeight: {$screenHeight -
 		15}px; height: 100%; width: 100%; {themeString}"
@@ -503,7 +502,6 @@
 			</div>
 			<main
 				class:isProfilePage
-				class:isPWA={isInPwaMode}
 				class:scrollable={!engineInRoute && !playInRoute && isBrowsePage}
 				class:editor={(engineInRoute || playInRoute) && !isBrowsePage}
 				class:showSideBar={$sideBarState}
@@ -718,9 +716,9 @@
 		width: calc(100% - 10px);
 		max-width: calc(100%);
 	}
-	main.isPWA :global(.editor-layout .main) {
+	/* main.isPWA :global(.editor-layout .main) {
 		padding-bottom: 70px;
-	}
+	} */
 	nav {
 		color: var(--color-primary);
 		padding: 10px 10px;
@@ -1210,7 +1208,7 @@
 		opacity: 1;
 		transition: opacity 0.3s linear 0.06s;
 	}
-	.layout-container.isPWA {
+	/* .layout-container.isPWA {
 		background-color: transparent !important;
-	}
+	} */
 </style>
