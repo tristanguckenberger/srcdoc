@@ -1147,7 +1147,8 @@
 		width: 36.5px;
 		height: 36.5px;
 		border-radius: 6px;
-		transform: translateY(calc(var(--screenHeight) - 50px));
+		transform: translateY(calc(var(--screenHeight))); /*  - 50px */
+		/* top: 50px; */
 	}
 	.play-button.drawerOpen {
 		transform: translateY(370%);
