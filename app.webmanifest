@@ -1,4 +1,4 @@
 {
 	"name": "Play Engine",
-	"display": "minimal-ui"
+	"display": "standalone"
 }
