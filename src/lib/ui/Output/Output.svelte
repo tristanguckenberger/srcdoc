@@ -171,4 +171,9 @@
 		border: none;
 		display: block;
 	}
+	@media (max-width: 498px) {
+		iframe {
+			border-radius: 0px !important;
+		}
+	}
 </style>

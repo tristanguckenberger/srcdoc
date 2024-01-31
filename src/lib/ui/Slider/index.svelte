@@ -329,6 +329,17 @@
 		flex-direction: column;
 		gap: 10px;
 	}
+	@media (max-width: 498px) {
+		.embla__container {
+			gap: 0px;
+		}
+		.overlay-blur {
+			border-radius: 0px;
+		}
+		.output-paused-overlay {
+			border-radius: 0px;
+		}
+	}
 	.embla__slide {
 		flex: 0 0 100%;
 		min-width: 0;

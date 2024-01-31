@@ -243,7 +243,13 @@
 		border-radius: 25px;
 		width: 90%;
 	}
+	:global(#editor-layout.engineInRoute) .main {
+		max-height: unset;
+		margin: 10px !important;
+		padding-bottom: 66px;
+	}
 	:global(#editor-layout.engineInRoute) .main.isSideBarOpen {
 		max-height: unset;
+		padding-bottom: unset;
 	}
 </style>

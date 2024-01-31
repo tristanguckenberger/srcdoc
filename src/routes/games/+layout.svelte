@@ -121,6 +121,11 @@
 		#editor-layout :global(.main.grid) {
 			width: 100%;
 		}
+		#editor-layout :global(.main) {
+			width: 100% !important;
+			height: 100% !important;
+			margin: 0 !important;
+		}
 	}
 	#editor-layout.engineInRoute :global(.main) {
 		width: calc(100% - 20px) !important;
