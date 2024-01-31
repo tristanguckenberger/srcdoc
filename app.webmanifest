@@ -1,4 +1,5 @@
 {
 	"name": "Play Engine",
+	"start_url": "/",
 	"display": "standalone"
 }
