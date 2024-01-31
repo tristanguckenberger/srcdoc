@@ -339,6 +339,9 @@
 		.output-paused-overlay {
 			border-radius: 0px;
 		}
+		.overlay-light-fade {
+			border-radius: 0px;
+		}
 	}
 	.embla__slide {
 		flex: 0 0 100%;

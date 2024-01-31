@@ -23,4 +23,9 @@
 		flex-direction: column;
 		gap: 30px;
 	}
+	@media (max-width: 498px) {
+		form {
+			height: unset;
+		}
+	}
 </style>

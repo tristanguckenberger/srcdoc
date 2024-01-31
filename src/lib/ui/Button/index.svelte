@@ -108,6 +108,7 @@
 			class:logoutButton={label === 'Logout'}
 			class:isCancelButton={label === 'Cancel'}
 			class:isDoneButton={label === 'Done'}
+			class:verifyMe={label === 'Verify Me'}
 			class={additionalClasses}
 			{style}
 		>
@@ -352,5 +353,8 @@
 		font-size: 1rem;
 		font-weight: 900;
 		font-family: 'Geologica';
+	}
+	button.verifyMe {
+		color: var(--color-secondary) !important;
 	}
 </style>
