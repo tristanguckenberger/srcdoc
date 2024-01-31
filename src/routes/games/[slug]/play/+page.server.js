@@ -25,6 +25,11 @@ const getSingleGame = async (slug, eventFetch) => {
 const getCurrentUser = async (eventFetch) => {
 	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
 	const user = await userResponse.json();
+
+	if (user?.status === 401) {
+		return null;
+	}
+
 	return user;
 };
 
@@ -95,8 +100,9 @@ const getAllCommentsForAGame = async (slug) => {
 	return Promise.all(comments);
 };
 
-export async function load({ params, fetch }) {
+export async function load(/**{ params, fetch }**/ { params, fetch }) {
 	const { slug } = params;
+	console.log('slug', slug);
 
 	let allGames = [];
 	gamesData.subscribe(async (gamesData) => {
@@ -118,13 +124,16 @@ export async function load({ params, fetch }) {
 		}
 	});
 
+	console.log('allGames::', allGames);
+
 	const user = await getCurrentUser(fetch);
+	console.log('user::ON_IOS::', user);
 	let userGames = [];
 	if (user) {
 		userGames = await getAllGamesByUser(user?.id, fetch);
 	}
 
-	const baseGames = [...gameData].reverse();
+	// const baseGames = [...gameData].reverse();
 	const game =
 		(await getSingleGame(slug, fetch)) ??
 		gameData.find((game) => game?.id.toString() === slug.toString());
@@ -179,10 +188,14 @@ export async function load({ params, fetch }) {
 
 	return {
 		...game,
+		text: 'howdy',
+		user,
+		// slug,
+		// allGames,
 		currentGame: { ...game },
 		topGame: { ...topGame, ...fetchedTopGame },
 		bottomGame: { ...bottomGame, ...fetchedBottomGame },
-		baseGames,
+		// baseGames,
 		userGames: [...userGames].reverse() ?? [],
 		comments: [...comments],
 		favorites: { ...favsObj }

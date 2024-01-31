@@ -46,6 +46,7 @@
 	import Issues from '$lib/ui/Widget/Components/Issues.svelte';
 	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
 	import EditDetails from '$lib/ui/Widget/Components/EditDetails.svelte';
+	import { afterNavigate, invalidateAll } from '$app/navigation';
 
 	export let data;
 	// export let thumbnail;
@@ -78,7 +79,8 @@
 	);
 
 	afterUpdate(() => {
-		console.log('selectedOption::', $selectedOption);
+		// console.log('selectedOption::', $selectedOption);
+		console.log('data::user::', data);
 	});
 	onMount(() => {
 		firstRun.set(true);
@@ -86,6 +88,9 @@
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
 		}
+	});
+	afterNavigate(() => {
+		invalidateAll();
 	});
 
 	onDestroy(() => {
@@ -107,19 +112,22 @@
 		currentGame.set(null);
 	});
 
-	// const getThumbnail = async (srcdoc) => {
-	// 	let thumbnail;
-	// 	htmlToImage?.toPng(srcdoc).then(function (dataUrl) {
-	// 		thumbnail = dataUrl;
-	// 	});
+	const getThumbnail = async (srcdoc) => {
+		let thumbnail;
+		htmlToImage?.toPng(srcdoc).then(function (dataUrl) {
+			thumbnail = dataUrl;
+		});
 
-	// 	return thumbnail;
-	// };
+		return thumbnail;
+	};
 
 	// distanceMoved is the distance the pan has moved
 	// setting it this way allows us to reset the distanceMoved to 0
 	// and then reset the carousel to the original position, without
 	// having to worry about the carousel jumping around
+
+	let newGamesData = [];
+
 	$: play = $playButton;
 	$: {
 		if (!$gamesData || $gamesData?.length < 1) {
@@ -170,7 +178,7 @@
 	$: src_build.set($srcbuild);
 	$: distanceMoved = $progressState;
 
-	// $: console.log('reactive data::', reactiveData);
+	$: console.log('reactive data::', reactiveData);
 
 	$: (() => {
 		return (ComponentOptions = [
