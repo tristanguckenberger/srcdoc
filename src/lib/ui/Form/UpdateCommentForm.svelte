@@ -119,6 +119,9 @@
 		height: fit-content;
 		width: 100%;
 		resize: none;
+		box-sizing: border-box;
+		padding-bottom: 8px;
+		line-height: calc(1rem + 5px);
 		overflow: hidden;
 		background-color: transparent;
 		color: var(--text-color-primary);

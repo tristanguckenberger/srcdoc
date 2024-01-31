@@ -517,7 +517,7 @@
 		font-size: 0.9rem;
 	}
 	.comment-container.parent {
-		background-color: #1d1e205c;
+		background-color: var(--drawer-bg);
 		padding-top: 23px;
 		border-radius: 8px;
 		transition: background-color 0.1s linear;

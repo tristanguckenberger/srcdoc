@@ -46,7 +46,7 @@
 		flex-direction: row;
 		justify-content: flex-end;
 		align-items: center;
-		background-color: #151617;
+		background-color: var(--slider-drawer);
 		border-top-right-radius: 15px;
 		border-top-left-radius: 15px;
 	}

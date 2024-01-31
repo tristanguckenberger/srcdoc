@@ -32,22 +32,24 @@
 		flex-direction: row;
 		gap: 10px;
 		border-radius: 4px;
-		background-color: #fffbe4;
-		padding: 5px;
+		background-color: var(--input-bg);
+		padding: 1px;
 		margin-top: 4px;
 	}
 	:global(.input-label) {
-		font-family: 'Nunito', sans-serif;
 		font-weight: 500;
 		font-size: 1rem;
-		color: #fffbe4;
+		font-family: var(--header-font), sans-serif;
+		color: var(--color-primary);
 	}
 	input {
 		border: none;
 		font-size: 1rem;
 		background-color: transparent;
-		color: #2e324c;
 		flex-grow: 1;
+		padding: 5px;
+		font-family: var(--paragraph-font), sans-serif;
+		color: var(--darker-bg);
 	}
 	input:focus-visible {
 		outline: var(--vibrant-orange) auto 1px;

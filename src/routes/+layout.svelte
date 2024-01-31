@@ -177,7 +177,7 @@
 	$: isMobile = $appClientWidth < 768;
 	$: play = $playButton;
 	$: actionOpen = $actionMenuOpen;
-	// $: console.log('routeHistory:', $routeHistoryStore);
+	$: console.log('routeHistory:', $routeHistoryStore);
 	$: actionHideDuration = $drawerOpen ? 0 : 200;
 	// $: console.log('gameFav::gameFavorites::', $gameFavorites?.favorites?.includes(sessionData?.id));
 	// $: console.log('gameFav::sessionData::', sessionData);
@@ -706,7 +706,7 @@
 		top: 0;
 		z-index: 10;
 		width: calc(100% - 20px);
-		background: #121314;
+		background: var(--color-secondary);
 	}
 	nav.isHomePage {
 		background: transparent;
@@ -737,7 +737,7 @@
 		width: calc(100% - 230px);
 		left: 230px;
 		position: relative;
-		background-color: #121314;
+		background-color: var(--color-secondary);
 	}
 	:global(.main.showSideBar) {
 		width: calc(100% - 230px);
@@ -791,7 +791,7 @@
 		display: flex;
 		height: 150px;
 		width: 200px;
-		background-color: var(--button-highlight);
+		background-color: var(--nav-dropdown);
 		position: absolute;
 		top: 18px;
 		right: 10px;
@@ -823,21 +823,21 @@
 		padding-top: 10px;
 	}
 	.layout-container.isBrowsePage {
-		background-color: var(--darker-bg);
+		background-color: var(--color-secondary);
 	}
 	.bg-container.engineInRoute {
-		background-color: var(--darker-bg) !important;
+		background-color: var(--color-secondary) !important;
 	}
 	.bg-container.gameProfile {
-		background-color: var(--darker-bg) !important;
+		background-color: var(--color-secondary) !important;
 		display: flex;
 	}
 	nav.engineInRoute {
-		background-color: var(--darker-bg) !important;
+		background-color: var(--color-secondary) !important;
 	}
 	nav.gameProfile {
 		/* background-color: transparent !important; */
-		background-color: #121314 !important;
+		background-color: var(--color-secondary) !important;
 	}
 	nav.gameProfile.showSideBar {
 		/* background-color: transparent !important; */
@@ -929,7 +929,7 @@
 		width: 230px;
 		display: none;
 		height: 100%;
-		background-color: #1d1e20;
+		background-color: var(--menu-bg);
 
 		flex-direction: column;
 		position: fixed;

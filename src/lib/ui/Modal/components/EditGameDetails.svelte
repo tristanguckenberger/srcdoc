@@ -76,10 +76,12 @@
 	}
 
 	form.gameDetails :global(button) {
-		background-color: #283e5e;
+		background-color: var(--button-highlight);
+		color: var(--color-primary) !important;
 	}
 
 	form.gameDetails :global(button:hover) {
-		background-color: #283e5e !important;
+		background-color: var(--button-highlight);
+		/* background-color: #283e5e !important; */
 	}
 </style>

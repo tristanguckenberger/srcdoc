@@ -268,7 +268,7 @@
 		height: 36.5px !important;
 		max-width: 36.5px !important;
 		max-height: 36.5px !important;
-		background-color: #1c1d1fab !important;
+		background-color: var(--sidebar-toggle) !important;
 		backdrop-filter: saturate(180%) blur(20px);
 	}
 
@@ -308,7 +308,7 @@
 		gap: 9px;
 		border-radius: 30px;
 		align-items: center;
-		background-color: #1c1d1fab !important;
+		background-color: var(--nav-dropdown) !important;
 		backdrop-filter: saturate(180%) blur(20px);
 	}
 	button.isRounded.userName:hover,
@@ -348,7 +348,7 @@
 		background-color: transparent !important;
 	}
 	.profile-quick-control span {
-		color: #e3f1f6;
+		color: var(--color-primary);
 		font-size: 1rem;
 		font-weight: 900;
 		font-family: 'Geologica';

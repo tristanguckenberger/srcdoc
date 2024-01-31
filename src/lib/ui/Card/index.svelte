@@ -241,11 +241,11 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 5px;
-		text-shadow: 0 0 3px black;
+		text-shadow: 0 0 3px var(--color-secondary);
 	}
 
 	button.action-button.favorites span {
-		color: #dadada;
+		color: var(--action-total-text-color);
 		font-family: 'Inter', sans-serif;
 		font-weight: 500;
 	}

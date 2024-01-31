@@ -136,8 +136,6 @@ export async function load({ params, fetch }) {
 
 	const favorites = await getAllFavoritesSingleGame(slug, fetch);
 
-	console.log('favorites::', favorites);
-
 	const comments = await getAllCommentsForAGame(slug);
 
 	const currentIndexByGameID = allGames?.findIndex(
