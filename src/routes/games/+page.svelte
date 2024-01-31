@@ -16,6 +16,8 @@
 			sideBarState.set(false);
 		}
 
+		console.log(data);
+
 		if (data?.games) {
 			gamesData.set([...data?.games]);
 		}

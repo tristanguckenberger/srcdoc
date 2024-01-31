@@ -105,7 +105,9 @@ export async function load(/**{ params, fetch }**/ { params, fetch }) {
 	console.log('slug', slug);
 
 	let allGames = [];
-	gamesData.subscribe(async (gamesData) => {
+
+	gamesData?.subscribe(async (gamesData) => {
+		console.log('gamesData::SUBSCRIBED::', gamesData);
 		try {
 			if (!gamesData?.length) {
 				const gamesReqHeaders = new Headers();

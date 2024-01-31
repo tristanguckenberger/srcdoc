@@ -89,7 +89,6 @@
 	};
 	const onScroll = async () => {
 		let nextGame;
-		console.log('slidesSettled::emblaApi.slidesInView()::', emblaApi.slidesInView());
 		if (!pointerDown && emblaApi.slidesInView()?.length === 1) {
 			slideInView = emblaApi?.selectedScrollSnap();
 			nextGame = gamesAvailable[slideInView];
