@@ -192,12 +192,25 @@
 			isFavorited = fav?.user_id === sessionData?.id ?? false;
 		});
 	})();
+	$: isInPwaMode = (() => {
+		if (browser) {
+			return (
+				window.matchMedia('(display-mode: standalone)').matches ||
+				window.navigator.standalone === true
+			);
+		}
+
+		return false;
+	})();
+
+	$: console.log('isInPwaMode', isInPwaMode);
 	// $: deleteOrCreateFav = isFavorited ?? false;
 	// $: console.log('deleteOrCreateFav::', deleteOrCreateFav);
 </script>
 
 <div
 	class="layout-container"
+	class:isPWA={isInPwaMode}
 	class:isBrowsePage
 	style="--svg-bg: url('{bgFadedMono16}'); --screenHeight: {$screenHeight -
 		15}px; height: 100%; width: 100%; {themeString}"
@@ -1193,5 +1206,8 @@
 	.action-menu.fade {
 		opacity: 1;
 		transition: opacity 0.3s linear 0.06s;
+	}
+	.layout-container.isPWA {
+		background-color: red !important;
 	}
 </style>
