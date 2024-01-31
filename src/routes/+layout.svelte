@@ -61,6 +61,11 @@
 	// FUNCTIONS
 	onMount(() => {
 		inject({ mode: dev ? 'development' : 'production' });
+		if ('serviceWorker' in navigator) {
+			window.addEventListener('load', () => {
+				navigator.serviceWorker.register('/sw.js');
+			});
+		}
 		if (browser) {
 			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
 			preferedThemeMode?.addEventListener('change', updateTheme);
