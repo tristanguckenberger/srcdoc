@@ -63,7 +63,7 @@
 		width: 3em;
 		height: 1.6em;
 		position: relative;
-		margin: 0 0 0 0.5em;
+		margin: 0 0 0 1em;
 		background: var(--gray);
 		border: none;
 	}

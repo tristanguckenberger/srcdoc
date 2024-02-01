@@ -57,6 +57,8 @@
 		};
 	}}
 >
+	<CustomInput inputCapture={'published'} inputValue={published} hidden />
+	<ToggleSwitch bind:value={published} label="Published" design="slider" />
 	<CustomInput inputCapture={'title'} inputText={title}>
 		<span slot="label" class="input-label modal">Title</span>
 	</CustomInput>
@@ -64,8 +66,6 @@
 		<span slot="label" class="input-label modal">Description</span>
 	</CustomInput>
 	<CustomInput inputCapture={'gameId'} inputText={gameId} hidden />
-	<CustomInput inputCapture={'published'} inputValue={published} hidden />
-	<ToggleSwitch bind:value={published} label="Published" design="slider" />
 	<Button label="Update Details" isRounded />
 </form>
 
