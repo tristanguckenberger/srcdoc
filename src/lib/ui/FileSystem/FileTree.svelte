@@ -39,13 +39,14 @@
 	let editingId = null;
 	let folderName = '';
 	let init = true;
-	let dx;
-	let dy;
+	let dX;
+	let dY;
 
 	function longpressHandler(event, file) {
-		dx = event.detail.x;
-		dy = event.detail.y;
+		dX = event.detail.x;
+		dY = event.detail.y;
 		console.log('::longpressHandler::HIT');
+		console.log(dX, dY);
 		handleRightClick(event, file);
 	}
 
@@ -84,8 +85,8 @@
 	}
 
 	function doubletapHandler(event, file) {
-		dx = event.detail.x;
-		dy = event.detail.y;
+		// dx = event.detail.x;
+		// dy = event.detail.y;
 		console.log('::doubletapHandler::HIT');
 		handleFileDBClick(file);
 	}
@@ -351,8 +352,8 @@
 
 		// Position menu at click coordinates
 		contextMenu.style.position = 'absolute';
-		contextMenu.style.left = `${x}px`;
-		contextMenu.style.top = `${y}px`;
+		contextMenu.style.left = `${x ?? dX}px`;
+		contextMenu.style.top = `${y ?? dY}px`;
 
 		// Append to body and remove on next click anywhere
 		document.body.appendChild(contextMenu);

@@ -260,9 +260,9 @@
 	}
 
 	:global(#editor-layout.engineInRoute) {
-		height: calc(100% - 56px);
+		height: calc(100% - 56.5px);
 
-		max-height: calc(100% - 56px);
+		max-height: calc(100% - 56.5px);
 	}
 
 	:global(main.editor) {
