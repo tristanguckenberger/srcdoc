@@ -298,7 +298,7 @@
 		/* transition: background-color 300ms cubic-bezier(0.215, 0.610, 0.355, 1); */
 	}
 	.section-panel {
-		border-radius: 8px;
+		border-radius: 6px;
 		border: 2px solid #5c5c5c;
 		min-width: 30px;
 	}

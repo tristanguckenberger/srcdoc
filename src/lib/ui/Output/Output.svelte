@@ -175,5 +175,8 @@
 		iframe {
 			border-radius: 0px !important;
 		}
+		:global(#editor-layout.engineInRoute) iframe {
+			border-radius: 6px !important;
+		}
 	}
 </style>

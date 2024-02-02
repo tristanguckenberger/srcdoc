@@ -854,6 +854,7 @@
 	}
 	nav.engineInRoute {
 		background-color: var(--color-secondary) !important;
+		position: unset !important;
 	}
 	nav.gameProfile {
 		/* background-color: transparent !important; */

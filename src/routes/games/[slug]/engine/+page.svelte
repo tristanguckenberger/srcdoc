@@ -206,6 +206,9 @@
 		height: calc(100% - 4px);
 		/* max-height: calc(100% - 101.5px); */
 	}
+	.main.main.isSideBarOpen #split-input-output {
+		height: calc(100% - 4px);
+	}
 	#split-input-output.isSideBarOpen {
 		max-width: calc(100% - var(--sidebar-width));
 	}
@@ -215,7 +218,7 @@
 	}
 	#split-file-explorer {
 		padding: 10px;
-		border-radius: 8px;
+		border-radius: 6px;
 		border: 2px solid #5c5c5c;
 		overflow: hidden;
 		max-width: 245px;
@@ -237,6 +240,7 @@
 		max-width: calc(100% - var(--sidebar-width) + 4px);
 		min-width: calc(100% - 275px);
 		max-height: unset !important;
+		max-height: calc(100%);
 	}
 	.sidebar-divider {
 		border: 1px solid #f6f6f605;
@@ -244,12 +248,24 @@
 		width: 90%;
 	}
 	:global(#editor-layout.engineInRoute) .main {
-		max-height: unset;
+		max-height: calc(100% - 47px);
 		margin: 10px !important;
-		padding-bottom: 66px;
+		/* padding-bottom: 66px; */
+		max-height: calc(100% - 50px);
 	}
 	:global(#editor-layout.engineInRoute) .main.isSideBarOpen {
 		max-height: unset;
 		padding-bottom: unset;
+		max-height: calc(100% - 50px);
+	}
+
+	:global(#editor-layout.engineInRoute) {
+		height: calc(100% - 56px);
+
+		max-height: calc(100% - 56px);
+	}
+
+	:global(main.editor) {
+		height: calc(100% - 56.5px) !important;
 	}
 </style>

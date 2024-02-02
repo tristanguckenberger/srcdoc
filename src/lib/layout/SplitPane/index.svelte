@@ -203,6 +203,8 @@
 		width: 100%;
 		max-width: 100%;
 		min-width: calc(100% - var(--sidebar-width));
+		max-height: 100%;
+		min-height: 100%;
 	}
 	.split.vertical {
 		display: block;

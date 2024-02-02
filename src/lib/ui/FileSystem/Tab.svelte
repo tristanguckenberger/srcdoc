@@ -12,6 +12,7 @@
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
+	import { setPointerControls, DEFAULT_DELAY } from 'svelte-gestures';
 
 	export let file;
 	export let closeTab;

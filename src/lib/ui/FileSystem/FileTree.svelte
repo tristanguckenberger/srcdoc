@@ -23,6 +23,7 @@
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { afterUpdate, onMount, tick } from 'svelte';
 	import File from './File.svelte';
+	import { setPointerControls, DEFAULT_DELAY } from 'svelte-gestures';
 
 	export let gameId;
 	export let userId;
@@ -38,6 +39,106 @@
 	let editingId = null;
 	let folderName = '';
 	let init = true;
+	let dx;
+	let dy;
+
+	function longpressHandler(event, file) {
+		dx = event.detail.x;
+		dy = event.detail.y;
+		console.log('::longpressHandler::HIT');
+		handleRightClick(event, file);
+	}
+
+	function longpress(node, parameters = { delay: 500 }) {
+		// Default delay set to 500ms
+		const gestureName = 'longpress';
+
+		let timeout;
+		let started = false;
+
+		function onDown(activeEvents, event) {
+			started = true;
+			timeout = setTimeout(() => {
+				if (started) {
+					// Ensures the touch is still active
+					const rect = node.getBoundingClientRect();
+					const x = Math.round(event.clientX - rect.left);
+					const y = Math.round(event.clientY - rect.top);
+
+					node.dispatchEvent(
+						new CustomEvent(gestureName, {
+							detail: { x, y }
+						})
+					);
+				}
+			}, parameters.delay);
+		}
+
+		function onUp(activeEvents, event) {
+			started = false;
+			clearTimeout(timeout);
+		}
+
+		// Assuming `setPointerControls` is a utility function you have for adding and removing event listeners
+		return setPointerControls(gestureName, node, null, onDown, onUp);
+	}
+
+	function doubletapHandler(event, file) {
+		dx = event.detail.x;
+		dy = event.detail.y;
+		console.log('::doubletapHandler::HIT');
+		handleFileDBClick(file);
+	}
+
+	function doubletap(node, parameters = { timeframe: DEFAULT_DELAY }) {
+		const gestureName = 'doubletap';
+		const spread = 20;
+
+		let startTime;
+		let clientX;
+		let clientY;
+		let tapCount = 0;
+		let timeout;
+
+		function onUp(activeEvents, event) {
+			if (
+				Math.abs(event.clientX - clientX) < spread &&
+				Math.abs(event.clientY - clientY) < spread &&
+				Date.now() - startTime < parameters.timeframe
+			) {
+				if (!tapCount) {
+					tapCount++;
+				} else {
+					const rect = node.getBoundingClientRect();
+					const x = Math.round(event.clientX - rect.left);
+					const y = Math.round(event.clientY - rect.top);
+
+					node.dispatchEvent(
+						new CustomEvent(gestureName, {
+							detail: { x, y }
+						})
+					);
+
+					clearTimeout(timeout);
+					tapCount = 0;
+				}
+			}
+		}
+
+		function onDown(activeEvents, event) {
+			if (!tapCount) {
+				clientX = event.clientX;
+				clientY = event.clientY;
+				startTime = Date.now();
+			}
+
+			timeout = setTimeout(() => {
+				tapCount = 0;
+			}, parameters.timeframe);
+		}
+
+		return setPointerControls(gestureName, node, null, onDown, onUp);
+	}
 
 	function startCreatingFile(file) {
 		creatingFile = true;
@@ -447,6 +548,8 @@
 								toggleFolder(file);
 							}}
 							on:contextmenu={(e) => handleRightClick(e, file)}
+							use:longpress
+							on:longpress={(e) => longpressHandler(e, file)}
 						>
 							{file.name}
 						</button>
@@ -457,6 +560,10 @@
 						on:click={() => HandleFileSingleClick(file)}
 						on:dblclick={() => handleFileDBClick(file)}
 						on:contextmenu={(e) => handleRightClick(e, file)}
+						use:longpress
+						on:longpress={(e) => longpressHandler(e, file)}
+						use:doubletap
+						on:doubletap={(e) => doubletapHandler(e, file)}
 					>
 						<File {file} bind:isRenaming bind:editingId allFiles={files} bind:preventOpen />
 					</button>
