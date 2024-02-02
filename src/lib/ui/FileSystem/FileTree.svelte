@@ -615,6 +615,9 @@
 		border: none;
 		font-size: 13px;
 		cursor: pointer;
+		-webkit-user-select: none; /* Safari */
+		-ms-user-select: none; /* IE 10 and IE 11 */
+		user-select: none; /* Standard syntax */
 	}
 
 	.folder-button {
@@ -628,6 +631,9 @@
 		background-position: left center;
 		background-size: 16px;
 		background-image: none;
+		-webkit-user-select: none; /* Safari */
+		-ms-user-select: none; /* IE 10 and IE 11 */
+		user-select: none; /* Standard syntax */
 	}
 
 	.folder-button::before {
