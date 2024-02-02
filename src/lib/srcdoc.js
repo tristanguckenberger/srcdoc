@@ -283,7 +283,7 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 		${cssContent}
 	  </head>
-	  <body>
+	  <body style="--client_height: ${getHeight()}; --client_width: ${getWidth()}">
 		<script>
 
 		let keyState = ${stringifiedStore};
