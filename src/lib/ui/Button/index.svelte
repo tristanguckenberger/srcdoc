@@ -13,6 +13,7 @@
 	export let userAvatar;
 	export let showDropDown;
 	export let style;
+	export let formaction;
 
 	let profileControl = false;
 
@@ -94,6 +95,7 @@
 		</a>
 	{:else}
 		<button
+			{formaction}
 			class:isRounded={isRounded || userName}
 			typeof={type}
 			on:click={() => !userName && action && action()}

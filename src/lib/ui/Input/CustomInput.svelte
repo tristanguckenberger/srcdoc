@@ -56,6 +56,33 @@
 					blurAction();
 				}}
 			/>
+		{:else if inputCapture === 'username'}
+			<input
+				type="text"
+				name={inputCapture}
+				bind:value={inputText}
+				on:blur={() => {
+					blurAction();
+				}}
+			/>
+		{:else if inputCapture === 'bio'}
+			<textarea
+				class="description-input"
+				name={inputCapture}
+				bind:value={inputText}
+				on:blur={() => {
+					blurAction();
+				}}
+			/>
+		{:else if inputCapture === 'profile_photo'}
+			<textarea
+				class:hideMe={hidden}
+				name={inputCapture}
+				bind:value={inputText}
+				on:blur={() => {
+					blurAction();
+				}}
+			/>
 		{:else if inputCapture === 'published'}
 			<input
 				class:hideMe={hidden}
@@ -152,5 +179,7 @@
 	}
 	.hideMe {
 		opacity: 0;
+		height: 0 !important;
+		width: 0 !important;
 	}
 </style>
