@@ -753,6 +753,12 @@
 	main.editor {
 		height: calc(100% - 66.5px) !important;
 	}
+	@media (min-width: 498px) {
+		main.editor {
+			height: calc(100% - 56.5px) !important;
+			padding-top: 0 !important;
+		}
+	}
 	main.showSideBar {
 		width: calc(100% - 230px);
 		left: 230px;

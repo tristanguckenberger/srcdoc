@@ -176,59 +176,68 @@
 </script>
 
 <svelte:window on:keyup={handleKeyUp} />
+{#await gamesAvailable}
+	<p>Loading...</p>
+{:then}
+	{#if gamesAvailable.length < 1}
+		<p>No games available</p>
+	{:else}
+		<div class="embla" use:emblaCarouselSvelte={{ options }} on:emblaInit={onInit}>
+			<div class="embla__container">
+				{#each gamesAvailable as game, i (`${game?.id}_index_${i}`)}
+					<div class="output-paused-overlay game_option_{i} embla__slide">
+						<div
+							class="overlay-blur blur_{i}"
+							class:drawerOpen={$drawerOpen}
+							style="--bg_{i}: url('{game?.thumbnail ?? 'https://picsum.photos/600/600'}');"
+						/>
+						<div class="overlay-light-fade" />
+						<div class="nav-action" bind:clientHeight={navActionHeight}>
+							<div class="action-rift">
+								<div class="rift-clip" />
+							</div>
+						</div>
 
-<div class="embla" use:emblaCarouselSvelte={{ options }} on:emblaInit={onInit}>
-	<div class="embla__container">
-		{#each gamesAvailable as game, i (`${game?.id}_index_${i}`)}
-			<div class="output-paused-overlay game_option_{i} embla__slide">
-				<div
-					class="overlay-blur blur_{i}"
-					class:drawerOpen={$drawerOpen}
-					style="--bg_{i}: url('{game?.thumbnail ?? 'https://picsum.photos/600/600'}');"
-				/>
-				<div class="overlay-light-fade" />
-				<div class="nav-action" bind:clientHeight={navActionHeight}>
-					<div class="action-rift">
-						<div class="rift-clip" />
+						{#if $session?.id === game?.user_id}
+							<button
+								class="settings-action"
+								class:drawerOpen={$drawerOpen}
+								on:click={() => {
+									browser && selectedOption.set(3);
+									drawerOpen.set(true);
+								}}
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="36"
+									height="36"
+									fill="#ffffff"
+									viewBox="0 0 256 256"
+									class="action-button-icon"
+									><path
+										d="M216,130.16q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.6,107.6,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.29,107.29,0,0,0-26.25-10.86,8,8,0,0,0-7.06,1.48L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.6,107.6,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"
+									/></svg
+								>
+							</button>
+						{/if}
+
+						<div class="info-container" class:drawerOpen={$drawerOpen}>
+							<h1>
+								{game?.title}
+							</h1>
+							<p>
+								{game?.description}
+							</p>
+							<button on:click={shareGame}>Share This Game</button>
+						</div>
 					</div>
-				</div>
-
-				{#if $session?.id === game?.user_id}
-					<button
-						class="settings-action"
-						class:drawerOpen={$drawerOpen}
-						on:click={() => {
-							browser && selectedOption.set(3);
-							drawerOpen.set(true);
-						}}
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="36"
-							height="36"
-							fill="#ffffff"
-							viewBox="0 0 256 256"
-							class="action-button-icon"
-							><path
-								d="M216,130.16q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.6,107.6,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.29,107.29,0,0,0-26.25-10.86,8,8,0,0,0-7.06,1.48L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.6,107.6,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"
-							/></svg
-						>
-					</button>
-				{/if}
-
-				<div class="info-container" class:drawerOpen={$drawerOpen}>
-					<h1>
-						{game?.title}
-					</h1>
-					<p>
-						{game?.description}
-					</p>
-					<button on:click={shareGame}>Share This Game</button>
-				</div>
+				{/each}
 			</div>
-		{/each}
-	</div>
-</div>
+		</div>
+	{/if}
+{:catch}
+	<p>Failed to load games</p>
+{/await}
 
 <style>
 	.nav-action {

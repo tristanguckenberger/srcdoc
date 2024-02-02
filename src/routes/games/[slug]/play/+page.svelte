@@ -195,8 +195,8 @@
 			{
 				name: 'Comments',
 				props: {
-					gameId: reactiveData?.id,
-					comments: reactiveData?.comments,
+					gameId: data?.id,
+					comments: data?.comments,
 					parentCommentId: null
 				},
 				component: Comments
@@ -212,10 +212,10 @@
 			{
 				name: 'EditDetails',
 				props: {
-					gameId: reactiveData?.id,
-					title: reactiveData?.title,
-					description: reactiveData?.description,
-					published: Boolean(reactiveData?.published)
+					gameId: data?.id,
+					title: data?.title,
+					description: data?.description,
+					published: Boolean(data?.published)
 				},
 				component: EditDetails
 			}
