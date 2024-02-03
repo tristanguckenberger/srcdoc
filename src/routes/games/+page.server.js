@@ -4,20 +4,43 @@ import { gamesData } from '$lib/stores/gamesStore.js';
 import { redirect } from '@sveltejs/kit';
 
 const getCurrentUser = async (eventFetch) => {
-	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
-	const user = await userResponse.json();
+	let user;
+	try {
+		const userResponse = await eventFetch(`/api/users/getCurrentUser`);
+		user = await userResponse.json();
+	} catch (error) {
+		console.log('getCurrentUser::error::', error);
+	}
 
 	return user;
 };
 
 const getAllGames = async (eventFetch) => {
+	// let allGames;
+	// try {
+
+	// 	console.log('CODE::getAllGames::allGamesRes::', allGamesRes);
+	// 	const allGames = await allGamesRes.json();
+
+	// 	console.log('allGames::', allGames);
+	// 	if (allGames?.status === 401) {
+	// 		return [];
+	// 	}
+	// } catch (error) {
+	// 	console.log('allGamesRes::error::', error);
+	// }
 	const allGamesRes = await eventFetch(`/api/games/getAllGames`);
 	return await allGamesRes.json();
 };
 
 const getAllFavoritesSingleGame = async (slug, eventFetch) => {
-	const favoritesRes = await eventFetch(`/api/favorites/${slug}/getAllFavoritesSingleGame`);
-	const favorites = await favoritesRes.json();
+	let favorites = [];
+	try {
+		const favoritesRes = await eventFetch(`/api/favorites/${slug}/getAllFavoritesSingleGame`);
+		favorites = await favoritesRes.json();
+	} catch (error) {
+		console.log('favoritesRes::error::', error);
+	}
 
 	return favorites;
 };
@@ -43,8 +66,9 @@ export async function load({ cookies, fetch }) {
 	}
 
 	const allGames = await getAllGames(fetch);
+	console.log('allGames::', allGames);
 
-	const publishedGames = allGames?.filter((game) => game.published);
+	const publishedGames = allGames?.filter((game) => game.published) ?? [];
 	gamesData.set([...publishedGames].reverse());
 
 	return {

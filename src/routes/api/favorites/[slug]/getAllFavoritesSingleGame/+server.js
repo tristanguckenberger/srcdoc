@@ -1,10 +1,10 @@
 // @ts-nocheck
 import { json } from '@sveltejs/kit';
 
-export async function GET({ params }) {
-	// setHeaders({
-	// 	'cache-control': 'max-age=15'
-	// });
+export async function GET({ setHeaders, params }) {
+	setHeaders({
+		'cache-control': 'max-age=15'
+	});
 
 	const { slug } = params;
 
@@ -15,12 +15,27 @@ export async function GET({ params }) {
 	};
 
 	// rewrite the endpoint path... the url is dumb and should be /api/games/${slug}/favorites`
-	const favsResponse = await fetch(
-		`${process.env.SERVER_URL}/api/favorites/games/${slug}`,
-		favReqInit
-	);
+	let favorites;
+	try {
+		const favsResponse = await fetch(
+			`${process.env.SERVER_URL}/api/favorites/games/${slug}`,
+			favReqInit
+		);
 
-	const favorites = await favsResponse.json();
+		if (!favsResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Request failed',
+					data: []
+				}
+			};
+		}
+
+		favorites = await favsResponse.json();
+	} catch (error) {
+		console.log('src/routes/api/favorites/[slug]/getAllFavoritesSingleGame::error::', error);
+	}
 
 	return json(favorites);
 }

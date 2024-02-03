@@ -393,7 +393,7 @@
 	function saveFile(file) {
 		// Add your logic to save the file
 	}
-	function buildItemThreads(parentId, items) {
+	function buildItemThreads(parentId, items = []) {
 		const threads = [];
 		for (const item of items) {
 			if ((item?.parentFileId ?? item?.parent_file_id) === parentId) {

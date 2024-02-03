@@ -10,24 +10,34 @@ const getAllUsers = async () => {
 		method: 'GET',
 		headers: userReqHeaders
 	};
-
-	const usersResponse = await fetch(`${process.env.SERVER_URL}/api/users/all`, userReqInit);
-	if (!usersResponse.ok) {
-		return {
-			status: 401,
-			body: {
-				message: 'Authentication failed'
-			}
-		};
+	let users = [];
+	try {
+		const usersResponse = await fetch(`${process.env.SERVER_URL}/api/users/all`, userReqInit);
+		if (!usersResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to get all users',
+					response: usersResponse
+				}
+			};
+		}
+		users = await usersResponse.json();
+	} catch (error) {
+		console.log('usersResponse::error::', error);
 	}
 
-	const users = await usersResponse.json();
 	return users;
 };
 
 const getCurrentUser = async (eventFetch) => {
-	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
-	const user = await userResponse.json();
+	let user;
+	try {
+		const userResponse = await eventFetch(`/api/users/getCurrentUser`);
+		user = await userResponse.json();
+	} catch (error) {
+		console.log('getCurrentUser::error::', error);
+	}
 
 	return user;
 };

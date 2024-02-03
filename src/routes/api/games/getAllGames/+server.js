@@ -10,17 +10,24 @@ export async function GET({ setHeaders }) {
 		headers: gamesReqHeaders
 	};
 
-	const gamesResponse = await fetch(`${process.env.SERVER_URL}/api/games/all`, gamesReqInit);
-
-	if (!gamesResponse.ok) {
-		return json({
-			status: 401,
-			body: {
-				message: 'Authentication failed'
-			}
-		});
+	let games;
+	try {
+		const gamesResponse = await fetch(`${process.env.SERVER_URL}/api/games/all`, gamesReqInit);
+		console.log('getAllGames::gamesResponse::', gamesResponse);
+		if (!gamesResponse.ok) {
+			return json({
+				status: 401,
+				body: {
+					message: 'Request failed',
+					response: gamesResponse
+				}
+			});
+		}
+		games = await gamesResponse.json();
+	} catch (error) {
+		console.log('gamesResponse::error::', error);
 	}
+	console.log('getAllGames::games::', games);
 
-	const games = await gamesResponse.json();
 	return json(games);
 }

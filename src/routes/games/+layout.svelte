@@ -73,6 +73,11 @@
 		background-color: var(--color-secondary);
 		/* background-color: var(--darker-bg); */
 	}
+	@media (min-width: 500px) {
+		#editor-layout {
+			height: unset;
+		}
+	}
 	.modifiedWidth {
 		max-width: calc(100% + 10px) !important;
 		width: calc(100% + 10px) !important;

@@ -756,7 +756,7 @@
 	@media (min-width: 498px) {
 		main.editor {
 			height: calc(100% - 56.5px) !important;
-			padding-top: 0 !important;
+			/* padding-top: 0 !important; */
 		}
 	}
 	main.showSideBar {
@@ -1219,4 +1219,8 @@
 	/* .layout-container.isPWA {
 		background-color: transparent !important;
 	} */
+	.page-container.engineInRoute main.editor {
+		padding-top: 0 !important;
+		height: unset !important;
+	}
 </style>

@@ -3,39 +3,69 @@ import { gameData } from '$lib/mockData/gameData.js';
 import { gamesData } from '$lib/stores/gamesStore.js';
 
 const getAllFavoritesSingleGame = async (slug, eventFetch) => {
-	const favoritesRes = await eventFetch(`/api/favorites/${slug}/getAllFavoritesSingleGame`);
-	const favorites = await favoritesRes.json();
+	let favorites;
+	try {
+		const favoritesRes = await eventFetch(`/api/favorites/${slug}/getAllFavoritesSingleGame`);
+		favorites = await favoritesRes.json();
+	} catch (error) {
+		console.log('favoritesRes::error::', error);
+	}
 
 	return favorites;
 };
 
 const getAllFilesBySingleGame = async (slug, eventFetch) => {
-	const gameFilesRes = await eventFetch(`/api/games/getSingleGame/${slug}/files`);
-	const gameFiles = await gameFilesRes.json();
+	let gameFiles;
+	try {
+		const gameFilesRes = await eventFetch(`/api/games/getSingleGame/${slug}/files`);
+		gameFiles = await gameFilesRes.json();
+	} catch (error) {
+		console.log('gameFilesRes::error::', error);
+	}
 
 	return gameFiles;
 };
 
 const getSingleGame = async (slug, eventFetch) => {
-	const gameResponse = await eventFetch(`/api/games/getSingleGame/${slug}`);
-	const gameInfo = await gameResponse.json();
+	let gameResponse;
+	let gameInfo;
+	try {
+		gameResponse = await eventFetch(`/api/games/getSingleGame/${slug}`);
+		gameInfo = await gameResponse.json();
+	} catch (error) {
+		console.log('error::', error);
+	}
+
 	return gameInfo;
 };
 
 const getCurrentUser = async (eventFetch) => {
-	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
-	const user = await userResponse.json();
+	let user;
+	try {
+		const userResponse = await eventFetch(`/api/users/getCurrentUser`);
 
-	if (user?.status === 401) {
-		return null;
+		console.log('getCurrentUser::userResponse::', userResponse);
+
+		user = await userResponse.json();
+		console.log('getCurrentUser::user::', user);
+		if (user?.status === 401) {
+			return null;
+		}
+	} catch (error) {
+		console.log('getCurrentUser::error::', error);
 	}
 
 	return user;
 };
 
 const getAllGamesByUser = async (userId, eventFetch) => {
-	const gamesRes = await eventFetch(`/api/games/getAllGamesByUser/${userId}`);
-	const games = await gamesRes.json();
+	let games = [];
+	try {
+		const gamesRes = await eventFetch(`/api/games/getAllGamesByUser/${userId}`);
+		games = await gamesRes.json();
+	} catch (error) {
+		console.log('gamesRes::error::', error);
+	}
 
 	return games;
 };
@@ -70,16 +100,22 @@ const getAllCommentsForAGame = async (slug) => {
 		method: 'GET',
 		headers: commentReqHeaders
 	};
+	let commentResponse;
+	try {
+		commentResponse = await fetch(
+			`${process.env.SERVER_URL}/api/comments/game/${slug}`,
+			commentReqInit
+		);
+	} catch (error) {
+		console.log('commentResponse::error::', error);
+	}
 
-	const commentResponse = await fetch(
-		`${process.env.SERVER_URL}/api/comments/game/${slug}`,
-		commentReqInit
-	);
 	if (!commentResponse.ok) {
 		return {
 			status: 401,
 			body: {
-				message: 'Request failed'
+				message: 'Request failed',
+				data: []
 			}
 		};
 	}
@@ -102,9 +138,8 @@ const getAllCommentsForAGame = async (slug) => {
 
 export async function load(/**{ params, fetch }**/ { params, fetch }) {
 	const { slug } = params;
-	console.log('slug', slug);
 
-	let allGames = [];
+	let allGames;
 
 	gamesData?.subscribe(async (gamesData) => {
 		console.log('gamesData::SUBSCRIBED::', gamesData);
@@ -126,10 +161,8 @@ export async function load(/**{ params, fetch }**/ { params, fetch }) {
 		}
 	});
 
-	console.log('allGames::', allGames);
-
 	const user = await getCurrentUser(fetch);
-	console.log('user::ON_IOS::', user);
+
 	let userGames = [];
 	if (user) {
 		userGames = await getAllGamesByUser(user?.id, fetch);
@@ -147,7 +180,7 @@ export async function load(/**{ params, fetch }**/ { params, fetch }) {
 
 	const favorites = await getAllFavoritesSingleGame(slug, fetch);
 
-	const comments = await getAllCommentsForAGame(slug);
+	let comments = await getAllCommentsForAGame(slug);
 
 	const currentIndexByGameID = allGames?.findIndex(
 		(gam) => gam?.id?.toString() === game?.id?.toString()
@@ -181,6 +214,13 @@ export async function load(/**{ params, fetch }**/ { params, fetch }) {
 		fetchedBottomGame = await getSingleGame(bottomGame?.id, fetch);
 	}
 
+	if (comments?.length) {
+		console.log('comments::', comments);
+	} else {
+		console.log('no comments');
+		comments = [];
+	}
+
 	if (favorites?.length) {
 		favsObj = {
 			count: favorites?.length,
@@ -193,12 +233,12 @@ export async function load(/**{ params, fetch }**/ { params, fetch }) {
 		text: 'howdy',
 		user,
 		// slug,
-		// allGames,
+		allGames,
 		currentGame: { ...game },
 		topGame: { ...topGame, ...fetchedTopGame },
 		bottomGame: { ...bottomGame, ...fetchedBottomGame },
 		// baseGames,
-		userGames: [...userGames].reverse() ?? [],
+		userGames: [...userGames].reverse(),
 		comments: [...comments],
 		favorites: { ...favsObj }
 	};
