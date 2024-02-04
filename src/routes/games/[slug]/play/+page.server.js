@@ -41,13 +41,11 @@ const getSingleGame = async (slug, eventFetch) => {
 
 const getCurrentUser = async (eventFetch) => {
 	let user;
+
 	try {
 		const userResponse = await eventFetch(`/api/users/getCurrentUser`);
-
-		console.log('getCurrentUser::userResponse::', userResponse);
-
 		user = await userResponse.json();
-		console.log('getCurrentUser::user::', user);
+
 		if (user?.status === 401) {
 			return null;
 		}
@@ -142,7 +140,6 @@ export async function load(/**{ params, fetch }**/ { params, fetch }) {
 	let allGames;
 
 	gamesData?.subscribe(async (gamesData) => {
-		console.log('gamesData::SUBSCRIBED::', gamesData);
 		try {
 			if (!gamesData?.length) {
 				const gamesReqHeaders = new Headers();
@@ -219,9 +216,7 @@ export async function load(/**{ params, fetch }**/ { params, fetch }) {
 		fetchedBottomGame = await getSingleGame(bottomGame?.id, fetch);
 	}
 
-	if (comments?.length) {
-		console.log('comments::', comments);
-	} else {
+	if (!comments?.length || comments?.length === 0) {
 		console.log('no comments');
 		comments = [];
 	}

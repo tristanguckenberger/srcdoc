@@ -47,13 +47,6 @@ const getAllFavoritesSingleGame = async (slug, eventFetch) => {
 
 export async function load({ cookies, fetch }) {
 	const token = cookies?.get('token');
-
-	// if (!token) {
-	// 	return {
-	// 		games: [...gameData].reverse()
-	// 	};
-	// }
-
 	let sessionData = {};
 
 	if (token) {
@@ -65,9 +58,7 @@ export async function load({ cookies, fetch }) {
 		delete sessionData?.token && delete sessionData?.password;
 	}
 
-	const allGames = await getAllGames(fetch);
-	console.log('allGames::', allGames);
-
+	const allGames = (await getAllGames(fetch)) ?? [];
 	const publishedGames = allGames?.filter((game) => game.published) ?? [];
 	gamesData.set([...publishedGames].reverse());
 

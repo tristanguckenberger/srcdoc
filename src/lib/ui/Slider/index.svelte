@@ -171,16 +171,8 @@
 	$: favoritesCount = favoritesObj?.count;
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
-	$: play = $playButton;
-	// $: console.log(
-	// 	'!pointerDown && emblaApi.slidesInView()?.length === 1::',
-	// 	!pointerDown && emblaApi?.slidesInView()?.length === 1
-	// );
 	$: !pointerDown && emblaApi?.slidesInView()?.length === 1,
 		(() => {
-			console.log('emblaApi.slidesInView()?.length::', emblaApi?.slidesInView()?.length);
-			console.log('pointerDown::', pointerDown);
-			console.log('slidesSettled::', slidesSettled);
 			const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
 			if (nextGame?.id !== currentGame?.id && !$lockGameStateStore) {
 				lockGameStateStore.set(true);

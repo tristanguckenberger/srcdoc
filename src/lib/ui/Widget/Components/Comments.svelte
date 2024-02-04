@@ -7,8 +7,6 @@
 	export let comments;
 	export let parentCommentId;
 	export let hasChildren = false;
-
-	$: console.log('comments::gameId', gameId);
 </script>
 
 <Comment {gameId} {userId} {comments} {parentCommentId} {hasChildren} />

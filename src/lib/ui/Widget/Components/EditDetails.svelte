@@ -7,8 +7,6 @@
 	export let description;
 	export let published;
 	export let headerImage;
-
-	$: console.log('comments::gameId', gameId);
 </script>
 
 <EditGameDetails {gameId} {title} {description} {published} {headerImage} />

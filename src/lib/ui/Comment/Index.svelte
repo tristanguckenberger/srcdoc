@@ -196,19 +196,6 @@
 			disabledToggle = true;
 		}
 	}}
-	on:load={() => {
-		console.log('::on:load::');
-		// console.log('::comments::', comments);
-		// console.log('::threadedComments::', threadedComments);
-
-		// find .comment-container.parent::after
-		const after = document.querySelector('.comment-container.parent::after');
-		console.log('::after::', after);
-		// add event listener to .comment-container.parent::after for on click
-		after.addEventListener('click', (e) => {
-			console.log('::after::onclick::');
-		});
-	}}
 />
 
 {#if parentCommentId === null}

@@ -125,11 +125,6 @@
 		return thumbnail;
 	};
 
-	// distanceMoved is the distance the pan has moved
-	// setting it this way allows us to reset the distanceMoved to 0
-	// and then reset the carousel to the original position, without
-	// having to worry about the carousel jumping around
-
 	let newGamesData = [];
 
 	$: play = $playButton;
@@ -180,20 +175,6 @@
 			}
 		})();
 	$: src_build.set($srcbuild);
-	$: distanceMoved = $progressState;
-	// $: isInPwaMode = (() => {
-	// 	if (browser) {
-	// 		return (
-	// 			window.matchMedia('(display-mode: standalone)').matches ||
-	// 			window.navigator.standalone === true
-	// 		);
-	// 	}
-
-	// 	return false;
-	// })();
-
-	$: console.log('reactive data::', reactiveData);
-
 	$: (() => {
 		return (ComponentOptions = [
 			{
