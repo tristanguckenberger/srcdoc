@@ -670,12 +670,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
-		padding: 10% 40%;
+		/* padding: 10% 40%; */
 		top: 350px;
 		position: relative;
 	}
 	.flexed-form.sideBarOpen {
-		padding: 10% 40%;
+		/* padding: 10% 40%; */
 	}
 	.authentication {
 		/* transition: opacity 5ms linear; */

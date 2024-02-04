@@ -461,6 +461,7 @@
 		display: flex;
 		width: 100%;
 		box-sizing: border-box;
+		justify-content: center;
 
 		/* background-color: #fff9d7;
 		border-radius: 60px;
@@ -530,17 +531,17 @@
 		animation: counter-clockwise 10s infinite linear;
 	} */
 	.flexed-form {
-		width: 100%;
+		width: 50%;
 		height: 100%;
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
-		padding: 10% 40%;
+		/* padding: 10% 40%; */
 		top: 350px;
 		position: relative;
 	}
 	.flexed-form.sideBarOpen {
-		padding: 10% 40%;
+		/* padding: 10% 40%; */
 	}
 	.authentication {
 		/* transition: opacity 5ms linear; */
