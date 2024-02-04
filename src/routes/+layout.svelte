@@ -512,7 +512,7 @@
 					class="action-button play-button"
 					class:drawerOpen={$drawerOpen}
 					on:click={playToggle}
-					class:fade={$hidePlayButtonStore || (!$playButton && $actionMenuOpen)}
+					class:fade={!$hidePlayButtonStore || (!$playButton && $actionMenuOpen)}
 				>
 					{#if !$playButton}
 						<svg

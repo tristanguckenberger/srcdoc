@@ -74,7 +74,7 @@
 			$currentGameStore = currentGame;
 
 			// might not need to invalidate at all since we have all the data
-			await goto(`/games/${nextGame?.id}/play`, { replaceState: true, state: { ...$page?.data } });
+			await goto(`/games/${nextGame?.id}/play`, { replaceState: false, state: { ...$page?.data } });
 			// await invalidateAll();
 			// await tick();
 		}
