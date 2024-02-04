@@ -9,7 +9,7 @@
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 	import { playButton, gameFavoriteCount, gameFavorites } from '$lib/stores/gamesStore.js';
 	import { writable } from 'svelte/store';
-	import { debounce } from 'lodash-es';
+	import { debounce, set } from 'lodash-es';
 	import { hidePlayButtonStore, lockGameStateStore } from '$lib/stores/gameControllerStore';
 	import { session } from '$lib/stores/sessionStore';
 	import {
@@ -28,7 +28,7 @@
 	export let favoritesObj = {};
 
 	let emblaApi;
-	let options = { axis: 'y', duration: 25, inViewThreshold: 0.3 };
+	let options = { axis: 'y', duration: 60, inViewThreshold: 0.3 };
 	let slideInView = 1;
 	let pointerDown = false;
 	let currentGame;
@@ -37,6 +37,7 @@
 	let hideActionNav = true;
 	let timeout;
 	let isFavorited = false;
+	let doNavigate = false;
 	const favoritesStore = writable([]);
 
 	async function shareGame() {
@@ -97,10 +98,16 @@
 	const handleKeyUp = async (event) => {
 		if (event.key === 'ArrowUp') {
 			emblaApi?.scrollPrev();
+			setTimeout(() => {
+				doNavigate = true;
+			}, 300);
 		}
 
 		if (event.key === 'ArrowDown') {
 			emblaApi?.scrollNext();
+			setTimeout(() => {
+				doNavigate = true;
+			}, 300);
 		}
 	};
 
@@ -143,22 +150,16 @@
 		});
 	});
 
-	afterNavigate(async () => {
-		if (emblaApi && !pointerDown) {
-			emblaApi.scrollTo(1, true);
-			if (!pointerDown && emblaApi.slidesInView()?.length === 1) {
-				await tick();
+	afterNavigate(() => {
+		// Reset state or cleanup after navigation
+		if (emblaApi) {
+			emblaApi.scrollTo(1, true); // Ensure the carousel is reset to a default state after navigation
+			tick().then(() => {
 				currentGame = gamesAvailable[1];
-				slideInView = 1;
-			}
+				currentGameStore.set(currentGame);
+				lockGameStateStore.set(false);
+			});
 		}
-
-		if (initialId !== gamesAvailable[1]?.id) {
-			initialId = gamesAvailable[1]?.id;
-		}
-
-		$currentGameStore = currentGame;
-		lockGameStateStore.set(false);
 	});
 
 	onDestroy(() => {
@@ -171,11 +172,12 @@
 	$: favoritesCount = favoritesObj?.count;
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
-	$: !pointerDown && emblaApi?.slidesInView()?.length === 1,
+	$: (!pointerDown && emblaApi?.slidesInView()?.length === 1) || doNavigate,
 		(() => {
 			const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
 			if (nextGame?.id !== currentGame?.id && !$lockGameStateStore) {
 				lockGameStateStore.set(true);
+				doNavigate = false;
 				debouncedNavigation(nextGame);
 			}
 		})();
