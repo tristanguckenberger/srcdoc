@@ -60,8 +60,8 @@
 	const onInit = (event) => {
 		emblaApi = event.detail;
 		emblaApi.scrollTo(1, true);
-		emblaApi.on('pointerUp', debounce(onPointerUp, 100));
-		emblaApi.on('pointerDown', debounce(onPointerDown, 100));
+		emblaApi.on('pointerUp', debounce(onPointerUp, 150));
+		emblaApi.on('pointerDown', debounce(onPointerDown, 150));
 		slideInView = 1;
 		currentGame = gamesAvailable[slideInView];
 		initialId = gamesAvailable[slideInView]?.id;
@@ -74,13 +74,13 @@
 			$currentGameStore = currentGame;
 
 			// might not need to invalidate at all since we have all the data
-			await goto(`/games/${nextGame?.id}/play`, { replaceState: false, state: { ...$page?.data } });
+			await goto(`/games/${nextGame?.id}/play`);
 			// await invalidateAll();
 			// await tick();
 		}
 	};
 
-	const debouncedNavigation = debounce(performNavigation, 250);
+	const debouncedNavigation = debounce(performNavigation, 375);
 
 	const onPointerDown = (event) => {
 		pointerDown = true;
