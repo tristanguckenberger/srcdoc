@@ -1,11 +1,14 @@
 <script>
 	// @ts-nocheck
 	import { browser } from '$app/environment';
+	import { enhance } from '$app/forms';
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
 	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
+	import { playButton, gameFavoriteCount, gameFavorites } from '$lib/stores/gamesStore.js';
+	import { debounce } from 'lodash-es';
 	// import { fade } from 'svelte/transition';
 	import { session } from '$lib/stores/sessionStore';
 	import {
@@ -13,9 +16,7 @@
 		currentGame as currentGameStore,
 		topGame,
 		bottomGame,
-		gameCommentCount,
-		gameFavoriteCount,
-		gameFavorites
+		gameCommentCount
 	} from '$lib/stores/gamesStore';
 	import { page } from '$app/stores';
 
@@ -25,41 +26,32 @@
 	export let thumbnail;
 	export let favoritesObj = {};
 
-	$: favoritesCount = favoritesObj?.count;
-
 	let emblaApi;
 	let options = { axis: 'y', duration: 25, inViewThreshold: 0.7 };
 	let slideInView = 1;
 	let pointerDown = false;
 	let currentGame;
 	let initialId;
-	let shouldNavigate = false;
 	let slidesSettled = true;
 	let hideActionNav = true;
+	let timeout;
+	let isFavorited = false;
 
-	onMount(() => {
-		hideActionNav = false;
-		$actionMenuOpen = true;
-		// if (favoritesCount > 0) {
-
-		// }
-	});
-
-	afterUpdate(() => {
-		gameFavoriteCount.set(favoritesCount);
-		gameFavorites.set(favoritesObj);
-	});
+	const playToggle = () => {
+		if ($drawerOpen) {
+			$playButton = false;
+		} else {
+			$playButton = !play;
+		}
+	};
 
 	async function shareGame() {
-		// if (browser) {
-		// 	console.log('shareGame::page::', $page);
-		// }
 		if (navigator.share) {
 			try {
 				await navigator.share({
 					title: 'Check out this game!',
 					text: 'I found this cool game on Play Engine. Check it out!',
-					url: $page?.url?.href // The URL to the game or content you want to share
+					url: $page?.url?.href
 				});
 				console.log('Content shared successfully');
 			} catch (error) {
@@ -67,77 +59,60 @@
 			}
 		} else {
 			console.log('Web Share API is not supported in your browser.');
-			// Implement a fallback sharing mechanism here if necessary
 		}
 	}
+
 	const onInit = (event) => {
-		// Get the Embla API
 		emblaApi = event.detail;
 		emblaApi.scrollTo(1, true);
-
-		// Listen to Embla events
-		emblaApi.on('select', onSelect);
-		emblaApi.on('scroll', onScroll);
-		emblaApi.on('settle', onSettle);
-		emblaApi.on('pointerUp', onPointerUp);
-		emblaApi.on('pointerDown', onPointerDown);
-
-		// Initialize Slider vars
+		emblaApi.on('select', debounce(onSelect, 350));
+		emblaApi.on('scroll', debounce(onScroll, 350));
+		emblaApi.on('pointerUp', debounce(onPointerUp, 350));
+		emblaApi.on('pointerDown', debounce(onPointerDown, 350));
 		slideInView = 1;
 		currentGame = gamesAvailable[slideInView];
 		initialId = gamesAvailable[slideInView]?.id;
 	};
+
+	const performNavigation = async () => {
+		const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
+		if (nextGame?.id !== currentGame?.id) {
+			currentGame = nextGame;
+			$currentGameStore = currentGame;
+			await goto(`/games/${nextGame?.id}/play`);
+			await invalidateAll();
+			await tick();
+		}
+	};
+
+	const debouncedNavigation = debounce(performNavigation, 350);
+
 	const onScroll = async () => {
 		let nextGame;
 		if (!pointerDown && emblaApi.slidesInView()?.length === 1) {
 			slideInView = emblaApi?.selectedScrollSnap();
 			nextGame = gamesAvailable[slideInView];
-			slidesSettled = true;
 		}
 	};
+
 	const onPointerDown = (event) => {
 		pointerDown = true;
 		slidesSettled = false;
-
-		// ui vars
 		$actionMenuOpen = false;
 	};
+
 	const onPointerUp = (event) => {
 		pointerDown = false;
 		$actionMenuOpen = true;
-
-		// Handle navigation here
 	};
+
 	const onSelect = async () => {
 		const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
-		console.log('pointerDown', pointerDown);
 		if (nextGame?.id !== currentGame?.id) {
-			setTimeout(async () => {
-				currentGame = nextGame;
-				$currentGameStore = currentGame;
-				//
-				await goto(`/games/${nextGame?.id}/play`);
-				await invalidateAll();
-				await tick();
-			}, 550);
+			debouncedNavigation(nextGame);
 		}
 	};
-	const onSettle = async () => {
-		// const nextGame = gamesAvailable[slideInView];
-		// slidesSettled = true;
-		/**
-		 * If the current index is not 1
-		 * and the nextGame is not the same as the game at index 1
-		 * then navigate to the nextGame
-		 */
-		// if (emblaApi?.selectedScrollSnap() !== 1 && nextGame?.id !== gamesAvailable[1]?.id) {
-		// 	shouldNavigate = true;
-		// 	await tick();
-		// 	await goto(`/games/${nextGame?.id}/play`);
-		// 	await invalidateAll();
-		// 	currentGame = nextGame;
-		// }
-	};
+
 	const handleKeyUp = async (event) => {
 		if (event.key === 'ArrowUp') {
 			emblaApi?.scrollPrev();
@@ -147,10 +122,37 @@
 			emblaApi?.scrollNext();
 		}
 	};
-	beforeNavigate(async () => {
-		// slideInView = 1;
-		// shouldNavigate = false;
+
+	onMount(() => {
+		hideActionNav = false;
+		$actionMenuOpen = true;
 	});
+
+	afterUpdate(() => {
+		gameFavoriteCount.set(favoritesCount);
+		gameFavorites.set(favoritesObj);
+
+		if (emblaApi?.selectedScrollSnap() !== 1) {
+			// Clear any existing timeout to reset the timer
+			clearTimeout(timeout);
+
+			// Set a new timeout
+			timeout = setTimeout(async () => {
+				// Action to perform if condition is met for longer than 1 second
+				console.log(
+					'Performing action X because the selected slide is not 1 for more than 1 second'
+				);
+				const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
+				if (nextGame?.id !== currentGame?.id) {
+					debouncedNavigation(nextGame);
+				}
+			}, 400); // 1 second
+		} else {
+			// If the selected slide is 1, clear the timeout
+			clearTimeout(timeout);
+		}
+	});
+
 	afterNavigate(async () => {
 		if (emblaApi && !pointerDown) {
 			emblaApi.scrollTo(1, true);
@@ -167,12 +169,18 @@
 
 		$currentGameStore = currentGame;
 	});
+
 	onDestroy(() => {
 		emblaApi?.destroy();
+		clearTimeout(debouncedNavigation);
 	});
 
 	$: $currentGameStore = currentGame;
 	$: hideActionNav = !$actionMenuOpen;
+	$: favoritesCount = favoritesObj?.count;
+	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
+	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
+	$: play = $playButton;
 </script>
 
 <svelte:window on:keyup={handleKeyUp} />
@@ -230,6 +238,115 @@
 							</p>
 							<button on:click={shareGame}>Share This Game</button>
 						</div>
+						{#if isPlayPage}
+							{#if !$playButton}
+								{#if !$drawerOpen}
+									<ul class="action-menu" class:fade={true}>
+										<!-- {#if $actionMenuOpen} -->
+										<div class="sub-action-menu">
+											{#if $session?.id === game?.user_id}
+												<a
+													class="action-button button"
+													href={`/games/${$currentGameStore?.id}/engine`}
+												>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="36"
+														height="36"
+														fill="#ffffff"
+														viewBox="0 0 256 256"
+														><path
+															d="M69.12,94.15,28.5,128l40.62,33.85a8,8,0,1,1-10.24,12.29l-48-40a8,8,0,0,1,0-12.29l48-40a8,8,0,0,1,10.24,12.3Zm176,27.7-48-40a8,8,0,1,0-10.24,12.3L227.5,128l-40.62,33.85a8,8,0,1,0,10.24,12.29l48-40a8,8,0,0,0,0-12.29ZM162.73,32.48a8,8,0,0,0-10.25,4.79l-64,176a8,8,0,0,0,4.79,10.26A8.14,8.14,0,0,0,96,224a8,8,0,0,0,7.52-5.27l64-176A8,8,0,0,0,162.73,32.48Z"
+														/></svg
+													>
+												</a>
+											{/if}
+											<form
+												class="gameDetails new-project-form modal"
+												method="POST"
+												action="/games/?/{isFavorited ? 'deleteFavorite' : 'createFavorite'}"
+												use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+													return async ({ result }) => {
+														if (result.status === 200) {
+															gameFavorites.set(result?.data?.body?.favorites);
+															gameFavoriteCount.set(result?.data?.body?.favorites?.length);
+															isFavorited = !isFavorited;
+														}
+													};
+												}}
+											>
+												<input type="hidden" name="gameId" value={$currentGameStore?.id} />
+												<button class="action-button button favorites" on:click={() => {}}>
+													<!-- {#if isFavorited && $gameFavoriteCount > 0} -->
+													<svg
+														width="27"
+														height="23"
+														viewBox="0 0 27 23"
+														fill="red"
+														xmlns="http://www.w3.org/2000/svg"
+														class="fav"
+														class:isFavorited={isFavorited && $gameFavoriteCount > 0}
+													>
+														<path
+															d="M26.21 7.25455C26.21 15.4452 14.0656 22.0749 13.5485 22.3487C13.4122 22.422 13.2598 22.4604 13.105 22.4604C12.9502 22.4604 12.7978 22.422 12.6615 22.3487C12.1444 22.0749 0 15.4452 0 7.25455C0.00216787 5.33119 0.767181 3.48723 2.1272 2.1272C3.48723 0.767181 5.33119 0.00216787 7.25455 0C9.67079 0 11.7863 1.03904 13.105 2.79534C14.4237 1.03904 16.5392 0 18.9554 0C20.8788 0.00216787 22.7228 0.767181 24.0828 2.1272C25.4428 3.48723 26.2078 5.33119 26.21 7.25455Z"
+															fill="white"
+															fill-opacity="0.81"
+														/>
+													</svg>
+													<span class="favorite">{$gameFavoriteCount ?? 0}</span>
+												</button>
+											</form>
+											<button
+												class="action-button button"
+												on:click={() => {
+													$playButton = false;
+													browser && selectedOption.set(0);
+													// setTimeout(() => {
+													// playToggle();
+													$playButton = false;
+													drawerOpen.set(true);
+													// }, 200);
+												}}
+											>
+												<svg
+													width="27"
+													height="27"
+													viewBox="0 0 27 27"
+													fill="none"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<path
+														d="M17.8228 11.5324C17.8228 11.8105 17.7123 12.0771 17.5157 12.2737C17.3191 12.4703 17.0525 12.5808 16.7744 12.5808H8.3872C8.10915 12.5808 7.84248 12.4703 7.64587 12.2737C7.44926 12.0771 7.3388 11.8105 7.3388 11.5324C7.3388 11.2543 7.44926 10.9877 7.64587 10.7911C7.84248 10.5945 8.10915 10.484 8.3872 10.484H16.7744C17.0525 10.484 17.3191 10.5945 17.5157 10.7911C17.7123 10.9877 17.8228 11.2543 17.8228 11.5324ZM16.7744 14.6776H8.3872C8.10915 14.6776 7.84248 14.7881 7.64587 14.9847C7.44926 15.1813 7.3388 15.4479 7.3388 15.726C7.3388 16.0041 7.44926 16.2707 7.64587 16.4673C7.84248 16.6639 8.10915 16.7744 8.3872 16.7744H16.7744C17.0525 16.7744 17.3191 16.6639 17.5157 16.4673C17.7123 16.2707 17.8228 16.0041 17.8228 15.726C17.8228 15.4479 17.7123 15.1813 17.5157 14.9847C17.3191 14.7881 17.0525 14.6776 16.7744 14.6776ZM26.21 13.105C26.2062 16.5795 24.8243 19.9106 22.3674 22.3674C19.9106 24.8243 16.5795 26.2062 13.105 26.21H2.05355C1.50913 26.2093 0.987204 25.9927 0.602238 25.6078C0.217272 25.2228 0.000693534 24.7009 0 24.1564V13.105C5.17914e-08 9.62934 1.3807 6.29603 3.83837 3.83837C6.29603 1.3807 9.62934 0 13.105 0C16.5807 0 19.914 1.3807 22.3716 3.83837C24.8293 6.29603 26.21 9.62934 26.21 13.105ZM24.1132 13.105C24.1132 10.1854 22.9534 7.38547 20.889 5.32103C18.8245 3.25659 16.0246 2.0968 13.105 2.0968C10.1854 2.0968 7.38546 3.25659 5.32103 5.32103C3.25659 7.38547 2.0968 10.1854 2.0968 13.105V24.1132H13.105C16.0236 24.1101 18.8218 22.9493 20.8855 20.8855C22.9493 18.8218 24.1101 16.0236 24.1132 13.105Z"
+														fill="white"
+														fill-opacity="0.81"
+													/>
+												</svg>
+											</button>
+											<button
+												class="action-button button"
+												on:click={() => {
+													// $playButton = false;
+												}}
+											>
+												<svg
+													width="27"
+													height="16"
+													viewBox="0 0 27 16"
+													fill="none"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<path
+														d="M14.3734 2.53932C14.3734 2.31509 14.4625 2.10004 14.621 1.94149C14.7796 1.78293 14.9947 1.69385 15.2189 1.69385H25.3645C25.5888 1.69385 25.8038 1.78293 25.9624 1.94149C26.1209 2.10004 26.21 2.31509 26.21 2.53932C26.21 2.76356 26.1209 2.97861 25.9624 3.13716C25.8038 3.29572 25.5888 3.38479 25.3645 3.38479H15.2189C14.9947 3.38479 14.7796 3.29572 14.621 3.13716C14.4625 2.97861 14.3734 2.76356 14.3734 2.53932ZM25.3645 6.76667H15.2189C14.9947 6.76667 14.7796 6.85575 14.621 7.01431C14.4625 7.17286 14.3734 7.38791 14.3734 7.61214C14.3734 7.83638 14.4625 8.05143 14.621 8.20998C14.7796 8.36854 14.9947 8.45761 15.2189 8.45761H25.3645C25.5888 8.45761 25.8038 8.36854 25.9624 8.20998C26.1209 8.05143 26.21 7.83638 26.21 7.61214C26.21 7.38791 26.1209 7.17286 25.9624 7.01431C25.8038 6.85575 25.5888 6.76667 25.3645 6.76667ZM25.3645 11.8395H17.7553C17.5311 11.8395 17.316 11.9286 17.1575 12.0871C16.9989 12.2457 16.9098 12.4607 16.9098 12.685C16.9098 12.9092 16.9989 13.1242 17.1575 13.2828C17.316 13.4414 17.5311 13.5304 17.7553 13.5304H25.3645C25.5888 13.5304 25.8038 13.4414 25.9624 13.2828C26.1209 13.1242 26.21 12.9092 26.21 12.685C26.21 12.4607 26.1209 12.2457 25.9624 12.0871C25.8038 11.9286 25.5888 11.8395 25.3645 11.8395ZM10.7051 9.09172C11.5442 8.44542 12.16 7.55269 12.4661 6.53874C12.7721 5.52478 12.7531 4.44046 12.4118 3.43783C12.0704 2.43521 11.4238 1.56458 10.5626 0.948048C9.70138 0.331514 8.6688 0 7.60966 0C6.55052 0 5.51794 0.331514 4.65673 0.948048C3.79553 1.56458 3.14891 2.43521 2.80754 3.43783C2.46618 4.44046 2.44719 5.52478 2.75326 6.53874C3.05932 7.55269 3.67508 8.44542 4.51418 9.09172C2.33498 10.0143 0.61762 11.8712 0.0268472 14.1645C-0.00542023 14.2895 -0.00864689 14.4202 0.0174145 14.5466C0.0434758 14.673 0.0981333 14.7918 0.177198 14.8938C0.256262 14.9958 0.357635 15.0784 0.473545 15.1352C0.589455 15.192 0.716827 15.2214 0.845896 15.2214H14.3734C14.5025 15.2214 14.6299 15.192 14.7458 15.1352C14.8617 15.0784 14.9631 14.9958 15.0421 14.8938C15.1212 14.7918 15.1758 14.673 15.2019 14.5466C15.228 14.4202 15.2247 14.2895 15.1925 14.1645C14.6017 11.8701 12.8843 10.0133 10.7051 9.09172Z"
+														fill="white"
+														fill-opacity="0.81"
+													/>
+												</svg>
+											</button>
+										</div>
+									</ul>
+								{/if}
+							{/if}
+						{/if}
 					</div>
 				{/each}
 			</div>
@@ -369,5 +486,148 @@
 	}
 	.overlay-blur.drawerOpen {
 		filter: saturate(180%) blur(20px) brightness(0.4);
+	}
+	.action-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: transparent;
+		border: none;
+	}
+	.action-button:hover {
+		cursor: pointer;
+	}
+	.action-button-icon {
+		width: 36.5px;
+		height: 100%;
+	}
+	.play-button-container {
+		position: absolute;
+		bottom: 30px;
+		right: 26px;
+		height: 50px;
+		top: 11px;
+	}
+
+	.action-menu {
+		position: absolute;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 40px;
+		align-items: center;
+		bottom: 145.5px;
+		right: 25px;
+	}
+
+	.sub-action-menu {
+		display: flex;
+		flex-direction: column;
+		gap: 40px;
+		align-items: center;
+	}
+	.action-menu .button {
+		transition: transform 0.2s cubic-bezier(0.65, 0.05, 0.36, 1);
+	}
+	.action-menu .button.actionMenuOpen {
+		transform: rotate(90deg);
+	}
+	.play-button {
+		position: relative;
+		z-index: 1;
+		width: 36.5px;
+		height: 36.5px;
+		border-radius: 6px;
+		transform: translateY(calc(var(--screenHeight))); /*  - 50px */
+		/* top: 50px; */
+	}
+	#primary-actions {
+		margin-block-start: 40px;
+	}
+	.play-button.drawerOpen {
+		transform: translateY(370%);
+		transition: transform 0.3s linear 0.03s;
+	}
+	.play-button.drawerOpen svg {
+		filter: brightness(0.4);
+	}
+
+	@media (max-width: 768px) {
+		.play-button-container {
+			top: -34px;
+		}
+	}
+	.favorites {
+		font-family: 'Inter';
+		color: #dadada;
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		font-weight: 400;
+		text-shadow: 0 0 3px black;
+	}
+	svg.fav path {
+		/* transition: fill 0.3s ease; */
+	}
+	svg.isFavorited path {
+		fill: red;
+	}
+	.action-menu button:focus {
+		outline: none;
+	}
+	.action-menu button:focus-within {
+		outline: none;
+	}
+	.action-menu button:focus-visible {
+		outline: none;
+	}
+	.mobile-profile-btn {
+		display: flex;
+		align-items: center;
+		padding-left: 10px;
+	}
+	@media (max-width: 498px) {
+		main.editor.isPlayPage.isMobile {
+			height: 100% !important;
+		}
+	}
+
+	.play-button-container,
+	.action-menu {
+		opacity: 0;
+		transition: opacity 0.3s linear 0.03s;
+	}
+
+	.play-button-container.fade,
+	.action-menu.fade {
+		opacity: 1;
+		transition: opacity 0.3s linear 0.06s;
+	}
+
+	.sub-action-menu {
+		display: flex;
+		flex-direction: column;
+		gap: 40px;
+		align-items: center;
+	}
+	@media (min-width: 498px) {
+		.play-button-container {
+			bottom: 20px !important;
+			top: unset !important;
+			z-index: 1000000000000000;
+		}
+		.play-button {
+			transform: unset !important;
+		}
+	}
+	@media (max-width: 498px) {
+		.play-button-container {
+			bottom: 20px !important;
+			top: unset !important;
+			z-index: 1000000000000000;
+		}
+		.play-button {
+			transform: unset !important;
+		}
 	}
 </style>

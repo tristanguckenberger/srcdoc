@@ -1,6 +1,9 @@
 import { json } from '@sveltejs/kit';
 
 export async function GET({ setHeaders, params }) {
+	setHeaders({
+		'cache-control': 'max-age=60'
+	});
 	const { slug } = params;
 	const userReqHeaders = new Headers();
 	const gameReqInit = {
@@ -23,10 +26,6 @@ export async function GET({ setHeaders, params }) {
 	} catch (error) {
 		console.log('gameResponse::error::', error);
 	}
-
-	setHeaders({
-		'cache-control': 'max-age=60'
-	});
 
 	return json(games);
 }

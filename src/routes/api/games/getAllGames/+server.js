@@ -13,7 +13,6 @@ export async function GET({ setHeaders }) {
 	let games;
 	try {
 		const gamesResponse = await fetch(`${process.env.SERVER_URL}/api/games/all`, gamesReqInit);
-		console.log('getAllGames::gamesResponse::', gamesResponse);
 		if (!gamesResponse.ok) {
 			return json({
 				status: 401,
@@ -27,7 +26,6 @@ export async function GET({ setHeaders }) {
 	} catch (error) {
 		console.log('gamesResponse::error::', error);
 	}
-	console.log('getAllGames::games::', games);
 
 	return json(games);
 }
