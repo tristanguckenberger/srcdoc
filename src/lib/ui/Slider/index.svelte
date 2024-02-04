@@ -59,9 +59,8 @@
 	const onInit = (event) => {
 		emblaApi = event.detail;
 		emblaApi.scrollTo(1, true);
-		emblaApi.on('scroll', debounce(onScroll, 250));
-		emblaApi.on('pointerUp', debounce(onPointerUp, 250));
-		emblaApi.on('pointerDown', debounce(onPointerDown, 250));
+		emblaApi.on('pointerUp', debounce(onPointerUp, 300));
+		emblaApi.on('pointerDown', debounce(onPointerDown, 300));
 		slideInView = 1;
 		currentGame = gamesAvailable[slideInView];
 		initialId = gamesAvailable[slideInView]?.id;
@@ -79,14 +78,6 @@
 	};
 
 	const debouncedNavigation = debounce(performNavigation, 250);
-
-	const onScroll = async () => {
-		let nextGame;
-		if (!pointerDown && emblaApi.slidesInView()?.length === 1) {
-			slideInView = emblaApi?.selectedScrollSnap();
-			nextGame = gamesAvailable[slideInView];
-		}
-	};
 
 	const onPointerDown = (event) => {
 		pointerDown = true;
