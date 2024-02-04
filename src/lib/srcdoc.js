@@ -277,7 +277,7 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 
 	return `
 	  <!DOCTYPE html>
-	  <html>
+	  <html style="touch-action: manipulation;">
 	  <head>
 	  <script src="https://pixijs.download/release/pixi.js"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
