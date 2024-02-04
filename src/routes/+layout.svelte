@@ -77,7 +77,9 @@
 	});
 
 	afterNavigate(() => {
-		sideBarState.set(false);
+		if (!isPlayPage) {
+			sideBarState.set(false);
+		}
 	});
 
 	afterUpdate(() => {
@@ -506,7 +508,7 @@
 		{#if isPlayPage}
 			<div
 				class="play-button-container"
-				class:fade={$hidePlayButtonStore || (!$playButton && $actionMenuOpen)}
+				class:fade={!$hidePlayButtonStore || (!$playButton && $actionMenuOpen)}
 			>
 				<button
 					class="action-button play-button"
