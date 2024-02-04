@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { gameData } from '$lib/mockData/gameData.js';
-import { gamesData } from '$lib/stores/gamesStore.js';
+// import { gamesData } from '$lib/stores/gamesStore.js';
 
 const getAllFavoritesSingleGame = async (slug, eventFetch) => {
 	let favorites;
@@ -92,6 +92,11 @@ const getUser = async (/** @type {String} */ id) => {
 	}
 };
 
+const getAllGames = async (eventFetch) => {
+	const allGamesRes = await eventFetch(`/api/games/getAllGames`);
+	return await allGamesRes.json();
+};
+
 const getAllCommentsForAGame = async (slug) => {
 	const commentReqHeaders = new Headers();
 	const commentReqInit = {
@@ -137,26 +142,26 @@ const getAllCommentsForAGame = async (slug) => {
 export async function load(/**{ params, fetch }**/ { params, fetch }) {
 	const { slug } = params;
 
-	let allGames;
+	const allGames = (await getAllGames(fetch)) ?? [];
 
-	gamesData?.subscribe(async (gamesData) => {
-		try {
-			if (!gamesData?.length) {
-				const gamesReqHeaders = new Headers();
-				const gamesReqInit = {
-					method: 'GET',
-					headers: gamesReqHeaders
-				};
-				const gamesResponse = await fetch(`${process.env.SERVER_URL}/api/games`, gamesReqInit);
-				const games = await gamesResponse.json();
-				gamesData = games;
-			}
+	// gamesData?.subscribe(async (gamesData) => {
+	// 	try {
+	// 		if (!gamesData?.length) {
+	// 			const gamesReqHeaders = new Headers();
+	// 			const gamesReqInit = {
+	// 				method: 'GET',
+	// 				headers: gamesReqHeaders
+	// 			};
+	// 			const gamesResponse = await fetch(`${process.env.SERVER_URL}/api/games`, gamesReqInit);
+	// 			const games = await gamesResponse.json();
+	// 			gamesData = games;
+	// 		}
 
-			allGames = gamesData;
-		} catch (error) {
-			console.log('error::', error);
-		}
-	});
+	// 		allGames = gamesData;
+	// 	} catch (error) {
+	// 		console.log('error::', error);
+	// 	}
+	// });
 
 	const user = await getCurrentUser(fetch);
 
@@ -184,48 +189,51 @@ export async function load(/**{ params, fetch }**/ { params, fetch }) {
 
 	let comments = await getAllCommentsForAGame(slug);
 
-	const currentIndexByGameID = allGames?.findIndex(
-		(gam) => gam?.id?.toString() === game?.id?.toString()
-	);
-	const currentIndexIsLast = allGames?.length - 1 === currentIndexByGameID;
-	const currentIndexIsFirst = 0 === currentIndexByGameID;
-
 	let topGame;
 	let fetchedTopGame;
 	let favsObj;
-
 	let bottomGame;
 	let fetchedBottomGame;
 
-	if (currentIndexIsLast) {
-		topGame = allGames[currentIndexByGameID - 1];
-		bottomGame = allGames[0];
-	} else if (currentIndexIsFirst) {
-		topGame = allGames[allGames?.length - 1];
-		bottomGame = allGames[currentIndexByGameID + 1];
-	} else {
-		topGame = allGames[currentIndexByGameID - 1];
-		bottomGame = allGames[currentIndexByGameID + 1];
-	}
+	try {
+		const currentIndexByGameID = allGames?.findIndex(
+			(gam) => gam?.id?.toString() === game?.id?.toString()
+		);
+		const currentIndexIsLast = allGames?.length - 1 === currentIndexByGameID;
+		const currentIndexIsFirst = 0 === currentIndexByGameID;
 
-	if (topGame) {
-		fetchedTopGame = await getSingleGame(topGame?.id, fetch);
-	}
+		if (currentIndexIsLast) {
+			topGame = allGames[currentIndexByGameID - 1];
+			bottomGame = allGames[0];
+		} else if (currentIndexIsFirst) {
+			topGame = allGames[allGames?.length - 1];
+			bottomGame = allGames[currentIndexByGameID + 1];
+		} else {
+			topGame = allGames[currentIndexByGameID - 1];
+			bottomGame = allGames[currentIndexByGameID + 1];
+		}
 
-	if (bottomGame) {
-		fetchedBottomGame = await getSingleGame(bottomGame?.id, fetch);
-	}
+		if (topGame) {
+			fetchedTopGame = await getSingleGame(topGame?.id, fetch);
+		}
 
-	if (!comments?.length || comments?.length === 0) {
-		console.log('no comments');
-		comments = [];
-	}
+		if (bottomGame) {
+			fetchedBottomGame = await getSingleGame(bottomGame?.id, fetch);
+		}
 
-	if (favorites?.length) {
-		favsObj = {
-			count: favorites?.length,
-			favorites: [...favorites]
-		};
+		if (!comments?.length || comments?.length === 0) {
+			console.log('no comments');
+			comments = [];
+		}
+
+		if (favorites?.length) {
+			favsObj = {
+				count: favorites?.length,
+				favorites: [...favorites]
+			};
+		}
+	} catch (error) {
+		console.log('error::', error);
 	}
 
 	return {
