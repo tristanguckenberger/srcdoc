@@ -5,3 +5,6 @@ export const gameControllerStore = writable({
 	previous: null,
 	pressed: false
 });
+
+export const hidePlayButtonStore = writable(false);
+export const lockGameStateStore = writable(false);

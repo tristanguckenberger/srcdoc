@@ -52,6 +52,7 @@
 	}
 
 	$: value = $isVertical;
+
 	$: srcdocBuild = (async () =>
 		buildDynamicSrcDoc(
 			$fileStoreFiles,
@@ -63,8 +64,8 @@
 			$gameControllerStore
 		))();
 	$: isSideBarOpen = $fileSystemSidebarOpen;
+
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
-	$: console.log('previousRoute::', $routeHistoryStore);
 
 	const srcbuild = derived(
 		[fileStoreFiles, editorOutContainerWidth, editorOutContainerHeight, gameControllerStore],
@@ -109,6 +110,8 @@
 		fileSystemSidebarOpen.set(true);
 		codePanes2.set([]);
 	});
+
+	// $: console.log('engine::routeHistoryStore::', $routeHistoryStore);
 </script>
 
 <div class="main" class:isSideBarOpen>

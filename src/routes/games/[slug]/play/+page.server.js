@@ -163,12 +163,17 @@ export async function load(/**{ params, fetch }**/ { params, fetch }) {
 
 	const user = await getCurrentUser(fetch);
 
+	const sessionData = {
+		...user
+	};
+
+	delete sessionData?.token && delete sessionData?.password;
+
 	let userGames = [];
 	if (user) {
 		userGames = await getAllGamesByUser(user?.id, fetch);
 	}
 
-	// const baseGames = [...gameData].reverse();
 	const game =
 		(await getSingleGame(slug, fetch)) ??
 		gameData.find((game) => game?.id.toString() === slug.toString());

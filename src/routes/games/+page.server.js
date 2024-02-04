@@ -54,9 +54,9 @@ export async function load({ cookies, fetch }) {
 	// 	};
 	// }
 
-	let sessionData;
+	let sessionData = {};
 
-	if (token && !sessionData) {
+	if (token) {
 		const user = await getCurrentUser(fetch);
 		sessionData = {
 			...user
@@ -72,7 +72,8 @@ export async function load({ cookies, fetch }) {
 	gamesData.set([...publishedGames].reverse());
 
 	return {
-		games: [...publishedGames].reverse()
+		games: [...publishedGames].reverse(),
+		user: { ...sessionData }
 	};
 }
 

@@ -2,7 +2,8 @@
 	// @ts-nocheck
 	import Card from '$lib/ui/Card/index.svelte';
 	import { gridWidth, appClientWidth, sideBarState } from '$lib/stores/layoutStore.js';
-	import { onMount } from 'svelte';
+	import { onMount, afterUpdate } from 'svelte';
+	import { session } from '$lib/stores/sessionStore.js';
 	import { firstRun } from '$lib/stores/filesStore.js';
 	import { page } from '$app/stores';
 	import { gamesData } from '$lib/stores/gamesStore.js';
@@ -16,10 +17,15 @@
 			sideBarState.set(false);
 		}
 
-		console.log(data);
-
 		if (data?.games) {
 			gamesData.set([...data?.games]);
+		}
+	});
+
+	afterUpdate(() => {
+		console.log('data::', data);
+		if (data?.user?.id) {
+			session.set(data?.user);
 		}
 	});
 
@@ -44,8 +50,8 @@
 	class:isUserGamesBrowsePage
 >
 	<div class="main grid" bind:clientWidth={$gridWidth} class:isMobile>
-		{#each data?.games as game, i}
-			<Card user={currentUserId} {game} thumbnail={`https://picsum.photos/${10 + i}`} />
+		{#each data?.games as game, i (`game_${game?.id}`)}
+			<Card id={game?.id} user={currentUserId} {game} thumbnail={game?.thumbnail} />
 		{/each}
 	</div>
 </div>

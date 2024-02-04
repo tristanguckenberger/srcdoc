@@ -1,19 +1,18 @@
 <script>
 	// @ts-nocheck
-	import { afterUpdate, onMount } from 'svelte';
+	import { afterUpdate, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { beforeNavigate, invalidateAll } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import Button from '$lib/ui/Button/index.svelte';
 	import { session } from '$lib/stores/sessionStore.js';
-	import { playButton } from '$lib/stores/gamesStore.js';
 	import { browser } from '$app/environment';
-	// import { fade } from 'svelte/transition';
 
 	export let game;
+	export let id;
 	export let thumbnail;
-	export let user;
+	// export let user;
 
 	// STORES
 	const favoritesStore = writable([]);
@@ -22,9 +21,7 @@
 	let isFavorited = false;
 	let deleteOrCreateFav = false;
 	let favorites = [];
-
-	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: gameUserID = game?.userId ?? game?.user_id;
+	let cardImage;
 
 	// FUNCTIONS
 	const getAllFavoritesSingleGame = async (slug, eventFetch) => {
@@ -33,118 +30,137 @@
 
 		return favorites;
 	};
+
 	onMount(async () => {
-		if (browser && game?.id) {
-			const favoritesRes = await getAllFavoritesSingleGame(game?.id, fetch);
+		if (browser && id) {
+			const favoritesRes = await getAllFavoritesSingleGame(id, fetch);
 
 			if (favoritesRes) {
-				// console.log('onMount::favoritesRes::', favoritesRes);
 				favoritesStore.set(favoritesRes);
 			}
 		}
 	});
+
 	beforeNavigate(() => {
 		isFavorited = false;
 	});
+
 	afterUpdate(() => {
 		$favoritesStore?.some((fav) => {
-			if (fav?.user_id === $session?.id && fav?.game_id === game?.id) {
+			if (fav?.user_id === $session?.id && fav?.game_id === id) {
 				isFavorited = true;
 			} else {
 				isFavorited = false;
 			}
 		});
+
+		if (cardImage) {
+			imageLoaded = true;
+		}
+	});
+
+	onDestroy(() => {
+		user = null;
+		game = null;
+		id = null;
+		thumbnail = null;
+		imageLoaded = false;
+		isFavorited = false;
+		deleteOrCreateFav = false;
+		favorites = [];
 	});
 
 	// REACTIVE VARIABLES & STATEMENTS
-	$: play = $playButton;
-
+	$: cardLink = `/games/${id}/play`;
+	$: themeString = $themeDataStore?.theme?.join(' ');
+	$: gameUserID = game?.userId ?? game?.user_id;
+	$: user = $session;
 	$: (() => {
 		$favoritesStore?.some((fav) => {
-			if (fav?.user_id === $session?.id && fav?.game_id === game?.id) {
+			if (fav?.user_id === $session?.id && fav?.game_id === id) {
 				isFavorited = true;
 			} else {
 				isFavorited = false;
 			}
 		});
 	})();
-	// $: deleteOrCreateFav = isFavorited ?? false;
-	// $: console.log('deleteOrCreateFav::', deleteOrCreateFav);
 </script>
 
-<div class="game" style={`${themeString}`}>
-	<a href={`/games/${game?.id}/play`}>
-		<img
-			class="card-thumbnail"
-			class:showImage={imageLoaded}
-			src={thumbnail ?? 'https://picsum.photos/300/300'}
-			on:load={() => {
-				imageLoaded = true;
-			}}
-		/>
-		<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
-	</a>
-	<div class="card-info">
-		<a href={`/games/${game?.id}/play`}>
-			<h3>{game?.title}</h3>
-			<p>{game?.description}</p>
+{#await (game, id, thumbnail, user)}
+	Loading...
+{:then}
+	<div class="game" style={`${themeString}`}>
+		<a href={cardLink} class="linked-card-container">
+			<img
+				bind:this={cardImage}
+				class="card-thumbnail"
+				class:showImage={imageLoaded}
+				src={thumbnail ?? 'https://picsum.photos/300/300'}
+				alt={game?.title}
+			/>
+			<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
 		</a>
-		<div class="card-action-container">
-			<div class="btn-flex">
-				<Button link={`/games/${game?.id}/play`} label={'Play'} />
-				<form
-					class="gameDetails new-project-form modal"
-					method="POST"
-					action="/games/?/{isFavorited ? 'deleteFavorite' : 'createFavorite'}"
-					use:enhance={({ formElement, formData, action, cancel, redirect }) => {
-						return async ({ result }) => {
-							if (result.status === 200) {
-								favoritesStore.set(result?.data?.body?.favorites);
-								isFavorited = !isFavorited;
-								await invalidateAll();
-							}
-						};
-					}}
-				>
-					<input type="hidden" name="gameId" value={game?.id} />
-					<button
-						class="action-button button favorites"
-						on:click={() => {
-							// $actionMenuOpen = !actionOpen;
-							setTimeout(() => {
-								// $playButton = !play;
-								// setTimeout(() => {
-								// 	$screenshot = true;
-								// }, 200);
-							}, 200);
+		<div class="card-info">
+			<a href={`/games/${id}/play`}>
+				<h3>{game?.title}</h3>
+				<p>{game?.description}</p>
+			</a>
+			<div class="card-action-container">
+				<div class="btn-flex">
+					<Button link={`/games/${id}/play`} label={'Play'} />
+					<form
+						class="gameDetails new-project-form modal"
+						method="POST"
+						action="/games/?/{isFavorited ? 'deleteFavorite' : 'createFavorite'}"
+						use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+							return async ({ result }) => {
+								if (result.status === 200) {
+									favoritesStore.set(result?.data?.body?.favorites);
+									isFavorited = !isFavorited;
+									await invalidateAll();
+								}
+							};
 						}}
 					>
-						<svg
-							width="27"
-							height="23"
-							viewBox="0 0 27 23"
-							fill="red"
-							xmlns="http://www.w3.org/2000/svg"
-							class="fav"
-							class:isFavorited={isFavorited && $favoritesStore?.length > 0}
+						<input type="hidden" name="gameId" value={id} />
+						<button
+							class="action-button button favorites"
+							on:click={() => {
+								// $actionMenuOpen = !actionOpen;
+								setTimeout(() => {
+									// $playButton = !play;
+									// setTimeout(() => {
+									// 	$screenshot = true;
+									// }, 200);
+								}, 200);
+							}}
 						>
-							<path
-								d="M26.21 7.25455C26.21 15.4452 14.0656 22.0749 13.5485 22.3487C13.4122 22.422 13.2598 22.4604 13.105 22.4604C12.9502 22.4604 12.7978 22.422 12.6615 22.3487C12.1444 22.0749 0 15.4452 0 7.25455C0.00216787 5.33119 0.767181 3.48723 2.1272 2.1272C3.48723 0.767181 5.33119 0.00216787 7.25455 0C9.67079 0 11.7863 1.03904 13.105 2.79534C14.4237 1.03904 16.5392 0 18.9554 0C20.8788 0.00216787 22.7228 0.767181 24.0828 2.1272C25.4428 3.48723 26.2078 5.33119 26.21 7.25455Z"
-								fill="white"
-								fill-opacity="0.81"
-							/>
-						</svg>
-						<span class="favorite">{$favoritesStore?.length ?? 0}</span>
-					</button>
-				</form>
+							<svg
+								width="27"
+								height="23"
+								viewBox="0 0 27 23"
+								fill="red"
+								xmlns="http://www.w3.org/2000/svg"
+								class="fav"
+								class:isFavorited={isFavorited && $favoritesStore?.length > 0}
+							>
+								<path
+									d="M26.21 7.25455C26.21 15.4452 14.0656 22.0749 13.5485 22.3487C13.4122 22.422 13.2598 22.4604 13.105 22.4604C12.9502 22.4604 12.7978 22.422 12.6615 22.3487C12.1444 22.0749 0 15.4452 0 7.25455C0.00216787 5.33119 0.767181 3.48723 2.1272 2.1272C3.48723 0.767181 5.33119 0.00216787 7.25455 0C9.67079 0 11.7863 1.03904 13.105 2.79534C14.4237 1.03904 16.5392 0 18.9554 0C20.8788 0.00216787 22.7228 0.767181 24.0828 2.1272C25.4428 3.48723 26.2078 5.33119 26.21 7.25455Z"
+									fill="white"
+									fill-opacity="0.81"
+								/>
+							</svg>
+							<span class="favorite">{$favoritesStore?.length ?? 0}</span>
+						</button>
+					</form>
+				</div>
+				{#if user?.id?.toString() === gameUserID?.toString()}
+					<Button link={`/games/${id}/engine`} label={'Edit in Engine'} />
+				{/if}
 			</div>
-			{#if user?.toString() === gameUserID?.toString()}
-				<Button link={`/games/${game?.id}/engine`} label={'Edit in Engine'} />
-			{/if}
-			<!-- <Button link={`/games/${game?.id}/engine`} label={'Open in Engine'} /> -->
 		</div>
 	</div>
-</div>
+{/await}
 
 <style>
 	.game {
@@ -157,8 +173,6 @@
 		padding: 0 10px;
 	}
 	.game:hover {
-		/* background-color: #333; */
-		/* color: white; */
 		cursor: pointer;
 	}
 	.card-thumbnail {
@@ -166,16 +180,21 @@
 		height: 250px;
 		object-fit: cover;
 		border-radius: 6px;
-		display: none;
+		transition: opacity 0.03s;
+		opacity: 0;
 	}
 	.card-thumbnail.showImage {
-		display: block;
+		opacity: 1;
 	}
 	.card-thumbnail-placeholder {
 		width: 100%;
 		height: 250px;
 		border-radius: 6px;
 		background-color: var(--folder-button-color);
+		opacity: 1;
+		position: absolute;
+		top: 0;
+		transition: opacity 0.03s;
 	}
 	.card-info {
 		color: var(--color-primary);
@@ -183,9 +202,7 @@
 		flex-direction: row;
 		justify-content: space-between;
 		height: 100%;
-		/* border: 2px solid #fbfbfb; */
 		border-radius: 6px;
-		/* background-color: #fbfbfb; */
 		padding: 10px 0 10px 0;
 	}
 	.card-info p {
@@ -212,7 +229,6 @@
 	}
 	.card-info:hover {
 		cursor: pointer;
-		/* box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.75); */
 	}
 	.card-action-container {
 		display: flex;
@@ -222,7 +238,7 @@
 		gap: 10px;
 	}
 	.card-thumbnail-placeholder.hidePlaceholder {
-		display: none;
+		opacity: 0;
 	}
 	.btn-flex {
 		display: flex;
@@ -249,4 +265,13 @@
 		font-family: 'Inter', sans-serif;
 		font-weight: 500;
 	}
+	.linked-card-container {
+		position: relative;
+	}
+	/* .card-thumbnail-overlay {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+	} */
 </style>

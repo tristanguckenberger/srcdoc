@@ -17,6 +17,31 @@
 	import SignUpForm from '$lib/ui/Form/SignUpForm.svelte';
 	import { sideBarState } from '$lib/stores/layoutStore.js';
 
+	export let form;
+	export let data;
+
+	let quickHide = false;
+	const authFlowOptions = [
+		{ option: 'register', component: SignUpForm },
+		{ option: 'login', component: SignInForm }
+	];
+	let selected = authFlowOptions[0];
+
+	onMount(async () => {
+		$session?.username && browser && goto('/games');
+
+		// Gets a list of users for checking if a username is taken during registration
+		if (!$session?.username) {
+			const data = data?.sessionData?.username
+				? data?.sessionData
+				: {
+						body: await getAllUsers()
+				  };
+
+			data && userStore.set(data?.body?.users);
+		}
+	});
+
 	const getAllUsers = async () => {
 		const userReqHeaders = new Headers();
 		const userReqInit = {
@@ -42,50 +67,12 @@
 		selected = selected === authFlowOptions[0] ? authFlowOptions[1] : authFlowOptions[0];
 	};
 
-	// 'form' is the response from the server for the login request
-	export let form;
-	// 'sessionData' is user data from server ideally we want this
-	// to update on login, not working atm
-
-	export let data;
-	let quickHide = false;
-
-	onMount(async () => {
-		$session?.username && browser && goto('/games');
-
-		// Gets a list of users for checking if a username is taken during registration
-		if (!$session?.username) {
-			const data = data?.sessionData?.username
-				? data?.sessionData
-				: {
-						body: await getAllUsers()
-				  };
-
-			data && userStore.set(data?.body?.users);
-		}
-	});
-
-	const authFlowOptions = [
-		{ option: 'register', component: SignUpForm },
-		{ option: 'login', component: SignInForm }
-		// { option: 'forgot', component: BlueThing }
-	];
-
-	let selected = authFlowOptions[0];
-
-	// sync the session store data from the server with the session store on the client
 	$: browser && form, session.set({ ...form?.body?.user });
-
-	// sync the user store data from the server with the user store on the client
 	$: data?.users?.length && userStore.set(data?.users);
-
-	// if the user is logged in, redirect to the games page
 	$: $session?.username && browser && goto('/games');
-
 	$: formSwitchText =
 		selected === authFlowOptions[0] ? 'Already have an account?' : "Don't have an account?";
 	$: formSwitchAction = selected === authFlowOptions[0] ? 'Sign In' : 'Sign Up';
-
 	$: quickHide && setTimeout(() => (quickHide = false), 1000);
 </script>
 

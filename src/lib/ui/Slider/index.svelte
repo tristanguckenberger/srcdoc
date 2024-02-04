@@ -8,8 +8,9 @@
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 	import { playButton, gameFavoriteCount, gameFavorites } from '$lib/stores/gamesStore.js';
+	import { writable } from 'svelte/store';
 	import { debounce } from 'lodash-es';
-	// import { fade } from 'svelte/transition';
+	import { hidePlayButtonStore, lockGameStateStore } from '$lib/stores/gameControllerStore';
 	import { session } from '$lib/stores/sessionStore';
 	import {
 		actionMenuOpen,
@@ -27,7 +28,7 @@
 	export let favoritesObj = {};
 
 	let emblaApi;
-	let options = { axis: 'y', duration: 25, inViewThreshold: 0.7 };
+	let options = { axis: 'y', duration: 25, inViewThreshold: 0.3 };
 	let slideInView = 1;
 	let pointerDown = false;
 	let currentGame;
@@ -36,14 +37,7 @@
 	let hideActionNav = true;
 	let timeout;
 	let isFavorited = false;
-
-	const playToggle = () => {
-		if ($drawerOpen) {
-			$playButton = false;
-		} else {
-			$playButton = !play;
-		}
-	};
+	const favoritesStore = writable([]);
 
 	async function shareGame() {
 		if (navigator.share) {
@@ -65,10 +59,9 @@
 	const onInit = (event) => {
 		emblaApi = event.detail;
 		emblaApi.scrollTo(1, true);
-		emblaApi.on('select', debounce(onSelect, 350));
-		emblaApi.on('scroll', debounce(onScroll, 350));
-		emblaApi.on('pointerUp', debounce(onPointerUp, 350));
-		emblaApi.on('pointerDown', debounce(onPointerDown, 350));
+		emblaApi.on('scroll', debounce(onScroll, 250));
+		emblaApi.on('pointerUp', debounce(onPointerUp, 250));
+		emblaApi.on('pointerDown', debounce(onPointerDown, 250));
 		slideInView = 1;
 		currentGame = gamesAvailable[slideInView];
 		initialId = gamesAvailable[slideInView]?.id;
@@ -85,7 +78,7 @@
 		}
 	};
 
-	const debouncedNavigation = debounce(performNavigation, 350);
+	const debouncedNavigation = debounce(performNavigation, 250);
 
 	const onScroll = async () => {
 		let nextGame;
@@ -99,18 +92,15 @@
 		pointerDown = true;
 		slidesSettled = false;
 		$actionMenuOpen = false;
+		hidePlayButtonStore.set(true);
 	};
 
 	const onPointerUp = (event) => {
 		pointerDown = false;
 		$actionMenuOpen = true;
-	};
-
-	const onSelect = async () => {
-		const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
-		if (nextGame?.id !== currentGame?.id) {
-			debouncedNavigation(nextGame);
-		}
+		setTimeout(() => {
+			hidePlayButtonStore.set(false);
+		}, 300);
 	};
 
 	const handleKeyUp = async (event) => {
@@ -123,7 +113,7 @@
 		}
 	};
 
-	onMount(() => {
+	onMount(async () => {
 		hideActionNav = false;
 		$actionMenuOpen = true;
 	});
@@ -143,21 +133,30 @@
 					'Performing action X because the selected slide is not 1 for more than 1 second'
 				);
 				const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
-				if (nextGame?.id !== currentGame?.id) {
+				if (nextGame?.id !== currentGame?.id && !$lockGameStateStore) {
+					lockGameStateStore.set(true);
 					debouncedNavigation(nextGame);
 				}
-			}, 400); // 1 second
+			}, 1000); // 1 second
 		} else {
 			// If the selected slide is 1, clear the timeout
 			clearTimeout(timeout);
 		}
+
+		$favoritesStore?.some((fav) => {
+			if (fav?.user_id === $session?.id && fav?.game_id === game?.id) {
+				isFavorited = true;
+			} else {
+				isFavorited = false;
+			}
+		});
 	});
 
 	afterNavigate(async () => {
 		if (emblaApi && !pointerDown) {
 			emblaApi.scrollTo(1, true);
 			if (!pointerDown && emblaApi.slidesInView()?.length === 1) {
-				tick();
+				await tick();
 				currentGame = gamesAvailable[1];
 				slideInView = 1;
 			}
@@ -168,6 +167,7 @@
 		}
 
 		$currentGameStore = currentGame;
+		lockGameStateStore.set(false);
 	});
 
 	onDestroy(() => {
@@ -181,6 +181,21 @@
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
 	$: play = $playButton;
+	// $: console.log(
+	// 	'!pointerDown && emblaApi.slidesInView()?.length === 1::',
+	// 	!pointerDown && emblaApi?.slidesInView()?.length === 1
+	// );
+	$: !pointerDown && emblaApi?.slidesInView()?.length === 1,
+		(() => {
+			console.log('emblaApi.slidesInView()?.length::', emblaApi?.slidesInView()?.length);
+			console.log('pointerDown::', pointerDown);
+			console.log('slidesSettled::', slidesSettled);
+			const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
+			if (nextGame?.id !== currentGame?.id && !$lockGameStateStore) {
+				lockGameStateStore.set(true);
+				debouncedNavigation(nextGame);
+			}
+		})();
 </script>
 
 <svelte:window on:keyup={handleKeyUp} />
@@ -250,6 +265,7 @@
 													href={`/games/${$currentGameStore?.id}/engine`}
 												>
 													<svg
+														class="action-button-icon"
 														xmlns="http://www.w3.org/2000/svg"
 														width="36"
 														height="36"
@@ -284,7 +300,7 @@
 														viewBox="0 0 27 23"
 														fill="red"
 														xmlns="http://www.w3.org/2000/svg"
-														class="fav"
+														class="fav action-button-icon"
 														class:isFavorited={isFavorited && $gameFavoriteCount > 0}
 													>
 														<path
@@ -301,14 +317,12 @@
 												on:click={() => {
 													$playButton = false;
 													browser && selectedOption.set(0);
-													// setTimeout(() => {
-													// playToggle();
 													$playButton = false;
 													drawerOpen.set(true);
-													// }, 200);
 												}}
 											>
 												<svg
+													class="action-button-icon"
 													width="27"
 													height="27"
 													viewBox="0 0 27 27"
@@ -329,6 +343,7 @@
 												}}
 											>
 												<svg
+													class="action-button-icon"
 													width="27"
 													height="16"
 													viewBox="0 0 27 16"
@@ -342,6 +357,7 @@
 													/>
 												</svg>
 											</button>
+											<div class="divider" />
 										</div>
 									</ul>
 								{/if}
@@ -498,15 +514,28 @@
 		cursor: pointer;
 	}
 	.action-button-icon {
-		width: 36.5px;
+		width: 30px;
 		height: 100%;
+	}
+	.action-button-icon {
+		filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.3));
 	}
 	.play-button-container {
 		position: absolute;
 		bottom: 30px;
-		right: 26px;
+		right: 30px;
 		height: 50px;
 		top: 11px;
+	}
+
+	@media (min-width: 498px) {
+		.play-button-container {
+			position: absolute;
+			bottom: 30px;
+			right: 30px;
+			height: 50px;
+			top: 11px;
+		}
 	}
 
 	.action-menu {
@@ -516,7 +545,7 @@
 		flex-direction: column;
 		gap: 40px;
 		align-items: center;
-		bottom: 145.5px;
+		bottom: 80px;
 		right: 25px;
 	}
 
@@ -538,8 +567,7 @@
 		width: 36.5px;
 		height: 36.5px;
 		border-radius: 6px;
-		transform: translateY(calc(var(--screenHeight))); /*  - 50px */
-		/* top: 50px; */
+		transform: translateY(calc(var(--screenHeight)));
 	}
 	#primary-actions {
 		margin-block-start: 40px;
@@ -595,13 +623,13 @@
 	.play-button-container,
 	.action-menu {
 		opacity: 0;
-		transition: opacity 0.3s linear 0.03s;
+		/* transition: opacity 0.3s linear 0.03s; */
 	}
 
 	.play-button-container.fade,
 	.action-menu.fade {
 		opacity: 1;
-		transition: opacity 0.3s linear 0.06s;
+		/* transition: opacity 0.3s linear 0.06s; */
 	}
 
 	.sub-action-menu {
@@ -628,6 +656,18 @@
 		}
 		.play-button {
 			transform: unset !important;
+		}
+	}
+	.divider {
+		width: 6px;
+		height: 150px;
+		background-color: #ffffff24;
+		border-radius: 6px;
+	}
+
+	@media (max-width: 498px) {
+		.divider {
+			height: 100px;
 		}
 	}
 </style>

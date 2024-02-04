@@ -3,6 +3,7 @@
 	import Output from '$lib/ui/Output/Output.svelte';
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { getRootFileId } from '$lib/utils/getter.js';
+	import { session } from '$lib/stores/sessionStore.js';
 	import {
 		gamesData,
 		currentGame,
@@ -79,9 +80,11 @@
 	);
 
 	afterUpdate(() => {
-		// console.log('selectedOption::', $selectedOption);
-		console.log('data::user::', data);
+		if (data?.user?.id) {
+			session.set(data?.user);
+		}
 	});
+
 	onMount(() => {
 		firstRun.set(true);
 
@@ -89,6 +92,7 @@
 			sideBarState.set(false);
 		}
 	});
+
 	afterNavigate(() => {
 		invalidateAll();
 	});
@@ -223,7 +227,6 @@
 	})();
 	$: data?.comments, (reactiveData = data ?? {});
 	$: data?.favorites, (favoriteData = data?.favorites ?? {});
-	$: console.log('drawerOpen::', $drawerOpen);
 </script>
 
 <div

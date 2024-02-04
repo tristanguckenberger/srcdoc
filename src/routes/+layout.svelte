@@ -9,7 +9,6 @@
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
-	import { slide, fade } from 'svelte/transition';
 
 	// CUSTOM STORE IMPORTS
 	import {
@@ -20,6 +19,7 @@
 		gameFavoriteCount,
 		gameFavorites
 	} from '$lib/stores/gamesStore.js';
+	import { hidePlayButtonStore } from '$lib/stores/gameControllerStore.js';
 	import {
 		autoCompile,
 		fileSystemSidebarOpen,
@@ -37,7 +37,7 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
 	import { routeHistoryStore } from '$lib/stores/routeStore';
-	import { drawerOpen, screenHeight, selectedOption } from '$lib/stores/drawerStore.js';
+	import { drawerOpen, screenHeight } from '$lib/stores/drawerStore.js';
 
 	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
@@ -45,27 +45,23 @@
 
 	// ASSET IMPORTS
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
-	import { beforeNavigate } from '$app/navigation';
+	import { afterNavigate, beforeNavigate } from '$app/navigation';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
 	export let data; // This is the data from the server, includes `sessionData`
 
 	// Variables
-	const browseOptions = [{ option: 'Home' }, { option: 'Quick Play' }, { option: 'Favorites' }];
 	let preferedThemeMode;
 	let dropDownToggle = false;
 	let isFavorited = false;
 	let deleteOrCreateFav = false;
+	let fade = false;
 
 	// FUNCTIONS
 	onMount(() => {
 		inject({ mode: dev ? 'development' : 'production' });
-		// if ('serviceWorker' in navigator) {
-		// 	window.addEventListener('load', () => {
-		// 		navigator.serviceWorker.register('/sw.js');
-		// 	});
-		// }
+
 		if (browser) {
 			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
 			preferedThemeMode?.addEventListener('change', updateTheme);
@@ -75,9 +71,15 @@
 			}
 		}
 	});
+
 	beforeNavigate(() => {
 		isFavorited = false;
 	});
+
+	afterNavigate(() => {
+		sideBarState.set(false);
+	});
+
 	afterUpdate(() => {
 		$gameFavorites?.favorites?.some((fav) => {
 			isFavorited = fav?.user_id === sessionData?.id ?? false;
@@ -85,19 +87,25 @@
 
 		deleteOrCreateFav = isFavorited ?? false;
 	});
+
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
+
 	const toggleFileSystemSidebar = () => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen);
+
 	const updateTheme = (e) => {
 		themeKeyStore.set(e.matches ? 'light' : 'dark');
 	};
+
 	const toggleDropDown = () => {
 		dropDownToggle = !dropDownToggle;
 	};
+
 	const toggleSideBar = () => {
 		$sideBarState = !$sideBarState;
 	};
+
 	const handleSave = async () => {
 		const fileToUpdate = $filesToUpdate?.find((file) => file.id === $focusedFileId);
 		const name = fileToUpdate?.name;
@@ -145,9 +153,7 @@
 			}
 		}
 	};
-	const toggleDrawer = () => {
-		drawerOpen.set(true);
-	};
+
 	const playToggle = () => {
 		if ($drawerOpen) {
 			$playButton = false;
@@ -157,11 +163,18 @@
 	};
 
 	// REACTIVE VARIABLES & STATEMENTS
-	$: currentBrowseOptionSelection = browseOptions[0];
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isVerifyPage = splitPath[splitPath?.length - 1] === 'verify';
+	$: isHomePage = $page?.route?.id === '/';
+	$: themeString = $themeDataStore?.theme?.join(' ');
+	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
+	$: sessionData = data?.sessionData ?? $session;
+	$: modalIsOpen = $modalOpenState;
+	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
+	$: isMobile = $appClientWidth < 768;
+	$: play = $playButton;
 	$: isProfilePage =
 		splitPath[splitPath?.length - 1] === 'users' ||
 		(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main');
@@ -172,40 +185,12 @@
 		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
 	$: isUserFavoritesBrowsePage =
 		splitPath[splitPath?.length - 1] === 'favorites' && splitPath[1] === 'games';
-
-	$: isHomePage = $page?.route?.id === '/';
-	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
-	$: sessionData = data?.sessionData ?? $session;
-	$: modalIsOpen = $modalOpenState;
-	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
-	$: isMobile = $appClientWidth < 768;
-	$: play = $playButton;
-	$: actionOpen = $actionMenuOpen;
-	$: console.log('routeHistory:', $routeHistoryStore);
-	$: actionHideDuration = $drawerOpen ? 0 : 200;
-	// $: console.log('gameFav::gameFavorites::', $gameFavorites?.favorites?.includes(sessionData?.id));
-	// $: console.log('gameFav::sessionData::', sessionData);
-	// $: isFavorited = sessionData && $gameFavorites?.includes(sessionData?.id);
 	$: (() => {
 		$gameFavorites?.favorites?.some((fav) => {
 			isFavorited = fav?.user_id === sessionData?.id ?? false;
 		});
 	})();
-	// $: isInPwaMode = (() => {
-	// 	if (browser) {
-	// 		return (
-	// 			window.matchMedia('(display-mode: standalone)').matches ||
-	// 			window.navigator.standalone === true
-	// 		);
-	// 	}
-
-	// 	return false;
-	// })();
-
-	// $: console.log('isInPwaMode', isInPwaMode);
-	// $: deleteOrCreateFav = isFavorited ?? false;
-	// $: console.log('deleteOrCreateFav::', deleteOrCreateFav);
+	$: console.log('previousRoute::', $routeHistoryStore);
 </script>
 
 <div
@@ -518,44 +503,49 @@
 			{/if}
 		</div>
 
-		<div class="play-button-container" class:fade={$actionMenuOpen}>
-			<button
-				class="action-button play-button"
-				class:drawerOpen={$drawerOpen}
-				on:click={playToggle}
-				class:fade={$actionMenuOpen}
+		{#if isPlayPage}
+			<div
+				class="play-button-container"
+				class:fade={$hidePlayButtonStore || (!$playButton && $actionMenuOpen)}
 			>
-				{#if !$playButton}
-					<svg
-						class="action-button-icon"
-						width="37"
-						height="44"
-						viewBox="0 0 37 44"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M36.5 21.5692C36.5014 22.1325 36.3569 22.6866 36.0807 23.1776C35.8045 23.6685 35.406 24.0797 34.9239 24.371L5.04364 42.65C4.53987 42.9585 3.96288 43.1269 3.37226 43.1379C2.78165 43.1488 2.19882 43.0019 1.68398 42.7122C1.17403 42.4271 0.749237 42.0113 0.453271 41.5076C0.157306 41.0039 0.000852063 40.4304 0 39.8462V3.29226C0.000852063 2.70802 0.157306 2.13455 0.453271 1.63082C0.749237 1.1271 1.17403 0.711297 1.68398 0.426177C2.19882 0.136559 2.78165 -0.0103683 3.37226 0.000568957C3.96288 0.0115063 4.53987 0.179912 5.04364 0.488393L34.9239 18.7674C35.406 19.0587 35.8045 19.4699 36.0807 19.9608C36.3569 20.4518 36.5014 21.0059 36.5 21.5692Z"
-							fill="white"
-						/>
-					</svg>
-				{:else}
-					<svg
-						class="action-button-icon"
-						width="25"
-						height="27"
-						viewBox="0 0 25 27"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M24.75 2.25V24.75C24.75 25.3467 24.5129 25.919 24.091 26.341C23.669 26.7629 23.0967 27 22.5 27H16.875C16.2783 27 15.706 26.7629 15.284 26.341C14.8621 25.919 14.625 25.3467 14.625 24.75V2.25C14.625 1.65326 14.8621 1.08097 15.284 0.65901C15.706 0.237053 16.2783 0 16.875 0H22.5C23.0967 0 23.669 0.237053 24.091 0.65901C24.5129 1.08097 24.75 1.65326 24.75 2.25ZM7.875 0H2.25C1.65326 0 1.08097 0.237053 0.65901 0.65901C0.237053 1.08097 0 1.65326 0 2.25V24.75C0 25.3467 0.237053 25.919 0.65901 26.341C1.08097 26.7629 1.65326 27 2.25 27H7.875C8.47174 27 9.04403 26.7629 9.46599 26.341C9.88795 25.919 10.125 25.3467 10.125 24.75V2.25C10.125 1.65326 9.88795 1.08097 9.46599 0.65901C9.04403 0.237053 8.47174 0 7.875 0Z"
-							fill="white"
-						/>
-					</svg>
-				{/if}
-			</button>
-		</div>
+				<button
+					class="action-button play-button"
+					class:drawerOpen={$drawerOpen}
+					on:click={playToggle}
+					class:fade={$hidePlayButtonStore || (!$playButton && $actionMenuOpen)}
+				>
+					{#if !$playButton}
+						<svg
+							class="action-button-icon"
+							width="37"
+							height="44"
+							viewBox="0 0 37 44"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M36.5 21.5692C36.5014 22.1325 36.3569 22.6866 36.0807 23.1776C35.8045 23.6685 35.406 24.0797 34.9239 24.371L5.04364 42.65C4.53987 42.9585 3.96288 43.1269 3.37226 43.1379C2.78165 43.1488 2.19882 43.0019 1.68398 42.7122C1.17403 42.4271 0.749237 42.0113 0.453271 41.5076C0.157306 41.0039 0.000852063 40.4304 0 39.8462V3.29226C0.000852063 2.70802 0.157306 2.13455 0.453271 1.63082C0.749237 1.1271 1.17403 0.711297 1.68398 0.426177C2.19882 0.136559 2.78165 -0.0103683 3.37226 0.000568957C3.96288 0.0115063 4.53987 0.179912 5.04364 0.488393L34.9239 18.7674C35.406 19.0587 35.8045 19.4699 36.0807 19.9608C36.3569 20.4518 36.5014 21.0059 36.5 21.5692Z"
+								fill="white"
+							/>
+						</svg>
+					{:else}
+						<svg
+							class="action-button-icon"
+							width="25"
+							height="27"
+							viewBox="0 0 25 27"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M24.75 2.25V24.75C24.75 25.3467 24.5129 25.919 24.091 26.341C23.669 26.7629 23.0967 27 22.5 27H16.875C16.2783 27 15.706 26.7629 15.284 26.341C14.8621 25.919 14.625 25.3467 14.625 24.75V2.25C14.625 1.65326 14.8621 1.08097 15.284 0.65901C15.706 0.237053 16.2783 0 16.875 0H22.5C23.0967 0 23.669 0.237053 24.091 0.65901C24.5129 1.08097 24.75 1.65326 24.75 2.25ZM7.875 0H2.25C1.65326 0 1.08097 0.237053 0.65901 0.65901C0.237053 1.08097 0 1.65326 0 2.25V24.75C0 25.3467 0.237053 25.919 0.65901 26.341C1.08097 26.7629 1.65326 27 2.25 27H7.875C8.47174 27 9.04403 26.7629 9.46599 26.341C9.88795 25.919 10.125 25.3467 10.125 24.75V2.25C10.125 1.65326 9.88795 1.08097 9.46599 0.65901C9.04403 0.237053 8.47174 0 7.875 0Z"
+								fill="white"
+							/>
+						</svg>
+					{/if}
+				</button>
+			</div>
+		{/if}
 	</div>
 </div>
 
@@ -612,9 +602,6 @@
 		width: calc(100% - 10px);
 		max-width: calc(100%);
 	}
-	/* main.isPWA :global(.editor-layout .main) {
-		padding-bottom: 70px;
-	} */
 	nav {
 		color: var(--color-primary);
 		padding: 10px 10px;
@@ -663,12 +650,6 @@
 	}
 	:global(.main.showSideBar) {
 		width: calc(100% - 230px);
-	}
-	/* .home {
-		justify-self: flex-end;
-	} */
-	ul.matchGridWidth {
-		/* width: calc(var(--nav-width) - 20px); */
 	}
 	ul ul {
 		flex-grow: 1;
@@ -762,36 +743,6 @@
 		/* background-color: transparent !important; */
 		background-color: var(--color-secondary) !important;
 	}
-	nav.gameProfile.showSideBar {
-		/* background-color: transparent !important; */
-	}
-
-	/* Handle on hover */
-	/* body {
-		scrollbar-width: thin;
-		scrollbar-color: #4d7fff #ddd;
-	}
-
-	body::-webkit-scrollbar {
-		width: 10px;
-		height: 10px;
-	}
-
-	body::-webkit-scrollbar-thumb {
-		background: linear-gradient(to bottom right, #4d7fff 0%, #1a56ff 100%);
-		border-radius: 5px;
-	}
-
-	body::-webkit-scrollbar-track {
-		background-color: #ddd;
-		border: 1px solid #ccc;
-	}
-
-	body::-webkit-scrollbar-button {
-		background-color: #4d7fff;
-		border-radius: 5px;
-	} */
-
 	::-webkit-scrollbar-thumb:hover {
 		/* background: #555 !important; */
 		cursor: pointer !important;
@@ -1013,6 +964,7 @@
 	.action-button-icon {
 		width: 36.5px;
 		height: 100%;
+		filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.3));
 	}
 	.play-button-container {
 		position: absolute;
@@ -1020,29 +972,6 @@
 		right: 26px;
 		height: 50px;
 		top: 11px;
-	}
-	.action-menu {
-		position: absolute;
-		z-index: 1;
-		display: flex;
-		flex-direction: column;
-		gap: 40px;
-		align-items: center;
-		bottom: 145.5px;
-		right: 25px;
-	}
-
-	.sub-action-menu {
-		display: flex;
-		flex-direction: column;
-		gap: 40px;
-		align-items: center;
-	}
-	.action-menu .button {
-		transition: transform 0.2s cubic-bezier(0.65, 0.05, 0.36, 1);
-	}
-	.action-menu .button.actionMenuOpen {
-		transform: rotate(90deg);
 	}
 	.play-button {
 		position: relative;
@@ -1075,21 +1004,6 @@
 		font-weight: 400;
 		text-shadow: 0 0 3px black;
 	}
-	svg.fav path {
-		/* transition: fill 0.3s ease; */
-	}
-	svg.isFavorited path {
-		fill: red;
-	}
-	.action-menu button:focus {
-		outline: none;
-	}
-	.action-menu button:focus-within {
-		outline: none;
-	}
-	.action-menu button:focus-visible {
-		outline: none;
-	}
 	.mobile-profile-btn {
 		display: flex;
 		align-items: center;
@@ -1101,20 +1015,14 @@
 		}
 	}
 
-	.play-button-container,
-	.action-menu {
+	.play-button-container {
 		opacity: 0;
-		transition: opacity 0.01s linear 0.03s;
+		/* transition: opacity 0.01s linear 0.03s; */
 	}
 
-	.play-button-container.fade,
-	.action-menu.fade {
+	.play-button-container.fade {
 		opacity: 1;
-		transition: opacity 0.01s linear 0.06s;
 	}
-	/* .layout-container.isPWA {
-		background-color: transparent !important;
-	} */
 	.page-container.engineInRoute main.editor {
 		padding-top: 0 !important;
 		height: unset !important;
@@ -1124,7 +1032,8 @@
 		.play-button-container {
 			bottom: 20px !important;
 			top: unset !important;
-			z-index: 1000000000000000;
+			z-index: 0;
+			right: 36.5px;
 		}
 		.play-button {
 			transform: unset !important;
@@ -1134,10 +1043,14 @@
 		.play-button-container {
 			bottom: 20px !important;
 			top: unset !important;
-			z-index: 1000000000000000;
+			z-index: 0;
+			right: 26.5px;
 		}
 		.play-button {
 			transform: unset !important;
 		}
+	}
+	.play-button svg {
+		filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.3));
 	}
 </style>

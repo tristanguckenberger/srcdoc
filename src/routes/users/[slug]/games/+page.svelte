@@ -2,9 +2,8 @@
 	// @ts-nocheck
 	import Card from '$lib/ui/Card/index.svelte';
 	import { gridWidth } from '$lib/stores/layoutStore.js';
-	import { onMount } from 'svelte';
+	import { afterUpdate, onMount } from 'svelte';
 	import { sideBarState, sideBarWidth, appClientWidth } from '$lib/stores/layoutStore.js';
-	// import { firstRun } from '$lib/stores/filesStore.js';
 	import { page } from '$app/stores';
 	import { gamesData } from '$lib/stores/gamesStore.js';
 
@@ -23,6 +22,12 @@
 
 		if (data?.games) {
 			gamesData.set([...data?.games]);
+		}
+	});
+
+	afterUpdate(() => {
+		if (data?.user?.id) {
+			session.set(data?.user);
 		}
 	});
 
