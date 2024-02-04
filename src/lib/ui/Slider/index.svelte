@@ -72,9 +72,11 @@
 		if (nextGame?.id !== currentGame?.id) {
 			currentGame = nextGame;
 			$currentGameStore = currentGame;
-			await goto(`/games/${nextGame?.id}/play`);
-			await invalidateAll();
-			await tick();
+
+			// might not need to invalidate at all since we have all the data
+			await goto(`/games/${nextGame?.id}/play`, { replaceState: true, state: { ...$page?.data } });
+			// await invalidateAll();
+			// await tick();
 		}
 	};
 
@@ -168,6 +170,7 @@
 	});
 
 	$: $currentGameStore = currentGame;
+	$: console.log('current page state::', $page);
 	$: hideActionNav = !$actionMenuOpen;
 	$: favoritesCount = favoritesObj?.count;
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
