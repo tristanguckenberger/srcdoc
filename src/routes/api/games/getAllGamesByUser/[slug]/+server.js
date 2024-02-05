@@ -1,9 +1,6 @@
 import { json } from '@sveltejs/kit';
 
 export async function GET({ setHeaders, params }) {
-	setHeaders({
-		'cache-control': 'max-age=60'
-	});
 	const { slug } = params;
 	const userReqHeaders = new Headers();
 	const userReqInit = {
@@ -14,14 +11,15 @@ export async function GET({ setHeaders, params }) {
 	const userResponse = await fetch(`${process.env.SERVER_URL}/api/games/user/${slug}`, userReqInit);
 
 	if (!userResponse.ok) {
-		return json({
-			status: 401,
-			body: {
-				message: 'Authentication failed'
-			}
-		});
+		console.log('ERROR::');
+		console.log('getAllGamesByUser::userResponse::', userResponse);
+		return json([]);
 	}
 
 	const games = await userResponse.json();
+
+	setHeaders({
+		'cache-control': 'max-age=60'
+	});
 	return json(games);
 }

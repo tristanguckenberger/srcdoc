@@ -32,13 +32,13 @@
 
 		// Gets a list of users for checking if a username is taken during registration
 		if (!$session?.username) {
-			const data = data?.sessionData?.username
+			const userData = data?.sessionData?.username
 				? data?.sessionData
 				: {
 						body: await getAllUsers()
 				  };
 
-			data && userStore.set(data?.body?.users);
+			userData && userStore.set(userData?.body?.users);
 		}
 	});
 

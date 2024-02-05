@@ -2,9 +2,6 @@
 import { json } from '@sveltejs/kit';
 
 export async function GET({ setHeaders, cookies }) {
-	setHeaders({
-		'cache-control': 'max-age=60'
-	});
 	const token = cookies.get('token');
 	const favsReqHeaders = new Headers();
 	favsReqHeaders.append('Content-Type', 'application/json');
@@ -19,5 +16,8 @@ export async function GET({ setHeaders, cookies }) {
 
 	const favorites = await favsResponse.json();
 
+	setHeaders({
+		'cache-control': 'max-age=60'
+	});
 	return json(favorites);
 }

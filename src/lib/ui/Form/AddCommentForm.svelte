@@ -80,7 +80,7 @@
 	$: comments, commentStoreComments.set(comments);
 	$: threadedComments = buildItemThreads(parentCommentId, $commentStoreComments ?? comments);
 	$: newCommentTextArea && init && autoResize();
-	$: commentCountLabel = `${threadedComments?.length ?? 0} Comment${
+	$: commentCountLabel = `${($commentStoreComments ?? comments)?.length ?? 0} Comment${
 		threadedComments?.length >= 1 ? (threadedComments?.length === 1 ? '' : 's') : 's'
 	}`;
 </script>
@@ -90,7 +90,6 @@
 	action="/games/?/addNewComment"
 	use:enhance={({ formElement, formData, action, cancel, redirect }) => {
 		return async ({ result }) => {
-			console.log('enhance::result::', result);
 			if (result.status === 200) {
 				await tick();
 				inputText = '';

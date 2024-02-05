@@ -193,6 +193,7 @@
 		});
 	})();
 	$: console.log('previousRoute::', $routeHistoryStore);
+	$: console.log('isProfilePage::', isProfilePage, splitPath, splitPath[splitPath?.length - 1]);
 </script>
 
 <div
@@ -488,7 +489,7 @@
 				</div>
 			</div>
 			<main
-				class:isProfilePage
+				class:isProfilePage={splitPath[1] === 'users' && splitPath?.length === 3}
 				class:scrollable={!engineInRoute && !playInRoute && isBrowsePage}
 				class:editor={(engineInRoute || playInRoute) && !isBrowsePage}
 				class:showSideBar={$sideBarState}
@@ -590,10 +591,10 @@
 		padding-top: 56.5px;
 	}
 	main.isProfilePage {
-		padding-top: 56.5px;
+		/* padding-top: 56.5px; */
 	}
 	main.isMobile {
-		padding-top: 10px !important;
+		padding-top: 10px;
 	}
 	main.isPlayPage.isMobile {
 		padding-top: 0px !important;
@@ -1054,5 +1055,9 @@
 	}
 	.play-button svg {
 		filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.3));
+	}
+
+	main.isProfilePage.isMobile {
+		padding-top: 0px !important;
 	}
 </style>

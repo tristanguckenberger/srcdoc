@@ -1,54 +1,22 @@
 // @ts-nocheck
 import { gameData } from '$lib/mockData/gameData.js';
-// import { gamesData } from '$lib/stores/gamesStore.js';
 
-const getAllFavoritesSingleGame = async (slug, eventFetch) => {
-	let favorites;
+async function fetchData(eventFetch, endpoint) {
 	try {
-		const favoritesRes = await eventFetch(`/api/favorites/${slug}/getAllFavoritesSingleGame`);
-		favorites = await favoritesRes.json();
+		const response = await eventFetch(endpoint);
+		if (!response.ok) throw new Error('Failed to fetch data');
+		return await response.json();
 	} catch (error) {
-		console.log('favoritesRes::error::', error);
+		console.error(error);
+		return null; // Return null to handle errors gracefully in the load function
 	}
-
-	return favorites;
-};
-
-const getAllFilesBySingleGame = async (slug, eventFetch) => {
-	let gameFiles;
-	try {
-		const gameFilesRes = await eventFetch(`/api/games/getSingleGame/${slug}/files`);
-		gameFiles = await gameFilesRes.json();
-	} catch (error) {
-		console.log('gameFilesRes::error::', error);
-	}
-
-	return gameFiles;
-};
-
-const getSingleGame = async (slug, eventFetch) => {
-	let gameResponse;
-	let gameInfo;
-	try {
-		gameResponse = await eventFetch(`/api/games/getSingleGame/${slug}`);
-		gameInfo = await gameResponse.json();
-	} catch (error) {
-		console.log('error::', error);
-	}
-
-	return gameInfo;
-};
+}
 
 const getCurrentUser = async (eventFetch) => {
 	let user;
-
 	try {
 		const userResponse = await eventFetch(`/api/users/getCurrentUser`);
 		user = await userResponse.json();
-
-		if (user?.status === 401) {
-			return null;
-		}
 	} catch (error) {
 		console.log('getCurrentUser::error::', error);
 	}
@@ -56,198 +24,89 @@ const getCurrentUser = async (eventFetch) => {
 	return user;
 };
 
-const getAllGamesByUser = async (userId, eventFetch) => {
-	let games = [];
-	try {
-		const gamesRes = await eventFetch(`/api/games/getAllGamesByUser/${userId}`);
-		games = await gamesRes.json();
-	} catch (error) {
-		console.log('gamesRes::error::', error);
-	}
+async function getUser(fetch, id) {
+	if (!id) return null;
+	const user = await fetchData(fetch, `${process.env.SERVER_URL}/api/users/${id}`);
+	if (!user) return { status: 401, body: { message: 'No User found with id provided' } };
+	return user;
+}
 
-	return games;
-};
+async function getAllCommentsForAGame(fetch, slug) {
+	const commentsRaw = await fetchData(fetch, `${process.env.SERVER_URL}/api/comments/game/${slug}`);
+	if (!commentsRaw) return [];
 
-const getUser = async (/** @type {String} */ id) => {
-	if (id) {
-		const userReqHeaders = new Headers();
-		userReqHeaders?.append(`content-type`, `application/json`);
-		const userReqInit = {
-			method: 'GET',
-			headers: userReqHeaders
-		};
-
-		const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/${id}`, userReqInit);
-		if (!userResponse.ok) {
+	const comments = await Promise.all(
+		commentsRaw.map(async (comment) => {
+			const user = await getUser(fetch, comment?.user_id);
 			return {
-				status: 401,
-				body: {
-					message: 'No User found with id provided'
-				}
+				...comment,
+				userName: user?.username,
+				userAvatar: user?.profile_photo
 			};
-		}
+		})
+	);
 
-		const user = await userResponse.json();
-		return user;
-	}
-};
+	return comments;
+}
 
-const getAllGames = async (eventFetch) => {
-	const allGamesRes = await eventFetch(`/api/games/getAllGames`);
-	return await allGamesRes.json();
-};
-
-const getAllCommentsForAGame = async (slug) => {
-	const commentReqHeaders = new Headers();
-	const commentReqInit = {
-		method: 'GET',
-		headers: commentReqHeaders
-	};
-	let commentResponse;
-	try {
-		commentResponse = await fetch(
-			`${process.env.SERVER_URL}/api/comments/game/${slug}`,
-			commentReqInit
-		);
-	} catch (error) {
-		console.log('commentResponse::error::', error);
-	}
-
-	if (!commentResponse.ok) {
-		return {
-			status: 401,
-			body: {
-				message: 'Request failed',
-				data: []
-			}
-		};
-	}
-
-	const commentsRaw = await commentResponse.json();
-	const comments = commentsRaw.map(async (comment) => {
-		const user = await getUser(comment?.user_id);
-		return {
-			id: comment?.id,
-			userId: comment?.user_id,
-			userName: user?.username,
-			userAvatar: user?.profile_photo,
-			gameId: comment?.game_id,
-			parentCommentId: comment?.parent_comment_id,
-			commentText: comment?.comment_text
-		};
-	});
-	return Promise.all(comments);
-};
-
-export async function load(/**{ params, fetch }**/ { params, fetch }) {
+export async function load({ params, fetch, setHeaders }) {
 	const { slug } = params;
-
-	const allGames = (await getAllGames(fetch)) ?? [];
-
-	// gamesData?.subscribe(async (gamesData) => {
-	// 	try {
-	// 		if (!gamesData?.length) {
-	// 			const gamesReqHeaders = new Headers();
-	// 			const gamesReqInit = {
-	// 				method: 'GET',
-	// 				headers: gamesReqHeaders
-	// 			};
-	// 			const gamesResponse = await fetch(`${process.env.SERVER_URL}/api/games`, gamesReqInit);
-	// 			const games = await gamesResponse.json();
-	// 			gamesData = games;
-	// 		}
-
-	// 		allGames = gamesData;
-	// 	} catch (error) {
-	// 		console.log('error::', error);
-	// 	}
-	// });
-
-	const user = await getCurrentUser(fetch);
-
-	const sessionData = {
-		...user
-	};
-
-	delete sessionData?.token && delete sessionData?.password;
-
+	let user = null;
 	let userGames = [];
-	if (user) {
-		userGames = await getAllGamesByUser(user?.id, fetch);
+
+	const [allGames, userData, game, favorites] = await Promise.all([
+		fetchData(fetch, `/api/games/getAllGames`),
+		getCurrentUser(fetch),
+		fetchData(fetch, `/api/games/getSingleGame/${slug}`) ||
+			gameData.find((g) => g.id.toString() === slug.toString()),
+		fetchData(fetch, `/api/favorites/${slug}/getAllFavoritesSingleGame`)
+		// getAllCommentsForAGame(fetch, slug)
+	]);
+
+	// console.log('play_load::user::', user);
+	if (userData && userData?.status === 401) {
+		user = null;
 	}
 
-	const game =
-		(await getSingleGame(slug, fetch)) ??
-		gameData.find((game) => game?.id.toString() === slug.toString());
+	// Assuming user is already sanitized before being sent to the client
+	if (userData?.id) {
+		user = userData;
+	}
+	userGames = user?.id ? await fetchData(fetch, `/api/games/getAllGamesByUser/${user?.id}`) : [];
 
-	if (game?.id) {
-		const gameFiles = await getAllFilesBySingleGame(game?.id ?? slug, fetch);
-		game.files = gameFiles ?? [];
+	// Enhance game object with files and comments if available
+	if (game) {
+		game.files = (await fetchData(fetch, `/api/games/getSingleGame/${slug}/files`)) ?? [];
+		game.comments = await getAllCommentsForAGame(fetch, slug);
 	}
 
-	const favorites = await getAllFavoritesSingleGame(slug, fetch);
+	// Calculate top and bottom games
+	const currentIndex = allGames?.findIndex((g) => g.id.toString() === slug.toString());
+	const topGame = currentIndex > 0 ? allGames[currentIndex - 1] : allGames[allGames.length - 1];
+	const bottomGame = currentIndex < allGames.length - 1 ? allGames[currentIndex + 1] : allGames[0];
 
-	let comments = await getAllCommentsForAGame(slug);
+	// console.log('play_load::game::', game);
+	// console.log('play_load::user::', user);
+	// console.log('play_load::allGames::', allGames);
+	// console.log('play_load::userGames::', userGames);
+	// console.log('play_load::topGame::', topGame);
+	// console.log('play_load::bottomGame::', bottomGame);
+	// console.log('play_load::comments::', comments);
+	// console.log('play_load::favorites::', favorites);
 
-	let topGame;
-	let fetchedTopGame;
-	let favsObj;
-	let bottomGame;
-	let fetchedBottomGame;
-
-	try {
-		const currentIndexByGameID = allGames?.findIndex(
-			(gam) => gam?.id?.toString() === game?.id?.toString()
-		);
-		const currentIndexIsLast = allGames?.length - 1 === currentIndexByGameID;
-		const currentIndexIsFirst = 0 === currentIndexByGameID;
-
-		if (currentIndexIsLast) {
-			topGame = allGames[currentIndexByGameID - 1];
-			bottomGame = allGames[0];
-		} else if (currentIndexIsFirst) {
-			topGame = allGames[allGames?.length - 1];
-			bottomGame = allGames[currentIndexByGameID + 1];
-		} else {
-			topGame = allGames[currentIndexByGameID - 1];
-			bottomGame = allGames[currentIndexByGameID + 1];
-		}
-
-		if (topGame) {
-			fetchedTopGame = await getSingleGame(topGame?.id, fetch);
-		}
-
-		if (bottomGame) {
-			fetchedBottomGame = await getSingleGame(bottomGame?.id, fetch);
-		}
-
-		if (!comments?.length || comments?.length === 0) {
-			console.log('no comments');
-			comments = [];
-		}
-
-		if (favorites?.length) {
-			favsObj = {
-				count: favorites?.length,
-				favorites: [...favorites]
-			};
-		}
-	} catch (error) {
-		console.log('error::', error);
-	}
+	setHeaders({
+		'cache-control': 'max-age=60'
+	});
 
 	return {
 		...game,
-		text: 'howdy',
 		user,
-		// slug,
 		allGames,
+		userGames: userGames?.reverse(),
+		topGame,
 		currentGame: { ...game },
-		topGame: { ...topGame, ...fetchedTopGame },
-		bottomGame: { ...bottomGame, ...fetchedBottomGame },
-		// baseGames,
-		userGames: [...userGames].reverse(),
-		comments: [...comments],
-		favorites: { ...favsObj }
+		bottomGame,
+		comments: game?.comments ?? [],
+		favorites: favorites ? { count: favorites.length, favorites } : { count: 0, favorites: [] }
 	};
 }

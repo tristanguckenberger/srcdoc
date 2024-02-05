@@ -11,7 +11,8 @@
  * @param {FileObject[]} files - An array of file objects.
  * @returns {number|null} The ID of the root file, or null if not found.
  */
-export const getRootFileId = (files) => {
+export const getRootFileId = (files = []) => {
+	console.log('getRootFileId::files::', files);
 	const rootFile = files?.find((file) => {
 		return file.name === 'root' && file.type === 'folder';
 	});

@@ -24,14 +24,18 @@ const getUser = async (/** @type {String} */ id) => {
 	}
 };
 
-export async function load({ params }) {
-	// setHeaders({
-	// 	'cache-control': 'max-age=60'
-	// });
+export async function load({ params, setHeaders }) {
 	const { slug } = params;
-	// find the user by slug
-	const user = await getUser(slug); // userData.find((user) => user?.id.toString() === slug.toString());
+	const user = await getUser(slug);
 
+	if (user?.id) {
+		delete user.password;
+		delete user.email;
+	}
+
+	setHeaders({
+		'cache-control': 'max-age=60'
+	});
 	return {
 		...user
 	};

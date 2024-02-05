@@ -127,6 +127,7 @@
 	.user-header-image-container {
 		width: 100%;
 		position: relative;
+		padding-top: 10px;
 	}
 	.user-header-image {
 		width: 100%;

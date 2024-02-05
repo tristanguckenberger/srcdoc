@@ -55,6 +55,7 @@
 	let play;
 	let navActionHeight;
 	let gamesAvailable = [];
+	let allGamesData = [];
 	let reactiveData = {};
 	let ComponentOptions = [];
 	let favoriteData = {};
@@ -136,8 +137,9 @@
 	}
 	$: data,
 		(() => {
-			if (data) baseDataStore.set(data);
-			fileStoreFiles.set($derivedFileSystemData);
+			// console.log('data::fileStoreFiles::', data);
+			// if (data) baseDataStore.set(data);
+			// fileStoreFiles.set($derivedFileSystemData);
 		})();
 	$: data,
 		() => {
@@ -208,6 +210,7 @@
 	})();
 	$: data?.comments, (reactiveData = data ?? {});
 	$: data?.favorites, (favoriteData = data?.favorites ?? {});
+	$: allGamesData = data?.allGames ?? [];
 </script>
 
 <div
@@ -220,7 +223,12 @@
 			{#if play}
 				<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} />
 			{:else}
-				<Slider {gamesAvailable} bind:favoritesObj={favoriteData} bind:navActionHeight />
+				<Slider
+					rawGamesData={allGamesData}
+					{gamesAvailable}
+					bind:favoritesObj={favoriteData}
+					bind:navActionHeight
+				/>
 			{/if}
 		{/if}
 	</div>

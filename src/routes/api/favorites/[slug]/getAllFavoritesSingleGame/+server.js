@@ -2,10 +2,6 @@
 import { json } from '@sveltejs/kit';
 
 export async function GET({ setHeaders, params }) {
-	setHeaders({
-		'cache-control': 'max-age=15'
-	});
-
 	const { slug } = params;
 
 	const favsReqHeaders = new Headers();
@@ -36,6 +32,10 @@ export async function GET({ setHeaders, params }) {
 	} catch (error) {
 		console.log('src/routes/api/favorites/[slug]/getAllFavoritesSingleGame::error::', error);
 	}
+
+	setHeaders({
+		'cache-control': 'max-age=60'
+	});
 
 	return json(favorites);
 }

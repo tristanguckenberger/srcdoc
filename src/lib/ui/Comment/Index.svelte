@@ -96,7 +96,7 @@
 		const threads = [];
 
 		for (const item of items) {
-			if (item.parentCommentId === parentId) {
+			if (item.parent_comment_id === parentId) {
 				const children = buildItemThreads(item.id, items);
 
 				threads.push({
@@ -226,7 +226,7 @@
 								<UpdateCommentForm
 									{comment}
 									bind:isEditingUpdate={isEditing}
-									inputText={comment?.commentText}
+									inputText={comment?.comment_text}
 								/>
 							</div>
 						{:else}
@@ -235,7 +235,7 @@
 								class:expanded={$commentSystemExpanderStore[comment.id]}
 							>
 								<Button
-									link="/users/{comment?.userId}"
+									link="/users/{comment?.user_id}"
 									userName={`@${comment?.userName}`}
 									userAvatar={comment?.userAvatar}
 									style={'padding: 0 10px; background-color: transparent !important; width: fit-content !important;'}
@@ -245,7 +245,7 @@
 									class:expanded={$commentSystemExpanderStore[comment.id]}
 								>
 									<p>
-										<span class="commentText">{comment.commentText}</span>
+										<span class="commentText">{comment.comment_text}</span>
 									</p>
 									<div class="actions">
 										<Button
@@ -278,19 +278,19 @@
 							<UpdateCommentForm
 								{comment}
 								bind:isEditingUpdate={isEditing}
-								inputText={comment?.commentText}
+								inputText={comment?.comment_text}
 							/>
 						{:else}
 							<div class="comment-container">
 								<Button
-									link="/users/{comment?.userId}"
+									link="/users/{comment?.user_id}"
 									userName={`@${comment?.userName}`}
 									userAvatar={comment?.userAvatar}
 									style={'padding: 0 10px; background-color: transparent !important; width: fit-content !important;'}
 								/>
 								<div class="comment parent-no-children row">
 									<p>
-										{comment?.commentText}
+										{comment?.comment_text}
 									</p>
 									<div class="actions">
 										<Button
@@ -312,20 +312,20 @@
 							<UpdateCommentForm
 								{comment}
 								bind:isEditingUpdate={isEditing}
-								inputText={comment?.commentText}
+								inputText={comment?.comment_text}
 							/>
 						</div>
 					{:else}
 						<div class="comment-container">
 							<Button
-								link="/users/{comment?.userId}"
+								link="/users/{comment?.user_id}"
 								userName={`@${comment?.userName}`}
 								userAvatar={comment?.userAvatar}
 								style={'padding: 0 10px; background-color: transparent !important; width: fit-content !important;'}
 							/>
 							<div class="comment child row">
 								<p>
-									{comment?.commentText}
+									{comment?.comment_text}
 								</p>
 								<div class="actions">
 									<Button

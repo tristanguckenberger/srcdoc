@@ -2,10 +2,11 @@
 	// @ts-nocheck
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
-	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { preloadItemsInRange } from '$lib/utils/preloadItemsInRange';
+	import { afterNavigate, beforeNavigate, preloadCode, preloadData } from '$app/navigation';
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
 	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
-	import { goto, invalidate, invalidateAll } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 	import { playButton, gameFavoriteCount, gameFavorites } from '$lib/stores/gamesStore.js';
 	import { writable } from 'svelte/store';
@@ -23,6 +24,7 @@
 
 	export let navActionHeight = 0;
 	export let gamesAvailable = [];
+	export let rawGamesData = [];
 	export let currentIndex = 0;
 	export let thumbnail;
 	export let favoritesObj = {};
@@ -38,7 +40,15 @@
 	let timeout;
 	let isFavorited = false;
 	let doNavigate = false;
-	const favoritesStore = writable([]);
+
+	const linkBuilder = (game) => `/games/${game?.id}/play`;
+
+	const emblaPreloader = (game, preload = preloadData) => {
+		const gameLink = linkBuilder(game);
+		if (browser) {
+			preload(gameLink);
+		}
+	};
 
 	async function shareGame() {
 		if (navigator.share) {
@@ -65,6 +75,7 @@
 		slideInView = 1;
 		currentGame = gamesAvailable[slideInView];
 		initialId = gamesAvailable[slideInView]?.id;
+		preloadItemsInRange(emblaPreloader, rawGamesData, currentIndex, 1, 1);
 	};
 
 	const performNavigation = async () => {
@@ -72,15 +83,12 @@
 		if (nextGame?.id !== currentGame?.id) {
 			currentGame = nextGame;
 			$currentGameStore = currentGame;
-
-			// might not need to invalidate at all since we have all the data
-			await goto(`/games/${nextGame?.id}/play`);
-			// await invalidateAll();
-			// await tick();
+			gamesAvailable[emblaApi?.selectedScrollSnap()];
+			await goto(`/games/${nextGame?.id}/play`, { replaceState: false });
 		}
 	};
 
-	const debouncedNavigation = debounce(performNavigation, 375);
+	const debouncedNavigation = debounce(performNavigation, 300);
 
 	const onPointerDown = (event) => {
 		pointerDown = true;
@@ -143,8 +151,8 @@
 			clearTimeout(timeout);
 		}
 
-		$favoritesStore?.some((fav) => {
-			if (fav?.user_id === $session?.id && fav?.game_id === game?.id) {
+		favoritesObj?.favorites?.some((fav) => {
+			if (fav?.user_id === $session?.id && fav?.game_id === $currentGameStore?.id) {
 				isFavorited = true;
 			} else {
 				isFavorited = false;
@@ -160,6 +168,7 @@
 				currentGame = gamesAvailable[1];
 				currentGameStore.set(currentGame);
 				lockGameStateStore.set(false);
+				preloadItemsInRange(emblaPreloader, rawGamesData, currentIndex, 1, 1);
 			});
 		}
 	});
@@ -169,8 +178,8 @@
 		clearTimeout(debouncedNavigation);
 	});
 
+	$: currentIndex = rawGamesData?.findIndex((game) => game?.id === currentGame?.id);
 	$: $currentGameStore = currentGame;
-	$: console.log('current page state::', $page);
 	$: hideActionNav = !$actionMenuOpen;
 	$: favoritesCount = favoritesObj?.count;
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
@@ -533,7 +542,7 @@
 		flex-direction: column;
 		gap: 40px;
 		align-items: center;
-		bottom: 80px;
+		bottom: 90px;
 		right: 25px;
 	}
 

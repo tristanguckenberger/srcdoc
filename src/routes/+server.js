@@ -26,12 +26,12 @@ const getAllUsers = async () => {
 	return users;
 };
 
-export async function GET({ params }) {
-	// setHeaders({
-	// 	'cache-control': 'max-age=60'
-	// });
-
+export async function GET({ params, setHeaders }) {
 	const users = await getAllUsers();
+
+	setHeaders({
+		'cache-control': 'max-age=60'
+	});
 
 	return new Response(
 		JSON.stringify({

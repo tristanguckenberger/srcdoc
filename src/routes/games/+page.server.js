@@ -15,23 +15,16 @@ const getCurrentUser = async (eventFetch) => {
 	return user;
 };
 
-const getAllGames = async (eventFetch) => {
-	// let allGames;
-	// try {
-
-	// 	console.log('CODE::getAllGames::allGamesRes::', allGamesRes);
-	// 	const allGames = await allGamesRes.json();
-
-	// 	console.log('allGames::', allGames);
-	// 	if (allGames?.status === 401) {
-	// 		return [];
-	// 	}
-	// } catch (error) {
-	// 	console.log('allGamesRes::error::', error);
-	// }
-	const allGamesRes = await eventFetch(`/api/games/getAllGames`);
-	return await allGamesRes.json();
-};
+async function fetchData(eventFetch, endpoint) {
+	try {
+		const response = await eventFetch(endpoint);
+		if (!response.ok) throw new Error('Failed to fetch data');
+		return await response.json();
+	} catch (error) {
+		console.error(error);
+		return null; // Return null to handle errors gracefully in the load function
+	}
+}
 
 const getAllFavoritesSingleGame = async (slug, eventFetch) => {
 	let favorites = [];
@@ -45,26 +38,33 @@ const getAllFavoritesSingleGame = async (slug, eventFetch) => {
 	return favorites;
 };
 
-export async function load({ cookies, fetch }) {
-	const token = cookies?.get('token');
-	let sessionData = {};
+export async function load({ fetch, setHeaders }) {
+	let user = null;
+	const [allGames, userData] = await Promise.all([
+		fetchData(fetch, `/api/games/getAllGames`),
+		getCurrentUser(fetch)
+	]);
 
-	if (token) {
-		const user = await getCurrentUser(fetch);
-		sessionData = {
-			...user
-		};
-
-		delete sessionData?.token && delete sessionData?.password;
+	// console.log('play_load::user::', user);
+	if (userData && userData?.status === 401) {
+		user = null;
 	}
 
-	const allGames = (await getAllGames(fetch)) ?? [];
-	const publishedGames = allGames?.filter((game) => game.published) ?? [];
+	// Assuming user is already sanitized before being sent to the client
+	if (userData?.id) {
+		user = userData;
+	}
+
+	const publishedGames = allGames?.filter((game) => game.published);
 	gamesData.set([...publishedGames].reverse());
+
+	setHeaders({
+		'cache-control': 'max-age=60'
+	});
 
 	return {
 		games: [...publishedGames].reverse(),
-		user: { ...sessionData }
+		user
 	};
 }
 
