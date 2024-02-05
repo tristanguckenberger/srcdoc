@@ -81,7 +81,7 @@
 		}
 	};
 
-	const debouncedNavigation = debounce(performNavigation, 275);
+	const debouncedNavigation = debounce(performNavigation, 350);
 
 	const onPointerDown = (event) => {
 		pointerDown = true;
@@ -115,7 +115,7 @@
 		}
 	};
 
-	const debouncedKeyUp = debounce(handleKeyUp, 300);
+	const debouncedKeyUp = debounce(handleKeyUp, 350);
 
 	const handleScrollBack = () => {
 		emblaApi?.scrollNext();
@@ -123,7 +123,7 @@
 			doNavigate = true;
 		}, 300);
 	};
-	const debouncedScrollBack = debounce(handleScrollBack, 300);
+	const debouncedScrollBack = debounce(handleScrollBack, 350);
 
 	const handleScrollForward = () => {
 		emblaApi?.scrollPrev();
@@ -131,7 +131,7 @@
 			doNavigate = true;
 		}, 300);
 	};
-	const debouncedScrollForward = debounce(handleScrollForward, 300);
+	const debouncedScrollForward = debounce(handleScrollForward, 350);
 
 	onMount(async () => {
 		hideActionNav = false;
