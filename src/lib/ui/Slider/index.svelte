@@ -81,7 +81,7 @@
 		}
 	};
 
-	const debouncedNavigation = debounce(performNavigation, 350);
+	const debouncedNavigation = debounce(performNavigation, 400);
 
 	const onPointerDown = (event) => {
 		pointerDown = true;
