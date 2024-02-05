@@ -64,7 +64,7 @@
 				inherit: true,
 				rules: [],
 				colors: {
-					'editor.background': '#373638'
+					'editor.background': '#1d1e20'
 				}
 			});
 			// create editor, returns monaco editor instance

@@ -54,7 +54,7 @@
 	$: value = $isVertical;
 	$: isOutput = $editorOutContainerHeight && $editorOutContainerHeight <= 30;
 	$: isEditor = $editorContainerHeight && $editorContainerHeight <= 30;
-	$: {
+	$: (() => {
 		if (split) {
 			let splitModel = split?.querySelector('.slot-control-bar .container');
 			// Edge case 1: the editor is full and the output is closed
@@ -88,7 +88,7 @@
 				}
 			}
 		}
-	}
+	})();
 	$: idSplit = id?.split('-');
 	$: fileId = idSplit[idSplit?.length - 1];
 	$: isFocused =
