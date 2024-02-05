@@ -76,8 +76,12 @@ export async function load({ params, fetch, setHeaders }) {
 
 	// Enhance game object with files and comments if available
 	if (game) {
-		game.files = (await fetchData(fetch, `/api/games/getSingleGame/${slug}/files`)) ?? [];
-		game.comments = await getAllCommentsForAGame(fetch, slug);
+		const filesResponse = await fetchData(fetch, `/api/games/getSingleGame/${slug}/files`);
+		console.log('play_load::game::filesResponse::', filesResponse);
+		game.files = filesResponse ?? [];
+		// console.log('play_load::game::files::', game?.files);
+		game.comments = (await getAllCommentsForAGame(fetch, slug)) ?? [];
+		// console.log('play_load::game::comments::', game?.comments);
 	}
 
 	// Calculate top and bottom games
@@ -89,8 +93,9 @@ export async function load({ params, fetch, setHeaders }) {
 	// console.log('play_load::user::', user);
 	// console.log('play_load::allGames::', allGames);
 	// console.log('play_load::userGames::', userGames);
-	// console.log('play_load::topGame::', topGame);
-	// console.log('play_load::bottomGame::', bottomGame);
+	console.log('play_load::currentIndex::', currentIndex);
+	console.log('play_load::topGame::', topGame);
+	console.log('play_load::bottomGame::', bottomGame);
 	// console.log('play_load::comments::', comments);
 	// console.log('play_load::favorites::', favorites);
 

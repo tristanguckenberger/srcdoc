@@ -9,17 +9,10 @@
 	import { goto } from '$app/navigation';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 	import { playButton, gameFavoriteCount, gameFavorites } from '$lib/stores/gamesStore.js';
-	import { writable } from 'svelte/store';
-	import { debounce, set } from 'lodash-es';
+	import { debounce } from 'lodash-es';
 	import { hidePlayButtonStore, lockGameStateStore } from '$lib/stores/gameControllerStore';
 	import { session } from '$lib/stores/sessionStore';
-	import {
-		actionMenuOpen,
-		currentGame as currentGameStore,
-		topGame,
-		bottomGame,
-		gameCommentCount
-	} from '$lib/stores/gamesStore';
+	import { actionMenuOpen, currentGame as currentGameStore } from '$lib/stores/gamesStore';
 	import { page } from '$app/stores';
 
 	export let navActionHeight = 0;
@@ -30,7 +23,7 @@
 	export let favoritesObj = {};
 
 	let emblaApi;
-	let options = { axis: 'y', duration: 25, inViewThreshold: 0.3 };
+	let options = { axis: 'y', duration: 20, inViewThreshold: 0.7 };
 	let slideInView = 1;
 	let pointerDown = false;
 	let currentGame;
@@ -88,7 +81,7 @@
 		}
 	};
 
-	const debouncedNavigation = debounce(performNavigation, 300);
+	const debouncedNavigation = debounce(performNavigation, 275);
 
 	const onPointerDown = (event) => {
 		pointerDown = true;
@@ -106,20 +99,39 @@
 	};
 
 	const handleKeyUp = async (event) => {
-		if (event.key === 'ArrowUp') {
+		console.log('key up event::::::::::', event.key);
+		if (event.key === 'ArrowDown') {
 			emblaApi?.scrollPrev();
 			setTimeout(() => {
 				doNavigate = true;
 			}, 300);
 		}
 
-		if (event.key === 'ArrowDown') {
+		if (event.key === 'ArrowUp') {
 			emblaApi?.scrollNext();
 			setTimeout(() => {
 				doNavigate = true;
 			}, 300);
 		}
 	};
+
+	const debouncedKeyUp = debounce(handleKeyUp, 300);
+
+	const handleScrollBack = () => {
+		emblaApi?.scrollNext();
+		setTimeout(() => {
+			doNavigate = true;
+		}, 300);
+	};
+	const debouncedScrollBack = debounce(handleScrollBack, 300);
+
+	const handleScrollForward = () => {
+		emblaApi?.scrollPrev();
+		setTimeout(() => {
+			doNavigate = true;
+		}, 300);
+	};
+	const debouncedScrollForward = debounce(handleScrollForward, 300);
 
 	onMount(async () => {
 		hideActionNav = false;
@@ -163,7 +175,7 @@
 	afterNavigate(() => {
 		// Reset state or cleanup after navigation
 		if (emblaApi) {
-			emblaApi.scrollTo(1, true); // Ensure the carousel is reset to a default state after navigation
+			emblaApi.scrollTo(1, false); // Ensure the carousel is reset to a default state after navigation
 			tick().then(() => {
 				currentGame = gamesAvailable[1];
 				currentGameStore.set(currentGame);
@@ -195,7 +207,7 @@
 		})();
 </script>
 
-<svelte:window on:keyup={handleKeyUp} />
+<svelte:window on:keyup={debouncedKeyUp} />
 {#await gamesAvailable}
 	<p>Loading...</p>
 {:then}
@@ -354,7 +366,48 @@
 													/>
 												</svg>
 											</button>
-											<div class="divider" />
+											<div class="divider">
+												<div
+													class="slider-action top-icon"
+													role="button"
+													tabindex="0"
+													on:click={debouncedScrollBack}
+													on:keypress={() => {
+														console.log('key pressed');
+													}}
+												>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="32"
+														height="32"
+														fill="#000000"
+														viewBox="0 0 256 256"
+														><path
+															d="M216.49,168.49a12,12,0,0,1-17,0L128,97,56.49,168.49a12,12,0,0,1-17-17l80-80a12,12,0,0,1,17,0l80,80A12,12,0,0,1,216.49,168.49Z"
+														/></svg
+													>
+												</div>
+												<div
+													class="slider-action bottom-icon"
+													role="button"
+													tabindex="0"
+													on:click={debouncedScrollForward}
+													on:keypress={() => {
+														console.log('key pressed');
+													}}
+												>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="32"
+														height="32"
+														fill="#000000"
+														viewBox="0 0 256 256"
+														><path
+															d="M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z"
+														/></svg
+													>
+												</div>
+											</div>
 										</div>
 									</ul>
 								{/if}
@@ -656,15 +709,31 @@
 		}
 	}
 	.divider {
-		width: 6px;
+		width: 42px;
 		height: 150px;
 		background-color: #ffffff24;
 		border-radius: 6px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
 	}
 
 	@media (max-width: 498px) {
 		.divider {
 			height: 100px;
 		}
+	}
+	.divider .slider-action svg {
+		width: 100%;
+		fill: var(--color-primary);
+	}
+	.slider-action.top-icon {
+		padding-top: 5px;
+	}
+	.slider-action.bottom-icon {
+		padding-bottom: 5px;
+	}
+	.slider-action:hover {
+		cursor: pointer;
 	}
 </style>

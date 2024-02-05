@@ -26,7 +26,8 @@
 		triggerCompile,
 		filesToUpdate,
 		focusedFileId,
-		initialDataStore
+		initialDataStore,
+		baseDataStore
 	} from '$lib/stores/filesStore';
 	import {
 		sideBarState,
@@ -194,6 +195,7 @@
 	})();
 	$: console.log('previousRoute::', $routeHistoryStore);
 	$: console.log('isProfilePage::', isProfilePage, splitPath, splitPath[splitPath?.length - 1]);
+	$: console.log('baseDataStore::', $baseDataStore);
 </script>
 
 <div
@@ -507,6 +509,48 @@
 		</div>
 
 		{#if isPlayPage}
+			<!-- <div class="divider">
+				<div
+					class="slider-action top-icon"
+					role="button"
+					tabindex="0"
+					on:click={debouncedScrollBack}
+					on:keypress={() => {
+						console.log('key pressed');
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="32"
+						height="32"
+						fill="#000000"
+						viewBox="0 0 256 256"
+						><path
+							d="M216.49,168.49a12,12,0,0,1-17,0L128,97,56.49,168.49a12,12,0,0,1-17-17l80-80a12,12,0,0,1,17,0l80,80A12,12,0,0,1,216.49,168.49Z"
+						/></svg
+					>
+				</div>
+				<div
+					class="slider-action bottom-icon"
+					role="button"
+					tabindex="0"
+					on:click={debouncedScrollForward}
+					on:keypress={() => {
+						console.log('key pressed');
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="32"
+						height="32"
+						fill="#000000"
+						viewBox="0 0 256 256"
+						><path
+							d="M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z"
+						/></svg
+					>
+				</div>
+			</div> -->
 			<div
 				class="play-button-container"
 				class:fade={!$hidePlayButtonStore || (!$playButton && $actionMenuOpen)}
@@ -1018,13 +1062,15 @@
 		}
 	}
 
-	.play-button-container {
-		opacity: 0;
+	.play-button-container svg path {
+		/* opacity: 0; */
 		/* transition: opacity 0.01s linear 0.03s; */
+		fill: #3434348e;
+		/* transition: fill 0.3s linear; */
 	}
 
-	.play-button-container.fade {
-		opacity: 1;
+	.play-button-container.fade svg path {
+		fill: var(--color-primary);
 	}
 	.page-container.engineInRoute main.editor {
 		padding-top: 0 !important;
@@ -1060,4 +1106,32 @@
 	main.isProfilePage.isMobile {
 		padding-top: 0px !important;
 	}
+	/* .divider {
+		width: 42px;
+		height: 150px;
+		background-color: #ffffff24;
+		border-radius: 6px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+
+	@media (max-width: 498px) {
+		.divider {
+			height: 100px;
+		}
+	}
+	.divider .slider-action svg {
+		width: 100%;
+		fill: var(--color-primary);
+	}
+	.slider-action.top-icon {
+		padding-top: 5px;
+	}
+	.slider-action.bottom-icon {
+		padding-bottom: 5px;
+	}
+	.slider-action:hover {
+		cursor: pointer;
+	} */
 </style>

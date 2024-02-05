@@ -23,10 +23,11 @@ export async function GET({ setHeaders, params }) {
 		});
 	}
 
-	const games = await gameFilesResponse.json();
+	const files = await gameFilesResponse.json();
+	console.log('getSingleGame::files::', files);
 
 	setHeaders({
 		'cache-control': 'max-age=60'
 	});
-	return json(games);
+	return json([...files]);
 }

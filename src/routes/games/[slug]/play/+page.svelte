@@ -135,11 +135,12 @@
 			gamesData.set(newGamesData);
 		}
 	}
+	$: console.log('data::fileStoreFiles::', data);
 	$: data,
 		(() => {
-			// console.log('data::fileStoreFiles::', data);
-			// if (data) baseDataStore.set(data);
-			// fileStoreFiles.set($derivedFileSystemData);
+			console.log('data::fileStoreFiles::', data);
+			if (data) baseDataStore.set(data);
+			fileStoreFiles.set($derivedFileSystemData);
 		})();
 	$: data,
 		() => {
@@ -211,6 +212,8 @@
 	$: data?.comments, (reactiveData = data ?? {});
 	$: data?.favorites, (favoriteData = data?.favorites ?? {});
 	$: allGamesData = data?.allGames ?? [];
+
+	$: console.log('srcbuild::', $srcbuild);
 </script>
 
 <div
