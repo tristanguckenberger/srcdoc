@@ -60,10 +60,8 @@ export async function load({ params, fetch, setHeaders }) {
 		fetchData(fetch, `/api/games/getSingleGame/${slug}`) ||
 			gameData.find((g) => g.id.toString() === slug.toString()),
 		fetchData(fetch, `/api/favorites/${slug}/getAllFavoritesSingleGame`)
-		// getAllCommentsForAGame(fetch, slug)
 	]);
 
-	// console.log('play_load::user::', user);
 	if (userData && userData?.status === 401) {
 		user = null;
 	}
@@ -77,27 +75,14 @@ export async function load({ params, fetch, setHeaders }) {
 	// Enhance game object with files and comments if available
 	if (game) {
 		const filesResponse = await fetchData(fetch, `/api/games/getSingleGame/${slug}/files`);
-		console.log('play_load::game::filesResponse::', filesResponse);
 		game.files = filesResponse ?? [];
-		// console.log('play_load::game::files::', game?.files);
 		game.comments = (await getAllCommentsForAGame(fetch, slug)) ?? [];
-		// console.log('play_load::game::comments::', game?.comments);
 	}
 
 	// Calculate top and bottom games
 	const currentIndex = allGames?.findIndex((g) => g.id.toString() === slug.toString());
 	const topGame = currentIndex > 0 ? allGames[currentIndex - 1] : allGames[allGames.length - 1];
 	const bottomGame = currentIndex < allGames.length - 1 ? allGames[currentIndex + 1] : allGames[0];
-
-	// console.log('play_load::game::', game);
-	// console.log('play_load::user::', user);
-	// console.log('play_load::allGames::', allGames);
-	// console.log('play_load::userGames::', userGames);
-	console.log('play_load::currentIndex::', currentIndex);
-	console.log('play_load::topGame::', topGame);
-	console.log('play_load::bottomGame::', bottomGame);
-	// console.log('play_load::comments::', comments);
-	// console.log('play_load::favorites::', favorites);
 
 	setHeaders({
 		'cache-control': 'max-age=60'

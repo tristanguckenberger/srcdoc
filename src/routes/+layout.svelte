@@ -545,7 +545,7 @@
 		</div>
 
 		{#if isPlayPage}
-			{#if !$playButton && !$drawerOpen}
+			{#if !$playButton && !$drawerOpen && !isMobile}
 				<div class="divider">
 					<div
 						class="slider-action top-icon"
