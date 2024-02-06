@@ -1,20 +1,31 @@
 <script>
 	// @ts-nocheck
+
+	// Svelte Imports
+	import { afterNavigate, preloadData, goto } from '$app/navigation';
+	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
+	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
-	import { preloadItemsInRange } from '$lib/utils/preloadItemsInRange';
-	import { afterNavigate, beforeNavigate, preloadCode, preloadData } from '$app/navigation';
-	import emblaCarouselSvelte from 'embla-carousel-svelte';
-	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
-	import { goto } from '$app/navigation';
-	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
-	import { playButton, gameFavoriteCount, gameFavorites } from '$lib/stores/gamesStore.js';
-	import { debounce } from 'lodash-es';
-	import { hidePlayButtonStore, lockGameStateStore } from '$lib/stores/gameControllerStore';
-	import { session } from '$lib/stores/sessionStore';
-	import { actionMenuOpen, currentGame as currentGameStore } from '$lib/stores/gamesStore';
-	import { page } from '$app/stores';
 
+	// 3rd Party Libs & Utils
+	import emblaCarouselSvelte from 'embla-carousel-svelte';
+	import { debounce } from 'lodash-es';
+
+	// Stores & Utils
+	import {
+		hidePlayButtonStore,
+		lockGameStateStore,
+		allowNavigationStore
+	} from '$lib/stores/gameControllerStore';
+	import { actionMenuOpen, currentGame as currentGameStore } from '$lib/stores/gamesStore';
+	import { playButton, gameFavoriteCount, gameFavorites } from '$lib/stores/gamesStore.js';
+	import { emblaInstance, triggerNavigation } from '$lib/stores/sliderStore';
+	import { preloadItemsInRange } from '$lib/utils/preloadItemsInRange';
+	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
+	import { session } from '$lib/stores/sessionStore';
+
+	// Props
 	export let navActionHeight = 0;
 	export let gamesAvailable = [];
 	export let rawGamesData = [];
@@ -33,6 +44,7 @@
 	let timeout;
 	let isFavorited = false;
 	let doNavigate = false;
+	let isNotSliding = false;
 
 	const linkBuilder = (game) => `/games/${game?.id}/play`;
 
@@ -63,11 +75,13 @@
 	const onInit = (event) => {
 		emblaApi = event.detail;
 		emblaApi.scrollTo(1, true);
-		emblaApi.on('pointerUp', debounce(onPointerUp, 150));
-		emblaApi.on('pointerDown', debounce(onPointerDown, 150));
+		emblaApi.on('pointerUp', debounce(onPointerUp, 200));
+		emblaApi.on('pointerDown', debounce(onPointerDown, 200));
+		emblaInstance.set(emblaApi);
 		slideInView = 1;
 		currentGame = gamesAvailable[slideInView];
 		initialId = gamesAvailable[slideInView]?.id;
+		isNotSliding = true;
 		preloadItemsInRange(emblaPreloader, rawGamesData, currentIndex, 1, 1);
 	};
 
@@ -81,9 +95,13 @@
 		}
 	};
 
-	const debouncedNavigation = debounce(performNavigation, 400);
-
+	const debouncedNavigation = debounce(performNavigation, 350);
 	const onPointerDown = (event) => {
+		if (!$allowNavigationStore) {
+			lockGameStateStore.set(false);
+			allowNavigationStore.set(true);
+		}
+
 		pointerDown = true;
 		slidesSettled = false;
 		$actionMenuOpen = false;
@@ -99,7 +117,6 @@
 	};
 
 	const handleKeyUp = async (event) => {
-		console.log('key up event::::::::::', event.key);
 		if (event.key === 'ArrowDown') {
 			emblaApi?.scrollPrev();
 			setTimeout(() => {
@@ -114,34 +131,20 @@
 			}, 300);
 		}
 	};
-
 	const debouncedKeyUp = debounce(handleKeyUp, 350);
 
-	const handleScrollBack = () => {
-		emblaApi?.scrollNext();
-		setTimeout(() => {
-			doNavigate = true;
-		}, 300);
-	};
-	const debouncedScrollBack = debounce(handleScrollBack, 350);
-
-	const handleScrollForward = () => {
-		emblaApi?.scrollPrev();
-		setTimeout(() => {
-			doNavigate = true;
-		}, 300);
-	};
-	const debouncedScrollForward = debounce(handleScrollForward, 350);
-
 	onMount(async () => {
+		lockGameStateStore.set(true);
 		hideActionNav = false;
 		$actionMenuOpen = true;
 	});
 
 	afterUpdate(() => {
+		// Update favorites store and count
 		gameFavoriteCount.set(favoritesCount);
 		gameFavorites.set(favoritesObj);
 
+		// Check if the selected slide is not 1 for more than 1 second
 		if (emblaApi?.selectedScrollSnap() !== 1) {
 			// Clear any existing timeout to reset the timer
 			clearTimeout(timeout);
@@ -163,6 +166,7 @@
 			clearTimeout(timeout);
 		}
 
+		// Check and set if the current game is favorited
 		favoritesObj?.favorites?.some((fav) => {
 			if (fav?.user_id === $session?.id && fav?.game_id === $currentGameStore?.id) {
 				isFavorited = true;
@@ -170,12 +174,19 @@
 				isFavorited = false;
 			}
 		});
+
+		// Update isNotSliding state
+		if (emblaApi) {
+			isNotSliding = !pointerDown && emblaApi?.slidesInView()?.length === 1;
+		} else {
+			isNotSliding = true;
+		}
 	});
 
 	afterNavigate(() => {
 		// Reset state or cleanup after navigation
 		if (emblaApi) {
-			emblaApi.scrollTo(1, false); // Ensure the carousel is reset to a default state after navigation
+			emblaApi?.scrollTo(1, false); // Ensure the carousel is reset to a default state after navigation
 			tick().then(() => {
 				currentGame = gamesAvailable[1];
 				currentGameStore.set(currentGame);
@@ -186,6 +197,7 @@
 	});
 
 	onDestroy(() => {
+		emblaInstance.set(null);
 		emblaApi?.destroy();
 		clearTimeout(debouncedNavigation);
 	});
@@ -196,12 +208,16 @@
 	$: favoritesCount = favoritesObj?.count;
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
-	$: (!pointerDown && emblaApi?.slidesInView()?.length === 1) || doNavigate,
+	$: ((!pointerDown && emblaApi?.slidesInView()?.length === 1) ||
+		doNavigate ||
+		$triggerNavigation) &&
+		emblaApi?.selectedScrollSnap() !== 1,
 		(() => {
 			const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
-			if (nextGame?.id !== currentGame?.id && !$lockGameStateStore) {
+			if (nextGame?.id !== currentGame?.id) {
 				lockGameStateStore.set(true);
 				doNavigate = false;
+				triggerNavigation.set(false);
 				debouncedNavigation(nextGame);
 			}
 		})();
@@ -234,6 +250,7 @@
 							<button
 								class="settings-action"
 								class:drawerOpen={$drawerOpen}
+								class:sliding={!isNotSliding}
 								on:click={() => {
 									browser && selectedOption.set(3);
 									drawerOpen.set(true);
@@ -265,8 +282,7 @@
 						{#if isPlayPage}
 							{#if !$playButton}
 								{#if !$drawerOpen}
-									<ul class="action-menu" class:fade={true}>
-										<!-- {#if $actionMenuOpen} -->
+									<ul class="action-menu" class:fade={true} class:sliding={!isNotSliding}>
 										<div class="sub-action-menu">
 											{#if $session?.id === game?.user_id}
 												<a
@@ -286,6 +302,52 @@
 													>
 												</a>
 											{/if}
+											<button
+												class="action-button button"
+												on:click={() => {
+													// $playButton = false;
+												}}
+											>
+												<svg
+													class="action-button-icon"
+													width="27"
+													height="16"
+													viewBox="0 0 27 16"
+													fill="none"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<path
+														d="M14.3734 2.53932C14.3734 2.31509 14.4625 2.10004 14.621 1.94149C14.7796 1.78293 14.9947 1.69385 15.2189 1.69385H25.3645C25.5888 1.69385 25.8038 1.78293 25.9624 1.94149C26.1209 2.10004 26.21 2.31509 26.21 2.53932C26.21 2.76356 26.1209 2.97861 25.9624 3.13716C25.8038 3.29572 25.5888 3.38479 25.3645 3.38479H15.2189C14.9947 3.38479 14.7796 3.29572 14.621 3.13716C14.4625 2.97861 14.3734 2.76356 14.3734 2.53932ZM25.3645 6.76667H15.2189C14.9947 6.76667 14.7796 6.85575 14.621 7.01431C14.4625 7.17286 14.3734 7.38791 14.3734 7.61214C14.3734 7.83638 14.4625 8.05143 14.621 8.20998C14.7796 8.36854 14.9947 8.45761 15.2189 8.45761H25.3645C25.5888 8.45761 25.8038 8.36854 25.9624 8.20998C26.1209 8.05143 26.21 7.83638 26.21 7.61214C26.21 7.38791 26.1209 7.17286 25.9624 7.01431C25.8038 6.85575 25.5888 6.76667 25.3645 6.76667ZM25.3645 11.8395H17.7553C17.5311 11.8395 17.316 11.9286 17.1575 12.0871C16.9989 12.2457 16.9098 12.4607 16.9098 12.685C16.9098 12.9092 16.9989 13.1242 17.1575 13.2828C17.316 13.4414 17.5311 13.5304 17.7553 13.5304H25.3645C25.5888 13.5304 25.8038 13.4414 25.9624 13.2828C26.1209 13.1242 26.21 12.9092 26.21 12.685C26.21 12.4607 26.1209 12.2457 25.9624 12.0871C25.8038 11.9286 25.5888 11.8395 25.3645 11.8395ZM10.7051 9.09172C11.5442 8.44542 12.16 7.55269 12.4661 6.53874C12.7721 5.52478 12.7531 4.44046 12.4118 3.43783C12.0704 2.43521 11.4238 1.56458 10.5626 0.948048C9.70138 0.331514 8.6688 0 7.60966 0C6.55052 0 5.51794 0.331514 4.65673 0.948048C3.79553 1.56458 3.14891 2.43521 2.80754 3.43783C2.46618 4.44046 2.44719 5.52478 2.75326 6.53874C3.05932 7.55269 3.67508 8.44542 4.51418 9.09172C2.33498 10.0143 0.61762 11.8712 0.0268472 14.1645C-0.00542023 14.2895 -0.00864689 14.4202 0.0174145 14.5466C0.0434758 14.673 0.0981333 14.7918 0.177198 14.8938C0.256262 14.9958 0.357635 15.0784 0.473545 15.1352C0.589455 15.192 0.716827 15.2214 0.845896 15.2214H14.3734C14.5025 15.2214 14.6299 15.192 14.7458 15.1352C14.8617 15.0784 14.9631 14.9958 15.0421 14.8938C15.1212 14.7918 15.1758 14.673 15.2019 14.5466C15.228 14.4202 15.2247 14.2895 15.1925 14.1645C14.6017 11.8701 12.8843 10.0133 10.7051 9.09172Z"
+														fill="white"
+														fill-opacity="0.81"
+													/>
+												</svg>
+											</button>
+											<button
+												class="action-button button"
+												on:click={() => {
+													$playButton = false;
+													browser && selectedOption.set(0);
+													$playButton = false;
+													drawerOpen.set(true);
+												}}
+											>
+												<svg
+													class="action-button-icon"
+													width="27"
+													height="27"
+													viewBox="0 0 27 27"
+													fill="none"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<path
+														d="M17.8228 11.5324C17.8228 11.8105 17.7123 12.0771 17.5157 12.2737C17.3191 12.4703 17.0525 12.5808 16.7744 12.5808H8.3872C8.10915 12.5808 7.84248 12.4703 7.64587 12.2737C7.44926 12.0771 7.3388 11.8105 7.3388 11.5324C7.3388 11.2543 7.44926 10.9877 7.64587 10.7911C7.84248 10.5945 8.10915 10.484 8.3872 10.484H16.7744C17.0525 10.484 17.3191 10.5945 17.5157 10.7911C17.7123 10.9877 17.8228 11.2543 17.8228 11.5324ZM16.7744 14.6776H8.3872C8.10915 14.6776 7.84248 14.7881 7.64587 14.9847C7.44926 15.1813 7.3388 15.4479 7.3388 15.726C7.3388 16.0041 7.44926 16.2707 7.64587 16.4673C7.84248 16.6639 8.10915 16.7744 8.3872 16.7744H16.7744C17.0525 16.7744 17.3191 16.6639 17.5157 16.4673C17.7123 16.2707 17.8228 16.0041 17.8228 15.726C17.8228 15.4479 17.7123 15.1813 17.5157 14.9847C17.3191 14.7881 17.0525 14.6776 16.7744 14.6776ZM26.21 13.105C26.2062 16.5795 24.8243 19.9106 22.3674 22.3674C19.9106 24.8243 16.5795 26.2062 13.105 26.21H2.05355C1.50913 26.2093 0.987204 25.9927 0.602238 25.6078C0.217272 25.2228 0.000693534 24.7009 0 24.1564V13.105C5.17914e-08 9.62934 1.3807 6.29603 3.83837 3.83837C6.29603 1.3807 9.62934 0 13.105 0C16.5807 0 19.914 1.3807 22.3716 3.83837C24.8293 6.29603 26.21 9.62934 26.21 13.105ZM24.1132 13.105C24.1132 10.1854 22.9534 7.38547 20.889 5.32103C18.8245 3.25659 16.0246 2.0968 13.105 2.0968C10.1854 2.0968 7.38546 3.25659 5.32103 5.32103C3.25659 7.38547 2.0968 10.1854 2.0968 13.105V24.1132H13.105C16.0236 24.1101 18.8218 22.9493 20.8855 20.8855C22.9493 18.8218 24.1101 16.0236 24.1132 13.105Z"
+														fill="white"
+														fill-opacity="0.81"
+													/>
+												</svg>
+											</button>
+
 											<form
 												class="gameDetails new-project-form modal"
 												method="POST"
@@ -321,93 +383,6 @@
 													<span class="favorite">{$gameFavoriteCount ?? 0}</span>
 												</button>
 											</form>
-											<button
-												class="action-button button"
-												on:click={() => {
-													$playButton = false;
-													browser && selectedOption.set(0);
-													$playButton = false;
-													drawerOpen.set(true);
-												}}
-											>
-												<svg
-													class="action-button-icon"
-													width="27"
-													height="27"
-													viewBox="0 0 27 27"
-													fill="none"
-													xmlns="http://www.w3.org/2000/svg"
-												>
-													<path
-														d="M17.8228 11.5324C17.8228 11.8105 17.7123 12.0771 17.5157 12.2737C17.3191 12.4703 17.0525 12.5808 16.7744 12.5808H8.3872C8.10915 12.5808 7.84248 12.4703 7.64587 12.2737C7.44926 12.0771 7.3388 11.8105 7.3388 11.5324C7.3388 11.2543 7.44926 10.9877 7.64587 10.7911C7.84248 10.5945 8.10915 10.484 8.3872 10.484H16.7744C17.0525 10.484 17.3191 10.5945 17.5157 10.7911C17.7123 10.9877 17.8228 11.2543 17.8228 11.5324ZM16.7744 14.6776H8.3872C8.10915 14.6776 7.84248 14.7881 7.64587 14.9847C7.44926 15.1813 7.3388 15.4479 7.3388 15.726C7.3388 16.0041 7.44926 16.2707 7.64587 16.4673C7.84248 16.6639 8.10915 16.7744 8.3872 16.7744H16.7744C17.0525 16.7744 17.3191 16.6639 17.5157 16.4673C17.7123 16.2707 17.8228 16.0041 17.8228 15.726C17.8228 15.4479 17.7123 15.1813 17.5157 14.9847C17.3191 14.7881 17.0525 14.6776 16.7744 14.6776ZM26.21 13.105C26.2062 16.5795 24.8243 19.9106 22.3674 22.3674C19.9106 24.8243 16.5795 26.2062 13.105 26.21H2.05355C1.50913 26.2093 0.987204 25.9927 0.602238 25.6078C0.217272 25.2228 0.000693534 24.7009 0 24.1564V13.105C5.17914e-08 9.62934 1.3807 6.29603 3.83837 3.83837C6.29603 1.3807 9.62934 0 13.105 0C16.5807 0 19.914 1.3807 22.3716 3.83837C24.8293 6.29603 26.21 9.62934 26.21 13.105ZM24.1132 13.105C24.1132 10.1854 22.9534 7.38547 20.889 5.32103C18.8245 3.25659 16.0246 2.0968 13.105 2.0968C10.1854 2.0968 7.38546 3.25659 5.32103 5.32103C3.25659 7.38547 2.0968 10.1854 2.0968 13.105V24.1132H13.105C16.0236 24.1101 18.8218 22.9493 20.8855 20.8855C22.9493 18.8218 24.1101 16.0236 24.1132 13.105Z"
-														fill="white"
-														fill-opacity="0.81"
-													/>
-												</svg>
-											</button>
-											<button
-												class="action-button button"
-												on:click={() => {
-													// $playButton = false;
-												}}
-											>
-												<svg
-													class="action-button-icon"
-													width="27"
-													height="16"
-													viewBox="0 0 27 16"
-													fill="none"
-													xmlns="http://www.w3.org/2000/svg"
-												>
-													<path
-														d="M14.3734 2.53932C14.3734 2.31509 14.4625 2.10004 14.621 1.94149C14.7796 1.78293 14.9947 1.69385 15.2189 1.69385H25.3645C25.5888 1.69385 25.8038 1.78293 25.9624 1.94149C26.1209 2.10004 26.21 2.31509 26.21 2.53932C26.21 2.76356 26.1209 2.97861 25.9624 3.13716C25.8038 3.29572 25.5888 3.38479 25.3645 3.38479H15.2189C14.9947 3.38479 14.7796 3.29572 14.621 3.13716C14.4625 2.97861 14.3734 2.76356 14.3734 2.53932ZM25.3645 6.76667H15.2189C14.9947 6.76667 14.7796 6.85575 14.621 7.01431C14.4625 7.17286 14.3734 7.38791 14.3734 7.61214C14.3734 7.83638 14.4625 8.05143 14.621 8.20998C14.7796 8.36854 14.9947 8.45761 15.2189 8.45761H25.3645C25.5888 8.45761 25.8038 8.36854 25.9624 8.20998C26.1209 8.05143 26.21 7.83638 26.21 7.61214C26.21 7.38791 26.1209 7.17286 25.9624 7.01431C25.8038 6.85575 25.5888 6.76667 25.3645 6.76667ZM25.3645 11.8395H17.7553C17.5311 11.8395 17.316 11.9286 17.1575 12.0871C16.9989 12.2457 16.9098 12.4607 16.9098 12.685C16.9098 12.9092 16.9989 13.1242 17.1575 13.2828C17.316 13.4414 17.5311 13.5304 17.7553 13.5304H25.3645C25.5888 13.5304 25.8038 13.4414 25.9624 13.2828C26.1209 13.1242 26.21 12.9092 26.21 12.685C26.21 12.4607 26.1209 12.2457 25.9624 12.0871C25.8038 11.9286 25.5888 11.8395 25.3645 11.8395ZM10.7051 9.09172C11.5442 8.44542 12.16 7.55269 12.4661 6.53874C12.7721 5.52478 12.7531 4.44046 12.4118 3.43783C12.0704 2.43521 11.4238 1.56458 10.5626 0.948048C9.70138 0.331514 8.6688 0 7.60966 0C6.55052 0 5.51794 0.331514 4.65673 0.948048C3.79553 1.56458 3.14891 2.43521 2.80754 3.43783C2.46618 4.44046 2.44719 5.52478 2.75326 6.53874C3.05932 7.55269 3.67508 8.44542 4.51418 9.09172C2.33498 10.0143 0.61762 11.8712 0.0268472 14.1645C-0.00542023 14.2895 -0.00864689 14.4202 0.0174145 14.5466C0.0434758 14.673 0.0981333 14.7918 0.177198 14.8938C0.256262 14.9958 0.357635 15.0784 0.473545 15.1352C0.589455 15.192 0.716827 15.2214 0.845896 15.2214H14.3734C14.5025 15.2214 14.6299 15.192 14.7458 15.1352C14.8617 15.0784 14.9631 14.9958 15.0421 14.8938C15.1212 14.7918 15.1758 14.673 15.2019 14.5466C15.228 14.4202 15.2247 14.2895 15.1925 14.1645C14.6017 11.8701 12.8843 10.0133 10.7051 9.09172Z"
-														fill="white"
-														fill-opacity="0.81"
-													/>
-												</svg>
-											</button>
-											<div class="divider">
-												<div
-													class="slider-action top-icon"
-													role="button"
-													tabindex="0"
-													on:click={debouncedScrollBack}
-													on:keypress={() => {
-														console.log('key pressed');
-													}}
-												>
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														width="32"
-														height="32"
-														fill="#000000"
-														viewBox="0 0 256 256"
-														><path
-															d="M216.49,168.49a12,12,0,0,1-17,0L128,97,56.49,168.49a12,12,0,0,1-17-17l80-80a12,12,0,0,1,17,0l80,80A12,12,0,0,1,216.49,168.49Z"
-														/></svg
-													>
-												</div>
-												<div
-													class="slider-action bottom-icon"
-													role="button"
-													tabindex="0"
-													on:click={debouncedScrollForward}
-													on:keypress={() => {
-														console.log('key pressed');
-													}}
-												>
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														width="32"
-														height="32"
-														fill="#000000"
-														viewBox="0 0 256 256"
-														><path
-															d="M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z"
-														/></svg
-													>
-												</div>
-											</div>
 										</div>
 									</ul>
 								{/if}
@@ -541,9 +516,9 @@
 	}
 	button.settings-action {
 		position: absolute;
-		top: 20px;
-		right: 16px;
-		z-index: 1000000000000000;
+		top: 25px;
+		right: 25px;
+		z-index: 1;
 		background: unset;
 		border-style: unset;
 	}
@@ -599,12 +574,12 @@
 		right: 25px;
 	}
 
-	.sub-action-menu {
+	/* .sub-action-menu {
 		display: flex;
 		flex-direction: column;
 		gap: 40px;
 		align-items: center;
-	}
+	} */
 	.action-menu .button {
 		transition: transform 0.2s cubic-bezier(0.65, 0.05, 0.36, 1);
 	}
@@ -687,6 +662,7 @@
 		flex-direction: column;
 		gap: 40px;
 		align-items: center;
+		margin-bottom: 200px;
 	}
 	@media (min-width: 498px) {
 		.play-button-container {
@@ -735,5 +711,13 @@
 	}
 	.slider-action:hover {
 		cursor: pointer;
+	}
+	.action-menu,
+	.slider-action {
+		transition: opacity 0.08s cubic-bezier(0, 0.41, 0.3, 0.33);
+	}
+	.action-menu.sliding,
+	.settings-action.sliding {
+		opacity: 0 !important;
 	}
 </style>

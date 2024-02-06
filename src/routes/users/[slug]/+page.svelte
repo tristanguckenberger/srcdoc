@@ -213,7 +213,7 @@
 		position: absolute;
 		top: 20px;
 		right: 16px;
-		z-index: 1000000000000000;
+		z-index: 1;
 		background: unset;
 		border-style: unset;
 	}

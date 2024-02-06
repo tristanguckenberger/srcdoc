@@ -8,3 +8,4 @@ export const gameControllerStore = writable({
 
 export const hidePlayButtonStore = writable(false);
 export const lockGameStateStore = writable(false);
+export const allowNavigationStore = writable(false);

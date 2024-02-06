@@ -3,10 +3,11 @@
 	// Vercel Analytics
 	import { dev } from '$app/environment';
 	import { inject } from '@vercel/analytics';
+	import { debounce } from 'lodash-es';
 
 	// SVELTE IMPORTS
 	import { onMount, onDestroy, afterUpdate } from 'svelte';
-	import { page } from '$app/stores';
+	import { page, navigating } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
 
@@ -19,7 +20,11 @@
 		gameFavoriteCount,
 		gameFavorites
 	} from '$lib/stores/gamesStore.js';
-	import { hidePlayButtonStore } from '$lib/stores/gameControllerStore.js';
+	import {
+		hidePlayButtonStore,
+		lockGameStateStore,
+		allowNavigationStore
+	} from '$lib/stores/gameControllerStore.js';
 	import {
 		autoCompile,
 		fileSystemSidebarOpen,
@@ -39,10 +44,12 @@
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
 	import { routeHistoryStore } from '$lib/stores/routeStore';
 	import { drawerOpen, screenHeight } from '$lib/stores/drawerStore.js';
+	import { emblaInstance, triggerNavigation } from '$lib/stores/sliderStore.js';
 
 	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
+	import LoadingIndicator from '$lib/ui/LoadingIndicator/index.svelte';
 
 	// ASSET IMPORTS
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
@@ -57,7 +64,22 @@
 	let dropDownToggle = false;
 	let isFavorited = false;
 	let deleteOrCreateFav = false;
-	let fade = false;
+
+	const handleScrollBack = () => {
+		$emblaInstance?.scrollNext();
+		setTimeout(() => {
+			triggerNavigation.set(true);
+		}, 300);
+	};
+	const debouncedScrollBack = debounce(handleScrollBack, 350);
+
+	const handleScrollForward = () => {
+		$emblaInstance?.scrollPrev();
+		setTimeout(() => {
+			triggerNavigation.set(true);
+		}, 300);
+	};
+	const debouncedScrollForward = debounce(handleScrollForward, 350);
 
 	// FUNCTIONS
 	onMount(() => {
@@ -75,10 +97,15 @@
 
 	beforeNavigate(() => {
 		isFavorited = false;
+		if (!isPlayPage && isMobile) {
+			sideBarState.set(false);
+		}
+
+		showLoading = true;
 	});
 
 	afterNavigate(() => {
-		if (!isPlayPage) {
+		if (!isPlayPage && isMobile) {
 			sideBarState.set(false);
 		}
 	});
@@ -193,9 +220,13 @@
 			isFavorited = fav?.user_id === sessionData?.id ?? false;
 		});
 	})();
-	$: console.log('previousRoute::', $routeHistoryStore);
-	$: console.log('isProfilePage::', isProfilePage, splitPath, splitPath[splitPath?.length - 1]);
-	$: console.log('baseDataStore::', $baseDataStore);
+	$: showLoading = Boolean(
+		$navigating &&
+			$navigating?.to?.route?.id !== '/games/[slug]/play' &&
+			$navigating?.from?.route?.id !== '/games/[slug]/play'
+	);
+
+	$: console.log('LAYOUT::showLoading::', showLoading);
 </script>
 
 <div
@@ -497,9 +528,14 @@
 				class:showSideBar={$sideBarState}
 				class:isPlayPage
 				class:isMobile
+				class:showLoading
 				style={`${themeString}`}
 			>
-				<slot />
+				{#if showLoading}
+					<LoadingIndicator />
+				{:else}
+					<slot />
+				{/if}
 			</main>
 			{#if isMobile && !$playButton}
 				<li class="sidebar-toggle isMobile" class:showSideBar={$sideBarState}>
@@ -509,48 +545,50 @@
 		</div>
 
 		{#if isPlayPage}
-			<!-- <div class="divider">
-				<div
-					class="slider-action top-icon"
-					role="button"
-					tabindex="0"
-					on:click={debouncedScrollBack}
-					on:keypress={() => {
-						console.log('key pressed');
-					}}
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="32"
-						height="32"
-						fill="#000000"
-						viewBox="0 0 256 256"
-						><path
-							d="M216.49,168.49a12,12,0,0,1-17,0L128,97,56.49,168.49a12,12,0,0,1-17-17l80-80a12,12,0,0,1,17,0l80,80A12,12,0,0,1,216.49,168.49Z"
-						/></svg
+			{#if !$playButton && !$drawerOpen}
+				<div class="divider">
+					<div
+						class="slider-action top-icon"
+						role="button"
+						tabindex="0"
+						on:click={debouncedScrollBack}
+						on:keypress={() => {
+							console.log('key pressed');
+						}}
 					>
-				</div>
-				<div
-					class="slider-action bottom-icon"
-					role="button"
-					tabindex="0"
-					on:click={debouncedScrollForward}
-					on:keypress={() => {
-						console.log('key pressed');
-					}}
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="32"
-						height="32"
-						fill="#000000"
-						viewBox="0 0 256 256"
-						><path
-							d="M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z"
-						/></svg
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="32"
+							height="32"
+							fill="#000000"
+							viewBox="0 0 256 256"
+							><path
+								d="M216.49,168.49a12,12,0,0,1-17,0L128,97,56.49,168.49a12,12,0,0,1-17-17l80-80a12,12,0,0,1,17,0l80,80A12,12,0,0,1,216.49,168.49Z"
+							/></svg
+						>
+					</div>
+					<div
+						class="slider-action bottom-icon"
+						role="button"
+						tabindex="0"
+						on:click={debouncedScrollForward}
+						on:keypress={() => {
+							console.log('key pressed');
+						}}
 					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="32"
+							height="32"
+							fill="#000000"
+							viewBox="0 0 256 256"
+							><path
+								d="M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z"
+							/></svg
+						>
+					</div>
 				</div>
-			</div> -->
+			{/if}
 			<div
 				class="play-button-container"
 				class:fade={!$hidePlayButtonStore || (!$playButton && $actionMenuOpen)}
@@ -712,7 +750,7 @@
 		justify-content: flex-end;
 	}
 	.isProfilePage {
-		height: calc(100% - 66.5px);
+		height: calc(100% - 0px);
 		/* overflow-y: scroll; */
 		/* background-color: var(--color-secondary); */
 		background-color: var(--darker-bg);
@@ -1065,7 +1103,7 @@
 	.play-button-container svg path {
 		/* opacity: 0; */
 		/* transition: opacity 0.01s linear 0.03s; */
-		fill: #3434348e;
+		/* fill: #3434348e; */
 		/* transition: fill 0.3s linear; */
 	}
 
@@ -1106,7 +1144,7 @@
 	main.isProfilePage.isMobile {
 		padding-top: 0px !important;
 	}
-	/* .divider {
+	.divider {
 		width: 42px;
 		height: 150px;
 		background-color: #ffffff24;
@@ -1114,11 +1152,17 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
+		position: absolute;
+		bottom: 11vh;
+		right: 35px;
+		z-index: 1;
 	}
 
 	@media (max-width: 498px) {
 		.divider {
-			height: 100px;
+			/* height: 100px; */
+			right: 25px;
+			bottom: 12vh;
 		}
 	}
 	.divider .slider-action svg {
@@ -1133,5 +1177,15 @@
 	}
 	.slider-action:hover {
 		cursor: pointer;
-	} */
+	}
+
+	/* LOADING Indicator Positioning */
+	main.showLoading {
+		display: flex;
+		justify-content: flex-end;
+		align-items: flex-end;
+	}
+	main.showLoading.showSideBar :global(.loader) {
+		right: 230px;
+	}
 </style>
