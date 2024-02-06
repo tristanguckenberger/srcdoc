@@ -1,8 +1,4 @@
-<script>
-	import { fade } from 'svelte/transition';
-</script>
-
-<span class="loader" in:fade={{ duration: 50 }} out:fade={{ duration: 50 }} />
+<span class="loader" />
 
 <style>
 	.loader {
