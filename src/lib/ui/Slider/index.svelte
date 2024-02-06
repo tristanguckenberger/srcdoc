@@ -2,7 +2,7 @@
 	// @ts-nocheck
 
 	// Svelte Imports
-	import { afterNavigate, preloadData, goto } from '$app/navigation';
+	import { afterNavigate, preloadData, goto, beforeNavigate } from '$app/navigation';
 	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
@@ -44,7 +44,6 @@
 	let timeout;
 	let isFavorited = false;
 	let doNavigate = false;
-	let isNotSliding = false;
 
 	const linkBuilder = (game) => `/games/${game?.id}/play`;
 
@@ -81,7 +80,6 @@
 		slideInView = 1;
 		currentGame = gamesAvailable[slideInView];
 		initialId = gamesAvailable[slideInView]?.id;
-		isNotSliding = true;
 		preloadItemsInRange(emblaPreloader, rawGamesData, currentIndex, 1, 1);
 	};
 
@@ -174,13 +172,10 @@
 				isFavorited = false;
 			}
 		});
+	});
 
-		// Update isNotSliding state
-		if (emblaApi) {
-			isNotSliding = !pointerDown && emblaApi?.slidesInView()?.length === 1;
-		} else {
-			isNotSliding = true;
-		}
+	beforeNavigate((event) => {
+		pointerDown = false;
 	});
 
 	afterNavigate(() => {
@@ -250,7 +245,6 @@
 							<button
 								class="settings-action"
 								class:drawerOpen={$drawerOpen}
-								class:sliding={!isNotSliding}
 								on:click={() => {
 									browser && selectedOption.set(3);
 									drawerOpen.set(true);
@@ -282,7 +276,7 @@
 						{#if isPlayPage}
 							{#if !$playButton}
 								{#if !$drawerOpen}
-									<ul class="action-menu" class:fade={true} class:sliding={!isNotSliding}>
+									<ul class="action-menu" class:fade={true}>
 										<div class="sub-action-menu">
 											{#if $session?.id === game?.user_id}
 												<a
@@ -717,9 +711,5 @@
 	.action-menu,
 	.slider-action {
 		transition: opacity 0.08s cubic-bezier(0, 0.41, 0.3, 0.33);
-	}
-	.action-menu.sliding,
-	.settings-action.sliding {
-		opacity: 0 !important;
 	}
 </style>

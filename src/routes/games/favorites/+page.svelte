@@ -13,6 +13,7 @@
 	// $: console.log('data::', data);
 
 	$: currentUserId = data?.sessionData?.id;
+	$: console.log('favs::data::', data);
 
 	onMount(() => {
 		// firstRun.set(true);

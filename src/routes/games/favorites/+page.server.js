@@ -1,5 +1,4 @@
 // @ts-nocheck
-import { gameData } from '$lib/mockData/gameData.js';
 import { gamesData } from '$lib/stores/gamesStore.js';
 import { redirect } from '@sveltejs/kit';
 
@@ -21,9 +20,7 @@ export async function load({ cookies, fetch }) {
 	let user;
 
 	if (!token) {
-		return {
-			games: [...gameData].reverse()
-		};
+		throw redirect(307, `/games`);
 	}
 
 	let sessionData;

@@ -383,7 +383,7 @@
 				<div class="sidebar-section">
 					<h3>Explore</h3>
 					<ul>
-						<a href="/trending">
+						<a href="">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -396,7 +396,7 @@
 							>
 							<span>Trending</span>
 						</a>
-						<a href="/top?rated">
+						<a href="">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -409,7 +409,7 @@
 							>
 							<span>Top Rated</span>
 						</a>
-						<a href="/top?played">
+						<a href="">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -422,7 +422,7 @@
 							>
 							<span>Top Played</span>
 						</a>
-						<a href="/new">
+						<a href="">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -478,7 +478,7 @@
 				<hr class="sidebar-divider" />
 				<div class="sidebar-section">
 					<ul>
-						<a href="/settings">
+						<a href="">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
