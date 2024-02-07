@@ -100,8 +100,6 @@
 		if (!isPlayPage && isMobile) {
 			sideBarState.set(false);
 		}
-
-		showLoading = true;
 	});
 
 	afterNavigate(() => {
@@ -121,6 +119,32 @@
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
+
+	const loaderCheck = (navigation) => {
+		console.log('navigation::check::', navigation);
+		let canLoad = false;
+
+		// navigating to BUT NOT FROM AND TO the play page
+		if (navigation) {
+			// make sure this isnt just a refresh, if it is show the loader, if not, dont
+			if (
+				navigation?.to?.route?.id === '/games/[slug]/play' &&
+				navigation?.from?.route?.id === '/games/[slug]/play'
+			) {
+				if (navigation?.to?.params?.slug !== navigation?.from?.params?.slug) {
+					canLoad = false;
+				} else {
+					canLoad = true;
+				}
+
+				canLoad = false;
+			} else {
+				canLoad = true;
+			}
+		}
+
+		return canLoad;
+	};
 
 	const toggleFileSystemSidebar = () => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen);
 
@@ -220,13 +244,12 @@
 			isFavorited = fav?.user_id === sessionData?.id ?? false;
 		});
 	})();
-	$: showLoading = Boolean(
-		$navigating &&
-			$navigating?.to?.route?.id !== '/games/[slug]/play' &&
-			$navigating?.from?.route?.id !== '/games/[slug]/play'
-	);
+	$: canShowLoader = (() => loaderCheck($navigating))();
 
-	$: console.log('LAYOUT::showLoading::', showLoading);
+	/**
+	 * We have to reference the store to trigger the reactive statement
+	 */
+	$routeHistoryStore;
 </script>
 
 <div
@@ -528,14 +551,10 @@
 				class:showSideBar={$sideBarState}
 				class:isPlayPage
 				class:isMobile
-				class:showLoading
+				class:showLoading={canShowLoader}
 				style={`${themeString}`}
 			>
-				{#if showLoading}
-					<LoadingIndicator />
-				{:else}
-					<slot />
-				{/if}
+				<slot />
 			</main>
 			{#if isMobile && !$playButton}
 				<li class="sidebar-toggle isMobile" class:showSideBar={$sideBarState}>
@@ -545,7 +564,7 @@
 		</div>
 
 		{#if isPlayPage}
-			{#if !$playButton && !$drawerOpen && !isMobile}
+			{#if !$playButton && !$drawerOpen && !isMobile && !canShowLoader}
 				<div class="divider">
 					<div
 						class="slider-action top-icon"
@@ -598,6 +617,7 @@
 					class:drawerOpen={$drawerOpen}
 					on:click={playToggle}
 					class:fade={!$hidePlayButtonStore || (!$playButton && $actionMenuOpen)}
+					class:showLoading={canShowLoader}
 				>
 					{#if !$playButton}
 						<svg
@@ -633,17 +653,14 @@
 		{/if}
 	</div>
 </div>
+{#if canShowLoader}
+	<LoadingIndicator />
+{/if}
 
 <style>
 	:global(body > div) {
-		display: flex;
-		flex-direction: column;
 		margin: 0;
 		padding: 0;
-		background: hsla(32, 29%, 57%, 1) !important;
-		background: linear-gradient(135deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
-		background: -moz-linear-gradient(135deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
-		background: -webkit-linear-gradient(333deg, #beac98 0%, hsla(245, 29%, 57%, 1) 100%) !important;
 	}
 	.bg-container {
 		height: 100%;
@@ -1141,6 +1158,11 @@
 		filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.3));
 	}
 
+	.play-button.showLoading {
+		pointer-events: none;
+		opacity: 0;
+	}
+
 	main.isProfilePage.isMobile {
 		padding-top: 0px !important;
 	}
@@ -1181,9 +1203,7 @@
 
 	/* LOADING Indicator Positioning */
 	main.showLoading {
-		display: flex;
-		justify-content: flex-end;
-		align-items: flex-end;
+		filter: saturate(180%) blur(20px);
 	}
 	main.showLoading.showSideBar :global(.loader) {
 		right: 230px;

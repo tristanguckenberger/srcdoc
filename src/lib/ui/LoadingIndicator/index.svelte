@@ -1,10 +1,40 @@
-<span class="loader" />
+<script>
+	import { fly } from 'svelte/transition';
+	import { sideBarState } from '$lib/stores/layoutStore';
+</script>
+
+<div
+	class="loader-container"
+	class:showSideBar={$sideBarState}
+	transition:fly={{
+		y: 100,
+		duration: 100
+	}}
+>
+	<span class="loader top" />
+	<span class="loader bottom" />
+</div>
 
 <style>
+	.loader-container {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 1000;
+		display: flex;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: center;
+		background-color: #1c1d1f9e;
+	}
 	.loader {
 		position: relative;
 		width: 75px;
 		height: 100px;
+		z-index: 1000;
 		background-repeat: no-repeat;
 		background-image: linear-gradient(#d82121 50px, transparent 0),
 			linear-gradient(#ed6237 50px, transparent 0), linear-gradient(#f2b705 50px, transparent 0),
@@ -14,6 +44,10 @@
 		animation: pillerPushUp 3s cubic-bezier(0, 0.41, 0.3, 0.33) infinite;
 		animation-direction: reverse;
 	}
+
+	.loader.top {
+		transform: rotate3d(1, 0, 0, 180deg);
+	}
 	.loader:after {
 		content: '';
 		position: absolute;
@@ -21,10 +55,17 @@
 		left: -1px;
 		width: 10px;
 		height: 10px;
+		z-index: 1000;
 		background-color: #d82121;
 		border-radius: 50%;
 		animation: ballStepUp 3s cubic-bezier(0, 0.41, 0.3, 0.33) infinite;
 		animation-direction: reverse;
+	}
+
+	@media (min-width: 498px) {
+		.loader-container.showSideBar .loader {
+			left: 115px;
+		}
 	}
 
 	@keyframes pillerPushUp {

@@ -44,6 +44,7 @@
 	let timeout;
 	let isFavorited = false;
 	let doNavigate = false;
+	let showSlides = false;
 
 	const linkBuilder = (game) => `/games/${game?.id}/play`;
 
@@ -81,6 +82,7 @@
 		currentGame = gamesAvailable[slideInView];
 		initialId = gamesAvailable[slideInView]?.id;
 		preloadItemsInRange(emblaPreloader, rawGamesData, currentIndex, 1, 1);
+		showSlides = true;
 	};
 
 	const performNavigation = async () => {
@@ -216,6 +218,7 @@
 				debouncedNavigation(nextGame);
 			}
 		})();
+	$: visibleThumbnails = showSlides;
 </script>
 
 <svelte:window on:keyup={debouncedKeyUp} />
@@ -232,7 +235,9 @@
 						<div
 							class="overlay-blur blur_{i}"
 							class:drawerOpen={$drawerOpen}
-							style="--bg_{i}: url('{game?.thumbnail ?? 'https://picsum.photos/600/600'}');"
+							style="--bg_{i}: url('{visibleThumbnails
+								? game?.thumbnail ?? 'https://picsum.photos/600/600'
+								: 'https://picsum.photos/600/600'}');"
 						/>
 						<div class="overlay-light-fade" />
 						<div class="nav-action" bind:clientHeight={navActionHeight}>

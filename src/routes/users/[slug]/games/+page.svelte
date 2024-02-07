@@ -9,7 +9,7 @@
 
 	export let data;
 
-	// $: console.log('data::', data);
+	$: console.log('myProject::data::', data);
 
 	$: currentUserId = data?.sessionData?.id;
 
@@ -41,7 +41,7 @@
 >
 	<div class="main grid" bind:clientWidth={$gridWidth}>
 		{#each data?.games as game, i (`game_${i}`)}
-			<Card user={currentUserId} {game} thumbnail={`https://picsum.photos/${10 + i}`} />
+			<Card id={game?.id} user={currentUserId} {game} thumbnail={game?.thumbnail} />
 		{/each}
 	</div>
 </div>
@@ -74,7 +74,7 @@
 		/* grid-template-rows: minmax(242px, 367px); */
 		margin: 0;
 		height: fit-content;
-		width: calc(100% - 100px);
+		width: calc(100% - 40px);
 	}
 	.noSideBar {
 		align-items: center;

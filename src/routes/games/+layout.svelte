@@ -60,8 +60,8 @@
 
 <style>
 	:global(body > div) {
-		display: flex;
-		flex-direction: column;
+		/* display: flex; */
+		/* flex-direction: column; */
 		margin: 0;
 		padding: 0;
 	}

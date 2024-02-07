@@ -4,20 +4,14 @@
 	import { gridWidth } from '$lib/stores/layoutStore.js';
 	import { onMount } from 'svelte';
 	import { sideBarState, sideBarWidth, appClientWidth } from '$lib/stores/layoutStore.js';
-	// import { firstRun } from '$lib/stores/filesStore.js';
 	import { page } from '$app/stores';
 	import { gamesData } from '$lib/stores/gamesStore.js';
 
 	export let data;
 
-	// $: console.log('data::', data);
-
 	$: currentUserId = data?.sessionData?.id;
-	$: console.log('favs::data::', data);
 
 	onMount(() => {
-		// firstRun.set(true);
-
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
 		}
@@ -37,7 +31,7 @@
 >
 	<div class="main grid" bind:clientWidth={$gridWidth}>
 		{#each data?.games as game, i (`game_${i}`)}
-			<Card user={currentUserId} {game} thumbnail={`https://picsum.photos/${10 + i}`} />
+			<Card id={game?.id} user={currentUserId} {game} thumbnail={game?.thumbnail} />
 		{/each}
 	</div>
 </div>
@@ -50,8 +44,6 @@
 		width: 100%;
 	}
 	.game-page-container.expandSideNav {
-		/* width: calc(100% - 230px); */
-		/* overflow-x: hidden; */
 		background-color: #121314;
 	}
 	.game {

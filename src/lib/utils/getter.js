@@ -11,15 +11,20 @@
  * @param {FileObject[]} files - An array of file objects.
  * @returns {number|null} The ID of the root file, or null if not found.
  */
-export const getRootFileId = (files) => {
-	const rootFile = files?.find((file) => {
-		return file.name === 'root' && file.type === 'folder';
-	});
+export const getRootFileId = (files = []) => {
+	try {
+		const rootFile = files?.find((file) => {
+			return file.name === 'root' && file.type === 'folder';
+		});
 
-	if (rootFile) {
-		return rootFile.id;
-	} else {
-		console.log('No root file found! Please create a file named "index.html" and try again.');
+		if (rootFile) {
+			return rootFile.id;
+		} else {
+			console.log('No root file found! Please create a file named "index.html" and try again.');
+			return null;
+		}
+	} catch (error) {
+		console.log('getRootFileId::error::', error);
 		return null;
 	}
 };
