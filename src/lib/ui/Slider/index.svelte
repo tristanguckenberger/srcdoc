@@ -34,7 +34,7 @@
 	export let favoritesObj = {};
 
 	let emblaApi;
-	let options = { axis: 'y', duration: 25, inViewThreshold: 0.3 };
+	let options = { axis: 'y', duration: 25, inViewThreshold: 0.1 };
 	let slideInView = 1;
 	let pointerDown = false;
 	let currentGame;
@@ -75,8 +75,8 @@
 	const onInit = (event) => {
 		emblaApi = event.detail;
 		emblaApi.scrollTo(1, true);
-		emblaApi.on('pointerUp', debounce(onPointerUp, 100));
-		emblaApi.on('pointerDown', debounce(onPointerDown, 100));
+		emblaApi.on('pointerUp', debounce(onPointerUp, 300));
+		emblaApi.on('pointerDown', debounce(onPointerDown, 300));
 		emblaInstance.set(emblaApi);
 		slideInView = 1;
 		currentGame = gamesAvailable[1];
