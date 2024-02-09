@@ -63,7 +63,7 @@
 			{:else if label}
 				{label}
 			{:else if userName}
-				<img
+				<enhanced:img
 					class="avatar"
 					src={`${userAvatar}` ?? 'https://picsum.photos/50'}
 					alt="user avatar"
@@ -184,7 +184,7 @@
 				{label}
 			{:else if userName}
 				<a href={link} class="profile-quick-control">
-					<img
+					<enhanced:img
 						class="avatar"
 						src={`${userAvatar}` ?? 'https://picsum.photos/50'}
 						alt="user avatar"

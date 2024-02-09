@@ -266,7 +266,7 @@
 										toggleComment(comment);
 									}}
 								>
-									<img
+									<enhanced:img
 										src={$commentSystemExpanderStore[comment.id] ? CaretDown : CaretLeft}
 										alt="caret-left"
 									/>

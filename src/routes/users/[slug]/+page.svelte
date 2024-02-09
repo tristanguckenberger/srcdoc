@@ -43,7 +43,7 @@
 <div class="user-info-container" class:showSideBar={$sideBarState} style={`${themeString}`}>
 	<div class="user-info">
 		<div class="user-header-image-container">
-			<img
+			<enhanced:img
 				class="user-header-image"
 				class:showImage={imageLoaded}
 				src={data?.headerImage ?? 'https://picsum.photos/2000/300'}
@@ -78,7 +78,7 @@
 			<div class="user-controls">
 				<div class="main-action-container">
 					<div class="user-header-image-container">
-						<img
+						<enhanced:img
 							class="user-header-image avatar"
 							class:showImage={imageLoaded}
 							src={data?.profile_photo ?? 'https://picsum.photos/2000/300'}

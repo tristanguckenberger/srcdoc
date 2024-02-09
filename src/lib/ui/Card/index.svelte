@@ -84,6 +84,8 @@
 			}
 		});
 	})();
+	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
+	$: console.log('loadedThumbnail::', loadedThumbnail);
 </script>
 
 {#await (game, id, thumbnail, user)}
@@ -91,13 +93,14 @@
 {:then}
 	<div class="game" style={`${themeString}`}>
 		<a href={cardLink} class="linked-card-container">
-			<img
+			<enhanced:img
 				bind:this={cardImage}
 				class="card-thumbnail"
 				class:showImage={imageLoaded}
-				src={thumbnail ?? 'https://picsum.photos/300/300'}
+				src={loadedThumbnail ?? game?.thumbnail}
 				alt={game?.title}
 			/>
+
 			<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
 		</a>
 		<div class="card-info">
