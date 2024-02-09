@@ -85,7 +85,6 @@
 		});
 	})();
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
-	$: console.log('loadedThumbnail::', loadedThumbnail);
 </script>
 
 {#await (game, id, thumbnail, user)}
