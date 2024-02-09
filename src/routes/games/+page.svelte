@@ -23,7 +23,6 @@
 	});
 
 	afterUpdate(() => {
-		console.log('data::', data);
 		if (data?.user?.id) {
 			session.set(data?.user);
 		}

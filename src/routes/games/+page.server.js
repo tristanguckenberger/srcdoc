@@ -45,7 +45,6 @@ export async function load({ fetch, setHeaders }) {
 		getCurrentUser(fetch)
 	]);
 
-	// console.log('play_load::user::', user);
 	if (userData && userData?.status === 401) {
 		user = null;
 	}
@@ -59,7 +58,7 @@ export async function load({ fetch, setHeaders }) {
 	gamesData.set([...publishedGames].reverse());
 
 	setHeaders({
-		'cache-control': 'max-age=60'
+		'cache-control': 'max-age=604800'
 	});
 
 	return {

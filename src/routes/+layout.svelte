@@ -122,7 +122,6 @@
 	});
 
 	const loaderCheck = (navigation) => {
-		console.log('navigation::check::', navigation);
 		let canLoad = false;
 
 		// navigating to BUT NOT FROM AND TO the play page

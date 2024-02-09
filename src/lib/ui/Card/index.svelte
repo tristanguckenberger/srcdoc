@@ -92,7 +92,7 @@
 {:then}
 	<div class="game" style={`${themeString}`}>
 		<a href={cardLink} class="linked-card-container">
-			<enhanced:img
+			<img
 				bind:this={cardImage}
 				class="card-thumbnail"
 				class:showImage={imageLoaded}
@@ -269,6 +269,9 @@
 	}
 	.linked-card-container {
 		position: relative;
+	}
+	.favorites:hover {
+		cursor: pointer;
 	}
 	/* .card-thumbnail-overlay {
 		width: 100%;

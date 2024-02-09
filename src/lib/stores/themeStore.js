@@ -62,7 +62,7 @@ const darkTheme = readable([
 	'--drawer-bg: #1d1e205c;',
 	'--sidbar-highlight: #242528;',
 	'--sidebar-toggle: #1c1d1fab;',
-	'--nav-dropdown: #1c1d1fab;',
+	'--nav-dropdown: #1c1d1f;',
 	'--slider-drawer: #151617;',
 	'--action-total-text-color: #dadada;',
 	'--input-bg: #ededed;',

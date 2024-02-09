@@ -16,25 +16,6 @@
 	export let description = $modalProps?.description;
 	export let published = $modalProps?.published;
 	export let headerImage;
-
-	$: console.log('EditGameDetails::gameId::', gameId);
-	$: console.log('EditGameDetails::$currentGame::', $currentGame);
-
-	// const updateGameDetails = async () => {
-	//     const response = await fetch(`/api/games/${gameId}`, {
-	//         method: 'PUT',
-	//         headers: {
-	//             'Content-Type': 'application/json'
-	//         },
-	//         body: JSON.stringify({
-	//             title: newTitle,
-	//             description: newDescription,
-	//             headerImage: newHeaderImage
-	//         })
-	//     });
-	//     const data = await response.json();
-	//     console.log('data::', data);
-	// };
 </script>
 
 <form
@@ -43,9 +24,7 @@
 	action="/games/?/updateDetails"
 	use:enhance={({ formElement, formData, action, cancel, redirect }) => {
 		const gameId = formData.get('gameId');
-		console.log('enhance::gameId::', gameId);
 		return async ({ result }) => {
-			console.log('result::', result?.data?.body?.project);
 			if (result.status === 200) {
 				currentGame.set({ ...$currentGame, ...result?.data?.body?.project });
 				modalOpenState.set(false);

@@ -34,7 +34,7 @@
 	export let favoritesObj = {};
 
 	let emblaApi;
-	let options = { axis: 'y', duration: 20, inViewThreshold: 0.3 };
+	let options = { axis: 'y', duration: 25, inViewThreshold: 0.3 };
 	let slideInView = 1;
 	let pointerDown = false;
 	let currentGame;
@@ -48,10 +48,10 @@
 
 	const linkBuilder = (game) => `/games/${game?.id}/play`;
 
-	const emblaPreloader = (game, preload = preloadData) => {
+	const emblaPreloader = async (game, preload = preloadData) => {
 		const gameLink = linkBuilder(game);
 		if (browser) {
-			preload(gameLink);
+			await preload(gameLink);
 		}
 	};
 
@@ -75,33 +75,35 @@
 	const onInit = (event) => {
 		emblaApi = event.detail;
 		emblaApi.scrollTo(1, true);
-		emblaApi.on('pointerUp', debounce(onPointerUp, 200));
-		emblaApi.on('pointerDown', debounce(onPointerDown, 200));
+		emblaApi.on('pointerUp', debounce(onPointerUp, 100));
+		emblaApi.on('pointerDown', debounce(onPointerDown, 100));
 		emblaInstance.set(emblaApi);
 		slideInView = 1;
-		currentGame = gamesAvailable[slideInView];
-		initialId = gamesAvailable[slideInView]?.id;
+		currentGame = gamesAvailable[1];
+		initialId = gamesAvailable[1]?.id;
 		preloadItemsInRange(emblaPreloader, rawGamesData, currentIndex, 1, 1);
 		showSlides = true;
+		// emblaApi.debouncedReInit = debounce(emblaApi.reInit, 350);
 	};
 
 	const performNavigation = async () => {
 		const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
-		if (nextGame?.id !== currentGame?.id) {
+		if (nextGame?.id !== currentGame?.id && $lockGameStateStore === false) {
+			lockGameStateStore.set(true);
 			currentGame = nextGame;
 			$currentGameStore = currentGame;
 			gamesAvailable[emblaApi?.selectedScrollSnap()];
-			await goto(`/games/${nextGame?.id}/play`, { replaceState: false });
+			goto(`/games/${nextGame?.id}/play`, { replaceState: false });
+			emblaApi?.scrollTo(1, true);
 		}
 	};
 
-	const debouncedNavigation = debounce(performNavigation, 350);
+	const debouncedNavigation = debounce(performNavigation, 150);
 	const onPointerDown = (event) => {
 		if (!$allowNavigationStore) {
-			lockGameStateStore.set(false);
 			allowNavigationStore.set(true);
 		}
-
+		lockGameStateStore.set(false);
 		pointerDown = true;
 		slidesSettled = false;
 		$actionMenuOpen = false;
@@ -120,47 +122,42 @@
 		if (event.key === 'ArrowDown') {
 			emblaApi?.scrollPrev();
 			setTimeout(() => {
-				doNavigate = true;
-			}, 300);
+				triggerNavigation.set(true);
+			}, 350);
 		}
 
 		if (event.key === 'ArrowUp') {
 			emblaApi?.scrollNext();
 			setTimeout(() => {
-				doNavigate = true;
-			}, 300);
+				triggerNavigation.set(true);
+			}, 350);
 		}
 	};
 	const debouncedKeyUp = debounce(handleKeyUp, 350);
 
 	onMount(async () => {
-		lockGameStateStore.set(true);
 		hideActionNav = false;
 		$actionMenuOpen = true;
 	});
 
-	afterUpdate(() => {
+	afterUpdate(async () => {
 		// Update favorites store and count
 		gameFavoriteCount.set(favoritesCount);
 		gameFavorites.set(favoritesObj);
 
 		// Check if the selected slide is not 1 for more than 1 second
-		if (emblaApi?.selectedScrollSnap() !== 1) {
+		if ((await emblaApi?.selectedScrollSnap()) !== 1) {
 			// Clear any existing timeout to reset the timer
 			clearTimeout(timeout);
 
 			// Set a new timeout
 			timeout = setTimeout(async () => {
 				// Action to perform if condition is met for longer than 1 second
-				console.log(
-					'Performing action X because the selected slide is not 1 for more than 1 second'
-				);
 				const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
 				if (nextGame?.id !== currentGame?.id && !$lockGameStateStore) {
-					lockGameStateStore.set(true);
 					debouncedNavigation(nextGame);
 				}
-			}, 1000); // 1 second
+			}, 800); // 1 second
 		} else {
 			// If the selected slide is 1, clear the timeout
 			clearTimeout(timeout);
@@ -174,21 +171,49 @@
 				isFavorited = false;
 			}
 		});
+
+		if (
+			(!pointerDown &&
+				emblaApi?.slidesInView()?.length === 1 &&
+				emblaApi?.selectedScrollSnap() !== 1) ||
+			((doNavigate || $triggerNavigation) &&
+				!pointerDown &&
+				emblaApi?.slidesInView()?.length === 1 &&
+				emblaApi?.selectedScrollSnap() !== 1)
+		) {
+			const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
+			if (nextGame?.id !== currentGame?.id) {
+				doNavigate = false;
+				triggerNavigation.set(false);
+				debouncedNavigation(nextGame);
+			}
+		}
+
+		if (emblaApi?.slidesInView()?.length === 1 && !pointerDown) {
+			slidesSettled = true;
+		}
+
+		if (slidesSettled) {
+			setTimeout(async () => {
+				tick().then(async () => {
+					emblaApi?.reInit();
+				});
+			}, 300);
+		}
 	});
 
-	beforeNavigate((event) => {
+	beforeNavigate(async (event) => {
 		pointerDown = false;
 	});
 
-	afterNavigate(() => {
+	afterNavigate(async (event) => {
 		// Reset state or cleanup after navigation
 		if (emblaApi) {
-			emblaApi?.scrollTo(1, false); // Ensure the carousel is reset to a default state after navigation
-			tick().then(() => {
+			tick().then(async () => {
 				currentGame = gamesAvailable[1];
 				currentGameStore.set(currentGame);
-				lockGameStateStore.set(false);
 				preloadItemsInRange(emblaPreloader, rawGamesData, currentIndex, 1, 1);
+				lockGameStateStore.set(false);
 			});
 		}
 	});
@@ -205,19 +230,6 @@
 	$: favoritesCount = favoritesObj?.count;
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
-	$: ((!pointerDown && emblaApi?.slidesInView()?.length === 1) ||
-		doNavigate ||
-		$triggerNavigation) &&
-		emblaApi?.selectedScrollSnap() !== 1,
-		(() => {
-			const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
-			if (nextGame?.id !== currentGame?.id) {
-				lockGameStateStore.set(true);
-				doNavigate = false;
-				triggerNavigation.set(false);
-				debouncedNavigation(nextGame);
-			}
-		})();
 	$: visibleThumbnails = showSlides;
 </script>
 

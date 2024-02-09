@@ -25,7 +25,7 @@ export async function GET({ setHeaders, params }) {
 	}
 
 	setHeaders({
-		'cache-control': 'max-age=60'
+		'cache-control': 'max-age=604800'
 	});
 	return json(games);
 }

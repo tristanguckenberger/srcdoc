@@ -37,16 +37,17 @@
 	$: data?.user, (reactiveData = data?.user ?? {});
 	$: themeString = $themeDataStore?.theme?.join(' ');
 
-	$: console.log('reactiveData::', data);
+	$: loadedHeader = data?.header ?? 'https://picsum.photos/2000/300';
+	$: loadedProfilePhoto = data?.profile_photo ?? 'https://picsum.photos/2000/300';
 </script>
 
 <div class="user-info-container" class:showSideBar={$sideBarState} style={`${themeString}`}>
 	<div class="user-info">
 		<div class="user-header-image-container">
-			<enhanced:img
+			<img
 				class="user-header-image"
 				class:showImage={imageLoaded}
-				src={data?.headerImage ?? 'https://picsum.photos/2000/300'}
+				src={loadedHeader}
 				on:load={() => {
 					imageLoaded = true;
 				}}
@@ -78,10 +79,10 @@
 			<div class="user-controls">
 				<div class="main-action-container">
 					<div class="user-header-image-container">
-						<enhanced:img
+						<img
 							class="user-header-image avatar"
 							class:showImage={imageLoaded}
-							src={data?.profile_photo ?? 'https://picsum.photos/2000/300'}
+							src={loadedProfilePhoto}
 							on:load={() => {
 								imageLoaded = true;
 							}}

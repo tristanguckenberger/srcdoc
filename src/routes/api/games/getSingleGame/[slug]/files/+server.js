@@ -24,10 +24,9 @@ export async function GET({ setHeaders, params }) {
 	}
 
 	const files = await gameFilesResponse.json();
-	console.log('getSingleGame::files::', files);
 
 	setHeaders({
-		'cache-control': 'max-age=60'
+		'cache-control': 'max-age=604800'
 	});
 	return json([...files]);
 }

@@ -85,7 +85,7 @@ export async function load({ params, fetch, setHeaders }) {
 	const bottomGame = currentIndex < allGames.length - 1 ? allGames[currentIndex + 1] : allGames[0];
 
 	setHeaders({
-		'cache-control': 'max-age=60'
+		'cache-control': 'max-age=604800'
 	});
 
 	return {

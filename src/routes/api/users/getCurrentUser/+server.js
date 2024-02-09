@@ -48,7 +48,7 @@ export async function GET({ setHeaders, cookies }) {
 	user = { ...user };
 
 	setHeaders({
-		'cache-control': 'max-age=60'
+		'cache-control': 'max-age=604800'
 	});
 	return json(user);
 }

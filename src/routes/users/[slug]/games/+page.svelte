@@ -9,8 +9,6 @@
 
 	export let data;
 
-	$: console.log('myProject::data::', data);
-
 	$: currentUserId = data?.sessionData?.id;
 
 	onMount(() => {
