@@ -3,7 +3,7 @@
 	// Vercel Analytics
 	import { dev } from '$app/environment';
 	import { inject } from '@vercel/analytics';
-	import { debounce } from 'lodash-es';
+	import { debounce, set } from 'lodash-es';
 
 	// SVELTE IMPORTS
 	import { onMount, onDestroy, afterUpdate } from 'svelte';
@@ -38,7 +38,8 @@
 		sideBarState,
 		sideBarWidth,
 		modalOpenState,
-		appClientWidth
+		appClientWidth,
+		loaderState
 	} from '$lib/stores/layoutStore.js';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
@@ -250,6 +251,16 @@
 	 * We have to reference the store to trigger the reactive statement
 	 */
 	$routeHistoryStore;
+	// let canShowLoader = false;
+
+	// $: (() => {
+	// 	if (canShowLoader) {
+	// 		setTimeout(() => {
+	// 			canShowLoader = false;
+	// 		}, 1500);
+	// 	}
+	// })();
+	// $: canShowLoader = $loaderState;
 </script>
 
 <div
@@ -361,6 +372,12 @@
 			>
 				<div id="primary-actions" class="sidebar-section">
 					<ul>
+						<!-- <button
+							class="loader-toggle"
+							on:click|preventDefault={() => {
+								canShowLoader = !canShowLoader;
+							}}>Show Loading Indicator</button
+						> -->
 						<a href="/games" class:active={!isUserGamesBrowsePage && isBrowsePage}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -653,6 +670,7 @@
 		{/if}
 	</div>
 </div>
+
 {#if canShowLoader}
 	<LoadingIndicator />
 {/if}
@@ -1207,5 +1225,13 @@
 	}
 	main.showLoading.showSideBar :global(.loader) {
 		right: 230px;
+	}
+
+	/* DEV util styling */
+	.loader-toggle {
+		position: absolute;
+		top: 0;
+		left: 100px;
+		z-index: 100000000000;
 	}
 </style>

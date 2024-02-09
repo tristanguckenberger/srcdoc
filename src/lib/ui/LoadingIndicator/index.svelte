@@ -1,6 +1,8 @@
 <script>
+	// @ts-nocheck
 	import { fly } from 'svelte/transition';
-	import { sideBarState } from '$lib/stores/layoutStore';
+	import { sideBarState, loaderState } from '$lib/stores/layoutStore';
+	import { afterUpdate, onDestroy, onMount } from 'svelte';
 
 	/**
 	 * Make bars "breath" in and out,
@@ -8,18 +10,64 @@
 	 * Make bars move across the page, cascade the bars so they are not all moving at the same time
 	 * so they are staggered
 	 */
+	let showBall = false;
+	let loader;
+	onMount(() => {
+		setTimeout(() => {
+			showBall = true;
+		}, 250);
+	});
+
+	afterUpdate(() => {
+		// console.log('loader::::::::::::', loader);
+		// if (loader) {
+		// 	loader.addEventListener('animationiteration', (e) => {
+		// 		console.log('animationiteration::', e);
+		// 		console.log('animationiteration::time::', e?.elapsedTime);
+		// 		if (e?.elapsedTime > 3) {
+		// 			setTimeout(() => {
+		// 				loaderState.set(false);
+		// 			}, 2500);
+		// 		}
+		// 	});
+		// }
+	});
+
+	onDestroy(() => {
+		showBall = false;
+	});
+
+	// $: console.log('loader::::::::::::', loader);
 </script>
 
-<div
-	class="loader-container"
-	class:showSideBar={$sideBarState}
-	transition:fly={{
-		y: 100,
-		duration: 100
-	}}
->
-	<span class="loader top" />
-	<span class="loader bottom" />
+<div class="loader-container" class:showSideBar={$sideBarState}>
+	<!-- <div class="loaders"> -->
+	<span
+		bind:this={loader}
+		class="loader top"
+		class:showBall
+		in:fly={{
+			y: 100,
+			duration: 250
+		}}
+		out:fly={{
+			y: 100,
+			duration: 250
+		}}
+	/>
+	<span
+		class="loader bottom"
+		class:showBall
+		in:fly={{
+			y: 100,
+			duration: 250
+		}}
+		out:fly={{
+			y: 100,
+			duration: 250
+		}}
+	/>
+	<!-- </div> -->
 </div>
 
 <style>
@@ -47,7 +95,8 @@
 			linear-gradient(#ed6237 50px, transparent 0), linear-gradient(#f2b705 50px, transparent 0),
 			linear-gradient(#043c3f 50px, transparent 0), linear-gradient(#216f73 50px, transparent 0);
 		background-size: 8px 100%;
-		background-position: 0px 50px, 15px 58px, 30px 66px, 45px 78px, 60px 90px;
+		/* background-position: 0px 50px, 15px 58px, 30px 66px, 45px 78px, 60px 90px; */
+		background-position: 0px 90px, 15px 78px, 30px 66px, 45px 58px, 60px 50px;
 		animation: pillerPushUp 3s cubic-bezier(0, 0.41, 0.3, 0.33) infinite;
 		animation-direction: reverse;
 	}
@@ -56,6 +105,7 @@
 		transform: rotate3d(1, 0, 0, 180deg);
 	}
 	.loader:after {
+		display: none;
 		content: '';
 		position: absolute;
 		bottom: 30px;
@@ -67,6 +117,9 @@
 		border-radius: 50%;
 		animation: ballStepUp 3s cubic-bezier(0, 0.41, 0.3, 0.33) infinite;
 		animation-direction: reverse;
+	}
+	.loader.showBall:after {
+		display: block;
 	}
 
 	@media (min-width: 498px) {

@@ -59,3 +59,5 @@ export const modalStateStore = derived(
 		};
 	}
 );
+
+export const loaderState = writable(false);
