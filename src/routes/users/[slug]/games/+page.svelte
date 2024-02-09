@@ -40,7 +40,7 @@
 	class:expandSideNav={$sideBarState}
 >
 	<div class="main grid" bind:clientWidth={$gridWidth}>
-		{#each data?.games as game, i (`game_${i}`)}
+		{#each data?.games as game, i (`game_${game?.id}_${i}`)}
 			<Card id={game?.id} user={currentUserId} {game} thumbnail={game?.thumbnail} />
 		{/each}
 	</div>

@@ -1,6 +1,13 @@
 <script>
 	import { fly } from 'svelte/transition';
 	import { sideBarState } from '$lib/stores/layoutStore';
+
+	/**
+	 * Make bars "breath" in and out,
+	 *
+	 * Make bars move across the page, cascade the bars so they are not all moving at the same time
+	 * so they are staggered
+	 */
 </script>
 
 <div

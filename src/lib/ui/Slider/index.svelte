@@ -34,7 +34,7 @@
 	export let favoritesObj = {};
 
 	let emblaApi;
-	let options = { axis: 'y', duration: 20, inViewThreshold: 0.7 };
+	let options = { axis: 'y', duration: 20, inViewThreshold: 0.3 };
 	let slideInView = 1;
 	let pointerDown = false;
 	let currentGame;
