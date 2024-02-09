@@ -674,10 +674,10 @@
 		gap: 40px;
 		align-items: center;
 	}
+	.sub-action-menu {
+		margin-bottom: 200px;
+	}
 	@media (min-width: 498px) {
-		.sub-action-menu {
-			margin-bottom: 200px;
-		}
 		.play-button-container {
 			bottom: 20px !important;
 			top: unset !important;
