@@ -1,7 +1,7 @@
 {
 	"name": "Play Engine",
 	"start_url": "/",
-	"display": "fullscreen",
+	"display": "minimal-ui",
 	"theme_color": {
 		"default": "#ffffff",
 		"dark": "#000000",
