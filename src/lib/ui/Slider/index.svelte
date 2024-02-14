@@ -30,7 +30,6 @@
 	export let gamesAvailable = [];
 	export let rawGamesData = [];
 	export let currentIndex = 0;
-	export let thumbnail;
 	export let favoritesObj = {};
 
 	let emblaApi;

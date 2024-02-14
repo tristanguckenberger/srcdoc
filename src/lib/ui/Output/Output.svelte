@@ -102,9 +102,10 @@
 	});
 
 	function receiveMessage(event) {
-		if (event.origin === 'http://127.0.0.1:5173' && event.data.type === 'updateStore') {
-			gameControllerStore.set(event.data.value);
-		}
+		console.log('event_triggered::', event);
+		// if (event.origin === 'http://127.0.0.1:5173' && event.data.type === 'updateStore') {
+		// 	gameControllerStore.set(event.data.value);
+		// }
 	}
 
 	onMount(() => {

@@ -50,7 +50,7 @@
 >
 	<div class="main grid" bind:clientWidth={$gridWidth} class:isMobile>
 		{#each data?.games as game, i (`game_${game?.id}`)}
-			<Card id={game?.id} user={currentUserId} {game} thumbnail={game?.thumbnail} />
+			<Card id={game?.id} {game} thumbnail={game?.thumbnail} />
 		{/each}
 	</div>
 </div>

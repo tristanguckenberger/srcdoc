@@ -31,7 +31,7 @@
 >
 	<div class="main grid" bind:clientWidth={$gridWidth}>
 		{#each data?.games as game, i (`game_${i}`)}
-			<Card id={game?.id} user={currentUserId} {game} thumbnail={game?.thumbnail} />
+			<Card id={game?.id} {game} thumbnail={game?.thumbnail} />
 		{/each}
 	</div>
 </div>

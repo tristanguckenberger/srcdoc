@@ -341,7 +341,7 @@
 								</li>
 								<li>
 									<form class="logout-form" action="/?/logout" method="POST">
-										<Button class="logout" label="Logout" />
+										<Button label="Logout" />
 									</form>
 								</li>
 							</ul>
@@ -509,7 +509,7 @@
 								/></svg
 							>
 							<form method="POST" action="/games/?/addProject" class="new-project-form" use:enhance>
-								<Button class="new-project" label="New Project" />
+								<Button label="New Project" />
 							</form>
 						</div>
 					</ul>
@@ -552,7 +552,7 @@
 							{#if dropDownToggle}
 								<li>
 									<form class="logout-form" action="/?/logout" method="POST">
-										<Button class="logout" label="Logout" />
+										<Button label="Logout" />
 									</form>
 								</li>
 							{/if}

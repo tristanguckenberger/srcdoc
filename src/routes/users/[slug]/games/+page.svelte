@@ -39,7 +39,7 @@
 >
 	<div class="main grid" bind:clientWidth={$gridWidth}>
 		{#each data?.games as game, i (`game_${game?.id}_${i}`)}
-			<Card id={game?.id} user={currentUserId} {game} thumbnail={game?.thumbnail} />
+			<Card id={game?.id} {game} thumbnail={game?.thumbnail} />
 		{/each}
 	</div>
 </div>
@@ -53,7 +53,6 @@
 	}
 	.game-page-container.expandSideNav {
 		width: calc(100% - 230px);
-		/* overflow-x: hidden; */
 	}
 	.main {
 		margin: 10px;

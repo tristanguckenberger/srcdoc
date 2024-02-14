@@ -12,7 +12,6 @@
 	export let game;
 	export let id;
 	export let thumbnail;
-	// export let user;
 
 	// STORES
 	const favoritesStore = writable([]);

@@ -48,6 +48,7 @@
 	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
 	import EditDetails from '$lib/ui/Widget/Components/EditDetails.svelte';
 	import { afterNavigate, invalidateAll } from '$app/navigation';
+	import { gameSession } from '$lib/stores/gameSession/index.js';
 
 	export let data;
 	// export let thumbnail;
@@ -61,13 +62,21 @@
 	let favoriteData = {};
 
 	const srcbuild = derived(
-		[fileStoreFiles, editorOutContainerWidth, editorOutContainerHeight, gameControllerStore],
+		[
+			fileStoreFiles,
+			editorOutContainerWidth,
+			editorOutContainerHeight,
+			gameControllerStore,
+			gameSession
+		],
 		([
 			$fileStoreFiles,
 			$editorOutContainerWidth,
 			$editorOutContainerHeight,
-			$gameControllerStore
+			$gameControllerStore,
+			$gameSession
 		]) => {
+			if (!$gameSession?.currentGame) return '';
 			return buildDynamicSrcDoc(
 				$fileStoreFiles,
 				getRootFileId($fileStoreFiles),
@@ -75,7 +84,8 @@
 					width: $editorOutContainerWidth,
 					height: $editorOutContainerHeight
 				},
-				$gameControllerStore
+				$gameControllerStore,
+				$gameSession
 			);
 		}
 	);
@@ -127,6 +137,13 @@
 	};
 
 	let newGamesData = [];
+
+	// Reactive function to set gameSession
+	$: {
+		if (data?.id) {
+			gameSession.setInitialState({ currentGame: data?.currentGame });
+		}
+	}
 
 	$: play = $playButton;
 	$: {
