@@ -738,11 +738,14 @@
 		position: absolute;
 		top: 0;
 		left: -80px;
-		width: var(--sidebar-width) !important;
+		width: calc(var(--sidebar-width) + 8px) !important;
 		height: 100%;
 		opacity: 0;
 		transition: opacity 0.25s ease;
 		background-color: var(--file-selected-bg);
+	}
+	.file-button:hover ~ .highlight {
+		opacity: 0.9;
 	}
 	.highlight.fileSelected {
 		opacity: 0.9;
