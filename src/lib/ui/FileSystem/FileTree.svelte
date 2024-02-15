@@ -708,7 +708,7 @@
 	}
 	.vert-trace {
 		position: absolute;
-		top: 22px;
+		top: 24px;
 		left: 2.5px;
 		width: 1.5px;
 		height: calc(100% - 1.2rem);
