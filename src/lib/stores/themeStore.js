@@ -44,7 +44,7 @@ const lightTheme = readable([
 	'--action-total-text-color: #12131494;',
 	'--input-bg: #ededed4f;',
 	'--meun-blur-bg: #e4e5e7ed;',
-	'--file-selected-bg: #ffffffe0;',
+	'--file-selected-bg: #ffffff96;',
 	'--file-tree-weight: 450;'
 ]);
 
@@ -70,7 +70,8 @@ const darkTheme = readable([
 	'--action-total-text-color: #dadada;',
 	'--input-bg: #ededed;',
 	'--meun-blur-bg: #1c1d1fed;',
-	'--file-tree-weight: 350;'
+	'--file-tree-weight: 350;',
+	'--file-selected-bg: #2b2c2f96;'
 ]);
 
 const fontTheme = readable([

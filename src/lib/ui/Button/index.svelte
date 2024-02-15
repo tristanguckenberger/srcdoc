@@ -24,7 +24,8 @@
 	let close = '<-';
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: showSideBarToggle = label === 'open' || label === 'close';
+	$: showSideBarToggle =
+		label === 'open' || label === 'close' || label === 'open-folder' || label === 'close-folder';
 	$: authBtn =
 		label === 'Sign In' ||
 		label === 'Sign Up' ||
@@ -37,7 +38,9 @@
 		label === 'play' ||
 		label === 'pause' ||
 		label === 'fav' ||
-		label === 'save';
+		label === 'save' ||
+		label === 'close-folder' ||
+		label === 'open-folder';
 </script>
 
 <div style={`${themeString}`} class:authBtn>
@@ -134,6 +137,28 @@
 					viewBox="0 0 256 256"
 					><path
 						d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"
+					/></svg
+				>
+			{:else if label === 'open-folder'}
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="32"
+					height="32"
+					fill="#000000"
+					viewBox="0 0 256 256"
+					><path
+						d="M216,72H131.31L104,44.69A15.86,15.86,0,0,0,92.69,40H40A16,16,0,0,0,24,56V200.62A15.4,15.4,0,0,0,39.38,216H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72ZM40,56H92.69l16,16H40ZM216,200H40V88H216Z"
+					/></svg
+				>
+			{:else if label === 'close-folder'}
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="32"
+					height="32"
+					fill="#000000"
+					viewBox="0 0 256 256"
+					><path
+						d="M245,110.64A16,16,0,0,0,232,104H216V88a16,16,0,0,0-16-16H130.67L102.94,51.2a16.14,16.14,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V208h0a8,8,0,0,0,8,8H211.1a8,8,0,0,0,7.59-5.47l28.49-85.47A16.05,16.05,0,0,0,245,110.64ZM93.34,64l27.73,20.8a16.12,16.12,0,0,0,9.6,3.2H200v16H69.77a16,16,0,0,0-15.18,10.94L40,158.7V64Zm112,136H43.1l26.67-80H232Z"
 					/></svg
 				>
 			{:else if label === 'play'}

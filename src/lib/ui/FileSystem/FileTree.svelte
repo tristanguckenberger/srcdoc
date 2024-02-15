@@ -531,6 +531,12 @@
 					toggleVerticalTraceHighlight(file);
 				}}
 			>
+				{#if file.type !== 'folder'}
+					<div
+						class="highlight"
+						class:fileSelected={$focusedFileId?.toString() === file?.id?.toString()}
+					/>
+				{/if}
 				{#if file.type === 'folder'}
 					{#if isRenaming && editingId === file.id}
 						<input
@@ -591,12 +597,6 @@
 							userId={reactiveUserId}
 						/>
 					</ul>
-				{/if}
-				{#if file.type !== 'folder'}
-					<div
-						class="highlight"
-						class:fileSelected={$focusedFileId?.toString() === file?.id?.toString()}
-					/>
 				{/if}
 			</li>
 		{/each}
@@ -744,7 +744,10 @@
 		transition: opacity 0.25s ease;
 		background-color: var(--file-selected-bg);
 	}
-	.file-button:hover ~ .highlight {
+	.highlight:hover {
+		opacity: 0.9 !important;
+	}
+	.file-item.isFile:hover .highlight {
 		opacity: 0.9;
 	}
 	.highlight.fileSelected {

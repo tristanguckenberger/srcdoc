@@ -67,7 +67,9 @@
 			$gameSession,
 			gameSession
 		))();
-	$: isSideBarOpen = $fileSystemSidebarOpen;
+	$: isSideBarOpen = $sideBarState;
+
+	$: isFileSystemSideBarOpen = $fileSystemSidebarOpen;
 
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
 
@@ -121,7 +123,7 @@
 	// $: console.log('engine::routeHistoryStore::', $routeHistoryStore);
 </script>
 
-<div class="main" class:isSideBarOpen>
+<div class="main" class:isSideBarOpen class:isFileSystemSideBarOpen>
 	<SplitPane
 		panes={['#split-file-explorer', '#split-input-output']}
 		sizes={[20, 80]}
@@ -161,7 +163,10 @@
 			id="split-input-output"
 			class:fullwidth={!$fileSystemSidebarOpen}
 			class:isSideBarOpen
-			style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 18 : 0}px;"
+			class:isFileSystemSideBarOpen
+			style="--file-system-sidebar-width: {isFileSystemSideBarOpen
+				? $fileSystemSidebarWidth + 18
+				: 0}px; --sidebar-width: {isSideBarOpen ? 240 : 0}px;"
 		>
 			<SplitPane
 				panes={$openFiles?.length > 0 ? ['#split-2', '#split-3'] : ['#split-3']}
@@ -258,9 +263,20 @@
 		height: 100% !important;
 	}
 
-	#split-input-output.isSideBarOpen {
-		max-width: calc(100% - var(--sidebar-width) + 4px);
+	#split-input-output.isSideBarOpen,
+	#split-input-output.isFileSystemSideBarOpen {
+		max-width: calc(100% - var(--sidebar-width) + 0px);
 		min-width: calc(100% - 275px);
+		/* max-width: calc(100% - var(--sidebar-width));
+    min-width: calc(100% - var(--sidebar-width) + 40px); */
+		max-height: unset !important;
+		max-height: calc(100%);
+	}
+	#split-input-output.isFileSystemSideBarOpen {
+		max-width: calc(100% - var(--sidebar-width) + 0px);
+		min-width: calc(100% - 275px);
+		/* max-width: calc(100% - var(--sidebar-width));
+	min-width: calc(100% - var(--sidebar-width) + 40px); */
 		max-height: unset !important;
 		max-height: calc(100%);
 	}

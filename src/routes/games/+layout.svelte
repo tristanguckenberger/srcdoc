@@ -58,7 +58,7 @@
 			class:isSideBarOpen
 			class:hiddenContainer={!engineInRoute}
 		>
-			<div class="filler" />
+			<div class="filler" class:sidebarIsNotOpen={!isSideBarOpen} />
 			<TabContainer />
 		</div>
 	{/if}
@@ -108,8 +108,11 @@
 		padding-left: 20px;
 	}
 	.filler {
-		width: calc(var(--sidebar-width) + 20px);
+		width: calc(var(--sidebar-width) + 10px);
 		height: 30px;
+	}
+	.filler.sidebarIsNotOpen {
+		width: 0;
 	}
 	:global(.monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents > .main) {
 		height: 100% !important;

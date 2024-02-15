@@ -149,7 +149,12 @@
 		return canLoad;
 	};
 
-	const toggleFileSystemSidebar = () => fileSystemSidebarOpen.set(!$fileSystemSidebarOpen);
+	const toggleFileSystemSidebar = () => {
+		fileSystemSidebarOpen.set(!$fileSystemSidebarOpen);
+		if ($fileSystemSidebarOpen) {
+			sideBarState.set(false);
+		}
+	};
 
 	const updateTheme = (e) => {
 		themeKeyStore.set(e.matches ? 'light' : 'dark');
@@ -161,6 +166,9 @@
 
 	const toggleSideBar = () => {
 		$sideBarState = !$sideBarState;
+		if ($sideBarState) {
+			$fileSystemSidebarOpen = false;
+		}
 	};
 
 	const handleSave = async () => {
@@ -303,10 +311,13 @@
 			<ul class:matchGridWidth={!engineInRoute && isBrowsePage}>
 				<ul>
 					{#if engineInRoute}
+						<li class="sidebar-toggle" class:showSideBar={$sideBarState} class:engineInRoute>
+							<Button action={toggleSideBar} label={$sideBarState ? 'close' : 'open'} link={null} />
+						</li>
 						<li class:hiddenItem={!engineInRoute}>
 							<Button
 								action={toggleFileSystemSidebar}
-								label={$fileSystemSidebarOpen ? 'close' : 'open'}
+								label={$fileSystemSidebarOpen ? 'close-folder' : 'open-folder'}
 								link={null}
 							/>
 						</li>
@@ -330,34 +341,36 @@
 						</li>
 					{/if}
 				</ul>
-				<ul class="profile-info" class:showSideBar={$sideBarState}>
-					{#if sessionData?.username || $session?.username}
-						<li>
-							<Button
-								link="/users/{sessionData?.id}"
-								userName={sessionData?.username ?? $session?.username}
-								userAvatar={sessionData?.profile_photo ?? $session?.profile_photo}
-								isRounded
-								action={toggleDropDown}
-								showDropDown={dropDownToggle}
-							/>
-						</li>
-					{/if}
-					<div class="more-container" class:dropDownToggle>
-						<div class="more" class:dropDownToggle class:isBrowsePage>
-							<ul>
-								<li>
-									<Button label="Home" link="/games" />
-								</li>
-								<li>
-									<form class="logout-form" action="/?/logout" method="POST">
-										<Button label="Logout" />
-									</form>
-								</li>
-							</ul>
+				{#if !isMobile && engineInRoute}
+					<ul class="profile-info" class:showSideBar={$sideBarState}>
+						{#if sessionData?.username || $session?.username}
+							<li>
+								<Button
+									link="/users/{sessionData?.id}"
+									userName={sessionData?.username ?? $session?.username}
+									userAvatar={sessionData?.profile_photo ?? $session?.profile_photo}
+									isRounded
+									action={toggleDropDown}
+									showDropDown={dropDownToggle}
+								/>
+							</li>
+						{/if}
+						<div class="more-container" class:dropDownToggle>
+							<div class="more" class:dropDownToggle class:isBrowsePage>
+								<ul>
+									<li>
+										<Button label="Home" link="/games" />
+									</li>
+									<li>
+										<form class="logout-form" action="/?/logout" method="POST">
+											<Button label="Logout" />
+										</form>
+									</li>
+								</ul>
+							</div>
 						</div>
-					</div>
-				</ul>
+					</ul>
+				{/if}
 			</ul>
 		</nav>
 		{#if modalIsOpen}
@@ -582,8 +595,8 @@
 			>
 				<slot />
 			</main>
-			{#if isMobile && !$playButton}
-				<li class="sidebar-toggle isMobile" class:showSideBar={$sideBarState}>
+			{#if isMobile && !$playButton && !engineInRoute}
+				<li class="sidebar-toggle isMobile" class:showSideBar={$sideBarState} class:engineInRoute>
 					<Button action={toggleSideBar} label={$sideBarState ? 'close' : 'open'} link={null} />
 				</li>
 			{/if}
@@ -1043,6 +1056,12 @@
 		background: none;
 		z-index: 9;
 	}
+	nav.engineInRoute.showSideBar {
+		width: calc(100% - 20px);
+	}
+	.sidebar.engineInRoute.sidebar.showSideBar {
+		border-top-right-radius: 6px;
+	}
 	.sidebar-toggle {
 		position: absolute;
 	}
@@ -1079,6 +1098,10 @@
 		left: 30px;
 		list-style: none;
 		z-index: 100000;
+	}
+
+	li.sidebar-toggle.engineInRoute {
+		position: initial !important;
 	}
 	.action-button {
 		display: flex;
@@ -1246,7 +1269,7 @@
 
 	@media (min-width: 498px) {
 		.engineInRoute :global(#split-3) {
-			height: 100% !important;
+			/* height: 100% !important; */
 		}
 	}
 </style>
