@@ -5,7 +5,8 @@
 		openFiles,
 		focusedFileId,
 		previouslyFocusedFileId,
-		codePanes2
+		codePanes2,
+		focusedFolderId
 	} from '$lib/stores/filesStore.js';
 
 	import { themeDataStore } from '$lib/stores/themeStore';
@@ -24,6 +25,7 @@
 			const nextFile = $openFiles[tabIndex] || $openFiles[tabIndex - 1];
 			previouslyFocusedFileId.set($focusedFileId);
 			focusedFileId.set(nextFile.id);
+			focusedFolderId.set(null);
 		}
 
 		if ($openFiles?.length === 0) {

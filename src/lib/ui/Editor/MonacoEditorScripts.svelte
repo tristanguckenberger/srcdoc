@@ -121,6 +121,49 @@
 								detail: 'Returns the key press event',
 								documentation:
 									'getKeyPressEvent(): { current: null, previous: null, pressed: false } Note: This is the key press event. You can use this to check if a key is pressed.'
+							},
+							{
+								label: 'getCurrentGameSessionStoreCall:: Play Engine::',
+								kind: Monaco.languages.CompletionItemKind.Function,
+								insertText: `getCurrentGameSessionStoreCall()`,
+								sortText: '0',
+								range: defaultRange,
+								detail: 'Returns the current game session',
+								documentation: `getCurrentGameSessionStoreCall():  .subscribe: (this: void, run: Subscriber<{
+        startTime: null;
+        elapsedTime: number;
+        gameCompleted: boolean;
+        isPaused: boolean;
+        userScore: number;
+        currentGame: null;
+    }>`
+							},
+							{
+								label: 'getCurrentGameSessionStoreController:: Play Engine::',
+								kind: Monaco.languages.CompletionItemKind.Function,
+								insertText: `getCurrentGameSessionStoreController()`,
+								sortText: '0',
+								range: defaultRange,
+								detail: 'Returns the current game session store controller',
+								documentation: `getCurrentGameSessionStoreController(): const gameSession: {
+    subscribe: (this: void, run: Subscriber<{
+        startTime: null;
+        elapsedTime: number;
+        gameCompleted: boolean;
+        isPaused: boolean;
+        userScore: number;
+        currentGame: null;
+    }>, invalidate?: Invalidator<{
+        startTime: null;
+        elapsedTime: number;
+        gameCompleted: boolean;
+        isPaused: boolean;
+        userScore: number;
+        currentGame: null;
+    }> | undefined) => Unsubscriber;
+    ... 5 more ...;
+    setInitialState: (newInitialState?: {}) => void;
+}`
 							}
 						]
 					};

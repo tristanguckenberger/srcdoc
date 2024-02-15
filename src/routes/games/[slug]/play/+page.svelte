@@ -34,7 +34,8 @@
 		codePanes2,
 		baseDataStore,
 		firstRun,
-		derivedFileSystemData
+		derivedFileSystemData,
+		focusedFolderId
 	} from '$lib/stores/filesStore.js';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	// Expiremental
@@ -85,7 +86,8 @@
 					height: $editorOutContainerHeight
 				},
 				$gameControllerStore,
-				$gameSession
+				$gameSession,
+				gameSession
 			);
 		}
 	);
@@ -111,6 +113,7 @@
 	onDestroy(() => {
 		fileStoreFiles.set(null);
 		focusedFileId.set(null);
+		focusedFolderId.set(null);
 		fileSystemExpanderStore.set({});
 		fileSystemMetaDataStore.set({
 			gameId: null,

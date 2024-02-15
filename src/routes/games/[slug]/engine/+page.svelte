@@ -32,7 +32,8 @@
 		softSelectedFileId,
 		openFiles,
 		codePanes2,
-		baseDataStore
+		baseDataStore,
+		focusedFolderId
 	} from '$lib/stores/filesStore.js';
 
 	// Expiremental
@@ -41,6 +42,7 @@
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
 	import { onDestroy, onMount } from 'svelte';
 	import { routeHistoryStore } from '$lib/stores/routeStore.js';
+	import { gameSession } from '$lib/stores/gameSession/index.js';
 
 	export let data;
 	const play = false;
@@ -61,7 +63,9 @@
 				width: $editorOutContainerWidth,
 				height: $editorOutContainerHeight
 			},
-			$gameControllerStore
+			$gameControllerStore,
+			$gameSession,
+			gameSession
 		))();
 	$: isSideBarOpen = $fileSystemSidebarOpen;
 
@@ -82,7 +86,9 @@
 					width: $editorOutContainerWidth,
 					height: $editorOutContainerHeight
 				},
-				$gameControllerStore
+				$gameControllerStore,
+				$gameSession,
+				gameSession
 			);
 		}
 	);
@@ -98,6 +104,7 @@
 	onDestroy(() => {
 		fileStoreFiles.set(null);
 		focusedFileId.set(null);
+		focusedFolderId.set(null);
 		fileSystemExpanderStore.set({});
 		fileSystemMetaDataStore.set({
 			gameId: null,
@@ -258,9 +265,11 @@
 		max-height: calc(100%);
 	}
 	.sidebar-divider {
-		border: 1px solid #f6f6f605;
-		border-radius: 25px;
-		width: 90%;
+		border: unset;
+		border-radius: 2px;
+		height: 3px;
+		background-color: var(--vibrant-blue);
+		width: 100%;
 	}
 	:global(#editor-layout.engineInRoute) .main {
 		max-height: calc(100% - 47px);
@@ -286,10 +295,12 @@
 	a.back {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
 		margin: 10px;
+		gap: 5px;
 		color: var(--color-primary);
 		text-decoration: none;
+		font-family: var(--action-font);
+		font-weight: 500;
 	}
 
 	a.back svg {

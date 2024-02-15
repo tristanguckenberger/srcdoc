@@ -20,15 +20,16 @@ const baseTheme = readable([
 	'--deep-blue: #043757;',
 	'--purple-main: #46255F;',
 	'--green-main: #043C3F;',
-	'--home-bg: #faf8f4;'
+	'--home-bg: #faf8f4;',
+	'--file-selected-bg: #2b2c2f96;'
 ]);
 
 const lightTheme = readable([
 	'--color-primary: #2e324c;',
 	'--color-secondary: #f6f6f6;',
-	'--text-color-highlight: #000;',
+	'--text-color-highlight: #000000c9;',
 	'--text-color-primary: #121212;',
-	'--folder-button-color: #424242;',
+	'--folder-button-color: #000000a6;',
 	'--button-highlight: rgba(0, 0, 0, 0.06);',
 	'--color-highlight-faded: rgba(0, 0, 0, 0.06);',
 	'--color-accent: #1c6ef3;',
@@ -42,7 +43,9 @@ const lightTheme = readable([
 	'--slider-drawer: #fefefe;',
 	'--action-total-text-color: #12131494;',
 	'--input-bg: #ededed4f;',
-	'--meun-blur-bg: #e4e5e7ed;'
+	'--meun-blur-bg: #e4e5e7ed;',
+	'--file-selected-bg: #ffffffe0;',
+	'--file-tree-weight: 450;'
 ]);
 
 const darkTheme = readable([
@@ -52,7 +55,7 @@ const darkTheme = readable([
 	'--text-color-primary: #e8eaed;',
 	'--button-highlight: #1C1D1F;',
 	'--faded-highlight: #1c1d1f6e;',
-	'--folder-button-color: #cccccc;',
+	'--folder-button-color: #ccccccbf;',
 	'--color-highlight-faded: rgba(0, 0, 0, 0.1);',
 	'--color-accent: #4ca5ff;',
 	'--darker-bg: #121314;',
@@ -66,7 +69,8 @@ const darkTheme = readable([
 	'--slider-drawer: #151617;',
 	'--action-total-text-color: #dadada;',
 	'--input-bg: #ededed;',
-	'--meun-blur-bg: #1c1d1fed;'
+	'--meun-blur-bg: #1c1d1fed;',
+	'--file-tree-weight: 350;'
 ]);
 
 const fontTheme = readable([

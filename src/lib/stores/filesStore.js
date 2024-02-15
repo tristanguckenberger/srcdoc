@@ -5,6 +5,7 @@ import { writable, derived } from 'svelte/store';
 export const firstRun = writable(true);
 
 export const fileSystemExpanderStore = writable({});
+export const fileSystemVertTraceHighlightStore = writable({});
 export const fileSystemMetaDataStore = writable({
 	gameId: null,
 	userId: null
@@ -12,6 +13,9 @@ export const fileSystemMetaDataStore = writable({
 
 // The file that is currently focused, nullable
 export const focusedFileId = writable(null);
+
+// The folder that is currently focused, nullable
+export const focusedFolderId = writable(null);
 
 export const fileStoreFiles = writable(null);
 

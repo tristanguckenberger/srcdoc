@@ -11,7 +11,11 @@ const initialState = {
 };
 
 function createGameSessionStore() {
-	const { subscribe, set, update } = writable({ ...initialState });
+	const gameSessionState = writable({ ...initialState });
+
+	const subscribe = gameSessionState.subscribe;
+	const set = gameSessionState.set;
+	const update = gameSessionState.update;
 
 	// Function to set the initial state of the game session
 	function setInitialState(newInitialState = {}) {
@@ -20,7 +24,20 @@ function createGameSessionStore() {
 
 	// Function definitions will go here
 	function start() {
-		set({ ...initialState, startTime: Date.now(), isPaused: false });
+		console.log('::start function called::');
+		let currentState;
+		gameSessionState.subscribe((value) => {
+			console.log('::currentState::', value);
+			currentState = value;
+		});
+
+		if (currentState?.startTime) return;
+
+		try {
+			set({ ...currentState, startTime: Date.now(), isPaused: false });
+		} catch (error) {
+			console.log('Error in start function::', error);
+		}
 	}
 
 	function resume() {
@@ -45,20 +62,24 @@ function createGameSessionStore() {
 	}
 
 	function stop(userScore) {
-		update((s) => {
-			const currentTime = Date.now();
-			// Calculate final elapsed time only if the game wasn't paused when stopped
-			const finalElapsedTime = s.isPaused
-				? s.elapsedTime
-				: s.elapsedTime + (currentTime - s.startTime);
-			return {
-				...s,
-				elapsedTime: finalElapsedTime,
-				gameCompleted: true,
-				userScore: userScore,
-				startTime: null
-			};
-		});
+		try {
+			update((s) => {
+				const currentTime = Date.now();
+				// Calculate final elapsed time only if the game wasn't paused when stopped
+				const finalElapsedTime = s.isPaused
+					? s.elapsedTime
+					: s.elapsedTime + (currentTime - s.startTime);
+				return {
+					...s,
+					elapsedTime: finalElapsedTime,
+					gameCompleted: true,
+					userScore: userScore,
+					isPaused: null
+				};
+			});
+		} catch (error) {
+			console.log('Error in stop function::', error);
+		}
 	}
 
 	function updateScore(score) {

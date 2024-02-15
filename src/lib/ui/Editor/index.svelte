@@ -97,7 +97,8 @@
 		},
 		wrappingIndent: 'same',
 		highlightActiveIndentGuide: true,
-		fontLigatures: true
+		fontLigatures: true,
+		FontFace: 'Fira Code'
 		// quickSuggestions: true,
 		// suggestOnTriggerCharacters: true
 		// fontWeight: "500",

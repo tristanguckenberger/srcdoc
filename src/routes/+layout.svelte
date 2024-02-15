@@ -32,7 +32,9 @@
 		filesToUpdate,
 		focusedFileId,
 		initialDataStore,
-		baseDataStore
+		baseDataStore,
+		openFiles,
+		softSelectedFileId
 	} from '$lib/stores/filesStore';
 	import {
 		sideBarState,
@@ -46,6 +48,7 @@
 	import { routeHistoryStore } from '$lib/stores/routeStore';
 	import { drawerOpen, screenHeight } from '$lib/stores/drawerStore.js';
 	import { emblaInstance, triggerNavigation } from '$lib/stores/sliderStore.js';
+	import { gameSession } from '$lib/stores/gameSession/index.js';
 
 	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
@@ -210,9 +213,16 @@
 
 	const playToggle = () => {
 		if ($drawerOpen) {
+			// if the drawer component is open, we dont want to show the play button or allow it to be clicked
 			$playButton = false;
 		} else {
+			// otherwise, we can show the play button and allow it to be clicked
 			$playButton = !play;
+			if (!$playButton) {
+				const userScore = $gameSession?.userScore;
+				gameSession.stop(userScore);
+				console.log('playToggle::$gameSession::', $gameSession);
+			}
 		}
 	};
 
@@ -246,20 +256,20 @@
 	})();
 	$: canShowLoader = (() => loaderCheck($navigating))();
 
+	// CONSOLE LOGS
+	$: {
+		console.log('fileSys::=======================');
+		console.log('fileSys::openFiles::', $openFiles);
+		console.log('fileSys::=======================');
+		console.log('fileSys::focusedFileId::', $focusedFileId);
+		console.log('fileSys::=======================');
+		console.log('fileSys::softSelectedFileId::', $softSelectedFileId);
+		console.log('fileSys::=======================');
+	}
 	/**
 	 * We have to reference the store to trigger the reactive statement
 	 */
 	$routeHistoryStore;
-	// let canShowLoader = false;
-
-	// $: (() => {
-	// 	if (canShowLoader) {
-	// 		setTimeout(() => {
-	// 			canShowLoader = false;
-	// 		}, 1500);
-	// 	}
-	// })();
-	// $: canShowLoader = $loaderState;
 </script>
 
 <div
@@ -1232,5 +1242,11 @@
 		top: 0;
 		left: 100px;
 		z-index: 100000000000;
+	}
+
+	@media (min-width: 498px) {
+		.engineInRoute :global(#split-3) {
+			height: 100% !important;
+		}
 	}
 </style>

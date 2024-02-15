@@ -19,6 +19,7 @@
 	} from '$lib/stores/splitStore';
 	import {
 		focusedFileId,
+		focusedFolderId,
 		codePanes2,
 		previouslyFocusedFileId,
 		autoCompile,
@@ -133,6 +134,7 @@
 		}
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(fileId);
+		focusedFolderId.set(null);
 		if ($autoCompile) {
 			clearSplit.set(true);
 		}

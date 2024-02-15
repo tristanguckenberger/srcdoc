@@ -8,7 +8,8 @@
 		previouslyFocusedFileId,
 		autoCompile,
 		triggerCompile,
-		filesToUpdate
+		filesToUpdate,
+		focusedFolderId
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
@@ -81,6 +82,7 @@
 		// set the focused file to the file that was double clicked.
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
+		focusedFolderId.set(null);
 		if ($autoCompile) {
 			clearSplit.set(true);
 		}
@@ -94,6 +96,7 @@
 		if (isFileAlreadyOpen && $softSelectedFileId !== file.id) {
 			previouslyFocusedFileId.set($focusedFileId);
 			focusedFileId.set(file.id);
+			focusedFolderId.set(null);
 			if ($autoCompile) {
 				clearSplit.set(true);
 			}
@@ -122,6 +125,7 @@
 
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
+		focusedFolderId.set(null);
 		if ($autoCompile) {
 			clearSplit.set(true);
 		}

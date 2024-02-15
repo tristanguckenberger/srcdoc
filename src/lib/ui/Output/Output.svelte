@@ -2,7 +2,7 @@
 	// @ts-nocheck
 
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
-	import { afterUpdate, onDestroy, onMount } from 'svelte';
+	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 	import { src_build, currentGame, screenshot } from '$lib/stores/gamesStore';
 	import {
 		fileStoreFiles,
@@ -16,8 +16,10 @@
 	import { browser } from '$app/environment';
 
 	import * as htmlToImage from 'html-to-image';
+	import { gameSession } from '$lib/stores/gameSession';
+	import { set } from 'lodash-es';
 
-	export let relaxed = true;
+	export let relaxed = false;
 	export let play = false;
 	export let srcdocBuilt;
 
@@ -60,7 +62,9 @@
 						width: $editorOutContainerWidth,
 						height: $editorOutContainerHeight
 					},
-					$gameControllerStore
+					$gameControllerStore,
+					$gameSession,
+					gameSession
 				);
 			setTimeout(() => {
 				triggerCompile.set(false);
@@ -87,7 +91,9 @@
 						width: $editorOutContainerWidth,
 						height: $editorOutContainerHeight
 					},
-					$gameControllerStore
+					$gameControllerStore,
+					$gameSession,
+					gameSession
 				);
 			const blob = new Blob([srcdocBuilt ?? srcdoc], { type: 'text/html' });
 			const blobUrl = URL.createObjectURL(blob);
@@ -101,11 +107,60 @@
 		}
 	});
 
-	function receiveMessage(event) {
-		console.log('event_triggered::', event);
-		// if (event.origin === 'http://127.0.0.1:5173' && event.data.type === 'updateStore') {
-		// 	gameControllerStore.set(event.data.value);
-		// }
+	async function receiveMessage(event) {
+		console.log('event_triggered::event::', event);
+		if (
+			event.origin === 'http://127.0.0.1:5173' ||
+			event.origin === 'https://playengine.srcdoc.io' ||
+			event.origin === 'null'
+		) {
+			// gameControllerStore.set(event.data.value);
+			console.log('event_triggered::data::', event.data);
+			// switch, handles the different types of messages inlcuding the 'gameStart', 'gameEnd' and 'gamePause' messages
+
+			// if (event.data.event === 'gameStart') {
+			// 	console.log('switch::$gameSession::', $gameSession);
+			// 	// gameSession.start();
+			// 	// gameSession.set({ ...$gameSession, isPaused: false });
+			// } else if (event.data.event === 'gameEnd') {
+			// 	// gameControllerStore.set('stopped');
+			// } else if (event.data.event === 'gamePause') {
+			// 	// gameControllerStore.set('paused');
+			// } else if (event.data.event === 'gameResume') {
+			// 	// gameControllerStore.set('running');
+			// } else {
+			// 	console.log('nada::event_triggered::data::', event.data);
+			// }
+			switch (event.data.event) {
+				case 'gamestart':
+					// console.log('switch::$gameSession::', $gameSession);
+					try {
+						gameSession.start();
+						await tick();
+						console.log('switch::$gameSession::', $gameSession);
+					} catch (error) {
+						console.log('error::', error);
+					}
+
+					setTimeout(() => {
+						console.log('switch::$gameSession::', 'howdy...lol');
+					}, 1000);
+
+					// gameSession.set({ ...$gameSession, isPaused: false });
+					break;
+				case 'gameend':
+					// gameControllerStore.set('stopped');
+					break;
+				case 'gamepause':
+					// gameControllerStore.set('paused');
+					break;
+				case 'gameresume':
+					// gameControllerStore.set('running');
+					break;
+				default:
+					break;
+			}
+		}
 	}
 
 	onMount(() => {

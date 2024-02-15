@@ -159,7 +159,13 @@ const resolveDependencies = (file, files) => {
  *
  * @returns {string|ErrorObject}
  */
-const generateSrcDoc = (files, clientDimensions, gameControllerStore, gameSessionStore) => {
+const generateSrcDoc = (
+	files,
+	clientDimensions,
+	gameControllerStore,
+	gameSessionStore,
+	gameSessionStoreController
+) => {
 	if (!files || files?.length === 0) {
 		return {
 			errorMessage: 'No files provided!'
@@ -203,7 +209,9 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore, gameSessio
 
 	const getKeyPress = () => JSON.stringify(gameControllerStore);
 
-	const CurrentGameSessionStore = () => JSON.stringify(gameSessionStore);
+	const getCurrentGameSessionStore = () => JSON.stringify(gameSessionStore);
+
+	const getGameSessionStoreController = () => JSON.stringify(gameSessionStoreController);
 
 	const getAsset = `
 	<script>
@@ -241,11 +249,20 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore, gameSessio
 	</script>
 	`;
 
-	const CurrentGameSessionStoreController = `
+	const getCurrentGameSessionStoreController = `
 	<script>
-		function CurrentGameSessionStoreController() {
+		function getCurrentGameSessionStoreController() {
 			// returns our gameSession
-			return ${CurrentGameSessionStore()};
+			return ${getGameSessionStoreController()};
+		}
+	</script>
+	`;
+
+	const getCurrentGameSessionStoreCall = `
+	<script>
+		function getCurrentGameSessionStore() {	
+			// returns our gameSession
+			return ${getCurrentGameSessionStore()};
 		}
 	</script>
 	`;
@@ -254,7 +271,8 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore, gameSessio
 		${getClientDimensions}
 		${getAsset}
 		${getKeyPressEvent}
-		${CurrentGameSessionStoreController}
+		${getCurrentGameSessionStoreCall}
+		${getCurrentGameSessionStoreController}
 		${jsContent}
 	`;
 
@@ -296,8 +314,14 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore, gameSessio
 		window.parent.postMessage({ event: 'gamestart', value: update }, '*');
 	}
 
+	// Function to handle game pause event
+	function onGamePause(update) {
+		// Send message to parent window for game pause event
+		window.parent.postMessage({ event: 'gamepause', value: update }, '*');
+	}
+
 	const stringifiedStore = JSON.stringify(gameControllerStore);
-	const stringifiedGameSessionStore = CurrentGameSessionStore();
+	const stringifiedGameSessionStore = getCurrentGameSessionStore();
 
 	return `
 	  <!DOCTYPE html>
@@ -322,6 +346,9 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore, gameSessio
 			const kU = ${onKeyUp};
 			const kD = ${onKeyDown};
 			const gS = ${onGameStart};
+			const gP = ${onGamePause};
+
+			const gameSessionStore = ${getCurrentGameSessionStore};
 			
 			// Function to handle keydown events
 			const onKeyDown = (keyEvent) => kD(keyEvent, keyState, updateParent);
@@ -331,6 +358,9 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore, gameSessio
 
 			// Function to handle game start event
 			const onGameStartWrap = () => gS(gameSessionStoreSTR);
+
+			// Function to handle game pause event
+			const onGamePauseWrap = () => gP(gameSessionStoreSTR);
 
 			window.addEventListener('keydown', onKeyDown);
 			window.addEventListener('keyup', onKeyUp);
@@ -361,7 +391,8 @@ const buildDynamicSrcDoc = (
 	rootId,
 	clientDimensions,
 	gameControllerStore,
-	gameSessionStore
+	gameSessionStore,
+	gameSessionStoreController
 ) => {
 	if (!files || files.length === 0) {
 		return {
@@ -382,7 +413,13 @@ const buildDynamicSrcDoc = (
 		};
 	}
 
-	return generateSrcDoc(relevantFiles, clientDimensions, gameControllerStore, gameSessionStore);
+	return generateSrcDoc(
+		relevantFiles,
+		clientDimensions,
+		gameControllerStore,
+		gameSessionStore,
+		gameSessionStoreController
+	);
 };
 
 export default buildDynamicSrcDoc;

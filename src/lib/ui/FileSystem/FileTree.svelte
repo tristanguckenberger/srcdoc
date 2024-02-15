@@ -2,6 +2,7 @@
 	// @ts-nocheck
 	import {
 		fileSystemExpanderStore,
+		fileSystemVertTraceHighlightStore,
 		fileSystemMetaDataStore,
 		openFiles,
 		focusedFileId,
@@ -18,7 +19,8 @@
 		firstRun,
 		filesToUpdate,
 		baseDataStore,
-		initialDataStore
+		initialDataStore,
+		focusedFolderId
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { afterUpdate, onMount, tick } from 'svelte';
@@ -187,6 +189,7 @@
 
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
+		focusedFolderId.set(null);
 		// if ($autoCompile) {
 		clearSplit.set(true);
 		// }
@@ -199,6 +202,7 @@
 		if (isFileAlreadyOpen && $softSelectedFileId !== file.id) {
 			previouslyFocusedFileId.set($focusedFileId);
 			focusedFileId.set(file.id);
+			focusedFolderId.set(null);
 			// if ($autoCompile) {
 			clearSplit.set(true);
 			// }
@@ -227,6 +231,7 @@
 		// Finally, focus on the clicked file.
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(file.id);
+		focusedFolderId.set(null);
 		// if ($autoCompile) {
 		triggerCompile.set(true);
 		// }
@@ -262,50 +267,48 @@
 	function handleRightClick(e, file) {
 		e.preventDefault();
 
-		// Remove any existing context menus
 		const existingMenus = document.querySelectorAll('.context-menu');
 		existingMenus.forEach((menu) => menu.remove());
 
-		// Create context menu
 		const contextMenu = document.createElement('div');
 		contextMenu.classList.add('context-menu');
 
-		// Coordinates for the menu
 		const { clientX: x, clientY: y } = e;
 
-		// Menu items
-		let items =
-			file?.type === 'folder'
-				? [
-						{ label: 'New File...', action: () => startCreatingFile(file) },
-						{ label: 'New Folder...', action: () => startCreatingFile(file) },
-						{
-							label: 'Rename...',
-							action: () => {
-								isRenaming = true;
-								editingId = file.id;
-								preventOpen = true;
-								folderName = file.name;
-							}
-						},
-						{ label: 'Delete', action: () => deleteFile(file) }
-				  ]
-				: [
-						{ label: 'Open in New Pane', action: () => openNewPane(file) },
-						{
-							label: 'Rename...',
-							action: () => {
-								isRenaming = true;
-								editingId = file.id;
-								preventOpen = true;
-							}
-						},
-						{ label: 'Delete', action: () => deleteFile(file) },
-						{ label: 'Save', action: () => saveFile(file) }
-				  ];
+		let items = [];
+
+		if (file?.type === 'folder') {
+			items = [
+				{ label: 'New File...', action: () => startCreatingFile(file) },
+				{ label: 'New Folder...', action: () => startCreatingFile(file) },
+				{
+					label: 'Rename...',
+					action: () => {
+						isRenaming = true;
+						editingId = file.id;
+						preventOpen = true;
+						folderName = file.name;
+					}
+				},
+				{ label: 'Delete', action: () => deleteFile(file) }
+			];
+		} else {
+			items = [
+				{ label: 'Open in New Pane', action: () => openNewPane(file) },
+				{
+					label: 'Rename...',
+					action: () => {
+						isRenaming = true;
+						editingId = file.id;
+						preventOpen = true;
+					}
+				},
+				{ label: 'Delete', action: () => deleteFile(file) },
+				{ label: 'Save', action: () => saveFile(file) }
+			];
+		}
 
 		if (file.name === 'assets') {
-			// Create a hidden file input element for file upload
 			const fileInput = document.createElement('input');
 			fileInput.type = 'file';
 			fileInput.accept = 'image/*';
@@ -322,51 +325,45 @@
 				});
 			});
 
-			// Add the file input to the body (or somewhere else in your DOM)
 			document.body.appendChild(fileInput);
 
-			// Add the "Upload Asset" menu item
 			items = [
 				...items,
 				{
 					label: 'Upload Asset',
 					action: () => {
-						// Trigger the hidden file input when this menu item is clicked
 						fileInput.click();
 					}
 				}
 			];
 		}
 
-		// Populate menu items
 		items.forEach((item) => {
 			const menuItem = document.createElement('button');
 			menuItem.innerText = item.label;
 			menuItem.addEventListener('click', () => {
 				item.action();
-				// Remove context menu after action
 				contextMenu.remove();
 			});
 			contextMenu.appendChild(menuItem);
 		});
 
-		// Position menu at click coordinates
 		contextMenu.style.position = 'absolute';
 		contextMenu.style.left = `${x ?? dX}px`;
 		contextMenu.style.top = `${y ?? dY}px`;
 
-		// Append to body and remove on next click anywhere
 		document.body.appendChild(contextMenu);
 		document.addEventListener('click', function cleanup() {
 			contextMenu.remove();
 			document.removeEventListener('click', cleanup);
 		});
 	}
+
 	function openNewPane(file) {
-		// Add your logic to open file in new pane
 		handleFileDBClick(file);
 		openInNewPane.set(true);
 	}
+
 	async function deleteFile(file) {
 		const returnedContent = await fetch(`/api/deleteFile`, {
 			method: 'POST',
@@ -387,12 +384,14 @@
 		if (returnedContent) {
 			console.log('::returnedContent::', returnedContent);
 		}
-		// Add your logic to delete the file
+
 		deleteFiles(file?.id, files);
 	}
+
 	function saveFile(file) {
 		// Add your logic to save the file
 	}
+
 	function buildItemThreads(parentId, items = []) {
 		const threads = [];
 		for (const item of items) {
@@ -408,11 +407,18 @@
 
 		return threads;
 	}
+
 	function toggleFolder({ id }, file) {
 		$fileSystemExpanderStore[id] = !$fileSystemExpanderStore[id];
 		fileSystemExpanderStore.set($fileSystemExpanderStore);
 		tick();
 	}
+
+	function toggleVerticalTraceHighlight(file) {
+		$fileSystemVertTraceHighlightStore[file.id] = !$fileSystemVertTraceHighlightStore[file.id];
+		fileSystemVertTraceHighlightStore.set($fileSystemVertTraceHighlightStore);
+	}
+
 	afterUpdate(() => {
 		if (threadedFiles?.length > 0 && $firstRun) {
 			files.forEach((file) => {
@@ -427,14 +433,8 @@
 			firstRun.set(false);
 		}
 	});
-	onMount(() => {
-		/**
-		 * check if gameId matches the current game id in the store.
-		 *
-		 * This persists the store and then wipes it ONLY if the user visits a new game.
-		 *
-		 */
 
+	onMount(() => {
 		if (
 			($fileSystemMetaDataStore?.gameId ?? $fileSystemMetaDataStore?.game_id) !== reactiveGameId
 		) {
@@ -445,14 +445,15 @@
 			});
 			openFiles.set([]);
 			focusedFileId.set(null);
+			previouslyFocusedFileId.set(null);
+			focusedFolderId.set(null);
 			softSelectedFileId.set(null);
 		}
 
-		if (files /** && timeout === false*/) {
+		if (files) {
 			fileStoreFiles.set(files);
 		}
 
-		// initialize the initialDataStore, used for checking when to save a file
 		if (init) {
 			console.log('IN_FILETREE::onMount::initializing_initialDataStore');
 			initialDataStore?.set(JSON.parse(JSON.stringify($baseDataStore)));
@@ -460,11 +461,11 @@
 		}
 	});
 
-	$: reactiveGameId = gameId;
-	$: reactiveUserId = userId;
-	$: codePaneData = {};
-	$: $codePanes2,
-		(codePaneData = (() => {
+	let reactiveGameId = gameId;
+	let reactiveUserId = userId;
+	let codePaneData = {};
+	$: {
+		codePaneData = (() => {
 			if (!$derivedCodeData?.fileId) return;
 			if (!$derivedCodeData?.fileName) return;
 			if (!$derivedCodeData?.type) return;
@@ -475,12 +476,11 @@
 				newPanes = [];
 			}
 
-			const pane =
-				{
-					paneID: `#split-${$derivedCodeData?.fileName}-${$derivedCodeData?.type}-${$derivedCodeData?.fileId}`,
-					label: $derivedCodeData?.fileName,
-					...$derivedCodeData
-				} ?? {};
+			const pane = {
+				paneID: `#split-${$derivedCodeData?.fileName}-${$derivedCodeData?.type}-${$derivedCodeData?.fileId}`,
+				label: $derivedCodeData?.fileName,
+				...$derivedCodeData
+			};
 
 			const isPaneAlreadyOpen = newPanes.includes(pane?.paneID);
 
@@ -491,43 +491,46 @@
 
 			if ($derivedCodeData?.openInNewPane && !isPaneAlreadyOpen) {
 				if (newPanes.length < 3) {
-					// If there's room, add the new pane
 					newPanes = [...newPanes, pane];
 					generatedPaneData.pane = pane.pandID;
 				} else {
-					// If no room, remove the oldest pane and add the new one
 					const [, ...restOfPanes] = newPanes;
 					newPanes = restOfPanes;
 					newPanes = [...newPanes, pane];
 					generatedPaneData.pane = pane.paneID;
 				}
-				// Update the codePanes store
 				codePanes2.set(newPanes);
 			} else if (!generatedPaneData.pane) {
-				// If not opening in a new pane, set the default pane
 				generatedPaneData.pane = `#split-${$derivedCodeData.type}`;
 			} else if (isPaneAlreadyOpen && $openFiles?.length > 1 && !$derivedCodeData?.openInNewPane) {
-				// If the pane is already open, set the pane to the existing pane
 				generatedPaneData.pane = pane.paneID;
 			}
 
 			openInNewPane.set(false);
 			generatedPaneData.openInNewPane = false;
 			return generatedPaneData;
-		})());
-	$: $fileStoreFiles && $fileStoreFiles?.length > 0,
-		(() => {
-			if ($fileStoreFiles?.length > 0) {
-				threadedFiles = buildItemThreads(parentFileId, $fileStoreFiles);
-				files = $fileStoreFiles;
-			}
 		})();
+	}
+
+	$: {
+		if ($fileStoreFiles && $fileStoreFiles?.length > 0) {
+			threadedFiles = buildItemThreads(parentFileId, $fileStoreFiles);
+			files = $fileStoreFiles;
+		}
+	}
 </script>
 
 <ul class="file-tree">
 	{#await threadedFiles then threads}
 		{#each threads as file (file.id)}
-			<li class="file-item">
+			<li
+				class="file-item"
+				class:isFile={file.type !== 'folder'}
+				class:fileSelected={$focusedFileId?.toString() === file?.id?.toString()}
+				on:mouseover={() => {
+					toggleVerticalTraceHighlight(file);
+				}}
+			>
 				{#if file.type === 'folder'}
 					{#if isRenaming && editingId === file.id}
 						<input
@@ -547,6 +550,8 @@
 							class:expanded={$fileSystemExpanderStore[file.id]}
 							on:click={() => {
 								toggleFolder(file);
+								focusedFolderId.set(file.id);
+								// focusedFileId.set(null);
 							}}
 							on:contextmenu={(e) => handleRightClick(e, file)}
 							use:longpress
@@ -569,7 +574,7 @@
 						<File {file} bind:isRenaming bind:editingId allFiles={files} bind:preventOpen />
 					</button>
 				{/if}
-
+				<div class="vert-trace" class:expanded={$fileSystemExpanderStore[file.id]} />
 				{#if creatingFile && newFileParent.id === file.id}
 					<div class="newFileInput">
 						<input type="text" bind:value={newFileName} />
@@ -587,6 +592,12 @@
 						/>
 					</ul>
 				{/if}
+				{#if file.type !== 'folder'}
+					<div
+						class="highlight"
+						class:fileSelected={$focusedFileId?.toString() === file?.id?.toString()}
+					/>
+				{/if}
 			</li>
 		{/each}
 	{/await}
@@ -599,16 +610,35 @@
 		padding: 0;
 		margin: 0;
 		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		padding: 4px 0;
 	}
 
 	.nested {
-		padding-left: 16px;
+		padding-left: 10px;
 	}
 
 	.file-item {
+		border-radius: 3px;
 		padding: 0;
 		color: var(--folder-button-color);
 		position: relative;
+	}
+
+	.file-item.isFile:hover {
+		/* background-color: var(--file-selected-bg); */
+	}
+
+	.file-item.fileSelected {
+		/* background-color: var(--file-selected-bg); */
+	}
+
+	.file-item.fileSelected :global(.file-button .file-line span),
+	.file-item.fileSelected .folder-button {
+		color: var(--text-color-highlight) !important;
+	}
+
+	.file-item.fileSelected :global(svg) {
+		fill: var(--text-color-highlight) !important;
 	}
 
 	.file-button {
@@ -616,9 +646,16 @@
 		border: none;
 		font-size: 13px;
 		cursor: pointer;
-		-webkit-user-select: none; /* Safari */
-		-ms-user-select: none; /* IE 10 and IE 11 */
-		user-select: none; /* Standard syntax */
+		-webkit-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		font-family: 'Noto Sans', sans-serif;
+		font-optical-sizing: auto;
+		font-weight: var(--file-tree-weight);
+		font-style: normal;
+		font-variation-settings: 'wdth' var(--file-tree-weight);
+		position: relative;
+		z-index: 1;
 	}
 
 	.folder-button {
@@ -627,33 +664,92 @@
 		color: var(--folder-button-color);
 		font-size: 13px;
 		cursor: pointer;
-		padding-left: 20px;
+		padding-left: 15px;
 		background-repeat: no-repeat;
 		background-position: left center;
 		background-size: 16px;
 		background-image: none;
-		-webkit-user-select: none; /* Safari */
-		-ms-user-select: none; /* IE 10 and IE 11 */
-		user-select: none; /* Standard syntax */
+		-webkit-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		height: 27px;
+		font-family: 'Noto Sans', sans-serif;
+		font-optical-sizing: auto;
+		font-weight: var(--file-tree-weight);
+		font-style: normal;
+		font-variation-settings: 'wdth' var(--file-tree-weight);
+		position: relative;
+		z-index: 1;
 	}
 
 	.folder-button::before {
 		content: '>';
 		position: absolute;
 		left: 0;
-		top: 12px;
+		top: 15px;
 		transform: translateY(-50%);
 		font-size: larger;
 	}
 
 	.folder-button.expanded::before {
 		content: 'v';
+		top: 13px;
 	}
 
 	.folder-button:hover {
 		color: var(--text-color-highlight);
 	}
+
 	:global(button):hover {
 		cursor: pointer;
+	}
+	:global(.file-tree:first-of-type) {
+		padding: 0 10px !important;
+	}
+	.vert-trace {
+		position: absolute;
+		top: 22px;
+		left: 2.5px;
+		width: 1.5px;
+		height: calc(100% - 1.2rem);
+		background-color: var(--text-box-outline);
+		opacity: 0;
+		display: none;
+		transition: opacity 0.25s ease;
+	}
+
+	.vert-trace.expanded {
+		display: block;
+		/* opacity: 0.3; */
+	}
+
+	.folder-button:hover + .vert-trace.expanded {
+		opacity: 0.1;
+	}
+
+	.file-tree:hover .vert-trace.expanded {
+		opacity: 0.5;
+	}
+
+	.file-button + .highlight:hover {
+		opacity: 0.9;
+	}
+	.highlight {
+		position: absolute;
+		top: 0;
+		left: -80px;
+		width: var(--sidebar-width) !important;
+		height: 100%;
+		opacity: 0;
+		transition: opacity 0.25s ease;
+		background-color: var(--file-selected-bg);
+	}
+	.highlight.fileSelected {
+		opacity: 0.9;
+	}
+	:global(.context-menu) {
+		display: flex;
+		flex-direction: column;
+		z-index: 10;
 	}
 </style>
