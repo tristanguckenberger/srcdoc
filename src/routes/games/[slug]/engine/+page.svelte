@@ -251,6 +251,21 @@
 		max-width: 245px;
 	}
 
+	@media (min-width: 498px) {
+		/* #split-file-explorer {
+			height: calc(100% + 16px);
+			bottom: 40px;
+		} */
+		:global(.engineInRoute) #split-file-explorer {
+			height: calc(100% + 16px);
+			bottom: 40px;
+		}
+		:global(.engineInRoute.noOpenTabs) #split-file-explorer {
+			height: calc(100% - 24px);
+			bottom: 0px;
+		}
+	}
+
 	#split-file-explorer.hidden {
 		display: none;
 	}
