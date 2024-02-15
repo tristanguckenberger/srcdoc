@@ -2,7 +2,11 @@
 	// @ts-nocheck
 	import { page } from '$app/stores';
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
-	import { fileSystemSidebarWidth, fileSystemSidebarOpen } from '$lib/stores/filesStore.js';
+	import {
+		fileSystemSidebarWidth,
+		fileSystemSidebarOpen,
+		openFiles
+	} from '$lib/stores/filesStore.js';
 	import { themeKeyStore, themeDataStore } from '$lib/stores/themeStore';
 	import { sideBarState, sideBarWidth, appClientWidth } from '$lib/stores/layoutStore.js';
 	import { onMount, onDestroy } from 'svelte';
@@ -44,17 +48,20 @@
 	class:showSideBar={$sideBarState}
 	class:engineInRoute
 	class:playInRoute
+	class:noOpenTabs={$openFiles?.length === 0}
 	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px; {themeString}"
 >
-	<div
-		class="sidebar-container"
-		class:modifiedTabBarWidth={!isSideBarOpen}
-		class:isSideBarOpen
-		class:hiddenContainer={!engineInRoute}
-	>
-		<div class="filler" />
-		<TabContainer />
-	</div>
+	{#if $openFiles?.length > 0}
+		<div
+			class="sidebar-container"
+			class:modifiedTabBarWidth={!isSideBarOpen}
+			class:isSideBarOpen
+			class:hiddenContainer={!engineInRoute}
+		>
+			<div class="filler" />
+			<TabContainer />
+		</div>
+	{/if}
 	<slot />
 </div>
 
@@ -142,5 +149,10 @@
 		#editor-layout.playInRoute :global(.main.grid) {
 			width: calc(100% - 20px) !important;
 		}
+	}
+	#editor-layout.engineInRoute.noOpenTabs :global(div.main) {
+		max-height: unset !important;
+		height: 100% !important;
+		margin-top: 0 !important;
 	}
 </style>

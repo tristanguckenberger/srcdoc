@@ -295,7 +295,6 @@
 	a.back {
 		display: flex;
 		align-items: center;
-		margin: 10px;
 		gap: 5px;
 		color: var(--color-primary);
 		text-decoration: none;

@@ -752,4 +752,7 @@
 		flex-direction: column;
 		z-index: 10;
 	}
+	.newFileInput {
+		padding-left: 15px;
+	}
 </style>
