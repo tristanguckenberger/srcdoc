@@ -43,7 +43,7 @@
 	id="editor-layout"
 	class:isBrowsePage
 	class:noSideBar={!engineInRoute}
-	class:modifiedWidth={!isSideBarOpen}
+	class:modifiedWidth={!isSideBarOpen && engineInRoute}
 	class:isMobile
 	class:showSideBar={$sideBarState}
 	class:engineInRoute

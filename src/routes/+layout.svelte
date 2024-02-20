@@ -278,6 +278,7 @@
 		console.log('fileSys::=======================');
 		console.log('fileSys::softSelectedFileId::', $softSelectedFileId);
 		console.log('fileSys::=======================');
+		console.log('$page::', $page);
 	}
 	/**
 	 * We have to reference the store to trigger the reactive statement
@@ -450,7 +451,7 @@
 				<div class="sidebar-section">
 					<h3>Explore</h3>
 					<ul>
-						<a href="">
+						<a href="/games/trending" class:active={$page.route.id === '/games/trending'}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -476,7 +477,7 @@
 							>
 							<span>Top Rated</span>
 						</a>
-						<a href="">
+						<a href="/games/top-played" class:active={$page.route.id === '/games/top-played'}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -489,7 +490,7 @@
 							>
 							<span>Top Played</span>
 						</a>
-						<a href="">
+						<a href="/games/new" class:active={$page.route.id === '/games/new'}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -711,6 +712,7 @@
 		height: 100%;
 		width: 100%;
 		background-image: var(--svg-bg);
+		background-color: var(--color-secondary);
 		background-repeat: repeat;
 		background-size: 28%;
 	}
@@ -733,6 +735,7 @@
 		flex-direction: row;
 		max-width: 100%;
 		padding-top: 56.5px;
+		background-color: var(--color-secondary);
 	}
 	main.isProfilePage {
 		/* padding-top: 56.5px; */
