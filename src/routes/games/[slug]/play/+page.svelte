@@ -48,7 +48,7 @@
 	import Issues from '$lib/ui/Widget/Components/Issues.svelte';
 	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
 	import EditDetails from '$lib/ui/Widget/Components/EditDetails.svelte';
-	import { afterNavigate, invalidateAll } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, invalidateAll } from '$app/navigation';
 	import { gameSession } from '$lib/stores/gameSession/index.js';
 
 	export let data;
@@ -98,7 +98,7 @@
 		}
 	});
 
-	onMount(() => {
+	onMount(async () => {
 		firstRun.set(true);
 
 		if ($appClientWidth && $appClientWidth < 498) {
@@ -106,8 +106,72 @@
 		}
 	});
 
-	afterNavigate(() => {
+	beforeNavigate((nav) => {
+		// Trigger end game session activity
+		if (gameSessionId) {
+			const endGameSession = fetch(
+				`/api/games/sessions/${gameSessionId}/activities/createNewGameSessionActivity`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					mode: 'cors',
+					body: JSON.stringify({
+						action: 'Stop'
+					})
+				}
+			);
+
+			endGameSession.then((res) => {
+				console.log('endGameSession::', res);
+			});
+		}
+	});
+
+	afterNavigate(async () => {
+		// rerun all load functions
 		invalidateAll();
+
+		// Trigger start game session activity
+		const startGameSession = fetch(`/api/games/sessions/createGameSession/${await data?.id}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			mode: 'cors'
+		});
+
+		let startGameSessionData = await startGameSession;
+		const jsonBody = await startGameSessionData.json();
+
+		if (jsonBody?.game_session_id) {
+			gameSessionId = jsonBody?.game_session_id;
+			gameSession.setInitialState({ currentGame: jsonBody?.game_id });
+
+			if (gameSession) {
+				const addStartActivity = fetch(
+					`/api/games/sessions/${gameSessionId}/activities/createNewGameSessionActivity`,
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						mode: 'cors',
+						body: JSON.stringify({
+							action: 'Start'
+						})
+					}
+				);
+
+				const addStartActivityJSON = await addStartActivity;
+				const addStartActivityData = await addStartActivityJSON.json();
+
+				if (addStartActivityData?.game_user_activity_id) {
+					console.log('addStartActivityData::', addStartActivityData);
+				}
+			}
+		}
 	});
 
 	onDestroy(() => {
@@ -140,6 +204,7 @@
 	};
 
 	let newGamesData = [];
+	let gameSessionId;
 
 	// Reactive function to set gameSession
 	$: {
