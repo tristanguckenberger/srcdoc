@@ -99,7 +99,10 @@
 		}
 	});
 
-	beforeNavigate(() => {
+	beforeNavigate((nav) => {
+		if (nav?.to?.route?.id === '/games/[slug]/play') {
+			fileSystemSidebarOpen.set(true);
+		}
 		isFavorited = false;
 		if (!isPlayPage && isMobile) {
 			sideBarState.set(false);
@@ -150,9 +153,9 @@
 	};
 
 	const toggleFileSystemSidebar = () => {
-		fileSystemSidebarOpen.set(!$fileSystemSidebarOpen);
-		if ($fileSystemSidebarOpen) {
-			sideBarState.set(false);
+		if (!playInRoute) {
+			fileSystemSidebarOpen.set(!$fileSystemSidebarOpen);
+			$sideBarState = false;
 		}
 	};
 
@@ -165,8 +168,10 @@
 	};
 
 	const toggleSideBar = () => {
-		$sideBarState = !$sideBarState;
-		if ($sideBarState) {
+		if (playInRoute) {
+			$sideBarState = !$sideBarState;
+		} else {
+			$sideBarState = !$sideBarState;
 			$fileSystemSidebarOpen = false;
 		}
 	};

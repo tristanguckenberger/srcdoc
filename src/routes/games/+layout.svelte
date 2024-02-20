@@ -80,7 +80,7 @@
 		background-color: var(--color-secondary);
 		/* background-color: var(--darker-bg); */
 	}
-	@media (min-width: 500px) {
+	@media (min-width: 498px) {
 		#editor-layout {
 			height: unset;
 		}

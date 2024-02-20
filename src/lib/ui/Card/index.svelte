@@ -21,6 +21,7 @@
 	let deleteOrCreateFav = false;
 	let favorites = [];
 	let cardImage;
+	let showMoreInfo = false;
 
 	// FUNCTIONS
 	const getAllFavoritesSingleGame = async (slug, eventFetch) => {
@@ -89,7 +90,17 @@
 {#await (game, id, thumbnail, user)}
 	Loading...
 {:then}
-	<div class="game" style={`${themeString}`}>
+	<div
+		class="game"
+		style={`${themeString}`}
+		on:mouseover={() => (showMoreInfo = !showMoreInfo)}
+		on:focus={() => {
+			console.log('focused');
+		}}
+		aria-roledescription="game"
+		role="button"
+		tabindex="0"
+	>
 		<a href={cardLink} class="linked-card-container">
 			<img
 				bind:this={cardImage}
