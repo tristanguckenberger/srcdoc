@@ -34,6 +34,7 @@
 		initialDataStore,
 		baseDataStore,
 		openFiles,
+		firstRun,
 		softSelectedFileId
 	} from '$lib/stores/filesStore';
 	import {
@@ -48,7 +49,7 @@
 	import { routeHistoryStore } from '$lib/stores/routeStore';
 	import { drawerOpen, screenHeight } from '$lib/stores/drawerStore.js';
 	import { emblaInstance, triggerNavigation } from '$lib/stores/sliderStore.js';
-	import { gameSession } from '$lib/stores/gameSession/index.js';
+	import { gameSession, gameSessionState } from '$lib/stores/gameSession/index.js';
 
 	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
@@ -100,6 +101,10 @@
 	});
 
 	beforeNavigate((nav) => {
+		if (gameSessionId) {
+			addGameSessionActivity(gameSessionId, 'Stop');
+		}
+
 		if (nav?.to?.route?.id === '/games/[slug]/play') {
 			fileSystemSidebarOpen.set(true);
 		}
@@ -224,17 +229,61 @@
 		}
 	};
 
-	const playToggle = () => {
+	/**
+	 * Add game session activity
+	 * @param {string} gameSessionId
+	 * @param {string} action - start, stop, resume, pause
+	 * @returns {Promise<void>}
+	 */
+	const addGameSessionActivity = async (gameSessionId, action) => {
+		const addActivity = fetch(
+			`/api/games/sessions/${gameSessionId}/activities/createNewGameSessionActivity`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				mode: 'cors',
+				body: JSON.stringify({
+					action
+				})
+			}
+		);
+
+		const addActivityJSON = await addActivity;
+		const addActivityData = await addActivityJSON.json();
+
+		if (addActivityData?.game_user_activity_id) {
+			console.log('addActivityData::', addActivityData);
+		}
+	};
+
+	const playToggle = async () => {
+		const gameSessionId = $gameSessionState?.id;
 		if ($drawerOpen) {
 			// if the drawer component is open, we dont want to show the play button or allow it to be clicked
 			$playButton = false;
 		} else {
 			// otherwise, we can show the play button and allow it to be clicked
 			$playButton = !play;
+
 			if (!$playButton) {
 				const userScore = $gameSession?.userScore;
 				gameSession.stop(userScore);
-				console.log('playToggle::$gameSession::', $gameSession);
+
+				if (gameSessionId) {
+					await addGameSessionActivity(gameSessionId, 'Pause');
+				}
+			} else {
+				if ($firstRun) {
+					if (gameSessionId) {
+						await addGameSessionActivity(gameSessionId, 'Start');
+					}
+					$firstRun = false;
+				}
+				if (gameSessionId) {
+					await addGameSessionActivity(gameSessionId, 'Resume');
+				}
 			}
 		}
 	};
@@ -268,17 +317,18 @@
 		});
 	})();
 	$: canShowLoader = (() => loaderCheck($navigating))();
+	$: gameSessionId = $gameSessionState?.id;
 
 	// CONSOLE LOGS
 	$: {
-		console.log('fileSys::=======================');
-		console.log('fileSys::openFiles::', $openFiles);
-		console.log('fileSys::=======================');
-		console.log('fileSys::focusedFileId::', $focusedFileId);
-		console.log('fileSys::=======================');
-		console.log('fileSys::softSelectedFileId::', $softSelectedFileId);
-		console.log('fileSys::=======================');
-		console.log('$page::', $page);
+		// console.log('fileSys::=======================');
+		// console.log('fileSys::openFiles::', $openFiles);
+		// console.log('fileSys::=======================');
+		// console.log('fileSys::focusedFileId::', $focusedFileId);
+		// console.log('fileSys::=======================');
+		// console.log('fileSys::softSelectedFileId::', $softSelectedFileId);
+		// console.log('fileSys::=======================');
+		// console.log('$page::', $page);
 	}
 	/**
 	 * We have to reference the store to trigger the reactive statement

@@ -98,3 +98,4 @@ function createGameSessionStore() {
 }
 
 export const gameSession = createGameSessionStore();
+export const gameSessionState = writable(null);

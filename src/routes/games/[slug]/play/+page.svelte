@@ -10,10 +10,9 @@
 		topGame,
 		bottomGame,
 		src_build,
-		playButton,
-		progressState
+		playButton
 	} from '$lib/stores/gamesStore.js';
-	import { derived, get } from 'svelte/store';
+	import { derived } from 'svelte/store';
 	import {
 		editorOutContainerWidth,
 		editorOutContainerHeight,
@@ -38,7 +37,6 @@
 		focusedFolderId
 	} from '$lib/stores/filesStore.js';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	// Expiremental
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
 	import Slider from '$lib/ui/Slider/index.svelte';
 	import Drawer from '$lib/ui/Drawer/index.svelte';
@@ -49,10 +47,9 @@
 	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
 	import EditDetails from '$lib/ui/Widget/Components/EditDetails.svelte';
 	import { afterNavigate, beforeNavigate, invalidateAll } from '$app/navigation';
-	import { gameSession } from '$lib/stores/gameSession/index.js';
+	import { gameSession, gameSessionState } from '$lib/stores/gameSession/index.js';
 
 	export let data;
-	// export let thumbnail;
 
 	let play;
 	let navActionHeight;
@@ -92,11 +89,34 @@
 		}
 	);
 
-	afterUpdate(() => {
-		if (data?.user?.id) {
-			session.set(data?.user);
+	/**
+	 * Add game session activity
+	 * @param {string} gameSessionId
+	 * @param {string} action - start, stop, resume, pause
+	 * @returns {Promise<void>}
+	 */
+	const addGameSessionActivity = async (gameSessionId, action) => {
+		const addActivity = fetch(
+			`/api/games/sessions/${gameSessionId}/activities/createNewGameSessionActivity`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				mode: 'cors',
+				body: JSON.stringify({
+					action
+				})
+			}
+		);
+
+		const addActivityJSON = await addActivity;
+		const addActivityData = await addActivityJSON.json();
+
+		if (addActivityData?.game_user_activity_id) {
+			console.log('addActivityData::', addActivityData);
 		}
-	});
+	};
 
 	onMount(async () => {
 		firstRun.set(true);
@@ -106,71 +126,9 @@
 		}
 	});
 
-	beforeNavigate((nav) => {
-		// Trigger end game session activity
-		if (gameSessionId) {
-			const endGameSession = fetch(
-				`/api/games/sessions/${gameSessionId}/activities/createNewGameSessionActivity`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					mode: 'cors',
-					body: JSON.stringify({
-						action: 'Stop'
-					})
-				}
-			);
-
-			endGameSession.then((res) => {
-				console.log('endGameSession::', res);
-			});
-		}
-	});
-
-	afterNavigate(async () => {
-		// rerun all load functions
-		invalidateAll();
-
-		// Trigger start game session activity
-		const startGameSession = fetch(`/api/games/sessions/createGameSession/${await data?.id}`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			mode: 'cors'
-		});
-
-		let startGameSessionData = await startGameSession;
-		const jsonBody = await startGameSessionData.json();
-
-		if (jsonBody?.game_session_id) {
-			gameSessionId = jsonBody?.game_session_id;
-			gameSession.setInitialState({ currentGame: jsonBody?.game_id });
-
-			if (gameSession) {
-				const addStartActivity = fetch(
-					`/api/games/sessions/${gameSessionId}/activities/createNewGameSessionActivity`,
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						mode: 'cors',
-						body: JSON.stringify({
-							action: 'Start'
-						})
-					}
-				);
-
-				const addStartActivityJSON = await addStartActivity;
-				const addStartActivityData = await addStartActivityJSON.json();
-
-				if (addStartActivityData?.game_user_activity_id) {
-					console.log('addStartActivityData::', addStartActivityData);
-				}
-			}
+	afterUpdate(() => {
+		if (data?.user?.id) {
+			session.set(data?.user);
 		}
 	});
 
@@ -194,17 +152,46 @@
 		currentGame.set(null);
 	});
 
-	const getThumbnail = async (srcdoc) => {
-		let thumbnail;
-		htmlToImage?.toPng(srcdoc).then(function (dataUrl) {
-			thumbnail = dataUrl;
+	beforeNavigate((nav) => {
+		// Trigger end game session activity
+		if (gameSessionId) {
+			addGameSessionActivity(gameSessionId, 'Stop');
+		}
+	});
+
+	afterNavigate(async () => {
+		// rerun all load functions
+		invalidateAll();
+		// Trigger start game session activity
+		const startGameSession = fetch(`/api/games/sessions/createGameSession/${await data?.id}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			mode: 'cors'
 		});
 
-		return thumbnail;
-	};
+		let startGameSessionData = await startGameSession;
+		const jsonBody = await startGameSessionData.json();
+
+		if (jsonBody?.game_session_id) {
+			gameSessionState.set({ id: jsonBody?.game_session_id });
+
+			gameSession.setInitialState({ currentGame: jsonBody?.game_id });
+		}
+	});
 
 	let newGamesData = [];
 	let gameSessionId;
+
+	// Reactive function to set gameSessionId
+	$: {
+		if (gameSessionId) {
+			gameSessionState.set({ id: gameSessionId });
+		} else {
+			gameSessionState.set(null);
+		}
+	}
 
 	// Reactive function to set gameSession
 	$: {

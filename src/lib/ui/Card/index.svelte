@@ -114,7 +114,7 @@
 		</a>
 		<div class="card-info">
 			<a href={`/games/${id}/play`}>
-				<h3>{game?.title}</h3>
+				<h4>{game?.title}</h4>
 				<p>{game?.description}</p>
 			</a>
 			<div class="card-action-container">
@@ -233,7 +233,7 @@
 		justify-content: start;
 		gap: 10px;
 	}
-	.card-info a h3 {
+	.card-info a h4 {
 		margin-block-start: 0;
 		font-family: var(--header-font);
 		font-weight: 400;
