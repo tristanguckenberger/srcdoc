@@ -59,6 +59,7 @@
 	// ASSET IMPORTS
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import SearchBar from '$lib/ui/NavWidgets/SearchBar.svelte';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
@@ -260,6 +261,9 @@
 
 	const playToggle = async () => {
 		const gameSessionId = $gameSessionState?.id;
+
+		console.log('playToggle::gameSessionId::', gameSessionId);
+
 		if ($drawerOpen) {
 			// if the drawer component is open, we dont want to show the play button or allow it to be clicked
 			$playButton = false;
@@ -271,18 +275,18 @@
 				const userScore = $gameSession?.userScore;
 				gameSession.stop(userScore);
 
-				if (gameSessionId) {
-					await addGameSessionActivity(gameSessionId, 'Pause');
+				if ($gameSessionState?.id) {
+					await addGameSessionActivity($gameSessionState?.id, 'Pause');
 				}
 			} else {
 				if ($firstRun) {
-					if (gameSessionId) {
-						await addGameSessionActivity(gameSessionId, 'Start');
+					if ($gameSessionState?.id) {
+						await addGameSessionActivity($gameSessionState?.id, 'Start');
 					}
 					$firstRun = false;
 				}
-				if (gameSessionId) {
-					await addGameSessionActivity(gameSessionId, 'Resume');
+				if ($gameSessionState?.id) {
+					await addGameSessionActivity($gameSessionState?.id, 'Resume');
 				}
 			}
 		}
@@ -380,6 +384,9 @@
 					{:else}
 						<li class="sidebar-toggle" class:showSideBar={$sideBarState}>
 							<Button action={toggleSideBar} label={$sideBarState ? 'close' : 'open'} link={null} />
+						</li>
+						<li class="search">
+							<SearchBar />
 						</li>
 					{/if}
 					{#if engineInRoute}
@@ -617,24 +624,15 @@
 						{#if !sessionData?.username && !$session?.username}
 							<a href="/" class:active={isHomePage}>Sign In or Register</a>
 						{/if}
-						{#if (sessionData?.username || $session?.username) && isMobile}
-							<li class="mobile-profile-btn">
-								<Button
-									link="/users/{sessionData?.id}"
-									userName={sessionData?.username ?? $session?.username}
-									userAvatar={sessionData?.profile_photo ?? $session?.profile_photo}
-									isRounded
-									action={toggleDropDown}
-									showDropDown={dropDownToggle}
-								/>
+						{#if sessionData?.username || $session?.username}
+							<li class="sidebar-action">
+								<form class="logout-form" action="/?/logout" method="POST">
+									<Button label="Logout" />
+								</form>
 							</li>
-							{#if dropDownToggle}
-								<li>
-									<form class="logout-form" action="/?/logout" method="POST">
-										<Button label="Logout" />
-									</form>
-								</li>
-							{/if}
+							<!-- {#if dropDownToggle} -->
+
+							<!-- {/if} -->
 						{/if}
 					</ul>
 				</div>
@@ -841,6 +839,10 @@
 			height: calc(100% - 56.5px) !important;
 			/* padding-top: 0 !important; */
 		}
+		main.editor.hideUtilBar {
+			height: calc(100% - 10px) !important;
+			top: -45px;
+		}
 	}
 	main.showSideBar {
 		width: calc(100% - 230px);
@@ -941,7 +943,8 @@
 	}
 	nav.gameProfile {
 		/* background-color: transparent !important; */
-		background-color: var(--color-secondary) !important;
+		background-color: none !important;
+		/* display: none; */
 	}
 	::-webkit-scrollbar-thumb:hover {
 		/* background: #555 !important; */
@@ -1289,6 +1292,17 @@
 		bottom: 11vh;
 		right: 35px;
 		z-index: 1;
+	}
+
+	li.search {
+		position: fixed;
+		width: calc(100% - 66.5px);
+		right: 10px;
+	}
+
+	nav.showSideBar li.search {
+		width: calc(100% - 250.5px);
+		right: 10px;
 	}
 
 	@media (max-width: 498px) {

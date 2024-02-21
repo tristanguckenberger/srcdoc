@@ -80,9 +80,23 @@
 	.main.grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-		gap: 10px;
+		gap: 20px;
 		margin: 0;
 		height: fit-content;
+		padding: 10px 20px 20px 20px;
+	}
+	:global(#editor-layout) div.main.grid.isMobile {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		margin-block-end: 0;
+		margin-block-start: 0;
+		font-family: 'Inter', sans-serif;
+		font-size: calc(1rem - 25%);
+		padding: 10px 10px 20px 10px;
+		width: calc(100% - 40px) !important;
+		height: 100% !important;
+		margin: 0 !important;
 	}
 	.noSideBar {
 		align-items: center;

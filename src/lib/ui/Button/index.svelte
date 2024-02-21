@@ -139,6 +139,20 @@
 						d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"
 					/></svg
 				>
+			{:else if label === 'Logout'}
+				<div class="logout">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="32"
+						height="32"
+						fill="#000000"
+						viewBox="0 0 256 256"
+						><path
+							d="M112,216a8,8,0,0,1-8,8H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h56a8,8,0,0,1,0,16H48V208h56A8,8,0,0,1,112,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L196.69,120H104a8,8,0,0,0,0,16h92.69l-26.35,26.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,221.66,122.34Z"
+						/></svg
+					>
+					{label}
+				</div>
 			{:else if label === 'open-folder'}
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -383,5 +397,33 @@
 	}
 	button.verifyMe {
 		color: var(--color-secondary) !important;
+	}
+	.logout {
+		flex-direction: row;
+		gap: 25px;
+		color: var(--color-primary);
+		padding-block: 0;
+		border-width: 0;
+		border-top-width: 0px;
+		border-right-width: 0px;
+		border-bottom-width: 0px;
+		border-left-width: 0px;
+		border-radius: 4px;
+		margin-right: 10px;
+		text-decoration: none;
+		font-size: 0.9rem;
+		font-family: var(--action-font) !important;
+		text-wrap: nowrap;
+		border-style: none !important;
+		display: flex;
+		align-items: center;
+		max-height: 36.5px;
+		height: 16.5px;
+		font-weight: 500;
+	}
+	.logout svg {
+		width: 1.6rem;
+		height: 1.6rem;
+		fill: var(--color-primary);
 	}
 </style>
