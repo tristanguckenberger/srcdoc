@@ -182,10 +182,13 @@
 		height: calc(100% - 20px);
 		border-radius: 6px;
 		margin: 0;
-		padding: 0 10px;
+		padding: 10px;
+		background: #32323229;
+		transition: background 0.2s linear(0.07 -1.12%, 1 100%);
 	}
 	.game:hover {
 		cursor: pointer;
+		background: #32323254;
 	}
 	.card-thumbnail {
 		width: 100%;
@@ -222,7 +225,9 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		margin-block-end: 0;
-		margin-block-start: 5px;
+		margin-block-start: 0;
+		font-family: 'Inter', sans-serif;
+		font-size: 0.9rem;
 	}
 	.card-info a {
 		color: var(--color-primary);
@@ -232,12 +237,16 @@
 		flex-direction: column;
 		justify-content: start;
 		gap: 10px;
+		padding: 0 0 0 10px;
 	}
 	.card-info a h4 {
 		margin-block-start: 0;
-		font-family: var(--header-font);
-		font-weight: 400;
+		font-family: 'Inter';
+		font-weight: 600;
 		margin-block-end: 0;
+		font-size: 1.17rem;
+		word-wrap: break-word;
+		max-block-size: fit-content;
 	}
 	.card-info:hover {
 		cursor: pointer;

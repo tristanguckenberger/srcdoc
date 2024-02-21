@@ -22,6 +22,7 @@
 	});
 
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
+	$: isMobile = $appClientWidth < 768;
 </script>
 
 <div
@@ -29,7 +30,7 @@
 	class:noSideBar={!engineInRoute}
 	class:expandSideNav={$sideBarState}
 >
-	<div class="main grid" bind:clientWidth={$gridWidth}>
+	<div class="main grid" bind:clientWidth={$gridWidth} class:isMobile>
 		{#each data?.games as game, i (`game_${i}`)}
 			<Card id={game?.id} {game} thumbnail={game?.thumbnail} />
 		{/each}
@@ -46,15 +47,6 @@
 	.game-page-container.expandSideNav {
 		background-color: #121314;
 	}
-	.game {
-		display: flex;
-		flex-direction: column;
-		width: calc(100% - 20px);
-		height: calc(100% - 20px);
-		border-radius: 6px;
-		margin: 0;
-		padding: 0 10px;
-	}
 	.main {
 		margin: 10px;
 		height: calc(100% - 20px);
@@ -62,15 +54,30 @@
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		justify-content: space-evenly;
+		justify-content: space-between;
+		overflow-y: scroll !important;
 	}
 	.main.grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-		gap: 10px;
+		gap: 20px;
 		margin: 0;
 		height: fit-content;
-		width: calc(100% - 100px) !important;
+		/* width: calc(100% - 100px) !important; */
+		padding: 0 20px 20px 20px;
+	}
+	:global(#editor-layout) div.main.grid.isMobile {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		margin-block-end: 0;
+		margin-block-start: 0;
+		font-family: 'Inter', sans-serif;
+		font-size: calc(1rem - 25%);
+		padding: 10px 10px 20px 10px;
+		width: calc(100% - 40px) !important;
+		height: 100% !important;
+		margin: 0 !important;
 	}
 	.noSideBar {
 		align-items: center;
