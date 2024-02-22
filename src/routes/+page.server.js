@@ -80,10 +80,10 @@ export const actions = {
 		};
 
 		const authResponse = await fetch(`${process.env.SERVER_URL}/api/auth/login`, requestInit);
-		console.log(
-			'authResponse::cookies::::::::::::::::::::::::::::::::::::::',
-			authResponse.cookies
-		);
+		// console.log(
+		// 	'authResponse::cookies::::::::::::::::::::::::::::::::::::::',
+		// 	authResponse.cookies
+		// );
 		if (!authResponse.ok) {
 			return {
 				status: 401,
@@ -95,7 +95,7 @@ export const actions = {
 
 		const resAuth = await authResponse.json();
 
-		console.log('authResponse::::::::::::::::::::::::::::::::::::::::', resAuth);
+		// console.log('authResponse::::::::::::::::::::::::::::::::::::::::', resAuth);/
 
 		const token = resAuth?.token;
 
@@ -108,9 +108,9 @@ export const actions = {
 				console.log('cookieError::', error);
 			}
 
-			const cookie_token = cookies?.get('token');
+			// const cookie_token = cookies?.get('token');
 
-			console.log('cookie_token:::::::::::::', cookie_token);
+			// console.log('cookie_token:::::::::::::', cookie_token);
 
 			const user = await getCurrentUser(fetch);
 

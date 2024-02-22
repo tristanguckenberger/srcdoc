@@ -1,16 +1,43 @@
 <script>
 	// @ts-nocheck
-	import Card from '$lib/ui/Card/index.svelte';
-	import { gridWidth, appClientWidth, sideBarState } from '$lib/stores/layoutStore.js';
+
+	// Svelte imports
 	import { onMount, afterUpdate } from 'svelte';
+	import { page } from '$app/stores';
+
+	// Stores
+	import { gridWidth, appClientWidth, sideBarState } from '$lib/stores/layoutStore.js';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { firstRun } from '$lib/stores/filesStore.js';
-	import { page } from '$app/stores';
 	import { gamesData } from '$lib/stores/gamesStore.js';
+	import { processedCursor } from '$lib/stores/pagination/paginationStore.js';
+	import { fetchData } from '$lib/utils/fetchData.js';
 
+	// 3rd party imports
+	import { debounce } from 'lodash-es';
+
+	// Components
+	import Card from '$lib/ui/Card/index.svelte';
+
+	// data is a prop passed from the server's load function
 	export let data;
 
-	onMount(() => {
+	const handleScroll = async (e) => {
+		scrolling = true;
+		const threshold = scrollableElement.scrollHeight - (scrollableElement.scrollTop + 100);
+		const target = scrollableElement?.clientHeight + 400;
+
+		if (target >= threshold) {
+			await runFetch();
+			// console.log('threshold met... fetching more games...');
+		}
+	};
+	const runFetch = async () => {
+		const newGames = await fetchData(fetch, `/api/games/getAllGames/${nextCursor}`);
+		nextCursor = newGames?.nextCursor;
+		fetchMoreGames = newGames?.games ?? null;
+	};
+	onMount(async () => {
 		firstRun.set(true);
 
 		if ($appClientWidth && $appClientWidth < 498) {
@@ -20,13 +47,31 @@
 		if (data?.games) {
 			gamesData.set([...data?.games]);
 		}
-	});
 
-	afterUpdate(() => {
+		window.addEventListener('scroll', handleScroll);
+
+		if ([...parsedGamesDataSet].length === 0) {
+			await runFetch();
+		}
+
+		// Initial fetch with no cursor
+		return () => {
+			// Cleanup the event listener when the component is destroyed
+			window.removeEventListener('scroll', handleScroll);
+		};
+	});
+	afterUpdate(async () => {
 		if (data?.user?.id) {
 			session.set(data?.user);
 		}
 	});
+
+	const debouncedHandleScroll = debounce(handleScroll, 50);
+	let dataGames = [];
+	let fetchMoreGames = [];
+	let nextCursor = 0;
+	let scrolling = false;
+	let scrollableElement;
 
 	$: isMobile = $appClientWidth < 768;
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
@@ -40,6 +85,12 @@
 		(splitPath[1] === 'users' && !isProfilePage && !splitPath.some((path) => path === 'users'));
 	$: isUserGamesBrowsePage =
 		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
+	$: dataGames = [...dataGames, ...data?.games, ...fetchMoreGames];
+	$: gamesSet = new Set(dataGames.map((game) => game));
+	$: gamesData.set([...gamesSet].filter((game) => game?.id));
+	$: parsedGamesData = [...$gamesData];
+	$: parsedGamesDataSet = new Set(parsedGamesData.map((game) => game));
+	$: copiedParsedGamesDataSet = [...parsedGamesDataSet];
 </script>
 
 <div
@@ -53,10 +104,19 @@
 		bind:clientWidth={$gridWidth}
 		class:isMobile
 		class:showSideBar={$sideBarState}
+		on:scroll={debouncedHandleScroll}
+		on:scrollend={() => (scrolling = false)}
+		bind:this={scrollableElement}
 	>
-		{#each data?.games as game, i (`game_${game?.id}`)}
-			<Card id={game?.id} {game} thumbnail={game?.thumbnail} />
-		{/each}
+		{#if copiedParsedGamesDataSet?.length === 0}
+			<div class="noData">
+				<p>No games found</p>
+			</div>
+		{:else}
+			{#each copiedParsedGamesDataSet as game, i (`game_${game?.id}_${i}`)}
+				<Card id={game?.id} {game} thumbnail={game?.thumbnail} />
+			{/each}
+		{/if}
 	</div>
 </div>
 

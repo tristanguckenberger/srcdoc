@@ -9,10 +9,10 @@ const getAllGames = async (eventFetch) => {
 export async function load({ fetch }) {
 	const allGames = (await getAllGames(fetch)) ?? [];
 
-	const publishedGames = allGames?.filter((game) => game.published);
-	gamesData.set([...publishedGames].reverse());
+	const publishedGames = allGames?.games?.filter((game) => game.published);
+	gamesData.set([...publishedGames]);
 
 	return {
-		quickPlayGames: [...publishedGames].reverse()
+		quickPlayGames: [...publishedGames]
 	};
 }

@@ -46,13 +46,13 @@ export const actions = {
 		const token = cookies.get('token');
 		const { slug } = params;
 
-		console.log('updateUserDetails::slug::', slug);
+		// console.log('updateUserDetails::slug::', slug);
 
 		const formData = await request.formData();
 		const requestHeaders = new Headers();
 		requestHeaders.append('Authorization', `Bearer ${token}`);
 
-		console.log('formData::', formData);
+		// console.log('formData::', formData);
 
 		const requestInit = {
 			method: 'PUT',
@@ -74,7 +74,7 @@ export const actions = {
 		}
 
 		const user = await response.json();
-		console.log('Updated user:', user);
+		// console.log('Updated user:', user);
 
 		return {
 			body: user

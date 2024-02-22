@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { gamesData } from '$lib/stores/gamesStore.js';
-// import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 
 const getCurrentUser = async (eventFetch) => {
@@ -37,13 +36,14 @@ const getAllFavoritesSingleGame = async (slug, eventFetch) => {
 
 	return favorites;
 };
-
 export async function load({ fetch, setHeaders }) {
 	let user = null;
 	const [allGames, userData] = await Promise.all([
 		fetchData(fetch, `/api/games/getAllGames`),
 		getCurrentUser(fetch)
 	]);
+
+	let { games = [], nextCursor = 0 } = allGames;
 
 	if (userData && userData?.status === 401) {
 		user = null;
@@ -54,15 +54,20 @@ export async function load({ fetch, setHeaders }) {
 		user = userData;
 	}
 
-	const publishedGames = allGames?.filter((game) => game.published);
-	gamesData.set([...publishedGames].reverse());
+	const publishedGames = games?.filter((game) => game.published);
+	gamesData.set([...publishedGames]);
+
+	if (publishedGames.length > 0 && nextCursor === 0) {
+		nextCursor = publishedGames[publishedGames?.length - 1].id;
+	}
 
 	setHeaders({
 		'cache-control': 'max-age=604800'
 	});
 
 	return {
-		games: [...publishedGames].reverse(),
+		games: [], // [...publishedGames],
+		nextCursor: nextCursor,
 		user
 	};
 }
@@ -140,7 +145,7 @@ export const actions = {
 			};
 		}
 
-		console.log('authResponse::project::');
+		// console.log('authResponse::project::');
 
 		const project = await authResponse.json();
 
@@ -344,7 +349,7 @@ export const actions = {
 			`${process.env.SERVER_URL}/api/favorites/delete/${id}`,
 			requestInit
 		);
-		console.log('favResponse::', favResponse);
+		// console.log('favResponse::', favResponse);
 
 		if (!favResponse.ok) {
 			return {

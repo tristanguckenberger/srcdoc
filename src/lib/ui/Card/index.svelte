@@ -188,7 +188,7 @@
 	}
 	.game:hover {
 		cursor: pointer;
-		background: #32323254;
+		background: var(--meun-blur-bg);
 	}
 	.card-thumbnail {
 		width: 100%;

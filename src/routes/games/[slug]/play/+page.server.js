@@ -62,6 +62,8 @@ export async function load({ params, fetch, setHeaders }) {
 		fetchData(fetch, `/api/favorites/${slug}/getAllFavoritesSingleGame`)
 	]);
 
+	const { games = [] } = allGames;
+
 	if (userData && userData?.status === 401) {
 		user = null;
 	}
@@ -80,9 +82,9 @@ export async function load({ params, fetch, setHeaders }) {
 	}
 
 	// Calculate top and bottom games
-	const currentIndex = allGames?.findIndex((g) => g.id.toString() === slug.toString());
-	const topGame = currentIndex > 0 ? allGames[currentIndex - 1] : allGames[allGames.length - 1];
-	const bottomGame = currentIndex < allGames.length - 1 ? allGames[currentIndex + 1] : allGames[0];
+	const currentIndex = games?.findIndex((g) => g.id.toString() === slug.toString());
+	const topGame = currentIndex > 0 ? games[currentIndex - 1] : games[games.length - 1];
+	const bottomGame = currentIndex < games.length - 1 ? games[currentIndex + 1] : games[0];
 
 	setHeaders({
 		'cache-control': 'max-age=604800'
@@ -91,7 +93,7 @@ export async function load({ params, fetch, setHeaders }) {
 	return {
 		...game,
 		user,
-		allGames,
+		allGames: games,
 		userGames: userGames?.reverse(),
 		topGame,
 		currentGame: { ...game },

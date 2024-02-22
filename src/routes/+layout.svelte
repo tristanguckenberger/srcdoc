@@ -1301,8 +1301,8 @@
 	}
 
 	nav.showSideBar li.search {
-		width: calc(100% - 250.5px);
-		right: 10px;
+		width: calc(100% - 270.5px);
+		right: 20px;
 	}
 
 	@media (max-width: 498px) {
