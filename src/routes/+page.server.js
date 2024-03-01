@@ -58,6 +58,8 @@ export async function load({ cookies, fetch }) {
 
 	if (user?.is_active) {
 		throw redirect(307, `/games`);
+	} else {
+		throw redirect(303, `/users/${user?.id}/verify`);
 	}
 }
 
@@ -133,7 +135,7 @@ export const actions = {
 			};
 		}
 	},
-	register: async ({ request }) => {
+	register: async ({ request, fetch, cookies }) => {
 		const data = await request.formData();
 		const email = data.get('email');
 		const username = data.get('username');
@@ -163,33 +165,39 @@ export const actions = {
 
 		const token = (await authResponse.json()).token;
 		if (token) {
-			const userReqHeaders = new Headers();
-			userReqHeaders?.append('Authorization', `Bearer ${token}`);
-			const userReqInit = {
-				method: 'GET',
-				headers: userReqHeaders
-			};
-
-			const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
-			if (!userResponse.ok) {
-				return {
-					status: 401,
-					body: {
-						message: 'Authentication failed'
-					}
-				};
+			try {
+				cookies.set('token', token, {
+					path: '/'
+				});
+			} catch (error) {
+				console.log('cookieError::', error);
 			}
 
-			const user = await userResponse.json();
+			const user = await getCurrentUser(fetch);
+
+			if (user) {
+				session.set({
+					...user
+				});
+			}
 
 			return {
 				status: 200,
+				redirect: '/games',
 				body: {
 					message: 'registration_success',
 					user: { token, ...user, password: '' }
 				}
 			};
 		}
+
+		// Add the following line to ensure the return statement is hit
+		return {
+			status: 200,
+			body: {
+				message: 'registration_success'
+			}
+		};
 	},
 	logout: async ({ cookies }) => {
 		const token = cookies.get('token');

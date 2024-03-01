@@ -2,44 +2,23 @@
 // import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 
-const getCurrentUser = async (cookies) => {
-	const token = cookies.get('token');
-	if (token) {
-		const userReqHeaders = new Headers();
-		userReqHeaders?.append('Authorization', `Bearer ${token}`);
-		const userReqInit = {
-			method: 'GET',
-			headers: userReqHeaders
-		};
-
-		const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
-		if (!userResponse.ok) {
-			return {
-				status: 401,
-				body: {
-					message: 'Authentication failed'
-				}
-			};
-		}
-
-		const user = await userResponse.json();
-		return user;
+const getCurrentUser = async (eventFetch) => {
+	let user;
+	try {
+		const userResponse = await eventFetch(`/api/users/getCurrentUser`);
+		user = await userResponse.json();
+	} catch (error) {
+		console.log('getCurrentUser::error::', error);
 	}
+
+	return user;
 };
 
-export async function load({ cookies }) {
+export async function load({ cookies, fetch }) {
 	if (!cookies.get('token')) {
-		redirect('/');
-		return {
-			status: 300,
-			redirect: '/',
-			headers: {
-				'Cache-Control': 'no-store, max-age=0'
-			},
-			body: {}
-		};
+		throw redirect('/');
 	}
-	const user = await getCurrentUser(cookies);
+	const user = await getCurrentUser(fetch);
 
 	return {
 		sessionData: {

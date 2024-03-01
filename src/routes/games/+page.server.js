@@ -52,6 +52,10 @@ export async function load({ fetch, setHeaders }) {
 	// Assuming user is already sanitized before being sent to the client
 	if (userData?.id) {
 		user = userData;
+
+		if (!user?.is_active) {
+			throw redirect(303, `/users/${user?.id}/verify`);
+		}
 	}
 
 	const publishedGames = games?.filter((game) => game.published);
