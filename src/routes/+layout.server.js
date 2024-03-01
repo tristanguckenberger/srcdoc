@@ -15,6 +15,9 @@ export async function load({ cookies }) {
 	});
 
 	return {
-		sessionData
+		sessionData: {
+			...sessionData,
+			token
+		}
 	};
 }

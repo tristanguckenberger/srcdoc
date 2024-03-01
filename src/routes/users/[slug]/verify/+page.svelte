@@ -11,6 +11,7 @@
 	import bg from '$lib/assets/bg.svg';
 	import Frame from '$lib/assets/Frame.svg';
 	import VerifyEmailForm from '$lib/ui/Form/VerifyEmailForm.svelte';
+	import { redirect } from '@sveltejs/kit';
 
 	export let form;
 	export let data;
@@ -25,9 +26,7 @@
 
 	afterUpdate(async () => {
 		if (data?.sessionData?.is_active) {
-			const navigation = await goto('https://playengine.srcdoc.io/games');
-
-			console.log('navigation::', navigation);
+			throw redirect(307, '/games');
 		} else {
 			console.log('cannot navigate::', data?.sessionData);
 		}

@@ -16,9 +16,13 @@ const getCurrentUser = async (eventFetch) => {
 
 export async function load({ cookies, fetch }) {
 	if (!cookies.get('token')) {
-		throw redirect('/');
+		throw redirect(307, '/');
 	}
 	const user = await getCurrentUser(fetch);
+
+	if (user?.is_active) {
+		throw redirect(307, `/games`);
+	}
 
 	return {
 		sessionData: {

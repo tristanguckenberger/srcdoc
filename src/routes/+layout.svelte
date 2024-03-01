@@ -62,7 +62,7 @@
 
 	// ASSET IMPORTS
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
-	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, invalidateAll } from '$app/navigation';
 	import SearchBar from '$lib/ui/NavWidgets/SearchBar.svelte';
 
 	// PROPS
@@ -138,9 +138,13 @@
 		}
 	});
 
-	afterNavigate(() => {
+	afterNavigate(async (nav) => {
 		if (!isPlayPage && isMobile) {
 			sideBarState.set(false);
+		}
+
+		if (!sessionData?.username && !$session?.username && sessionData?.token) {
+			await invalidateAll();
 		}
 	});
 
