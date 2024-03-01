@@ -81,6 +81,7 @@
 			triggerNavigation.set(true);
 		}, 300);
 	};
+
 	const debouncedScrollBack = debounce(handleScrollBack, 350);
 
 	const handleScrollForward = () => {
@@ -89,6 +90,7 @@
 			triggerNavigation.set(true);
 		}, 300);
 	};
+
 	const debouncedScrollForward = debounce(handleScrollForward, 350);
 
 	// FUNCTIONS

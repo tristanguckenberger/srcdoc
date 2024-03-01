@@ -299,6 +299,11 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 		window.parent.postMessage({ event: 'start-game', value: update }, '*');
 	}
 
+	function onGameEnd(update) {
+		// Send message to parent window for game end event
+		window.parent.postMessage({ event: 'stop-game', value: update }, '*');
+	}
+
 	// Function to handle game session action events
 	function onGameAction(action) {
 		// Send message to parent window for game start event
@@ -321,7 +326,7 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 		${cssContent}
 	  </head>
-	  <body style="--client_height: ${getHeight()}; --client_width: ${getWidth()}">
+	  <body style="--client_height: ${getHeight()}; --client_width: ${getWidth()};">
 		<script>
 
 			let keyState = ${stringifiedStore};
@@ -337,6 +342,7 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 
 			// Play Engine API Actions
 			const gS = ${onGameStart};
+			const gE = ${onGameEnd};
 			const updateScore = ${onScoreUpdate};
 			const gameAction = ${onGameAction};
 			const gP = ${onGamePause};
