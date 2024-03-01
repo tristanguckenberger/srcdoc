@@ -103,6 +103,25 @@
 									'getAsset(path: string): Asset Name e.g. "assets/playerSprite.png", but just pass the name: getAsset("playerSprite"), Note: path is relative to the assets folder, and should not include the file extension.'
 							},
 							{
+								label: 'updateScore:: Play Engine::', // The function name you're replacing
+								kind: Monaco.languages.CompletionItemKind.Function,
+								insertText: `updateScore()`, // The text to insert
+								sortText: '0', // A sortText that ensures it comes before the defaults
+								range: defaultRange,
+								detail: 'Updates the user score',
+								documentation:
+									'updateScore(score: number;): Use this function to update the user score. Note: The score param is what will be added to the existing user score and IS NOT the new total score; Play Engine will handle this for you.'
+							},
+							{
+								label: 'triggerGameSessionAction:: Play Engine::', // The function name you're replacing
+								kind: Monaco.languages.CompletionItemKind.Function,
+								insertText: `triggerGameSessionAction()`, // The text to insert
+								sortText: '0', // A sortText that ensures it comes before the defaults
+								range: defaultRange,
+								detail: 'Starts the game session',
+								documentation: `triggerGameSessionAction(): Use this function for setting session activity, the action can be 'start-game', 'stop-game', 'resume-game', or 'pause-game', Note: start and stop actions can only be called once per game session.`
+							},
+							{
 								label: 'getClientDimensions:: Play Engine::',
 								kind: Monaco.languages.CompletionItemKind.Function,
 								insertText: `getClientDimensions()`,
@@ -120,7 +139,7 @@
 								range: defaultRange,
 								detail: 'Returns the key press event',
 								documentation:
-									'getKeyPressEvent(): { current: null, previous: null, pressed: false } Note: This is the key press event. You can use this to check if a key is pressed.'
+									'getKeyPressEvent(): { current: null, previous: null, pressed: false }, Note: This is the key press event. You can use this to check if a key is pressed.'
 							},
 							{
 								label: 'getCurrentGameSessionStoreCall:: Play Engine::',
@@ -137,33 +156,6 @@
         userScore: number;
         currentGame: null;
     }>`
-							},
-							{
-								label: 'getCurrentGameSessionStoreController:: Play Engine::',
-								kind: Monaco.languages.CompletionItemKind.Function,
-								insertText: `getCurrentGameSessionStoreController()`,
-								sortText: '0',
-								range: defaultRange,
-								detail: 'Returns the current game session store controller',
-								documentation: `getCurrentGameSessionStoreController(): const gameSession: {
-    subscribe: (this: void, run: Subscriber<{
-        startTime: null;
-        elapsedTime: number;
-        gameCompleted: boolean;
-        isPaused: boolean;
-        userScore: number;
-        currentGame: null;
-    }>, invalidate?: Invalidator<{
-        startTime: null;
-        elapsedTime: number;
-        gameCompleted: boolean;
-        isPaused: boolean;
-        userScore: number;
-        currentGame: null;
-    }> | undefined) => Unsubscriber;
-    ... 5 more ...;
-    setInitialState: (newInitialState?: {}) => void;
-}`
 							}
 						]
 					};

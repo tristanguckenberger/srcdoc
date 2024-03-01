@@ -82,9 +82,7 @@
 					width: $editorOutContainerWidth,
 					height: $editorOutContainerHeight
 				},
-				$gameControllerStore,
-				$gameSession,
-				gameSession
+				$gameControllerStore
 			);
 		}
 	);
@@ -292,7 +290,7 @@
 	<div class="output-play-action-overlay">
 		{#if gamesAvailable}
 			{#if play}
-				<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} />
+				<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} relaxed />
 			{:else}
 				<Slider
 					rawGamesData={allGamesData}

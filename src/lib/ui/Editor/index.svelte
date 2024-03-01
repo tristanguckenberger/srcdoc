@@ -10,33 +10,38 @@
 		fileStoreFiles,
 		filesToUpdate
 	} from '$lib/stores/filesStore.js';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	export let id;
 	export let code;
 	export let type;
 
-	// Add this in the onMount lifecycle hook or another suitable place
-	onMount(() => {
-		function handleKeyDown(event) {
-			// Check for Ctrl or Cmd key
-			if (event.ctrlKey || event.metaKey) {
-				// Check for 'S' key
-				if (event.key === 's' || event.keyCode === 83) {
-					// Prevent default save dialog
-					event.preventDefault();
-					saveFile(focusedFileId); // Assuming 'focusedFileId' is the ID of the currently focused file
-				}
+	function handleKeyDown(event) {
+		// Check for Ctrl or Cmd key
+		if (event.ctrlKey || event.metaKey) {
+			// Check for 'S' key
+			if (event.key === 's' || event.keyCode === 83) {
+				// Prevent default save dialog
+				event.preventDefault();
+				saveFile(focusedFileId); // Assuming 'focusedFileId' is the ID of the currently focused file
 			}
 		}
+	}
 
+	// Add this in the onMount lifecycle hook or another suitable place
+	onMount(() => {
 		// Attach event listener
 		window.addEventListener('keydown', handleKeyDown);
 
+		// // Cleanup
+		// return () => {
+		// 	window.removeEventListener('keydown', handleKeyDown);
+		// };
+	});
+
+	onDestroy(() => {
 		// Cleanup
-		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-		};
+		window.removeEventListener('keydown', handleKeyDown);
 	});
 
 	$: codeType = type;

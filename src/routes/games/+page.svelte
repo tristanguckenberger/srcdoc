@@ -10,7 +10,6 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { firstRun } from '$lib/stores/filesStore.js';
 	import { gamesData } from '$lib/stores/gamesStore.js';
-	import { processedCursor } from '$lib/stores/pagination/paginationStore.js';
 	import { fetchData } from '$lib/utils/fetchData.js';
 
 	// 3rd party imports

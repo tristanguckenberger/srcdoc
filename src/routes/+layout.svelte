@@ -49,7 +49,11 @@
 	import { routeHistoryStore } from '$lib/stores/routeStore';
 	import { drawerOpen, screenHeight } from '$lib/stores/drawerStore.js';
 	import { emblaInstance, triggerNavigation } from '$lib/stores/sliderStore.js';
-	import { gameSession, gameSessionState } from '$lib/stores/gameSession/index.js';
+	import {
+		gameSession,
+		gameSessionScore,
+		gameSessionState
+	} from '$lib/stores/gameSession/index.js';
 
 	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
@@ -101,9 +105,26 @@
 		}
 	});
 
-	beforeNavigate((nav) => {
+	beforeNavigate(async (nav) => {
 		if (gameSessionId) {
-			addGameSessionActivity(gameSessionId, 'Stop');
+			try {
+				await addGameSessionActivity(gameSessionId, 'Stop');
+				await fetch(`/api/games/sessions/updateGameSession/${gameSessionId}`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						sessionTotalScore: $gameSessionScore
+					})
+				}).then(async (res) => {
+					const resJSON = await res.json();
+					console.log('resJSON::', resJSON);
+					$gameSessionScore = 0;
+				});
+			} catch (error) {
+				console.log('error::', error);
+			}
 		}
 
 		if (nav?.to?.route?.id === '/games/[slug]/play') {
@@ -279,14 +300,10 @@
 					await addGameSessionActivity($gameSessionState?.id, 'Pause');
 				}
 			} else {
-				if ($firstRun) {
-					if ($gameSessionState?.id) {
-						await addGameSessionActivity($gameSessionState?.id, 'Start');
-					}
-					$firstRun = false;
-				}
-				if ($gameSessionState?.id) {
+				if ($gameSessionState?.id && !$firstRun) {
 					await addGameSessionActivity($gameSessionState?.id, 'Resume');
+				} else {
+					$firstRun = false;
 				}
 			}
 		}

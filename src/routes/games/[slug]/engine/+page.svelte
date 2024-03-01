@@ -63,9 +63,7 @@
 				width: $editorOutContainerWidth,
 				height: $editorOutContainerHeight
 			},
-			$gameControllerStore,
-			$gameSession,
-			gameSession
+			$gameControllerStore
 		))();
 	$: isSideBarOpen = $sideBarState;
 
@@ -88,9 +86,7 @@
 					width: $editorOutContainerWidth,
 					height: $editorOutContainerHeight
 				},
-				$gameControllerStore,
-				$gameSession,
-				gameSession
+				$gameControllerStore
 			);
 		}
 	);
@@ -188,7 +184,7 @@
 				>
 					<Pane id={'split-output'} label={'output'}>
 						<!-- {#if play} -->
-						<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} />
+						<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} relaxed />
 						<!-- {/if} -->
 					</Pane>
 				</section>

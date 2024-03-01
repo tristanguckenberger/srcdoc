@@ -155,17 +155,10 @@ const resolveDependencies = (file, files) => {
  * @param {FileObject[]} files
  * @param {ClientDimensionsObject} clientDimensions
  * @param {Object} gameControllerStore
- * @param {Object} gameSessionStore
  *
  * @returns {string|ErrorObject}
  */
-const generateSrcDoc = (
-	files,
-	clientDimensions,
-	gameControllerStore,
-	gameSessionStore,
-	gameSessionStoreController
-) => {
+const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 	if (!files || files?.length === 0) {
 		return {
 			errorMessage: 'No files provided!'
@@ -209,10 +202,6 @@ const generateSrcDoc = (
 
 	const getKeyPress = () => JSON.stringify(gameControllerStore);
 
-	const getCurrentGameSessionStore = () => JSON.stringify(gameSessionStore);
-
-	const getGameSessionStoreController = () => JSON.stringify(gameSessionStoreController);
-
 	const getAsset = `
 	<script>
 		function getAsset(url) {
@@ -240,6 +229,14 @@ const generateSrcDoc = (
 	</script>
 	`;
 
+	const triggerGameSessionAction = `
+	<script>
+		function triggerGameSessionAction(action) {
+			window.parent.postMessage({ event: 'start-game' }, '*');
+		}
+	</script>
+	`;
+
 	const getKeyPressEvent = `
 	<script>
 		function getKeyPressEvent() {
@@ -249,30 +246,11 @@ const generateSrcDoc = (
 	</script>
 	`;
 
-	const getCurrentGameSessionStoreController = `
-	<script>
-		function getCurrentGameSessionStoreController() {
-			// returns our gameSession
-			return ${getGameSessionStoreController()};
-		}
-	</script>
-	`;
-
-	const getCurrentGameSessionStoreCall = `
-	<script>
-		function getCurrentGameSessionStore() {	
-			// returns our gameSession
-			return ${getCurrentGameSessionStore()};
-		}
-	</script>
-	`;
-
 	const jsContentWithCustomLoadImage = `
 		${getClientDimensions}
+		${triggerGameSessionAction}
 		${getAsset}
 		${getKeyPressEvent}
-		${getCurrentGameSessionStoreCall}
-		${getCurrentGameSessionStoreController}
 		${jsContent}
 	`;
 
@@ -308,10 +286,23 @@ const generateSrcDoc = (
 		window.parent.postMessage({ event: 'keyup', key: keyEvent.key }, '*');
 	}
 
+	// Function to sync the user's game session score with a svelte store
+	// this should be called everytime the game score changes
+	function onScoreUpdate(score) {
+		// Send message to parent window for game score to update
+		window.parent.postMessage({ event: 'update-score', value: score }, '*');
+	}
+
 	// Function to handle game start event
 	function onGameStart(update) {
 		// Send message to parent window for game start event
-		window.parent.postMessage({ event: 'gamestart', value: update }, '*');
+		window.parent.postMessage({ event: 'start-game', value: update }, '*');
+	}
+
+	// Function to handle game session action events
+	function onGameAction(action) {
+		// Send message to parent window for game start event
+		window.parent.postMessage({ event: action }, '*');
 	}
 
 	// Function to handle game pause event
@@ -321,21 +312,19 @@ const generateSrcDoc = (
 	}
 
 	const stringifiedStore = JSON.stringify(gameControllerStore);
-	const stringifiedGameSessionStore = getCurrentGameSessionStore();
 
 	return `
 	  <!DOCTYPE html>
 	  <html style="touch-action: manipulation;">
 	  <head>
-	  <script src="https://pixijs.download/release/pixi.js"></script>
-	  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+		<script src="https://pixijs.download/release/pixi.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 		${cssContent}
 	  </head>
 	  <body style="--client_height: ${getHeight()}; --client_width: ${getWidth()}">
 		<script>
 
 			let keyState = ${stringifiedStore};
-			let gameSessionStoreSTR = ${stringifiedGameSessionStore};
 
 			function updateParent(value) {
 				// Post a message to the parent window with the value to update the store
@@ -345,29 +334,20 @@ const generateSrcDoc = (
 
 			const kU = ${onKeyUp};
 			const kD = ${onKeyDown};
-			const gS = ${onGameStart};
-			const gP = ${onGamePause};
 
-			const gameSessionStore = ${getCurrentGameSessionStore};
+			// Play Engine API Actions
+			const gS = ${onGameStart};
+			const updateScore = ${onScoreUpdate};
+			const gameAction = ${onGameAction};
+			const gP = ${onGamePause};
 			
 			// Function to handle keydown events
 			const onKeyDown = (keyEvent) => kD(keyEvent, keyState, updateParent);
-
 			// Function to handle keyup events
 			const onKeyUp = (keyEvent) => kU(keyEvent, keyState, updateParent);
 
-			// Function to handle game start event
-			const onGameStartWrap = () => gS(gameSessionStoreSTR);
-
-			// Function to handle game pause event
-			const onGamePauseWrap = () => gP(gameSessionStoreSTR);
-
 			window.addEventListener('keydown', onKeyDown);
 			window.addEventListener('keyup', onKeyUp);
-			window.addEventListener('load', () => {
-				// call onGameStartWrap function
-				onGameStartWrap();
-			});
 		</script>
 		${htmlContent}
 		${jsContentWithCustomLoadImage}
@@ -386,14 +366,8 @@ const generateSrcDoc = (
  * @returns {string}
  *
  */
-const buildDynamicSrcDoc = (
-	files,
-	rootId,
-	clientDimensions,
-	gameControllerStore,
-	gameSessionStore,
-	gameSessionStoreController
-) => {
+const buildDynamicSrcDoc = (files, rootId, clientDimensions, gameControllerStore) => {
+	console.log('HIT::buildDynamicSrcDoc::');
 	if (!files || files.length === 0) {
 		return {
 			errorMessage: 'No files provided!'
@@ -413,13 +387,7 @@ const buildDynamicSrcDoc = (
 		};
 	}
 
-	return generateSrcDoc(
-		relevantFiles,
-		clientDimensions,
-		gameControllerStore,
-		gameSessionStore,
-		gameSessionStoreController
-	);
+	return generateSrcDoc(relevantFiles, clientDimensions, gameControllerStore);
 };
 
 export default buildDynamicSrcDoc;

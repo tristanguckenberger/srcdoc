@@ -16,8 +16,11 @@
 	import { browser } from '$app/environment';
 
 	import * as htmlToImage from 'html-to-image';
-	import { gameSession } from '$lib/stores/gameSession';
-	import { set } from 'lodash-es';
+	import {
+		gameSession,
+		gameSessionState,
+		gameSessionScore
+	} from '$lib/stores/gameSession/index.js';
 
 	export let relaxed = false;
 	export let play = false;
@@ -62,9 +65,7 @@
 						width: $editorOutContainerWidth,
 						height: $editorOutContainerHeight
 					},
-					$gameControllerStore,
-					$gameSession,
-					gameSession
+					$gameControllerStore
 				);
 			setTimeout(() => {
 				triggerCompile.set(false);
@@ -80,8 +81,37 @@
 			triggerUpdate = true;
 		})();
 
+	/**
+	 * Add game session activity
+	 * @param {string} gameSessionId
+	 * @param {string} action - start, stop, resume, pause
+	 * @returns {Promise<void>}
+	 */
+	const addGameSessionActivity = async (gameSessionId, action) => {
+		const addActivity = fetch(
+			`/api/games/sessions/${gameSessionId}/activities/createNewGameSessionActivity`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				mode: 'cors',
+				body: JSON.stringify({
+					action
+				})
+			}
+		);
+
+		const addActivityJSON = await addActivity;
+		const addActivityData = await addActivityJSON.json();
+
+		if (addActivityData?.game_user_activity_id) {
+			console.log('addActivityData::', addActivityData);
+		}
+	};
+
 	afterUpdate(async () => {
-		if ((rootFileId && ($triggerCompile || $autoCompile || triggerUpdate)) || play || srcdocBuilt) {
+		if ((rootFileId && ($triggerCompile || $autoCompile || triggerUpdate)) || play) {
 			srcdoc =
 				$src_build ||
 				buildDynamicSrcDoc(
@@ -91,9 +121,7 @@
 						width: $editorOutContainerWidth,
 						height: $editorOutContainerHeight
 					},
-					$gameControllerStore,
-					$gameSession,
-					gameSession
+					$gameControllerStore
 				);
 			const blob = new Blob([srcdocBuilt ?? srcdoc], { type: 'text/html' });
 			const blobUrl = URL.createObjectURL(blob);
@@ -107,49 +135,46 @@
 		}
 	});
 
-	async function receiveMessage(event) {
-		console.log('event_triggered::event::', event);
-		if (
-			event.origin === 'http://127.0.0.1:5173' ||
-			event.origin === 'https://playengine.srcdoc.io' ||
-			event.origin === 'null'
-		) {
-			// gameControllerStore.set(event.data.value);
-			console.log('event_triggered::data::', event.data);
-			// switch, handles the different types of messages inlcuding the 'gameStart', 'gameEnd' and 'gamePause' messages
+	async function receiveMessage(e) {
+		console.log(`Received message from ${e.origin}:`, e.data);
 
-			// if (event.data.event === 'gameStart') {
-			// 	console.log('switch::$gameSession::', $gameSession);
-			// 	// gameSession.start();
-			// 	// gameSession.set({ ...$gameSession, isPaused: false });
-			// } else if (event.data.event === 'gameEnd') {
-			// 	// gameControllerStore.set('stopped');
-			// } else if (event.data.event === 'gamePause') {
-			// 	// gameControllerStore.set('paused');
-			// } else if (event.data.event === 'gameResume') {
-			// 	// gameControllerStore.set('running');
-			// } else {
-			// 	console.log('nada::event_triggered::data::', event.data);
-			// }
-			switch (event.data.event) {
-				case 'gamestart':
-					// console.log('switch::$gameSession::', $gameSession);
+		if (
+			e.origin === 'http://localhost:5173' ||
+			e.origin === 'http://127.0.0.1:5173' ||
+			e.origin === 'https://playengine.srcdoc.io' ||
+			e.origin === 'null'
+		) {
+			switch (e.data.event) {
+				case 'start-game':
 					try {
-						gameSession.start();
+						// gameSession.start();
 						await tick();
-						console.log('switch::$gameSession::', $gameSession);
+						if ($gameSessionState?.id) {
+							await addGameSessionActivity($gameSessionState?.id, 'Start');
+						}
+						// console.log('switch::$gameSession::', $gameSession);
 					} catch (error) {
 						console.log('error::', error);
 					}
 
-					setTimeout(() => {
-						console.log('switch::$gameSession::', 'howdy...lol');
-					}, 1000);
+					// setTimeout(() => {
+					// 	console.log('switch::$gameSession::', 'howdy...lol');
+					// }, 1000);
 
 					// gameSession.set({ ...$gameSession, isPaused: false });
 					break;
-				case 'gameend':
-					// gameControllerStore.set('stopped');
+				case 'update-score':
+					// Get score to add
+					const score = e?.data?.value;
+
+					console.log('switch::update-score::', score);
+
+					// if we have a session and a score, update the session with the summation of the user's existing score and the added score
+					if (score) {
+						await tick();
+						gameSessionScore.set(score);
+					}
+
 					break;
 				case 'gamepause':
 					// gameControllerStore.set('paused');
@@ -181,6 +206,8 @@
 			fileStoreFiles.set($derivedFileSystemData);
 		}
 	}
+
+	$: console.log('::score::', $gameSessionScore);
 
 	$: $screenshot,
 		(() => {

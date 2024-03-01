@@ -99,3 +99,4 @@ function createGameSessionStore() {
 
 export const gameSession = createGameSessionStore();
 export const gameSessionState = writable(null);
+export const gameSessionScore = writable(0);
