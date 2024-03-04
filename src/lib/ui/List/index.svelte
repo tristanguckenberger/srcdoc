@@ -47,7 +47,7 @@
 			<div class="list-item-content lean-right">
 				<span>{row.session_total_score}</span>
 			</div>
-			<div class="list-item-content lean-right">
+			<div class="list-item-content lean-right time">
 				{#each Object.keys(row.session_total_time) as key}
 					<span class="time-val">{row.session_total_time[key]}{shortenKeyTitle(key)}</span>
 				{/each}
@@ -86,12 +86,11 @@
 		display: flex;
 		align-items: center;
 		justify-content: left;
-
 		padding-block: 0;
 		color: var(--color-primary) !important;
 		border-width: 0;
 		border-radius: 4px;
-		padding: 10px;
+		padding: 10px 0 10px 0;
 		text-decoration: none;
 		font-size: 1rem;
 		font-family: var(--action-font) !important;
@@ -102,6 +101,7 @@
 		max-height: 36.5px;
 		height: 16.5px;
 		font-weight: 500;
+		width: fit-content;
 	}
 
 	.list-item-content h3 {
@@ -130,7 +130,12 @@
 		position: relative;
 		left: 30%;
 		display: flex;
-		gap: 12px;
+		gap: 7px;
+	}
+	.list-item-content.lean-right.time {
+		overflow-x: auto;
+		overflow-y: hidden;
+		white-space: nowrap;
 	}
 	hr.divider {
 		width: 80%;
@@ -140,6 +145,9 @@
 		height: 1px;
 		background-color: var(--text-color-primary);
 		position: absolute;
-		top: 80px;
+		top: 45px;
+	}
+	:global(.component-container) {
+		overflow: auto !important;
 	}
 </style>

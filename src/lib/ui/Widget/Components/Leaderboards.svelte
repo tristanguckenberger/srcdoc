@@ -31,8 +31,10 @@
 	h2 {
 		color: var(--text-color-primary);
 		font-family: var(--header-font);
-		font-size: 1rem;
+		font-size: 1.5rem;
 		margin-block-start: 0;
 		font-weight: 900;
+		position: absolute;
+		top: -26px;
 	}
 </style>
