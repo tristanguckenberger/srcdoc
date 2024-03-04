@@ -1,26 +1,24 @@
 <script>
 	// @ts-nocheck
 	export let gameId;
-	/**
-	 * list: Array of items to display in the list
-	 * @type {Array}
-	 * Row object structure:
-	 * {
-	 *     game_session_id: string,
-	 *     userId: string,
-	 *     username: string,
-	 *     profile_photo: string,
-	 *     score: string,
-	 *     session_total_time: object:
-	 *     {
-	 *          hours: string,
-	 *          minutes: string,
-	 *          seconds: string
-	 *     }
-	 * }
-	 *
-	 */
 	export let listContent = [];
+
+	const shortenKeyTitle = (key) => {
+		switch (key) {
+			case 'days':
+				return 'd';
+			case 'hours':
+				return 'h';
+			case 'minutes':
+				return 'm';
+			case 'seconds':
+				return 's';
+			case 'milliseconds':
+				return 'ms';
+			default:
+				return key;
+		}
+	};
 </script>
 
 <ol class="list">
@@ -39,14 +37,10 @@
 
 	{#each listContent as row, i (`${i}_${row.game_session_id}`)}
 		<li class="list-item">
-			<!-- {#if row.profile_photo}
-				<img src={row.profile_photo} class="avatar" alt={`${row.username}'s Avatar`} />
-			{/if} -->
-
 			<div class="list-item-content">
 				<h3>
 					<img src={row.profile_photo} class="avatar" alt={`${row.username}'s Avatar`} />
-					@{row.username}
+					{i + 1}. @{row.username}
 				</h3>
 			</div>
 			<div class="list-item-content spacer" />
@@ -54,9 +48,9 @@
 				<span>{row.session_total_score}</span>
 			</div>
 			<div class="list-item-content lean-right">
-				<span>{row.session_total_time?.hours ?? '00'}:</span>
-				<span>{row.session_total_time?.minutes ?? '00'}:</span>
-				<span>{row.session_total_time?.seconds ?? '00'}</span>
+				{#each Object.keys(row.session_total_time) as key}
+					<span class="time-val">{row.session_total_time[key]}{shortenKeyTitle(key)}</span>
+				{/each}
 			</div>
 		</li>
 	{/each}
@@ -135,6 +129,8 @@
 	.list-item-content.lean-right {
 		position: relative;
 		left: 30%;
+		display: flex;
+		gap: 12px;
 	}
 	hr.divider {
 		width: 80%;
