@@ -45,6 +45,7 @@
 	import Comments from '$lib/ui/Widget/Components/Comments.svelte';
 	import Issues from '$lib/ui/Widget/Components/Issues.svelte';
 	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
+	import Leaderboards from '$lib/ui/Widget/Components/Leaderboards.svelte';
 	import EditDetails from '$lib/ui/Widget/Components/EditDetails.svelte';
 	import { afterNavigate, beforeNavigate, invalidateAll } from '$app/navigation';
 	import { gameSession, gameSessionState } from '$lib/stores/gameSession/index.js';
@@ -274,6 +275,13 @@
 					published: Boolean(data?.published)
 				},
 				component: EditDetails
+			},
+			{
+				name: 'Leaderboards',
+				props: {
+					gameId: data?.id
+				},
+				component: Leaderboards
 			}
 		]);
 	})();

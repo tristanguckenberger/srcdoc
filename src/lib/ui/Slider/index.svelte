@@ -10,6 +10,7 @@
 
 	// 3rd Party Libs & Utils
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
+	// import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
 	import { debounce } from 'lodash-es';
 
 	// Stores & Utils
@@ -315,7 +316,10 @@
 											<button
 												class="action-button button"
 												on:click={() => {
-													// $playButton = false;
+													$playButton = false;
+													browser && selectedOption.set(4);
+													$playButton = false;
+													drawerOpen.set(true);
 												}}
 											>
 												<svg

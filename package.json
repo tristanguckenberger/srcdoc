@@ -37,6 +37,7 @@
 		"@vercel/analytics": "^1.1.2",
 		"dotenv": "^16.3.1",
 		"embla-carousel-svelte": "^8.0.0-rc17",
+		"embla-carousel-wheel-gestures": "^8.0.0-rc05",
 		"html-to-image": "^1.11.11",
 		"html2canvas": "^1.4.1",
 		"lodash-es": "^4.17.21",

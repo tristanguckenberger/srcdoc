@@ -11,74 +11,11 @@
 	// export let selectedOption = 0;
 	export let content;
 	export let options = [];
-	let ComponentOptions = [];
-
-	// $: console.log('content::', content);
-
-	// $: reactiveContent = content ?? {};
-
-	// $: reactiveContent?.comments,
-	// 	(() =>
-	// 		(ComponentOptions = [
-	// 			{
-	// 				name: 'Comments',
-	// 				props: {
-	// 					gameId: reactiveContent?.id,
-	// 					comments: reactiveContent?.comments,
-	// 					parentCommentId: null
-	// 				},
-	// 				component: Comments
-	// 			},
-	// 			{
-	// 				name: 'Issues',
-	// 				component: Issues
-	// 			},
-	// 			{
-	// 				name: 'Reviews',
-	// 				component: Reviews
-	// 			}
-	// 		]))();
-
-	// $: console.log('ComponentOptions::', ComponentOptions);
 
 	$: Component = browser && options[$selectedOption].component;
-	$: console.log($selectedOption);
-
-	$: console.log('$option:::::::::', browser && $selectedOption);
-
-	// const setOption = (i) => {
-	// 	// option = i;
-	// 	console.log('i::', i);
-	// 	option = i;
-	// };
-
-	// let select;
-
-	// $: console.log('select::', select);
-	onDestroy(() => {
-		// drawerOpen.set(false);
-		// selectedOption.set(0);
-	});
 </script>
 
 <div class="widget-container">
-	<div class="widget-controls">
-		<!-- <select on:change={setOption(select?.value)} bind:this={select}>
-			{#each ComponentOptions as avoption, i (avoption.name)}
-				<option value={i}>{avoption.name}</option>
-			{/each}
-		</select> -->
-		<!-- {#each ComponentOptions as avoption, i (avoption.name)}
-			<div class="tab btn-{i}" class:active={option === i}>
-				<Button
-					action={() => setOption(i)}
-					additionalClasses={'widget-button btn-{i} {avoption.name}'}
-					label={avoption.name}
-				/>
-			</div>
-		{/each} -->
-	</div>
-
 	<div class="component-container">
 		<svelte:component this={Component} {...options[$selectedOption]?.props} />
 	</div>
