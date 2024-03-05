@@ -41,6 +41,10 @@
 	$: loadedProfilePhoto = data?.profile_photo ?? 'https://picsum.photos/2000/300';
 </script>
 
+<svelte:head>
+	<meta name="google-adsense-account" content="ca-pub-9366274571597084" />
+</svelte:head>
+
 <div class="user-info-container" class:showSideBar={$sideBarState} style={`${themeString}`}>
 	<div class="user-info">
 		<div class="user-header-image-container">
