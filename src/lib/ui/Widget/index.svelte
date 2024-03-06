@@ -12,7 +12,10 @@
 	export let content;
 	export let options = [];
 
-	$: Component = browser && options[$selectedOption].component;
+	$: console.log('widget::options::', options);
+	$: console.log('widget::selectedOption::', $selectedOption);
+
+	$: Component = browser && options[$selectedOption]?.component;
 </script>
 
 <div class="widget-container">

@@ -32,6 +32,16 @@ export async function load({ cookies, fetch }) {
 }
 
 export const actions = {
+	// add a new playlist
+	createPlaylist: async () => {
+		// Return a response
+		return {
+			status: 200,
+			body: {
+				message: 'Cannot create Playlists until you verify your account'
+			}
+		};
+	},
 	verify: async ({ request, cookies }) => {
 		const token = cookies.get('token');
 		const data = await request.formData();

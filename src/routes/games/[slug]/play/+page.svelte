@@ -49,6 +49,7 @@
 	import EditDetails from '$lib/ui/Widget/Components/EditDetails.svelte';
 	import { afterNavigate, beforeNavigate, invalidateAll } from '$app/navigation';
 	import { gameSession, gameSessionState } from '$lib/stores/gameSession/index.js';
+	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
 
 	export let data;
 
@@ -282,6 +283,15 @@
 					gameId: data?.id
 				},
 				component: Leaderboards
+			},
+			{
+				name: 'NewPlaylist',
+				props: {
+					name: '',
+					description: '',
+					isPublic: true
+				},
+				component: EditPlaylistDetails
 			}
 		]);
 	})();
@@ -315,7 +325,7 @@
 	</div>
 	<Drawer>
 		<div slot="drawer-component" class="drawer-component">
-			<Widget content={reactiveData} options={ComponentOptions} />
+			<Widget id={'inPage'} content={reactiveData} options={ComponentOptions} />
 		</div>
 	</Drawer>
 </div>

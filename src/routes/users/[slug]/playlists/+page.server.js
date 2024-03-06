@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
-import { gamesData } from '$lib/stores/gamesStore.js';
+import { playlistData } from '$lib/stores/playlistStore.js';
 
 const getCurrentUser = async (eventFetch) => {
 	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
@@ -10,16 +10,19 @@ const getCurrentUser = async (eventFetch) => {
 	return user;
 };
 
-const getAllGamesByUser = async (userId, eventFetch) => {
-	const gamesRes = await eventFetch(`/api/games/getAllGamesByUser/${userId}`);
-	const games = await gamesRes.json();
-	return games;
+const getAllPlaylistsByUser = async (userId, eventFetch) => {
+	const playlistRes = await eventFetch(`/api/playlist/AllByUser/${userId}`);
+	const playlists = await playlistRes.json();
+	return playlists;
 };
 
 export async function load({ cookies, params, fetch }) {
-	if (!params?.slug) {
+	const { slug } = params;
+	if (!slug) {
 		return redirect(303, '/games');
 	}
+
+	console.log('slug::', slug);
 
 	const token = cookies?.get('token');
 	if (!token) {
@@ -30,16 +33,18 @@ export async function load({ cookies, params, fetch }) {
 	if (!user || user?.status === 401) {
 		throw redirect(303, '/games');
 	}
-	const userGames = await getAllGamesByUser(params?.slug, fetch);
+	const userPlaylists = await getAllPlaylistsByUser(slug, fetch);
+
+	console.log('userPlaylists::', userPlaylists);
 
 	session.set({
 		...user
 	});
 
-	gamesData.set([...userGames].reverse());
+	playlistData.set(userPlaylists ? [...userPlaylists].reverse() : []);
 
 	return {
-		games: [...userGames].reverse(),
+		playlists: userPlaylists ? [...userPlaylists].reverse() : [],
 		sessionData: {
 			...user
 		}
@@ -82,39 +87,6 @@ export const actions = {
 			}
 		};
 	},
-	addProject: async ({ cookies }) => {
-		const token = cookies.get('token');
-		const requestHeaders = new Headers();
-		requestHeaders.append('Content-Type', 'application/json');
-		requestHeaders.append('Authorization', `Bearer ${token}`);
-		const requestInit = {
-			method: 'POST',
-			headers: requestHeaders,
-			mode: 'cors'
-		};
-
-		const authResponse = await fetch(`${process.env.SERVER_URL}/api/games/create`, requestInit);
-		if (!authResponse.ok) {
-			return {
-				status: 401,
-				body: {
-					message: 'Failed to create new project'
-				}
-			};
-		}
-
-		const project = await authResponse.json();
-
-		if (project?.id) {
-			throw redirect(300, `/games/${project?.id}/play`);
-		}
-		return {
-			status: 300,
-			redirect: `/games/${project?.id}/play`,
-			body: {
-				message: 'add_project_success',
-				project: project
-			}
-		};
-	}
+	addGameToPlaylist: async () => {},
+	removeGameFromPlaylist: async () => {}
 };

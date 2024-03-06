@@ -6,10 +6,11 @@
 	import { debounce, set } from 'lodash-es';
 
 	// SVELTE IMPORTS
-	import { onMount, onDestroy, afterUpdate } from 'svelte';
+	import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
 	import { page, navigating } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
+	import { redirect } from '@sveltejs/kit';
 
 	// CUSTOM STORE IMPORTS
 	import {
@@ -47,7 +48,7 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
 	import { routeHistoryStore } from '$lib/stores/routeStore';
-	import { drawerOpen, screenHeight } from '$lib/stores/drawerStore.js';
+	import { drawerOpen, screenHeight, selectedOption } from '$lib/stores/drawerStore.js';
 	import { emblaInstance, triggerNavigation } from '$lib/stores/sliderStore.js';
 	import {
 		gameSession,
@@ -59,11 +60,19 @@
 	import Modal from '$lib/ui/Modal/index.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
 	import LoadingIndicator from '$lib/ui/LoadingIndicator/index.svelte';
+	import SearchBar from '$lib/ui/NavWidgets/SearchBar.svelte';
+	import Drawer from '$lib/ui/Drawer/index.svelte';
+	import Widget from '$lib/ui/Widget/index.svelte';
+	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
 
 	// ASSET IMPORTS
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
-	import { afterNavigate, beforeNavigate, invalidateAll } from '$app/navigation';
-	import SearchBar from '$lib/ui/NavWidgets/SearchBar.svelte';
+	import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
+	import Comments from '$lib/ui/Widget/Components/Comments.svelte';
+	import Issues from '$lib/ui/Widget/Components/Issues.svelte';
+	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
+	import EditDetails from '$lib/ui/Widget/Components/EditDetails.svelte';
+	import Leaderboards from '$lib/ui/Widget/Components/Leaderboards.svelte';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
@@ -74,6 +83,8 @@
 	let dropDownToggle = false;
 	let isFavorited = false;
 	let deleteOrCreateFav = false;
+	let ComponentOptions = [];
+	let creatingNewPlaylist = false;
 
 	const handleScrollBack = () => {
 		$emblaInstance?.scrollNext();
@@ -145,6 +156,14 @@
 
 		if (!sessionData?.username && !$session?.username && sessionData?.token) {
 			await invalidateAll();
+		}
+
+		if (creatingNewPlaylist) {
+			$playButton = false;
+			browser && selectedOption.set(0);
+			$playButton = false;
+			$drawerOpen = true;
+			creatingNewPlaylist = false;
 		}
 	});
 
@@ -311,6 +330,24 @@
 				} else {
 					$firstRun = false;
 				}
+			}
+		}
+	};
+
+	const newPlaylist = async () => {
+		console.log('newPlaylist::', $session?.id);
+
+		await tick();
+		if ($session?.id) {
+			try {
+				goto(`/users/${$session?.id}/playlists`, { replaceState: false }).then(() => {
+					$playButton = false;
+					browser && selectedOption.set(0);
+					$playButton = false;
+					$drawerOpen = true;
+				});
+			} catch (error) {
+				console.log('newPlaylist::error::', error);
 			}
 		}
 	};
@@ -524,6 +561,40 @@
 								/></svg
 							>
 							<span>Favorites</span>
+						</a>
+						<a
+							href={`/users/${$session?.id}/playlists`}
+							on:click={() => {
+								creatingNewPlaylist = true;
+							}}
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="32"
+								height="32"
+								fill="#ffffff"
+								viewBox="0 0 256 256"
+								><path
+									d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"
+								/></svg
+							>
+							<span>New Playlist</span>
+						</a>
+						<a
+							href={`/users/${sessionData?.id}/playlists/`}
+							class:active={isUserFavoritesBrowsePage}
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="32"
+								height="32"
+								fill="#000000"
+								viewBox="0 0 256 256"
+								><path
+									d="M178,28c-20.09,0-37.92,7.93-50,21.56C115.92,35.93,98.09,28,78,28A66.08,66.08,0,0,0,12,94c0,72.34,105.81,130.14,110.31,132.57a12,12,0,0,0,11.38,0C138.19,224.14,244,166.34,244,94A66.08,66.08,0,0,0,178,28Zm-5.49,142.36A328.69,328.69,0,0,1,128,202.16a328.69,328.69,0,0,1-44.51-31.8C61.82,151.77,36,123.42,36,94A42,42,0,0,1,78,52c17.8,0,32.7,9.4,38.89,24.54a12,12,0,0,0,22.22,0C145.3,61.4,160.2,52,178,52a42,42,0,0,1,42,42C220,123.42,194.18,151.77,172.51,170.36Z"
+								/></svg
+							>
+							<span>My Library</span>
 						</a>
 					</ul>
 				</div>
@@ -1324,8 +1395,8 @@
 	}
 
 	nav.showSideBar li.search {
-		width: calc(100% - 270.5px);
-		right: 20px;
+		width: calc(100% - 250.5px);
+		right: 10px;
 	}
 
 	@media (max-width: 498px) {

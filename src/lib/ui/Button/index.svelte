@@ -101,7 +101,9 @@
 			{formaction}
 			class:isRounded={isRounded || userName}
 			typeof={type}
-			on:click={() => !userName && action && action()}
+			on:click={() => {
+				action?.();
+			}}
 			class:authBtn
 			class:isHomePage
 			class:showSideBarToggle

@@ -94,6 +94,17 @@
 					blurAction();
 				}}
 			/>
+		{:else if inputCapture === 'isPublic'}
+			<input
+				class:hideMe={hidden}
+				type="text"
+				{hidden}
+				name={inputCapture}
+				bind:value={checked}
+				on:blur={() => {
+					blurAction();
+				}}
+			/>
 		{:else if inputCapture === 'description'}
 			<textarea
 				class="description-input"

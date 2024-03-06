@@ -29,11 +29,13 @@
 
 <div
 	class="s s--slider"
-	class:publishedToggle={label === 'Published'}
+	class:publishedToggle={label === 'Published' || label === 'Public'}
 	style="font-size:{fontSize}px"
 >
 	{#if label === 'Published'}
 		<span class="input-label toggle-switch">Published</span>
+	{:else if label === 'Public'}
+		<span class="input-label toggle-switch">Make it public?</span>
 	{:else}
 		<span id={`switch-${uniqueID}`}>{label}</span>
 	{/if}
@@ -117,5 +119,8 @@
 		font-size: 1rem;
 		font-family: var(--header-font), sans-serif;
 		color: var(--color-primary);
+	}
+	.s.s--slider:hover > * {
+		cursor: pointer;
 	}
 </style>

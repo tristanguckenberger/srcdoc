@@ -296,6 +296,7 @@
 									<ul class="action-menu" class:fade={true}>
 										<div class="sub-action-menu">
 											{#if $session?.id === game?.user_id}
+												<!-- Open In Engine -->
 												<a
 													class="action-button button"
 													href={`/games/${$currentGameStore?.id}/engine`}
@@ -313,13 +314,16 @@
 													>
 												</a>
 											{/if}
+											<!-- open leaderboards -->
 											<button
 												class="action-button button"
 												on:click={() => {
 													$playButton = false;
-													browser && selectedOption.set(4);
+													// if (browser) {
+													$selectedOption = 4;
+													// }
 													$playButton = false;
-													drawerOpen.set(true);
+													$drawerOpen = true;
 												}}
 											>
 												<svg
@@ -337,13 +341,16 @@
 													/>
 												</svg>
 											</button>
+											<!-- open comments -->
 											<button
 												class="action-button button"
 												on:click={() => {
 													$playButton = false;
-													browser && selectedOption.set(0);
+													if (browser) {
+														$selectedOption = 0;
+													}
 													$playButton = false;
-													drawerOpen.set(true);
+													$drawerOpen = true;
 												}}
 											>
 												<svg
@@ -361,7 +368,26 @@
 													/>
 												</svg>
 											</button>
-
+											<!-- <button
+												class="action-button button"
+												on:click={() => {
+													$playButton = false;
+													browser && selectedOption.set(5);
+													$playButton = false;
+													$drawerOpen = true;
+												}}
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="32"
+													height="32"
+													fill="#ffffff"
+													viewBox="0 0 256 256"
+													><path
+														d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"
+													/></svg
+												>
+											</button> -->
 											<form
 												class="gameDetails new-project-form modal"
 												method="POST"
