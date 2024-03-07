@@ -10,8 +10,8 @@ const getCurrentUser = async (eventFetch) => {
 	return user;
 };
 
-const getAllPlaylistsByUser = async (userId, eventFetch) => {
-	const playlistRes = await eventFetch(`/api/playlist/AllByUser/${userId}`);
+const getAllPlaylistsByUser = async (eventFetch) => {
+	const playlistRes = await eventFetch(`/api/playlist/myLibrary`);
 	const playlists = await playlistRes.json();
 	return playlists;
 };
@@ -22,8 +22,6 @@ export async function load({ cookies, params, fetch }) {
 		return redirect(303, '/games');
 	}
 
-	console.log('slug::', slug);
-
 	const token = cookies?.get('token');
 	if (!token) {
 		throw redirect(303, '/');
@@ -33,7 +31,12 @@ export async function load({ cookies, params, fetch }) {
 	if (!user || user?.status === 401) {
 		throw redirect(303, '/games');
 	}
-	const userPlaylists = await getAllPlaylistsByUser(slug, fetch);
+
+	if (user?.id.toString() !== slug.toString()) {
+		throw redirect(303, '/games');
+	}
+
+	const userPlaylists = await getAllPlaylistsByUser(fetch);
 
 	console.log('userPlaylists::', userPlaylists);
 

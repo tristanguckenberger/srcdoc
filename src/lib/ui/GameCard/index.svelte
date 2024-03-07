@@ -9,7 +9,7 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { browser } from '$app/environment';
 
-	export let playlist;
+	export let game;
 	export let id;
 	export let thumbnail;
 
@@ -25,21 +25,21 @@
 
 	onDestroy(() => {
 		user = null;
-		playlist = null;
+		game = null;
 		id = null;
 		thumbnail = null;
 		imageLoaded = false;
 	});
 
 	// REACTIVE VARIABLES & STATEMENTS
-	$: cardLink = `/games/${id}/play`;
+	$: cardLink = `/playlists/${id}/play`;
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: user = $session;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
-	$: console.log('playlist::', playlist);
+	$: console.log('game::', game);
 </script>
 
-{#await (playlist, id, thumbnail, user)}
+{#await (game, id, thumbnail, user)}
 	Loading...
 {:then}
 	<div
@@ -59,16 +59,16 @@
 				bind:this={cardImage}
 				class="card-thumbnail"
 				class:showImage={imageLoaded}
-				src={loadedThumbnail ?? playlist?.thumbnail}
-				alt={playlist?.name}
+				src={loadedThumbnail ?? game?.thumbnail}
+				alt={game?.title}
 			/>
 
 			<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
 		</a>
 		<div class="card-info">
-			<a href={`/playlists/${id}`}>
-				<h4>{playlist?.name}</h4>
-				<p>{playlist?.description}</p>
+			<a href={`/games/${id}/play`}>
+				<h4>{game?.title}</h4>
+				<p>{game?.description}</p>
 			</a>
 			<div class="more-actions" class:show={showMoreInfo}>...</div>
 		</div>
