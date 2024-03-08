@@ -73,6 +73,8 @@
 	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
 	import EditDetails from '$lib/ui/Widget/Components/EditDetails.svelte';
 	import Leaderboards from '$lib/ui/Widget/Components/Leaderboards.svelte';
+	import { searchResultsStore } from '$lib/stores/search/searchStore';
+	import SearchResults from '$lib/ui/NavWidgets/SearchResults.svelte';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
@@ -143,6 +145,7 @@
 		if (nav?.to?.route?.id === '/games/[slug]/play') {
 			fileSystemSidebarOpen.set(true);
 		}
+
 		isFavorited = false;
 		if (!isPlayPage && isMobile) {
 			sideBarState.set(false);
@@ -373,6 +376,7 @@
 		(splitPath[1] === 'users' && !isProfilePage && !splitPath.some((path) => path === 'users'));
 	$: isUserGamesBrowsePage =
 		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
+	$: isUserLibraryPage = splitPath[splitPath?.length - 1] === 'library';
 	$: isUserFavoritesBrowsePage =
 		splitPath[splitPath?.length - 1] === 'favorites' && splitPath[1] === 'games';
 	$: (() => {
@@ -563,7 +567,7 @@
 							<span>Favorites</span>
 						</a>
 						<a
-							href={`/users/${$session?.id}/playlists`}
+							href={`/users/${$session?.id}/library`}
 							on:click={() => {
 								creatingNewPlaylist = true;
 							}}
@@ -581,8 +585,8 @@
 							<span>New Playlist</span>
 						</a>
 						<a
-							href={`/users/${sessionData?.id}/playlists/`}
-							class:active={isUserFavoritesBrowsePage}
+							href={`/users/${sessionData?.id ?? $session?.id}/library`}
+							class:active={isUserLibraryPage}
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -591,7 +595,7 @@
 								fill="#000000"
 								viewBox="0 0 256 256"
 								><path
-									d="M178,28c-20.09,0-37.92,7.93-50,21.56C115.92,35.93,98.09,28,78,28A66.08,66.08,0,0,0,12,94c0,72.34,105.81,130.14,110.31,132.57a12,12,0,0,0,11.38,0C138.19,224.14,244,166.34,244,94A66.08,66.08,0,0,0,178,28Zm-5.49,142.36A328.69,328.69,0,0,1,128,202.16a328.69,328.69,0,0,1-44.51-31.8C61.82,151.77,36,123.42,36,94A42,42,0,0,1,78,52c17.8,0,32.7,9.4,38.89,24.54a12,12,0,0,0,22.22,0C145.3,61.4,160.2,52,178,52a42,42,0,0,1,42,42C220,123.42,194.18,151.77,172.51,170.36Z"
+									d="M96,104a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H104A8,8,0,0,1,96,104Zm8,40h64a8,8,0,0,0,0-16H104a8,8,0,0,0,0,16Zm128,48a32,32,0,0,1-32,32H88a32,32,0,0,1-32-32V64a16,16,0,0,0-32,0c0,5.74,4.83,9.62,4.88,9.66h0A8,8,0,0,1,24,88a7.89,7.89,0,0,1-4.79-1.61h0C18.05,85.54,8,77.61,8,64A32,32,0,0,1,40,32H176a32,32,0,0,1,32,32V168h8a8,8,0,0,1,4.8,1.6C222,170.46,232,178.39,232,192ZM96.26,173.48A8.07,8.07,0,0,1,104,168h88V64a16,16,0,0,0-16-16H67.69A31.71,31.71,0,0,1,72,64V192a16,16,0,0,0,32,0c0-5.74-4.83-9.62-4.88-9.66A7.82,7.82,0,0,1,96.26,173.48ZM216,192a12.58,12.58,0,0,0-3.23-8h-94a26.92,26.92,0,0,1,1.21,8,31.82,31.82,0,0,1-4.29,16H200A16,16,0,0,0,216,192Z"
 								/></svg
 							>
 							<span>My Library</span>
@@ -841,6 +845,10 @@
 	</div>
 </div>
 
+{#if $searchResultsStore?.length > 0}
+	<SearchResults searchResults={$searchResultsStore} />
+{/if}
+
 {#if canShowLoader}
 	<LoadingIndicator />
 {/if}
@@ -876,8 +884,11 @@
 		display: flex;
 		flex-direction: row;
 		max-width: 100%;
-		padding-top: 56.5px;
+		padding-top: 47px;
 		background-color: var(--color-secondary);
+	}
+	main.isPlayPage {
+		padding-top: 57px;
 	}
 	main.isProfilePage {
 		/* padding-top: 56.5px; */
@@ -896,12 +907,16 @@
 	}
 	nav {
 		color: var(--color-primary);
-		padding: 10px 10px;
+		padding: 10px 10px 0 10px;
 		position: fixed;
-		top: 0;
+		/* top: 18px; */
 		z-index: 10;
 		width: calc(100% - 20px);
 		background: var(--color-secondary);
+	}
+
+	nav.isPlayPage {
+		padding: 10px;
 	}
 	nav.isHomePage {
 		background: transparent;

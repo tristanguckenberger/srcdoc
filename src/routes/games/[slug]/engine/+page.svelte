@@ -316,8 +316,12 @@
 
 	:global(#editor-layout.engineInRoute) {
 		height: calc(100% - 56.5px);
-
+		padding-top: 10px;
 		max-height: calc(100% - 56.5px);
+	}
+
+	:global(#editor-layout.engineInRoute.showSideBar) {
+		padding-top: 0px;
 	}
 
 	:global(main.editor) {

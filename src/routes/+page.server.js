@@ -310,5 +310,25 @@ export const actions = {
 				result
 			}
 		};
+	},
+	search: async ({ fetch, request }) => {
+		const formData = await request.formData();
+		const query = formData?.get('query');
+		const searchResults = await fetch(`${process.env.SERVER_URL}/api/search/basic?q=${query}`);
+
+		if (!searchResults.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to search'
+				}
+			};
+		}
+
+		const result = await searchResults.json();
+
+		return {
+			result
+		};
 	}
 };

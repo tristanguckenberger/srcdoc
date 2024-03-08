@@ -4,6 +4,8 @@
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { getRootFileId } from '$lib/utils/getter.js';
 	import { session } from '$lib/stores/sessionStore.js';
+	import { tick } from 'svelte';
+	import { page } from '$app/stores';
 	import {
 		gamesData,
 		currentGame,
@@ -47,7 +49,7 @@
 	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
 	import Leaderboards from '$lib/ui/Widget/Components/Leaderboards.svelte';
 	import EditDetails from '$lib/ui/Widget/Components/EditDetails.svelte';
-	import { afterNavigate, beforeNavigate, invalidateAll } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
 	import { gameSession, gameSessionState } from '$lib/stores/gameSession/index.js';
 	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
 
@@ -124,6 +126,31 @@
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
 		}
+		// await invalidateAll();
+		// await tick();
+		// Trigger start game session activity
+		// attemptStartGameSession();
+
+		// try {
+		// 	const startGameSession = fetch(`/api/games/sessions/createGameSession/${data?.id}`, {
+		// 		method: 'POST',
+		// 		headers: {
+		// 			'Content-Type': 'application/json'
+		// 		},
+		// 		mode: 'cors'
+		// 	});
+
+		// 	let startGameSessionData = await startGameSession;
+		// 	const jsonBody = await startGameSessionData.json();
+
+		// 	if (jsonBody?.game_session_id) {
+		// 		gameSessionState.set({ id: jsonBody?.game_session_id });
+
+		// 		gameSession.setInitialState({ currentGame: jsonBody?.game_id });
+		// 	}
+		// } catch (error) {
+		// 	console.log('error::', error);
+		// }
 	});
 
 	afterUpdate(() => {
@@ -159,25 +186,42 @@
 		}
 	});
 
-	afterNavigate(async () => {
+	afterNavigate(async (nav) => {
+		console.log('nav::', nav);
 		// rerun all load functions
-		invalidateAll();
+		// invalidateAll();
+		// await tick();
+		// await invalidateAll();
+		// await goto(nav);
+
 		// Trigger start game session activity
-		const startGameSession = fetch(`/api/games/sessions/createGameSession/${await data?.id}`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			mode: 'cors'
-		});
+		// attemptStartGameSession();
 
-		let startGameSessionData = await startGameSession;
-		const jsonBody = await startGameSessionData.json();
+		console.log('data::id::', data?.id);
+		console.log('page::', $page);
 
-		if (jsonBody?.game_session_id) {
-			gameSessionState.set({ id: jsonBody?.game_session_id });
+		try {
+			const startGameSession = fetch(
+				`/api/games/sessions/createGameSession/${data?.id ?? $page.params.slug}`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					mode: 'cors'
+				}
+			);
 
-			gameSession.setInitialState({ currentGame: jsonBody?.game_id });
+			let startGameSessionData = await startGameSession;
+			const jsonBody = await startGameSessionData.json();
+
+			if (jsonBody?.game_session_id) {
+				gameSessionState.set({ id: jsonBody?.game_session_id });
+
+				gameSession.setInitialState({ currentGame: jsonBody?.game_id });
+			}
+		} catch (error) {
+			console.log('error::', error);
 		}
 	});
 

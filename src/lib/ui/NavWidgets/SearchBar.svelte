@@ -1,4 +1,5 @@
 <script>
+	// @ts-nocheck
 	/**
 	 * SearchBar.svelte
 	 * @description A flexible search bar component
@@ -34,6 +35,16 @@
 	 *
 	 */
 
+	// Svelte imports
+	import { enhance } from '$app/forms';
+	import { beforeNavigate, invalidateAll } from '$app/navigation';
+
+	// Store imports
+	import { searchResultsStore, searchHasResultsStore } from '$lib/stores/search/searchStore';
+
+	// Component imports
+	import CustomInput from '../Input/CustomInput.svelte';
+
 	export let placeholder = 'Search...';
 	export let value = '';
 	export let id = '';
@@ -58,17 +69,39 @@
 	export let buttonStyle = '';
 
 	let inputId = id || name;
-
+	let searchQuery;
 	let inputStyleString = '';
 	let labelStyleString = '';
 	let iconStyleString = '';
 	let containerStyleString = '';
 	let formStyleString = '';
 	let buttonStyleString = '';
+
+	$: console.log('searchQuery::', searchQuery);
+	$: console.log('searchResultsStore::', $searchResultsStore);
+	$: console.log('$searchResultsStore::', $searchHasResultsStore);
+
+	beforeNavigate(() => {
+		searchResultsStore.set([]);
+		searchQuery = null;
+	});
 </script>
 
 <div class={`search-bar-container ${containerClass}`} style={containerStyleString}>
-	<form class={`search-bar-form ${formClass}`} style={formStyleString}>
+	<form
+		class={`search-bar-form ${formClass}`}
+		style={formStyleString}
+		action="?/search"
+		method="POST"
+		use:enhance={({ formElement, formData, action, cancel }) => {
+			return async ({ result }) => {
+				if (result.status === 200) {
+					console.log('search result::', result);
+					$searchResultsStore = result?.data?.result;
+				}
+			};
+		}}
+	>
 		{#if label}
 			<label for={inputId} class={`search-bar-label ${labelClass}`} style={labelStyleString}>
 				<slot name="label">
@@ -93,17 +126,39 @@
 					</div>
 				{/if}
 			</slot>
-			<slot name="input">
-				<input
-					{type}
-					id={inputId}
-					{name}
-					{placeholder}
-					{value}
-					class={`search-bar-input ${inputClass}`}
-					style={inputStyle}
-				/>
-			</slot>
+			<div class="inputAndButton">
+				<slot name="input">
+					<CustomInput inputCapture="query" inputText={searchQuery} />
+				</slot>
+				<slot name="button">
+					<button
+						class={`search-bar-button ${buttonClass}`}
+						style={buttonStyleString}
+						type="submit"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							fill="#ffffff"
+							viewBox="0 0 256 256"
+							><path
+								d="M232.49,215.51,185,168a92.12,92.12,0,1,0-17,17l47.53,47.54a12,12,0,0,0,17-17ZM44,112a68,68,0,1,1,68,68A68.07,68.07,0,0,1,44,112Z"
+							/></svg
+						>
+					</button>
+				</slot>
+			</div>
+			{#if $searchResultsStore?.length > 0}
+				<button
+					on:click|preventDefault={() => {
+						searchResultsStore.set([]);
+						searchQuery = null;
+						invalidateAll();
+						searchQuery = null;
+					}}>Cancel</button
+				>
+			{/if}
 		</div>
 	</form>
 </div>
@@ -150,12 +205,14 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 0.5em;
 		border-radius: 0.25em;
 		background-color: #007bff;
 		color: white;
 		border: none;
+		height: 36px;
+		width: 36px;
 		cursor: pointer;
+		align-self: center;
 	}
 	.search-bar-button:hover {
 		background-color: #0056b3;
@@ -166,5 +223,30 @@
 
 	.search-bar-input-container.right {
 		justify-content: flex-end;
+	}
+	.inputAndButton {
+		display: flex;
+		gap: 10px;
+		align-items: center;
+		width: 100%;
+	}
+	.inputAndButton :global(.input-container) {
+		display: flex;
+		flex-direction: row;
+		flex-grow: 1;
+		width: 100%;
+	}
+	.inputAndButton :global(.row) {
+		display: flex;
+		flex-direction: row;
+		gap: 10px;
+		border-radius: 4px;
+		background-color: var(--input-bg);
+		max-width: calc(100% - 0px);
+		max-height: 330px;
+		width: 100%;
+		margin-top: 0 !important;
+		padding: 0 !important;
+		height: 36px;
 	}
 </style>

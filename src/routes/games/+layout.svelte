@@ -146,7 +146,7 @@
 	@media (min-width: 498px) {
 		#editor-layout :global(.main),
 		#editor-layout :global(.main.grid) {
-			width: calc(100% - 40px) !important;
+			width: calc(100% - 20px) !important;
 		}
 		#editor-layout.playInRoute :global(.main),
 		#editor-layout.playInRoute :global(.main.grid) {

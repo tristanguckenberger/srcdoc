@@ -88,7 +88,6 @@ export async function GET({ params }) {
 
 	// const gamesArray = gamesSet.keys().map((game) => game);
 	games = { games: [...gamesSet], nextCursor: newGames.nextCursor };
-	console.log('newGames::', newGamesSet);
 
 	cursorStore.set({ current: newGamesSet?.[newGamesSet?.length - 1]?.id, next: next });
 

@@ -54,6 +54,8 @@ export async function load({ params, fetch, setHeaders }) {
 	let user = null;
 	let userGames = [];
 
+	console.log('HIT PLAY SERVER LOAD FUNCTION', slug);
+
 	const [allGames, userData, game, favorites] = await Promise.all([
 		fetchData(fetch, `/api/games/getAllGames`),
 		getCurrentUser(fetch),
@@ -76,6 +78,7 @@ export async function load({ params, fetch, setHeaders }) {
 
 	// Enhance game object with files and comments if available
 	if (game) {
+		console.log('server::game::', game);
 		const filesResponse = await fetchData(fetch, `/api/games/getSingleGame/${slug}/files`);
 		game.files = filesResponse ?? [];
 		game.comments = (await getAllCommentsForAGame(fetch, slug)) ?? [];
@@ -138,5 +141,25 @@ export const actions = {
 				result
 			}
 		};
-	}
+	} //,
+	// search: async ({ fetch, request }) => {
+	// 	const formData = await request.formData();
+	// 	const query = formData?.get('query');
+	// 	const searchResults = await fetch(`${process.env.SERVER_URL}/api/search/basic?q=${query}`);
+
+	// 	if (!searchResults.ok) {
+	// 		return {
+	// 			status: 401,
+	// 			body: {
+	// 				message: 'Failed to search'
+	// 			}
+	// 		};
+	// 	}
+
+	// 	const result = await searchResults.json();
+
+	// 	return {
+	// 		result
+	// 	};
+	// }
 };
