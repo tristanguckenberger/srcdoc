@@ -9,22 +9,20 @@ const getCurrentUser = async (eventFetch) => {
 	return user;
 };
 
-// const getAllPlaylistsByUser = async (eventFetch) => {
-// 	const playlistRes = await eventFetch(`/api/playlist/myLibrary`);
-// 	const playlists = await playlistRes.json();
-// 	return playlists;
-// };
-
 const getAllGamesForPlaylist = async (eventFetch, playlistId) => {
 	const playlistRes = await eventFetch(`/api/playlist/${playlistId}/games`);
 	const games = await playlistRes.json();
-	console.log('playlist::games::', games);
 	return games;
+};
+
+const getSinglePlaylist = async (eventFetch, playlistId) => {
+	const playlistRes = await eventFetch(`/api/playlist/${playlistId}`);
+	const playlist = await playlistRes.json();
+	return playlist;
 };
 
 export async function load({ cookies, params, fetch }) {
 	const { slug } = params;
-	console.log('slug::', slug);
 	if (!slug) {
 		return redirect(303, '/games');
 	}
@@ -39,18 +37,30 @@ export async function load({ cookies, params, fetch }) {
 		throw redirect(303, '/games');
 	}
 
-	const playlistGames = await getAllGamesForPlaylist(fetch, slug);
+	const playlist = await getSinglePlaylist(fetch, slug);
 
-	console.log('playlistGames::', playlistGames);
+	const playlistMap = Object.keys(playlist).reduce((acc, key) => {
+		let newKey = key.replace(/(_\w)/g, (match) => match[1].toUpperCase());
+		acc[newKey] = playlist[key];
+		return acc;
+	}, {});
+
+	if (!playlist) {
+		throw redirect(303, '/games');
+	}
+
+	if (!playlist.is_public && playlist.owner_id.toString() !== user.id.toString()) {
+		throw redirect(303, '/games');
+	}
+
+	const playlistGames = await getAllGamesForPlaylist(fetch, slug);
 
 	session.set({
 		...user
 	});
 
-	// make sure to set a store to hold the games for the playlist
-	// playlistData.set(userPlaylists ? [...userPlaylists].reverse() : []);
-
 	return {
+		playlist: { ...playlistMap },
 		games: playlistGames ? [...playlistGames.games] : [],
 		sessionData: {
 			...user

@@ -12,6 +12,9 @@
 	export let game;
 	export let id;
 	export let thumbnail;
+	export let dragStart;
+	export let dragOver;
+	export let dragEnd;
 
 	let imageLoaded = false;
 	let cardImage;
@@ -50,6 +53,9 @@
 		on:focus={() => {
 			console.log('focused');
 		}}
+		on:dragstart={(e) => dragStart(e, game)}
+		on:dragover={(e) => dragOver(e, game)}
+		on:dragend={dragEnd}
 		aria-roledescription="playlist"
 		role="button"
 		tabindex="0"
