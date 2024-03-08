@@ -114,6 +114,18 @@
 					blurAction();
 				}}
 			/>
+		{:else if inputCapture === 'query'}
+			<input
+				class:hideMe={hidden}
+				placeholder="Find something..."
+				type="text"
+				{hidden}
+				name={inputCapture}
+				bind:value={inputText}
+				on:blur={() => {
+					blurAction();
+				}}
+			/>
 		{:else}
 			<input
 				class:hideMe={hidden}

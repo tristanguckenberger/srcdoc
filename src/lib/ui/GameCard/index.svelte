@@ -89,7 +89,7 @@
 	}
 	.playlist:hover {
 		cursor: pointer;
-		background: var(--meun-blur-bg);
+		background: var(--search-result-card);
 	}
 	.card-thumbnail {
 		width: 100%;
@@ -118,7 +118,7 @@
 		color: var(--color-primary);
 		display: flex;
 		flex-direction: row;
-		justify-content: space-between;
+		/* justify-content: space-between; */
 		height: 100%;
 		border-radius: 6px;
 		flex-grow: 1;
@@ -131,8 +131,9 @@
 		margin-block-start: 0;
 		font-family: 'Inter', sans-serif;
 		font-size: 0.78rem;
-		font-weight: 300;
+		font-weight: 450;
 		color: var(--folder-button-color);
+		/* margin-inline-start: 2px; */
 	}
 	.card-info a {
 		color: var(--color-primary);
@@ -141,14 +142,14 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: start;
-		gap: 10px;
+		gap: 5px;
 		padding: 0 0 0 10px;
 		width: 100%;
 	}
 	.card-info a h4 {
 		margin-block-start: 0;
 		font-family: 'Inter';
-		font-weight: 300;
+		font-weight: 450;
 		margin-block-end: 0;
 		font-size: 1rem;
 		text-overflow: ellipsis;

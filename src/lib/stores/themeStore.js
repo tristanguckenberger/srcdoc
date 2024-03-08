@@ -21,7 +21,8 @@ const baseTheme = readable([
 	'--purple-main: #46255F;',
 	'--green-main: #043C3F;',
 	'--home-bg: #faf8f4;',
-	'--file-selected-bg: #2b2c2f96;'
+	'--file-selected-bg: #2b2c2f96;',
+	'--button-blue: #2b4a6b;'
 ]);
 
 const lightTheme = readable([
@@ -44,8 +45,15 @@ const lightTheme = readable([
 	'--action-total-text-color: #12131494;',
 	'--input-bg: #ededed4f;',
 	'--meun-blur-bg: #e4e5e7ed;',
-	'--file-selected-bg: #ffffff96;',
-	'--file-tree-weight: 450;'
+	'--file-selected-bg: #e2e2e24a;',
+	'--file-tree-weight: 450;',
+	'--shadow: 0px 6px 3px -2px #0000000a;',
+	'--search-bar-bg: #e6e6e6;',
+	'--button-blue: #2b4a6b;',
+	'--button-blue-hover: #375e88;',
+	'--search-button: #e6e6e6;',
+	'--color-primary-muted: #2e324cb8;',
+	'--search-result-card: #ededed;'
 ]);
 
 const darkTheme = readable([
@@ -71,7 +79,14 @@ const darkTheme = readable([
 	'--input-bg: #ededed;',
 	'--meun-blur-bg: #1c1d1fed;',
 	'--file-tree-weight: 350;',
-	'--file-selected-bg: #2b2c2f96;'
+	'--file-selected-bg: #2b2c2f96;',
+	'--shadow: 0px 6px 3px -2px #00000066;',
+	'--search-bar-bg: #171819;',
+	'--button-blue: #2b4a6b;',
+	'--button-blue-hover: #375e88;',
+	'--search-button: #1c1d1fab;',
+	'--color-primary-muted: #f6f6f6b8;',
+	'--search-result-card: #242528;'
 ]);
 
 const fontTheme = readable([

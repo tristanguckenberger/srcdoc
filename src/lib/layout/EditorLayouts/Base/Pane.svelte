@@ -296,7 +296,7 @@
 		position: absolute;
 		display: flex;
 		align-items: center;
-		color: var(--text-color-highlight);
+		color: var(--color-primary);
 		/* transition: background-color 300ms cubic-bezier(0.215, 0.610, 0.355, 1); */
 	}
 	.section-panel {

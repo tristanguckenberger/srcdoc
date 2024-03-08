@@ -237,9 +237,7 @@
 {#await gamesAvailable}
 	<p>Loading...</p>
 {:then}
-	{#if gamesAvailable.length < 1}
-		<p>No games available</p>
-	{:else}
+	{#if gamesAvailable?.length > 0}
 		<div class="embla" use:emblaCarouselSvelte={{ options }} on:emblaInit={onInit}>
 			<div class="embla__container">
 				{#each gamesAvailable as game, i (`${game?.id}_index_${i}`)}
@@ -743,7 +741,7 @@
 	}
 	.divider .slider-action svg {
 		width: 100%;
-		fill: var(--color-primary);
+		fill: white;
 	}
 	.slider-action.top-icon {
 		padding-top: 5px;

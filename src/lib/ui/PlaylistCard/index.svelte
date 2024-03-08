@@ -131,7 +131,7 @@
 		margin-block-start: 0;
 		font-family: 'Inter', sans-serif;
 		font-size: 0.78rem;
-		font-weight: 300;
+		font-weight: 450;
 		color: var(--folder-button-color);
 	}
 	.card-info a {
@@ -141,14 +141,14 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: start;
-		gap: 10px;
+		gap: 5px;
 		padding: 0 0 0 10px;
 		width: 100%;
 	}
 	.card-info a h4 {
 		margin-block-start: 0;
 		font-family: 'Inter';
-		font-weight: 300;
+		font-weight: 450;
 		margin-block-end: 0;
 		font-size: 1rem;
 		text-overflow: ellipsis;

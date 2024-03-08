@@ -111,11 +111,7 @@
 		on:scrollend={() => (scrolling = false)}
 		bind:this={scrollableElement}
 	>
-		{#if copiedParsedGamesDataSet?.length === 0}
-			<div class="noData">
-				<p>No games found</p>
-			</div>
-		{:else}
+		{#if copiedParsedGamesDataSet?.length > 0}
 			{#each copiedParsedGamesDataSet as game, i (`game_${game?.id}_${i}`)}
 				<Card id={game?.id} {game} thumbnail={game?.thumbnail} />
 			{/each}

@@ -128,7 +128,7 @@
 			</slot>
 			<div class="inputAndButton">
 				<slot name="input">
-					<CustomInput inputCapture="query" inputText={searchQuery} />
+					<CustomInput inputCapture="query" bind:inputText={searchQuery} />
 				</slot>
 				<slot name="button">
 					<button
@@ -149,14 +149,27 @@
 					</button>
 				</slot>
 			</div>
-			{#if $searchResultsStore?.length > 0}
+			{#if $searchResultsStore?.length > 0 || searchQuery}
 				<button
+					class="cancel-button"
 					on:click|preventDefault={() => {
 						searchResultsStore.set([]);
 						searchQuery = null;
 						invalidateAll();
 						searchQuery = null;
-					}}>Cancel</button
+					}}
+					aria-roledescription="cancel search button"
+					><svg
+						class="cancel-icon"
+						xmlns="http://www.w3.org/2000/svg"
+						width="32"
+						height="32"
+						fill="#000000"
+						viewBox="0 0 256 256"
+						><path
+							d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"
+						/></svg
+					></button
 				>
 			{/if}
 		</div>
@@ -206,16 +219,18 @@
 		align-items: center;
 		justify-content: center;
 		border-radius: 0.25em;
-		background-color: #007bff;
-		color: white;
+		background-color: var(--search-button);
 		border: none;
 		height: 36px;
 		width: 36px;
 		cursor: pointer;
 		align-self: center;
 	}
+	.search-bar-button svg {
+		fill: var(--color-primary-muted) !important;
+	}
 	.search-bar-button:hover {
-		background-color: #0056b3;
+		/* background-color: var(--button-blue-hover); */
 	}
 	.search-bar-input-container.left {
 		justify-content: flex-start;
@@ -241,12 +256,37 @@
 		flex-direction: row;
 		gap: 10px;
 		border-radius: 4px;
-		background-color: var(--input-bg);
+		background-color: var(--search-bar-bg);
 		max-width: calc(100% - 0px);
 		max-height: 330px;
 		width: 100%;
 		margin-top: 0 !important;
 		padding: 0 !important;
 		height: 36px;
+		/* border: 2px solid var(--dark-yellow); */
+	}
+	.inputAndButton :global(input) {
+		color: var(--color-primary) !important;
+	}
+
+	.inputAndButton :global(input:focus-visible) {
+		outline: var(--color-primary-muted) solid 2px;
+		border-radius: 4px;
+	}
+	.cancel-button {
+		background: unset;
+		border: unset;
+		position: absolute;
+		right: 45px;
+	}
+	.cancel-icon {
+		width: 20px;
+		height: 20px;
+		fill: var(--color-primary-muted);
+	}
+
+	.cancel-icon:hover {
+		fill: var(--dark-yellow);
+		cursor: pointer;
 	}
 </style>

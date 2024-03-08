@@ -53,4 +53,7 @@
 		width: calc(100% - 230px);
 		left: 230px;
 	}
+	.search-result-container :global(.playlist) {
+		width: calc(100% - 40px);
+	}
 </style>

@@ -75,6 +75,7 @@
 	import Leaderboards from '$lib/ui/Widget/Components/Leaderboards.svelte';
 	import { searchResultsStore } from '$lib/stores/search/searchStore';
 	import SearchResults from '$lib/ui/NavWidgets/SearchResults.svelte';
+	import { writable } from 'svelte/store';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
@@ -87,6 +88,9 @@
 	let deleteOrCreateFav = false;
 	let ComponentOptions = [];
 	let creatingNewPlaylist = false;
+	let mainPageElement;
+	let mainElement;
+	const showBoxShadow = writable(false);
 
 	const handleScrollBack = () => {
 		$emblaInstance?.scrollNext();
@@ -118,6 +122,14 @@
 				session.set(sessionData);
 			}
 		}
+
+		// try this in an onMount and an afterUpdate
+		mainPageElement = mainElement?.querySelector('.main');
+
+		// if we have the main page element, we can add the event listeners for scrolling
+		return () => {
+			preferedThemeMode?.removeListener('change', updateTheme);
+		};
 	});
 
 	beforeNavigate(async (nav) => {
@@ -176,11 +188,28 @@
 		});
 
 		deleteOrCreateFav = isFavorited ?? false;
+
+		if (mainPageElement) {
+			mainPageElement?.removeEventListener('scroll', handleScroll);
+			mainPageElement.addEventListener('scroll', handleScroll);
+		}
+
+		return () => {
+			mainPageElement?.removeEventListener('scroll', handleScroll);
+		};
 	});
 
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
+
+	const handleScroll = (e) => {
+		if (e.target.scrollTop > 0) {
+			$showBoxShadow = true;
+		} else {
+			$showBoxShadow = false;
+		}
+	};
 
 	const loaderCheck = (navigation) => {
 		let canLoad = false;
@@ -397,6 +426,7 @@
 		// console.log('fileSys::softSelectedFileId::', $softSelectedFileId);
 		// console.log('fileSys::=======================');
 		// console.log('$page::', $page);
+		console.log('showBoxShadow::', $showBoxShadow);
 	}
 	/**
 	 * We have to reference the store to trigger the reactive statement
@@ -431,6 +461,7 @@
 			class:isUserFavoritesBrowsePage
 			class:isPlayPage
 			class:isMobile
+			class:showBoxShadow={$showBoxShadow}
 		>
 			<ul class:matchGridWidth={!engineInRoute && isBrowsePage}>
 				<ul>
@@ -744,6 +775,7 @@
 				class:isMobile
 				class:showLoading={canShowLoader}
 				style={`${themeString}`}
+				bind:this={mainElement}
 			>
 				<slot />
 			</main>
@@ -1220,11 +1252,15 @@
 		padding: 10px;
 		position: fixed;
 		top: 0;
-		left: 330px;
+		left: 230px;
 		z-index: 10;
-		width: calc(100% - 350px);
-		background: none;
+		width: calc(100% - 250px);
+		background: var(--color-secondary);
 		z-index: 9;
+		transition: box-shadow 0.05s linear;
+	}
+	nav.showBoxShadow {
+		box-shadow: var(--shadow);
 	}
 	nav.engineInRoute.showSideBar {
 		width: calc(100% - 20px);
@@ -1236,7 +1272,7 @@
 		position: absolute;
 	}
 	.sidebar-toggle.showSideBar {
-		left: -320px;
+		left: -220px;
 		z-index: 10;
 	}
 
@@ -1337,15 +1373,8 @@
 		}
 	}
 
-	.play-button-container svg path {
-		/* opacity: 0; */
-		/* transition: opacity 0.01s linear 0.03s; */
-		/* fill: #3434348e; */
-		/* transition: fill 0.3s linear; */
-	}
-
 	.play-button-container.fade svg path {
-		fill: var(--color-primary);
+		fill: white;
 	}
 	.page-container.engineInRoute main.editor {
 		padding-top: 0 !important;
@@ -1423,7 +1452,7 @@
 	}
 	.divider .slider-action svg {
 		width: 100%;
-		fill: var(--color-primary);
+		fill: white;
 	}
 	.slider-action.top-icon {
 		padding-top: 5px;

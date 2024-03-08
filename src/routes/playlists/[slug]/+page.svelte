@@ -31,8 +31,6 @@
 			{#each games as game}
 				<GameCard {game} id={game.id} thumbnail={game.thumbnail} />
 			{/each}
-		{:else}
-			<p>No games found</p>
 		{/if}
 	{:catch error}
 		<p>{error.message}</p>
