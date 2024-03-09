@@ -60,7 +60,7 @@
 		role="button"
 		tabindex="0"
 	>
-		<a href={cardLink} class="linked-card-container">
+		<a href={cardLink} class="linked-card-container" tabindex="0">
 			<img
 				bind:this={cardImage}
 				class="card-thumbnail"
@@ -68,7 +68,6 @@
 				src={loadedThumbnail ?? game?.thumbnail}
 				alt={game?.title}
 			/>
-
 			<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
 		</a>
 		<div class="card-info">
