@@ -428,6 +428,9 @@
 		// console.log('$page::', $page);
 		console.log('showBoxShadow::', $showBoxShadow);
 	}
+
+	$: console.log('routeHistoryStore::previousRoute::', previousRoute);
+	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
 	/**
 	 * We have to reference the store to trigger the reactive statement
 	 */
@@ -480,9 +483,28 @@
 						<li class="sidebar-toggle" class:showSideBar={$sideBarState}>
 							<Button action={toggleSideBar} label={$sideBarState ? 'close' : 'open'} link={null} />
 						</li>
-						<li class="search">
-							<SearchBar />
+						<li class="top-nav-action-bar" class:showSideBar={$sideBarState}>
+							<div class="back-button-container">
+								<a href={previousRoute} class="back-button">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="32"
+										height="32"
+										fill="#000000"
+										viewBox="0 0 256 256"
+										><path
+											d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"
+										/></svg
+									>
+								</a>
+							</div>
+							<div class="search">
+								<SearchBar />
+							</div>
 						</li>
+						<!-- <li class="search">
+							<SearchBar />
+						</li> -->
 					{/if}
 					{#if engineInRoute}
 						<li class:hiddenItem={!engineInRoute && !$autoCompile}>
@@ -1432,13 +1454,12 @@
 		z-index: 1;
 	}
 
-	li.search {
-		position: fixed;
-		width: calc(100% - 66.5px);
-		right: 10px;
+	div.search {
+		flex-grow: 1;
+		max-width: calc(100% - 113px);
 	}
 
-	nav.showSideBar li.search {
+	nav.showSideBar div.search {
 		width: calc(100% - 250.5px);
 		right: 10px;
 	}
@@ -1484,5 +1505,34 @@
 		.engineInRoute :global(#split-3) {
 			/* height: 100% !important; */
 		}
+	}
+	.top-nav-action-bar {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		position: fixed;
+		left: 56.5px;
+	}
+	.top-nav-action-bar.showSideBar {
+		left: 240px;
+		width: calc(100% - 183.5px);
+	}
+	a.back-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 0.25em;
+		background-color: var(--search-button);
+		border: none;
+		height: 36px;
+		width: 36px;
+		cursor: pointer;
+		align-self: center;
+	}
+
+	a.back-button svg {
+		fill: var(--color-primary);
+		width: 21px;
+		height: 21px;
 	}
 </style>
