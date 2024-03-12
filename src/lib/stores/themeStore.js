@@ -52,7 +52,7 @@ const lightTheme = readable([
 	'--button-blue: #2b4a6b;',
 	'--button-blue-hover: #375e88;',
 	'--search-button: #e6e6e6;',
-	'--color-primary-muted: #2e324cb8;',
+	'--color-primary-muted: #2e324c26;',
 	'--search-result-card: #ededed;'
 ]);
 
@@ -85,7 +85,7 @@ const darkTheme = readable([
 	'--button-blue: #2b4a6b;',
 	'--button-blue-hover: #375e88;',
 	'--search-button: #1c1d1fab;',
-	'--color-primary-muted: #f6f6f6b8;',
+	'--color-primary-muted: #f6f6f61c;',
 	'--search-result-card: #242528;'
 ]);
 

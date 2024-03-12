@@ -277,7 +277,8 @@
 		background: unset;
 		border: unset;
 		position: absolute;
-		right: 45px;
+		right: 115px;
+		top: 7px;
 	}
 	.cancel-icon {
 		width: 20px;

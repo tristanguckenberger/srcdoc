@@ -48,6 +48,10 @@
 
 	const linkBuilder = (game) => `/games/${game?.id}/play`;
 
+	const handleExpandMore = () => {
+		$actionMenuOpen = !$actionMenuOpen;
+	};
+
 	const emblaPreloader = async (game, preload = preloadData) => {
 		const gameLink = linkBuilder(game);
 		if (browser) {
@@ -100,19 +104,20 @@
 
 	const debouncedNavigation = debounce(performNavigation, 150);
 	const onPointerDown = (event) => {
+		console.log('pointerDown::event::', event);
 		if (!$allowNavigationStore) {
 			allowNavigationStore.set(true);
 		}
 		lockGameStateStore.set(false);
 		pointerDown = true;
 		slidesSettled = false;
-		$actionMenuOpen = false;
+		// $actionMenuOpen = false;
 		hidePlayButtonStore.set(true);
 	};
 
 	const onPointerUp = (event) => {
 		pointerDown = false;
-		$actionMenuOpen = true;
+		// $actionMenuOpen = true;
 		setTimeout(() => {
 			hidePlayButtonStore.set(false);
 		}, 300);
@@ -231,6 +236,7 @@
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
 	$: visibleThumbnails = showSlides;
+	$: console.log('hideActionNav::', hideActionNav);
 </script>
 
 <svelte:window on:keyup={debouncedKeyUp} />
@@ -386,6 +392,7 @@
 													/></svg
 												>
 											</button> -->
+											<!-- Favorite -->
 											<form
 												class="gameDetails new-project-form modal"
 												method="POST"
@@ -421,6 +428,41 @@
 													<span class="favorite">{$gameFavoriteCount ?? 0}</span>
 												</button>
 											</form>
+
+											<!-- Add game to playlist, create new playlist with game -->
+											<div class="expand-container-toggle">
+												<button on:click={handleExpandMore}>
+													<span class="elip">...</span>
+												</button>
+											</div>
+											{#if hideActionNav}
+												<form
+													class="gameDetails new-project-form modal"
+													method="POST"
+													action="/games/?/{isFavorited ? 'deleteFavorite' : 'createFavorite'}"
+													use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+														return async ({ result }) => {
+															if (result.status === 200) {
+															}
+														};
+													}}
+												>
+													<input type="hidden" name="gameId" value={$currentGameStore?.id} />
+													<button class="action-button button favorites" on:click={() => {}}>
+														<!-- {#if isFavorited && $gameFavoriteCount > 0} -->
+														<svg
+															xmlns="http://www.w3.org/2000/svg"
+															width="32"
+															height="32"
+															fill="#000000"
+															viewBox="0 0 256 256"
+															><path
+																d="M228,128a12,12,0,0,1-12,12H140v76a12,12,0,0,1-24,0V140H40a12,12,0,0,1,0-24h76V40a12,12,0,0,1,24,0v76h76A12,12,0,0,1,228,128Z"
+															/></svg
+														>
+													</button>
+												</form>
+											{/if}
 										</div>
 									</ul>
 								{/if}
@@ -755,5 +797,15 @@
 	.action-menu,
 	.slider-action {
 		transition: opacity 0.08s cubic-bezier(0, 0.41, 0.3, 0.33);
+	}
+	.elip {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.gameDetails {
+		position: absolute;
+		bottom: 160px;
+		right: 100px;
 	}
 </style>

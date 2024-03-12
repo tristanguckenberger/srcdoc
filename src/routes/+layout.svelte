@@ -431,6 +431,8 @@
 
 	$: console.log('routeHistoryStore::previousRoute::', previousRoute);
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
+	$: disableBackButton = $routeHistoryStore?.length < 2;
+	$: console.log('$routeHistoryStore::', $routeHistoryStore);
 	/**
 	 * We have to reference the store to trigger the reactive statement
 	 */
@@ -445,7 +447,7 @@
 >
 	<div
 		class="bg-container"
-		style="height: 100%; width: 100%;"
+		style={'height: 100%; width: 100%;'}
 		class:isBrowsePage
 		class:engineInRoute
 		class:gameProfile={(isProfilePage || playInRoute) && !engineInRoute}
@@ -485,7 +487,7 @@
 						</li>
 						<li class="top-nav-action-bar" class:showSideBar={$sideBarState}>
 							<div class="back-button-container">
-								<a href={previousRoute} class="back-button">
+								<a href={previousRoute} class="back-button" class:disableBackButton>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										width="32"
@@ -1529,10 +1531,15 @@
 		cursor: pointer;
 		align-self: center;
 	}
-
 	a.back-button svg {
 		fill: var(--color-primary);
 		width: 21px;
 		height: 21px;
+	}
+	a.back-button.disableBackButton svg {
+		fill: var(--color-primary-muted);
+	}
+	a.back-button.disableBackButton:hover {
+		cursor: default;
 	}
 </style>

@@ -3,7 +3,7 @@
 	import GameCard from '$lib/ui/GameCard/index.svelte';
 	import { sideBarState } from '$lib/stores/layoutStore.js';
 	import { writable } from 'svelte/store';
-	import { tick } from 'svelte';
+	import { tick, onMount } from 'svelte';
 
 	export let data;
 
@@ -11,6 +11,7 @@
 	let highlightBottom = false;
 	let draggedItem = null;
 	let gradientPosition = 50; // Default gradient position to the middle
+	const gamesOrder = writable([]);
 	const draggingOver = writable(false);
 	const draggingOverGameId = writable(null);
 	const mousedOverItemId = writable(null);
@@ -20,7 +21,15 @@
 	$: games = data?.games;
 	$: sessionData = data?.sessionData;
 
+	onMount(() => {
+		if (games && games.length > 0) {
+			const initialOrder = games.sort((a, b) => a.item_order - b.item_order).map((game) => game.id);
+			gamesOrder.set(initialOrder);
+		}
+	});
+
 	function dragStart(e, game) {
+		e.dataTransfer.effectAllowed = 'all';
 		draggedItem = game;
 	}
 
@@ -51,22 +60,18 @@
 		const draggedIndex = games.findIndex((f) => f.id === draggedItem.id);
 		const targetIndex = games.findIndex((f) => f.id === game.id);
 
-		// Avoid action if the game is dragged onto itself
 		if (draggedIndex === targetIndex) return;
-
 		// Determine the drop position relative to the target element's bounds
 		const targetElement = document.getElementById(`game_${game.id}`);
 		const targetRect = targetElement.getBoundingClientRect();
 		const dropPositionY = e.clientY - targetRect.top;
-
 		const newGames = [...games];
-
-		// Remove the dragged item from its original position
 		const [removedItem] = newGames.splice(draggedIndex, 1);
 
-		// Decide where to insert the item based on the drop position
-		if (dropPositionY < targetRect.height / 2) {
-			// If drop is in the upper half, insert before the target
+		if (
+			e.clientY - e.target.getBoundingClientRect().top < e.target.offsetHeight / 2 ||
+			dropPositionY < targetRect.height / 2
+		) {
 			if (draggedIndex > targetIndex) {
 				// When the dragged item originally was after the target item
 				newGames.splice(targetIndex, 0, removedItem);
@@ -86,9 +91,19 @@
 			}
 		}
 
+		// games = newGames.sort((a, b) => a.item_order - b.item_order); // Re-sort games based on item_order after update
+
 		games = newGames;
+		// Update the games order after reordering
+		const newOrder = games.map((game) => game.id);
+		gamesOrder.set(newOrder);
+
 		$draggingOver = false;
 		$draggingOverGameId = null;
+
+		// Fetch Playlist API to update the item_order
+		await tick();
+		await handleUpdatePlaylistOrder(newOrder);
 	}
 
 	const handleMouseOver = (e, game) => {
@@ -109,6 +124,30 @@
 			$mousedOverItemId = null;
 		}
 	};
+
+	const handleUpdatePlaylistOrder = async (newOrder) => {
+		// Fetch Playlist API to update the item_order
+		const response = await fetch(`/api/playlist/${playlist?.id}/gamesOrder`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ gamesOrder: newOrder })
+		});
+	};
+
+	$: console.log('gamesOrder::', $gamesOrder);
+
+	$: if ($gamesOrder && games) {
+		$gamesOrder.forEach((gameId, index) => {
+			const gameIndex = games.findIndex((game) => game.id === gameId);
+			if (gameIndex !== -1) {
+				games[gameIndex].item_order = index + 1; // +1 to start item_order from 1 instead of 0
+			}
+		});
+	}
+
+	$: console.log('games::order::', games);
 </script>
 
 <!-- 'X' close, cancel, delete -->
@@ -240,9 +279,9 @@ viewBox="0 0 256 256"
 		background: rgb(18, 19, 20);
 		background: linear-gradient(
 			0deg,
-			rgba(18, 19, 20, 1) calc(var(--gradient-position) - 50%),
+			rgba(18, 19, 20, 1) calc(var(--gradient-position) - 80%),
 			var(--sidbar-highlight) var(--gradient-position),
-			rgba(18, 19, 20, 1) calc(var(--gradient-position) + 50%)
+			rgba(18, 19, 20, 1) calc(var(--gradient-position) + 80%)
 		);
 	}
 	.tiny-absolute {
@@ -264,5 +303,18 @@ viewBox="0 0 256 256"
 	}
 	.play-button-container svg:hover {
 		cursor: pointer;
+	}
+	.playlist-header {
+		padding-bottom: 40px;
+	}
+	.playlist-header-title {
+		color: var(--color-primary);
+		font-family: var(--header-font);
+		padding: 0 20px;
+	}
+	.playlist-header-title p {
+		color: var(--color-primary);
+		font-weight: 300;
+		font-family: var(--paragraph-font);
 	}
 </style>
