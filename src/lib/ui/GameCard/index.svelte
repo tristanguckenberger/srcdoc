@@ -180,7 +180,18 @@
 		font-size: 2rem;
 		display: none;
 	}
-	.more-actions.show {
+	/* .more-actions.show {
 		display: flex;
+		margin-right: 20px;
+	} */
+
+	@media (max-width: 498px) {
+		.playlist {
+			width: calc(100% - 40px);
+		}
+		.card-info {
+			padding: 0 41px 0 10px;
+			width: calc(100% - 113px);
+		}
 	}
 </style>

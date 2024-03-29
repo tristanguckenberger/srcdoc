@@ -34,7 +34,7 @@
 	const runFetch = async () => {
 		const newGames = await fetchData(fetch, `/api/games/getAllGames/${nextCursor}`);
 		nextCursor = newGames?.nextCursor;
-		fetchMoreGames = newGames?.games ?? null;
+		fetchMoreGames = [...fetchMoreGames, ...(newGames?.games ?? null)];
 	};
 	onMount(async () => {
 		firstRun.set(true);

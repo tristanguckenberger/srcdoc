@@ -82,16 +82,10 @@ export async function GET({ params }) {
 
 	// before returning the games we need to remove any duplicates
 	const gamesSet = new Set(games?.games.map((game) => game));
-	// console.log('gamesSet::', gamesSet);
 
 	// create a new array of games from the set of games
-
-	// const gamesArray = gamesSet.keys().map((game) => game);
 	games = { games: [...gamesSet], nextCursor: newGames.nextCursor };
-
 	cursorStore.set({ current: newGamesSet?.[newGamesSet?.length - 1]?.id, next: next });
-
-	// console.log('server::games::', games);
 
 	return json(games);
 }
