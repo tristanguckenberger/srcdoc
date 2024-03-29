@@ -114,7 +114,7 @@
 	<CustomInput inputCapture={'description'} inputText={description}>
 		<span slot="label" class="input-label modal">Description</span>
 	</CustomInput> -->
-	<Button {label} isRounded />
+	<button on:click={() => ($drawerOpen = false)}>Done</button>
 </div>
 
 <style>
@@ -135,5 +135,28 @@
 	div.gameDetails :global(button:hover) {
 		background-color: var(--button-highlight);
 		/* background-color: #283e5e !important; */
+	}
+	button {
+		padding-block: 0;
+		color: var(--color-primary) !important;
+		border-width: 0;
+		border-radius: 30px;
+		padding: 10px;
+		text-decoration: none;
+		font-size: 1rem;
+		font-family: var(--action-font) !important;
+		text-wrap: nowrap;
+		border-style: none !important;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		max-height: 36.5px;
+		font-weight: 500;
+	}
+	button:hover {
+		color: var(--text-color-highlight);
+		cursor: pointer;
+		background-color: var(--button-highlight) !important;
+		transition: background-color 250ms ease;
 	}
 </style>
