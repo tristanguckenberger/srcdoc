@@ -1,5 +1,7 @@
 <script>
 	// @ts-nocheck
+	import { setContext } from 'svelte';
+	import { writable } from 'svelte/store';
 	import GameCard from '$lib/ui/GameCard/index.svelte';
 	import PlaylistCard from '$lib/ui/PlaylistCard/index.svelte';
 	import { themeDataStore } from '$lib/stores/themeStore';
@@ -11,6 +13,11 @@
 	// import UserCard from '$lib/ui/UserCard/index.svelte';
 
 	export let searchResults;
+
+	setContext('playlistContext', {
+		mousedOverItemId: writable(null),
+		showPlayButtonStore: writable(false)
+	});
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
 
@@ -46,7 +53,7 @@
 		height: 100%;
 		left: 0;
 		top: 57px;
-		background-color: var(--text-box);
+		background-color: var(--color-secondary);
 		padding: 10px;
 	}
 	.search-result-container.showSideBar {
@@ -55,5 +62,9 @@
 	}
 	.search-result-container :global(.playlist) {
 		width: calc(100% - 40px);
+	}
+
+	.search-result-container :global(.playlist.game-card):hover {
+		background: var(--search-result-card) !important;
 	}
 </style>

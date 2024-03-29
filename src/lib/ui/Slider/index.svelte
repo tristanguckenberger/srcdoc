@@ -430,39 +430,49 @@
 											</form>
 
 											<!-- Add game to playlist, create new playlist with game -->
-											<div class="expand-container-toggle">
+											<!-- <div class="expand-container-toggle">
 												<button on:click={handleExpandMore}>
 													<span class="elip">...</span>
 												</button>
 											</div>
-											{#if hideActionNav}
-												<form
-													class="gameDetails new-project-form modal"
-													method="POST"
-													action="/games/?/{isFavorited ? 'deleteFavorite' : 'createFavorite'}"
-													use:enhance={({ formElement, formData, action, cancel, redirect }) => {
-														return async ({ result }) => {
-															if (result.status === 200) {
-															}
-														};
+											{#if hideActionNav} -->
+											<form
+												class="gameDetails new-project-form modal"
+												method="POST"
+												action="/games/?/{isFavorited ? 'deleteFavorite' : 'createFavorite'}"
+												use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+													return async ({ result }) => {
+														if (result.status === 200) {
+														}
+													};
+												}}
+											>
+												<input type="hidden" name="gameId" value={$currentGameStore?.id} />
+												<button
+													class="action-button button add-to-playlist"
+													on:click={() => {
+														$playButton = false;
+														if (browser) {
+															$selectedOption = 6;
+														}
+														$playButton = false;
+														$drawerOpen = true;
 													}}
 												>
-													<input type="hidden" name="gameId" value={$currentGameStore?.id} />
-													<button class="action-button button favorites" on:click={() => {}}>
-														<!-- {#if isFavorited && $gameFavoriteCount > 0} -->
-														<svg
-															xmlns="http://www.w3.org/2000/svg"
-															width="32"
-															height="32"
-															fill="#000000"
-															viewBox="0 0 256 256"
-															><path
-																d="M228,128a12,12,0,0,1-12,12H140v76a12,12,0,0,1-24,0V140H40a12,12,0,0,1,0-24h76V40a12,12,0,0,1,24,0v76h76A12,12,0,0,1,228,128Z"
-															/></svg
-														>
-													</button>
-												</form>
-											{/if}
+													<!-- {#if isFavorited && $gameFavoriteCount > 0} -->
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														width="32"
+														height="32"
+														fill="#000000"
+														viewBox="0 0 256 256"
+														><path
+															d="M228,128a12,12,0,0,1-12,12H140v76a12,12,0,0,1-24,0V140H40a12,12,0,0,1,0-24h76V40a12,12,0,0,1,24,0v76h76A12,12,0,0,1,228,128Z"
+														/></svg
+													>
+												</button>
+											</form>
+											<!-- {/if} -->
 										</div>
 									</ul>
 								{/if}
@@ -803,9 +813,12 @@
 		justify-content: center;
 		align-items: center;
 	}
-	.gameDetails {
+	.expand-container-toggle {
 		position: absolute;
 		bottom: 160px;
 		right: 100px;
+	}
+	.add-to-playlist svg {
+		fill: var(--color-primary);
 	}
 </style>

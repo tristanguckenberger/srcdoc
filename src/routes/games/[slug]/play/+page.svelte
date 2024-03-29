@@ -52,6 +52,7 @@
 	import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
 	import { gameSession, gameSessionState } from '$lib/stores/gameSession/index.js';
 	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
+	import AddToPlaylist from '$lib/ui/Modal/components/AddToPlaylist.svelte';
 
 	export let data;
 
@@ -336,6 +337,14 @@
 					isPublic: true
 				},
 				component: EditPlaylistDetails
+			},
+			{
+				name: 'AddToPlaylist',
+				props: {
+					gameId: data?.id
+					// action: `/games/?/${isInPlaylist ? 'removeFromPlaylist' : 'addToPlaylist'}`
+				},
+				component: AddToPlaylist
 			}
 		]);
 	})();

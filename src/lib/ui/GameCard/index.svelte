@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import { afterUpdate, onMount, onDestroy } from 'svelte';
+	import { afterUpdate, onMount, onDestroy, getContext } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { beforeNavigate, invalidateAll } from '$app/navigation';
 	import { enhance } from '$app/forms';
@@ -15,6 +15,8 @@
 	export let dragStart;
 	export let dragOver;
 	export let dragEnd;
+
+	const mousedOverItemId = getContext('playlistContext')?.mousedOverItemId;
 
 	let imageLoaded = false;
 	let cardImage;
@@ -39,17 +41,17 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: user = $session;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
-	$: console.log('game::', game);
+	$: showHover = $mousedOverItemId?.toString() === id?.toString();
+	$: showMoreInfo = showHover;
 </script>
 
 {#await (game, id, thumbnail, user)}
 	Loading...
 {:then}
 	<div
-		class="playlist"
+		class="playlist game-card"
+		class:showHover
 		style={`${themeString}`}
-		on:mouseenter={() => (showMoreInfo = true)}
-		on:mouseleave={() => (showMoreInfo = false)}
 		on:focus={() => {
 			console.log('focused');
 		}}
@@ -92,7 +94,7 @@
 		/* background: #32323229; */
 		transition: background 0.09s linear(0.07 -1.12%, 1 100%);
 	}
-	.playlist:hover {
+	.playlist.showHover {
 		cursor: pointer;
 		background: var(--search-result-card);
 	}

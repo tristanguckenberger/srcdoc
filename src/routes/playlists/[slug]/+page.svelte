@@ -3,7 +3,7 @@
 	import GameCard from '$lib/ui/GameCard/index.svelte';
 	import { sideBarState } from '$lib/stores/layoutStore.js';
 	import { writable } from 'svelte/store';
-	import { tick, onMount } from 'svelte';
+	import { tick, onMount, setContext, getContext } from 'svelte';
 
 	export let data;
 
@@ -14,8 +14,15 @@
 	const gamesOrder = writable([]);
 	const draggingOver = writable(false);
 	const draggingOverGameId = writable(null);
-	const mousedOverItemId = writable(null);
-	const showPlayButtonStore = writable(false);
+	// const mousedOverItemId = writable(null);
+	// const showPlayButtonStore = writable(false);
+
+	setContext('playlistContext', {
+		mousedOverItemId: writable(null),
+		showPlayButtonStore: writable(false)
+	});
+
+	const { mousedOverItemId, showPlayButtonStore } = getContext('playlistContext');
 
 	$: playlist = data?.playlist;
 	$: games = data?.games;
@@ -118,7 +125,19 @@
 		if (
 			!e.relatedTarget?.classList.contains('play-button-container') &&
 			!e.relatedTarget?.classList.contains('action-button-icon') &&
-			!e.relatedTarget?.tagName === 'svg'
+			!e.relatedTarget?.classList.contains('linked-card-container') &&
+			!e.relatedTarget?.tagName === 'svg' &&
+			!e.relatedTarget?.classList?.contains('card-thumbnail-placeholder')
+		) {
+			$showPlayButtonStore = false;
+			$mousedOverItemId = null;
+		} else if (
+			e.relatedTarget?.classList?.contains('playlist-page-container') ||
+			e.relatedTarget?.classList?.contains('playlist') ||
+			e.relatedTarget?.classList?.contains('playlist-header') ||
+			e.relatedTarget?.classList?.contains('playlist-header-title') ||
+			e.relatedTarget?.classList?.contains('playlist-header-actions') ||
+			e.relatedTarget?.classList?.contains('playlist-game-container')
 		) {
 			$showPlayButtonStore = false;
 			$mousedOverItemId = null;
@@ -136,8 +155,6 @@
 		});
 	};
 
-	$: console.log('gamesOrder::', $gamesOrder);
-
 	$: if ($gamesOrder && games) {
 		$gamesOrder.forEach((gameId, index) => {
 			const gameIndex = games.findIndex((game) => game.id === gameId);
@@ -146,8 +163,6 @@
 			}
 		});
 	}
-
-	$: console.log('games::order::', games);
 </script>
 
 <!-- 'X' close, cancel, delete -->
@@ -187,6 +202,7 @@ viewBox="0 0 256 256"
 							<div
 								class="play-button-container"
 								on:mouseover={(e) => handleMouseOver(e, game)}
+								on:mouseout={(e) => handleMouseOut(e, game)}
 								role="button"
 								tabindex="0"
 								on:focus={() => {

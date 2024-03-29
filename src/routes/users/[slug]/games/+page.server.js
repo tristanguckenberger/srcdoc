@@ -117,6 +117,38 @@ export const actions = {
 			}
 		};
 	},
+	addGameToPlaylist: async ({ cookies, request, fetch }) => {
+		const token = cookies.get('token');
+		const formData = await request.formData();
+		const playlistId = formData?.get('playlistId');
+		const gameId = formData?.get('gameId');
+		const requestHeaders = new Headers();
+
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+
+		const requestInit = {
+			method: 'POST',
+			headers: requestHeaders,
+			mode: 'cors',
+			body: JSON.stringify({
+				playlistId,
+				gameId
+			})
+		};
+
+		const response = await fetch(`${process.env.SERVER_URL}/api/playlist/addGame`, requestInit);
+
+		const result = await response.json();
+
+		// Return a response
+		return {
+			status: 200,
+			body: {
+				result
+			}
+		};
+	},
 	search: async ({ fetch, request }) => {
 		const formData = await request.formData();
 		const query = formData?.get('query');
