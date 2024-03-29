@@ -756,7 +756,7 @@
 				<hr class="sidebar-divider" />
 				<div class="sidebar-section">
 					<ul>
-						<a href="">
+						<!-- <a href="">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -768,7 +768,7 @@
 								/></svg
 							>
 							<span>Settings</span>
-						</a>
+						</a> -->
 						{#if sessionData?.id && !sessionData?.is_active && !$session?.is_active}
 							<a href="/users/{sessionData?.id}/verify" class:active={isVerifyPage}>
 								Account Verfication
