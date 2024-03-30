@@ -1,12 +1,21 @@
 <script>
 	// @ts-nocheck
-	import GameCard from '$lib/ui/GameCard/index.svelte';
-	import { sideBarState } from '$lib/stores/layoutStore.js';
+	import { browser } from '$app/environment';
 	import { writable } from 'svelte/store';
 	import { tick, onMount, setContext, getContext } from 'svelte';
 
+	import { sideBarState } from '$lib/stores/layoutStore.js';
+	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore.js';
+	import { playButton } from '$lib/stores/gamesStore.js';
+
+	import Drawer from '$lib/ui/Drawer/index.svelte';
+	import Widget from '$lib/ui/Widget/index.svelte';
+	import GameCard from '$lib/ui/GameCard/index.svelte';
+	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
+
 	export let data;
 
+	let componentOptions = [];
 	let highlightTop = false;
 	let highlightBottom = false;
 	let draggedItem = null;
@@ -155,6 +164,15 @@
 		});
 	};
 
+	const handleEdit = () => {
+		console.log('Edit Playlist');
+		$playButton = false;
+		console.log('selectedOption', $selectedOption);
+		selectedOption.set(0);
+		$playButton = false;
+		$drawerOpen = true;
+	};
+
 	$: if ($gamesOrder && games) {
 		$gamesOrder.forEach((gameId, index) => {
 			const gameIndex = games.findIndex((game) => game.id === gameId);
@@ -163,6 +181,22 @@
 			}
 		});
 	}
+	$: (() => {
+		console.log('playlist::', playlist);
+		return (componentOptions = [
+			{
+				name: 'EditPlaylist',
+				props: {
+					name: playlist?.name ?? 'New Playlist',
+					description: playlist?.description ?? 'New Playlist Description',
+					isPublic: Boolean(playlist?.is_public ?? playlist?.isPublic),
+					playlistId: playlist?.id
+				},
+				component: EditPlaylistDetails
+			}
+		]);
+	})();
+	$: isPublic = Boolean(playlist?.is_public ?? playlist?.isPublic);
 </script>
 
 <!-- 'X' close, cancel, delete -->
@@ -185,10 +219,15 @@ viewBox="0 0 256 256"
 		<div class="playlist-header-title">
 			<h1>{playlist?.name}</h1>
 			<p>{playlist?.description}</p>
+			{#if isPublic}
+				<p>Public</p>
+			{:else}
+				<p>Private</p>
+			{/if}
 		</div>
 		<div class="playlist-header-actions">
 			<button class="btn btn-primary" disabled>Add Game</button>
-			<button class="btn btn-secondary" disabled>Edit</button>
+			<button class="btn btn-secondary" on:click|preventDefault={handleEdit}>Edit</button>
 		</div>
 	</div>
 	<div class="playlist-game-container">
@@ -207,6 +246,9 @@ viewBox="0 0 256 256"
 								tabindex="0"
 								on:focus={() => {
 									console.log('focused::id::', game?.id);
+								}}
+								on:blur={() => {
+									console.log('blurred::id::', game?.id);
 								}}
 							>
 								<a href={`/games/${game?.id}/play`}>
@@ -271,6 +313,11 @@ viewBox="0 0 256 256"
 			<p>{error.message}</p>
 		{/await}
 	</div>
+	<Drawer>
+		<div slot="drawer-component" class="drawer-component">
+			<Widget content={data} options={componentOptions} />
+		</div>
+	</Drawer>
 </div>
 
 <style>

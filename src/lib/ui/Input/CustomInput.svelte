@@ -56,6 +56,8 @@
 					blurAction();
 				}}
 			/>
+		{:else if inputCapture === 'id'}
+			<input class:hideMe={hidden} type="text" {hidden} name={inputCapture} />
 		{:else if inputCapture === 'username'}
 			<input
 				type="text"
@@ -94,7 +96,7 @@
 					blurAction();
 				}}
 			/>
-		{:else if inputCapture === 'isPublic'}
+		{:else if inputCapture === 'is_public' || inputCapture === 'isPublic'}
 			<input
 				class:hideMe={hidden}
 				type="text"
