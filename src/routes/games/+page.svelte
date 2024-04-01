@@ -17,6 +17,8 @@
 
 	// Components
 	import Card from '$lib/ui/Card/index.svelte';
+	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
+	import ActionList from '$lib/ui/ActionList/index.svelte';
 
 	// data is a prop passed from the server's load function
 	export let data;
@@ -102,6 +104,26 @@
 	class:isBrowsePage
 	class:isUserGamesBrowsePage
 >
+	<ActionList />
+	<HorizontalList title="Categories" subtitle="Browse by Category" type={'categories'} />
+	{#if $session?.id}
+		<HorizontalList
+			title="Favorites"
+			subtitle="Your Favorites"
+			type={'favorites'}
+			link={'/games/favorites'}
+			userId={$session?.id}
+		/>
+		<HorizontalList
+			title="Projects"
+			subtitle="Your Projects"
+			type={'projects'}
+			userId={$session?.id}
+			link={`/users/${$session?.id}/games`}
+		/>
+	{/if}
+	<h3 class="grid-header">{'All Games'}</h3>
+	<h4 class="grid-header">{'Browse all published games'}</h4>
 	<div
 		class="main grid"
 		bind:clientWidth={$gridWidth}
@@ -120,11 +142,34 @@
 </div>
 
 <style>
+	h3.grid-header {
+		font-family: 'Inter', sans-serif;
+		font-size: 1.5rem;
+		font-weight: 500;
+		color: var(--color-primary);
+		margin-block-start: 40px;
+		margin-block-end: 0;
+		align-self: flex-start;
+		padding-left: 10px;
+	}
+
+	h4.grid-header {
+		font-family: 'Inter', sans-serif;
+		font-size: 1rem;
+		font-weight: 500;
+		color: var(--color-primary);
+		margin-block-start: 0;
+		margin-block-end: 0;
+		align-self: flex-start;
+		padding-left: 10px;
+	}
 	.page-container {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
 		width: 100%;
+		overflow-y: scroll !important;
+		overflow-x: hidden;
 	}
 	.main {
 		margin: 10px;
@@ -134,7 +179,6 @@
 		flex-direction: row;
 		flex-wrap: wrap;
 		justify-content: space-between;
-		overflow-y: scroll !important;
 	}
 	.main.grid {
 		display: grid;

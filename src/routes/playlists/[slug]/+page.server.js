@@ -21,21 +21,21 @@ const getSinglePlaylist = async (eventFetch, playlistId) => {
 	return playlist;
 };
 
-export async function load({ cookies, params, fetch }) {
+export async function load({ params, fetch }) {
 	const { slug } = params;
 	if (!slug) {
 		return redirect(303, '/games');
 	}
 
-	const token = cookies?.get('token');
-	if (!token) {
-		throw redirect(303, '/');
-	}
+	// const token = cookies?.get('token');
+	// if (!token) {
+	// 	throw redirect(303, '/');
+	// }
 
 	const user = await getCurrentUser(fetch);
-	if (!user || user?.status === 401) {
-		throw redirect(303, '/games');
-	}
+	// if (!user || user?.status === 401) {
+	// 	throw redirect(303, '/games');
+	// }
 
 	const playlist = await getSinglePlaylist(fetch, slug);
 
@@ -55,9 +55,11 @@ export async function load({ cookies, params, fetch }) {
 
 	const playlistGames = await getAllGamesForPlaylist(fetch, slug);
 
-	session.set({
-		...user
-	});
+	if (user) {
+		session.set({
+			...user
+		});
+	}
 
 	return {
 		playlist: { ...playlistMap },

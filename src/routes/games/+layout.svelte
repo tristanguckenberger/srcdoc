@@ -78,7 +78,14 @@
 		height: calc(100% + 10px);
 		width: 100%;
 		background-color: var(--color-secondary);
-		/* background-color: var(--darker-bg); */
+		background: hsla(210, 5%, 7%, 1);
+		background: linear-gradient(270deg, hsl(210deg 5% 7% / 39%) 0%, hsla(0, 0%, 0%, 1) 100%);
+		background: -moz-linear-gradient(270deg, hsl(210deg 5% 7% / 39%) 0%, hsla(0, 0%, 0%, 1) 100%);
+		background: -webkit-linear-gradient(
+			270deg,
+			hsl(210deg 5% 7% / 39%) 0%,
+			hsla(0, 0%, 0%, 1) 100%
+		);
 	}
 	@media (min-width: 498px) {
 		#editor-layout {

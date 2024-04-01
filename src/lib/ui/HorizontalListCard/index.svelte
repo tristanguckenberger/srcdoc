@@ -9,42 +9,18 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { browser } from '$app/environment';
 
-	export let playlist;
+	export let item;
+	export let title;
+	export let subtitle;
 	export let id;
 	export let thumbnail;
+	export let cardLink;
 
 	let imageLoaded = false;
 	let cardImage;
 	let showMoreInfo = false;
 
 	const mousedOverItemId = getContext('playlistContext')?.mousedOverItemId;
-
-	// const handleMouseOver = (e, game) => {
-	// 	$mousedOverItemId = null;
-	// 	$mousedOverItemId = game?.id;
-	// };
-
-	// const handleMouseOut = (e, game) => {
-	// 	// if the target doesnt contain the play button or isnt the play button itself or its svg, hide it
-	// 	if (
-	// 		!e.relatedTarget?.classList.contains('play-button-container') &&
-	// 		!e.relatedTarget?.classList.contains('action-button-icon') &&
-	// 		!e.relatedTarget?.classList.contains('linked-card-container') &&
-	// 		!e.relatedTarget?.tagName === 'svg' &&
-	// 		!e.relatedTarget?.classList?.contains('card-thumbnail-placeholder')
-	// 	) {
-	// 		$mousedOverItemId = null;
-	// 	} else if (
-	// 		e.relatedTarget?.classList?.contains('playlist-page-container') ||
-	// 		e.relatedTarget?.classList?.contains('playlist') ||
-	// 		e.relatedTarget?.classList?.contains('playlist-header') ||
-	// 		e.relatedTarget?.classList?.contains('playlist-header-title') ||
-	// 		e.relatedTarget?.classList?.contains('playlist-header-actions') ||
-	// 		e.relatedTarget?.classList?.contains('playlist-game-container')
-	// 	) {
-	// 		$mousedOverItemId = null;
-	// 	}
-	// };
 
 	afterUpdate(() => {
 		if (cardImage) {
@@ -54,14 +30,13 @@
 
 	onDestroy(() => {
 		user = null;
-		playlist = null;
+		item = null;
 		id = null;
 		thumbnail = null;
 		imageLoaded = false;
 	});
 
 	// REACTIVE VARIABLES & STATEMENTS
-	$: cardLink = `/games/${id}/play`;
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: user = $session;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
@@ -69,7 +44,7 @@
 	$: showMoreInfo = showHover;
 </script>
 
-{#await (playlist, id, thumbnail, user)}
+{#await (item, id, thumbnail, user)}
 	Loading...
 {:then}
 	<div
@@ -84,20 +59,25 @@
 		tabindex="0"
 	>
 		<a href={cardLink} class="linked-card-container">
-			<img
-				bind:this={cardImage}
-				class="card-thumbnail"
-				class:showImage={imageLoaded}
-				src={loadedThumbnail ?? playlist?.thumbnail}
-				alt={playlist?.name}
-			/>
-
-			<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
+			{#if loadedThumbnail}
+				<img
+					bind:this={cardImage}
+					class="card-thumbnail"
+					class:showImage={imageLoaded}
+					src={loadedThumbnail}
+					alt={title}
+				/>
+				<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
+			{:else}
+				<div class="leading">
+					<slot name="leading-item" />
+				</div>
+			{/if}
 		</a>
 		<div class="card-info">
-			<a href={`/playlists/${id}`}>
-				<h4>{playlist?.name ?? playlist?.title}</h4>
-				<p class="card-text">{playlist?.description}</p>
+			<a href={cardLink}>
+				<h4>{title}</h4>
+				<p class="card-text">{subtitle}</p>
 			</a>
 			<div class="more-actions" class:show={showMoreInfo}>...</div>
 		</div>
@@ -107,22 +87,23 @@
 <style>
 	.playlist {
 		display: flex;
-		flex-direction: row;
+		flex-direction: column;
 		width: calc(100% - 20px);
-		height: 50px;
+		/* height: 50px; */
 		border-radius: 6px;
 		margin: 0;
 		padding: 10px;
 		/* background: #32323229; */
 		transition: background 0.09s linear(0.07 -1.12%, 1 100%);
+		max-width: 150px;
 	}
 	.playlist:hover {
 		cursor: pointer;
 		background: var(--search-result-card) !important;
 	}
 	.card-thumbnail {
-		width: 100%;
-		height: 100%;
+		width: 150px;
+		height: 150px;
 		object-fit: cover;
 		border-radius: 6px;
 		transition: opacity 0.03s;
@@ -171,7 +152,7 @@
 		flex-direction: column;
 		justify-content: start;
 		gap: 5px;
-		padding: 0 0 0 10px;
+		/* padding: 0 0 0 10px; */
 		width: 100%;
 	}
 	.card-info a h4 {
@@ -203,5 +184,14 @@
 	}
 	.more-actions.show {
 		display: flex;
+	}
+	.linked-card-container .leading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 50px;
+		height: 50px;
+		background-color: #52505029;
+		border-radius: 6px;
 	}
 </style>

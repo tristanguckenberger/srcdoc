@@ -2,8 +2,29 @@
 	// @ts-nocheck
 	import { sideBarState } from '$lib/stores/layoutStore.js';
 	import PlaylistCard from '$lib/ui/PlaylistCard/index.svelte';
+	import Drawer from '$lib/ui/Drawer/index.svelte';
+	import Widget from '$lib/ui/Widget/index.svelte';
+	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
+	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
 
 	export let data;
+
+	let componentOptions = [];
+
+	$: (() => {
+		return (componentOptions = [
+			{
+				name: 'NewPlaylist',
+				props: {
+					name: 'New Playlist',
+					description: 'New Playlist Description',
+					isPublic: false,
+					fromLayout: true
+				},
+				component: EditPlaylistDetails
+			}
+		]);
+	})();
 </script>
 
 <h2 class="title">My Library</h2>
@@ -18,6 +39,11 @@
 			{/each}
 		</div>
 	{/if}
+	<Drawer>
+		<div slot="drawer-component" class="drawer-component">
+			<Widget content={data} options={componentOptions} />
+		</div>
+	</Drawer>
 </div>
 
 <style>
