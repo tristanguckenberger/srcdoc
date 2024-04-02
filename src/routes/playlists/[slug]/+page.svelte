@@ -3,7 +3,7 @@
 	import { browser } from '$app/environment';
 	import { writable } from 'svelte/store';
 	import { tick, onMount, setContext, getContext } from 'svelte';
-	import { invalidate, invalidateAll } from '$app/navigation';
+	import { goto, invalidate, invalidateAll } from '$app/navigation';
 
 	import { sideBarState } from '$lib/stores/layoutStore.js';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore.js';
@@ -265,7 +265,8 @@ viewBox="0 0 256 256"
 						const deltePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/delete`);
 						if (deltePlaylistRes.ok) {
 							await tick();
-							invalidateAll();
+							// invalidateAll();
+							goto('/games');
 						}
 					}}>Delete</button
 				>
