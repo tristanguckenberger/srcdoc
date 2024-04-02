@@ -37,6 +37,8 @@ export async function load({ params, fetch }) {
 	// 	throw redirect(303, '/games');
 	// }
 
+	// need to check if the user has saved this playlist
+
 	const playlist = await getSinglePlaylist(fetch, slug);
 
 	const playlistMap = Object.keys(playlist).reduce((acc, key) => {

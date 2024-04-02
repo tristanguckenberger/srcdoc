@@ -3,6 +3,7 @@
 	import { browser } from '$app/environment';
 	import { writable } from 'svelte/store';
 	import { tick, onMount, setContext, getContext } from 'svelte';
+	import { invalidate, invalidateAll } from '$app/navigation';
 
 	import { sideBarState } from '$lib/stores/layoutStore.js';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore.js';
@@ -177,6 +178,13 @@
 		$drawerOpen = true;
 	};
 
+	const handleAddToLibrary = async () => {
+		console.log('Add to Library');
+		const response = await fetch(`/api/playlist/${playlist?.id}/savePlaylist`);
+		const data = await response.json();
+		console.log('data::', data);
+		invalidateAll();
+	};
 	$: if ($gamesOrder && games) {
 		$gamesOrder.forEach((gameId, index) => {
 			const gameIndex = games.findIndex((game) => game.id === gameId);
@@ -201,8 +209,9 @@
 		]);
 	})();
 	$: isPublic = Boolean(playlist?.is_public ?? playlist?.isPublic);
+	$: isSaved = Boolean(playlist?.isSaved);
 
-	$: console.log('page::data::playlist::', playlist);
+	$: console.log('page::data::playlist::', playlist?.isSaved === false);
 </script>
 
 <!-- 'X' close, cancel, delete -->
@@ -231,14 +240,50 @@ viewBox="0 0 256 256"
 				<p>Private</p>
 			{/if}
 		</div>
-		{#if isOwner}
-			<div class="playlist-header-actions">
+
+		<div class="playlist-header-actions">
+			{#if isOwner}
 				<button class="btn btn-primary" disabled>Add Game</button>
 				<button class="btn btn-secondary" disabled={!isOwner} on:click|preventDefault={handleEdit}
 					>Edit</button
 				>
-			</div>
-		{/if}
+			{/if}
+			{#if !isSaved}
+				<button
+					class="btn btn-secondary"
+					on:click|preventDefault={!playlist?.isSaved
+						? handleAddToLibrary
+						: () => {
+								console.log('already saved to library');
+						  }}>Add to Library</button
+				>
+			{:else if isOwner && isSaved}
+				<button
+					class="btn btn-secondary"
+					on:click|preventDefault={async () => {
+						console.log('button_click::delete_playlist::', playlist?.id);
+						const deltePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/delete`);
+						if (deltePlaylistRes.ok) {
+							await tick();
+							invalidateAll();
+						}
+					}}>Delete</button
+				>
+			{:else if !isOwner && isSaved}
+				<button
+					class="btn btn-secondary"
+					on:click|preventDefault={async () => {
+						console.log('button_click::remove_playlist::', playlist?.id);
+						const deletePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/removePlaylist`);
+						if (deletePlaylistRes.ok) {
+							await tick();
+							invalidateAll();
+						}
+						console.log('deletePlaylistRes::', deletePlaylistRes);
+					}}>Remove from Library</button
+				>
+			{/if}
+		</div>
 	</div>
 	<div class="playlist-game-container">
 		{#await games}

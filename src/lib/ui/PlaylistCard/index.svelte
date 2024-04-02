@@ -53,7 +53,9 @@
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
 	$: showHover = true;
 	$: showMoreInfo = playlistWidth < 498 || (showHover && playlistWidth > 498);
-	$: isOwner = user?.id.toString() === playlist?.owner_id.toString();
+	$: isOwner =
+		user?.id.toString() === playlist?.owner_id?.toString() ||
+		user?.id.toString() === playlist?.ownerId?.toString();
 	$: {
 		if (playlistWidth < 498) {
 			showMoreInfo = true;
@@ -155,10 +157,15 @@
 								class="more-action-button"
 								on:click|preventDefault={async () => {
 									console.log('button_click::delete_playlist::', playlist?.id);
-									const deltePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/delete`);
-									if (deltePlaylistRes.ok) {
+									const deltePlaylistRes = await fetch(
+										`/api/playlist/${playlist?.id}/${isOwner ? 'delete' : 'removePlaylist'}`
+									);
+									if (deltePlaylistRes.ok && isOwner) {
 										await tick();
 										invalidate(`/api/playlist/myLibrary`);
+									} else if (deltePlaylistRes.ok && !isOwner) {
+										await tick();
+										invalidateAll();
 									}
 									console.log('deltePlaylistRes::', deltePlaylistRes);
 								}}

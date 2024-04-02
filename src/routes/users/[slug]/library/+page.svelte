@@ -21,7 +21,7 @@
 	});
 
 	onMount(() => {
-		invalidateAll();
+		// invalidateAll();
 	});
 
 	$: (() => {
