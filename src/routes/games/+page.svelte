@@ -106,22 +106,6 @@
 >
 	<ActionList />
 	<HorizontalList title="Categories" subtitle="Browse by Category" type={'categories'} />
-	{#if $session?.id}
-		<HorizontalList
-			title="Favorites"
-			subtitle="Your Favorites"
-			type={'favorites'}
-			link={'/games/favorites'}
-			userId={$session?.id}
-		/>
-		<HorizontalList
-			title="Projects"
-			subtitle="Your Projects"
-			type={'projects'}
-			userId={$session?.id}
-			link={`/users/${$session?.id}/games`}
-		/>
-	{/if}
 	<h3 class="grid-header">{'All Games'}</h3>
 	<h4 class="grid-header">{'Browse all published games'}</h4>
 	<div

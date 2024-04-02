@@ -6,6 +6,8 @@
 	import Widget from '$lib/ui/Widget/index.svelte';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
+	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
+	import { session } from '$lib/stores/sessionStore.js';
 
 	export let data;
 
@@ -32,6 +34,22 @@
 <div class="playlist-drawer-container">
 	{#if data}
 		<div class="playlists-container" class:sideBarOpen={$sideBarState}>
+			{#if $session?.id}
+				<HorizontalList
+					title="Favorites"
+					subtitle="Your Favorites"
+					type={'favorites'}
+					link={'/games/favorites'}
+					userId={$session?.id}
+				/>
+				<HorizontalList
+					title="Projects"
+					subtitle="Your Projects"
+					type={'projects'}
+					userId={$session?.id}
+					link={`/users/${$session?.id}/games`}
+				/>
+			{/if}
 			{#each data.playlists as playlist}
 				<div class="single-playlist-container">
 					<PlaylistCard id={playlist.id} {playlist} />
