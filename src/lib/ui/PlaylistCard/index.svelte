@@ -199,8 +199,8 @@
 		background: var(--search-result-card) !important;
 	}
 	.card-thumbnail {
-		width: 100%;
-		height: 100%;
+		width: 50px;
+		height: 50px;
 		object-fit: cover;
 		border-radius: 6px;
 		transition: opacity 0.03s;
@@ -211,8 +211,8 @@
 		opacity: 1;
 	}
 	.card-thumbnail-placeholder {
-		width: 100%;
-		height: 100%;
+		width: 50px;
+		height: 50px;
 		border-radius: 6px;
 		background-color: var(--folder-button-color);
 		opacity: 1;
