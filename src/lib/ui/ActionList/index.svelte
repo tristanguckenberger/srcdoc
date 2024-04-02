@@ -13,6 +13,8 @@
 	export let subtitle = '';
 	export let link = '';
 
+	let componentWidth;
+
 	const getAllCategories = async () => {
 		const response = await fetch('/api/categories/static/all', {
 			method: 'GET',
@@ -28,10 +30,10 @@
 		items = [...data?.categories];
 	};
 
-	$: console.log('actionList::session::', $session);
+	$: isMobile = componentWidth < 498;
 </script>
 
-<div class="action-list-container">
+<div class="action-list-container" bind:clientWidth={componentWidth}>
 	<h3>{title}</h3>
 	<h4>{subtitle}</h4>
 	<div class="action-list">
@@ -43,6 +45,7 @@
 					title={'My Library'}
 					subtitle={'Open your library'}
 					cardLink={`/users/${$session?.id}/library`}
+					{isMobile}
 				>
 					<svg
 						slot="leading-item"
@@ -62,6 +65,7 @@
 					title={'Sign In or Register'}
 					subtitle={'Join Play Engine'}
 					cardLink={'/'}
+					{isMobile}
 				>
 					<svg
 						slot="leading-item"
@@ -85,6 +89,7 @@
 				title={'Quick Play'}
 				subtitle={'Play a random game'}
 				cardLink={'/games/quick-play'}
+				{isMobile}
 			>
 				<svg
 					slot="leading-item"
@@ -107,6 +112,7 @@
 				title={'Trending'}
 				subtitle={"See what's popular"}
 				cardLink={'/games/trending'}
+				{isMobile}
 			>
 				<svg
 					slot="leading-item"
@@ -129,6 +135,7 @@
 				title={'Top Played'}
 				subtitle={'All-time top played games'}
 				cardLink={'/games/top-played'}
+				{isMobile}
 			>
 				<svg
 					slot="leading-item"
@@ -151,6 +158,7 @@
 				title={'Top Rated'}
 				subtitle={'All-time highest rated games'}
 				cardLink={'/games/top-rated'}
+				{isMobile}
 			>
 				<svg
 					slot="leading-item"
@@ -173,6 +181,7 @@
 				title={'Recently Added'}
 				subtitle={'See the newest games'}
 				cardLink={'/games/new'}
+				{isMobile}
 			>
 				<svg
 					slot="leading-item"

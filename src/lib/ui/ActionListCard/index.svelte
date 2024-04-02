@@ -15,6 +15,7 @@
 	export let id;
 	export let thumbnail;
 	export let cardLink;
+	export let isMobile = false;
 
 	let imageLoaded = false;
 	let cardImage;
@@ -75,9 +76,11 @@
 			{/if}
 		</a>
 		<div class="card-info">
-			<a href={cardLink}>
+			<a href={cardLink} class:isMobile>
 				<h4>{title}</h4>
-				<p class="card-text">{subtitle}</p>
+				{#if !isMobile}
+					<p class="card-text">{subtitle}</p>
+				{/if}
 			</a>
 			<div class="more-actions" class:show={showMoreInfo}>...</div>
 		</div>
@@ -153,6 +156,10 @@
 		gap: 5px;
 		padding: 0 0 0 10px;
 		width: 100%;
+	}
+
+	.card-info a.isMobile {
+		justify-content: center;
 	}
 	.card-info a h4 {
 		margin-block-start: 0;
