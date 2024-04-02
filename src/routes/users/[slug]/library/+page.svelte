@@ -85,4 +85,9 @@
 	.playlists-container.sideBarOpen {
 		width: calc(100% - 230px);
 	}
+	:global(#editor-layout) {
+		overflow-y: scroll;
+		overflow-x: hidden;
+		padding-bottom: 20px;
+	}
 </style>
