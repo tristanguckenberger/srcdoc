@@ -8,7 +8,8 @@
 	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { writable } from 'svelte/store';
-	import { setContext } from 'svelte';
+	import { onMount, setContext } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	export let data;
 
@@ -17,6 +18,10 @@
 	setContext('playlistContext', {
 		mousedOverItemId: writable(null),
 		showPlayButtonStore: writable(false)
+	});
+
+	onMount(() => {
+		invalidateAll();
 	});
 
 	$: (() => {

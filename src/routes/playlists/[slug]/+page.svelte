@@ -20,6 +20,7 @@
 	let highlightBottom = false;
 	let draggedItem = null;
 	let gradientPosition = 50; // Default gradient position to the middle
+	let isOwner = false;
 	const gamesOrder = writable([]);
 	const draggingOver = writable(false);
 	const draggingOverGameId = writable(null);
@@ -36,6 +37,9 @@
 	$: playlist = data?.playlist;
 	$: games = data?.games;
 	$: sessionData = data?.sessionData;
+	$: isOwner = sessionData?.id === playlist?.ownerId;
+
+	$: console.log('isOwner::', isOwner);
 
 	onMount(() => {
 		if (games && games.length > 0) {
@@ -197,6 +201,8 @@
 		]);
 	})();
 	$: isPublic = Boolean(playlist?.is_public ?? playlist?.isPublic);
+
+	$: console.log('page::data::playlist::', playlist);
 </script>
 
 <!-- 'X' close, cancel, delete -->
@@ -225,10 +231,14 @@ viewBox="0 0 256 256"
 				<p>Private</p>
 			{/if}
 		</div>
-		<div class="playlist-header-actions">
-			<button class="btn btn-primary" disabled>Add Game</button>
-			<button class="btn btn-secondary" on:click|preventDefault={handleEdit}>Edit</button>
-		</div>
+		{#if isOwner}
+			<div class="playlist-header-actions">
+				<button class="btn btn-primary" disabled>Add Game</button>
+				<button class="btn btn-secondary" disabled={!isOwner} on:click|preventDefault={handleEdit}
+					>Edit</button
+				>
+			</div>
+		{/if}
 	</div>
 	<div class="playlist-game-container">
 		{#await games}

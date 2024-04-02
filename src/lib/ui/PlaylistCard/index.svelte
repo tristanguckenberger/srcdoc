@@ -1,13 +1,11 @@
 <script>
 	// @ts-nocheck
-	import { afterUpdate, onMount, onDestroy, getContext } from 'svelte';
-	import { writable } from 'svelte/store';
-	import { beforeNavigate, invalidateAll } from '$app/navigation';
-	import { enhance } from '$app/forms';
+	import { afterUpdate, onDestroy, getContext, tick } from 'svelte';
+	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { themeDataStore } from '$lib/stores/themeStore';
-	import Button from '$lib/ui/Button/index.svelte';
 	import { session } from '$lib/stores/sessionStore.js';
-	import { browser } from '$app/environment';
+	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore.js';
+	import { playButton } from '$lib/stores/gamesStore.js';
 
 	export let playlist;
 	export let id;
@@ -31,27 +29,7 @@
 	};
 
 	const handleMouseOut = (e, game) => {
-		// if the target doesnt contain the play button or isnt the play button itself or its svg, hide it
-		// if (
-		// 	!e.relatedTarget?.classList.contains('play-button-container') &&
-		// 	!e.relatedTarget?.classList.contains('action-button-icon') &&
-		// 	!e.relatedTarget?.classList.contains('linked-card-container') &&
-		// 	!e.relatedTarget?.tagName === 'svg' &&
-		// 	!e.relatedTarget?.classList?.contains('card-thumbnail-placeholder')
-		// ) {
-		// 	$mousedOverItemId = null;
-		// } else if (
-		// 	e.relatedTarget?.classList?.contains('playlist-page-container') ||
-		// 	e.relatedTarget?.classList?.contains('playlist') ||
-		// 	e.relatedTarget?.classList?.contains('playlist-header') ||
-		// 	e.relatedTarget?.classList?.contains('playlist-header-title') ||
-		// 	e.relatedTarget?.classList?.contains('playlist-header-actions') ||
-		// 	e.relatedTarget?.classList?.contains('playlist-game-container')
-		// ) {
-		// 	$mousedOverItemId = null;
-		// }
 		$mousedOverItemId = null;
-		showMoreActions = false;
 	};
 
 	afterUpdate(() => {
@@ -73,9 +51,8 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: user = $session;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
-	$: showHover = $mousedOverItemId?.toString() === id?.toString();
+	$: showHover = true;
 	$: showMoreInfo = playlistWidth < 498 || (showHover && playlistWidth > 498);
-	$: console.log('playlistDAta::', playlist);
 	$: isOwner = user?.id.toString() === playlist?.owner_id.toString();
 	$: {
 		if (playlistWidth < 498) {
@@ -85,9 +62,7 @@
 </script>
 
 <svelte:window
-	on:click={(e) => {
-		console.log('click_target::classList::', e.target.classList);
-
+	on:click={async (e) => {
 		// if the target doesnt contain 'more-actions-container', or 'more-action-button', hide the more actions
 		if (
 			!e.target.classList.contains('more-actions-container') &&
@@ -95,8 +70,13 @@
 			!e.target.classList.contains('more-actions') &&
 			!e.target.classList.contains('show')
 		) {
-			console.log(e.target.classList);
 			showMoreActions = false;
+		} else {
+			await tick();
+
+			if ($mousedOverItemId?.toString() !== id?.toString()) {
+				showMoreActions = false;
+			}
 		}
 	}}
 />
@@ -109,15 +89,15 @@
 		class:showHover
 		style={`${themeString}`}
 		bind:clientWidth={playlistWidth}
-		on:mouseover={(e) => handleMouseOver(e, playlist)}
+		on:mouseenter={(e) => handleMouseOver(e, playlist)}
 		on:mouseleave={(e) => handleMouseOut(e, playlist)}
 		on:touchstart={(e) => handleMouseOver(e, playlist)}
 		on:blur={() => {
-			$mousedOverItemId = null;
+			// $mousedOverItemId = null;
 			// showMoreActions = false;
 		}}
 		on:focus={() => {
-			console.log('focused');
+			// console.log('focused');
 		}}
 		aria-roledescription="playlist"
 		role="button"
@@ -143,15 +123,57 @@
 				...
 
 				{#if showMoreActions}
-					<div class="more-actions-container">
-						{#if isOwner}<button class="more-action-button" on:click|preventDefault={() => {}}
-								>Edit</button
+					<div
+						class="more-actions-container"
+						on:mouseover={() => {
+							showMoreActions = true;
+							showHover = true;
+						}}
+					>
+						{#if isOwner}<button
+								class="more-action-button"
+								on:click={async () => {
+									console.log('button_click::edit_playlist::', playlist?.id);
+									goto(`/playlists/${playlist?.id}`).then(() => {
+										$selectedOption = 0;
+										$playButton = false;
+										$drawerOpen = true;
+									});
+								}}
+								><svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="32"
+									height="32"
+									fill="#000000"
+									viewBox="0 0 256 256"
+									><path
+										d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM51.31,160,136,75.31,152.69,92,68,176.68ZM48,179.31,76.69,208H48Zm48,25.38L79.31,188,164,103.31,180.69,120Zm96-96L147.31,64l24-24L216,84.68Z"
+									/></svg
+								> Edit</button
 							>{/if}
 						{#if !playlist?.is_category}<button
 								class="more-action-button"
-								on:click|preventDefault={() => {
-									console.log('delete_playlist::', playlist?.id);
-								}}>{isOwner ? 'Delete' : 'Remove from library'}</button
+								on:click|preventDefault={async () => {
+									console.log('button_click::delete_playlist::', playlist?.id);
+									const deltePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/delete`);
+									if (deltePlaylistRes.ok) {
+										await tick();
+										invalidate(`/api/playlist/myLibrary`);
+									}
+									console.log('deltePlaylistRes::', deltePlaylistRes);
+								}}
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="32"
+									height="32"
+									fill="#000000"
+									viewBox="0 0 256 256"
+									><path
+										d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"
+									/></svg
+								>
+								{isOwner ? 'Delete' : 'Remove from library'}</button
 							>{/if}
 					</div>
 				{/if}
@@ -269,14 +291,35 @@
 		background: var(--nav-dropdown);
 		border-radius: 6px;
 		padding: 10px;
-		height: 150px;
+		height: fit-content;
 		width: 200px;
-		gap: 10px;
+		/* gap: 10px; */
+		z-index: 10;
 	}
 	.more-actions-container:hover {
 		cursor: default;
 	}
+	.more-action-button {
+		background: none;
+		color: var(--color-primary);
+		border: none;
+		height: 36px;
+		border-radius: 3px;
+		font-family: var(--action-font);
+		font-weight: 600;
+		font-size: 0.9rem;
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+	}
 	.more-action-button:hover {
 		cursor: pointer;
+		background: var(--slider-drawer);
+	}
+
+	.more-action-button svg {
+		width: 25px;
+		fill: var(--folder-button-color);
+		padding-right: 8px;
 	}
 </style>
