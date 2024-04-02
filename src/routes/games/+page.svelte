@@ -174,7 +174,7 @@
 	}
 	:global(#editor-layout) div.main.grid.isMobile {
 		white-space: nowrap;
-		overflow: hidden;
+		/* overflow: hidden; */
 		text-overflow: ellipsis;
 		margin-block-end: 0;
 		margin-block-start: 0;
