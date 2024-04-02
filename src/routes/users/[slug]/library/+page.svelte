@@ -35,8 +35,6 @@
 	})();
 </script>
 
-<h2 class="title">My Library</h2>
-
 <div class="playlist-drawer-container">
 	{#if data}
 		<div class="playlists-container" class:sideBarOpen={$sideBarState}>

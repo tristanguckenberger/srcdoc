@@ -16,6 +16,8 @@
 	let imageLoaded = false;
 	let cardImage;
 	let showMoreInfo = false;
+	let showMoreActions = false;
+	let playlistWidth;
 
 	const mousedOverItemId = getContext('playlistContext')?.mousedOverItemId;
 
@@ -24,26 +26,32 @@
 		$mousedOverItemId = game?.id;
 	};
 
+	const handleToggleMoreActions = (e) => {
+		showMoreActions = !showMoreActions;
+	};
+
 	const handleMouseOut = (e, game) => {
 		// if the target doesnt contain the play button or isnt the play button itself or its svg, hide it
-		if (
-			!e.relatedTarget?.classList.contains('play-button-container') &&
-			!e.relatedTarget?.classList.contains('action-button-icon') &&
-			!e.relatedTarget?.classList.contains('linked-card-container') &&
-			!e.relatedTarget?.tagName === 'svg' &&
-			!e.relatedTarget?.classList?.contains('card-thumbnail-placeholder')
-		) {
-			$mousedOverItemId = null;
-		} else if (
-			e.relatedTarget?.classList?.contains('playlist-page-container') ||
-			e.relatedTarget?.classList?.contains('playlist') ||
-			e.relatedTarget?.classList?.contains('playlist-header') ||
-			e.relatedTarget?.classList?.contains('playlist-header-title') ||
-			e.relatedTarget?.classList?.contains('playlist-header-actions') ||
-			e.relatedTarget?.classList?.contains('playlist-game-container')
-		) {
-			$mousedOverItemId = null;
-		}
+		// if (
+		// 	!e.relatedTarget?.classList.contains('play-button-container') &&
+		// 	!e.relatedTarget?.classList.contains('action-button-icon') &&
+		// 	!e.relatedTarget?.classList.contains('linked-card-container') &&
+		// 	!e.relatedTarget?.tagName === 'svg' &&
+		// 	!e.relatedTarget?.classList?.contains('card-thumbnail-placeholder')
+		// ) {
+		// 	$mousedOverItemId = null;
+		// } else if (
+		// 	e.relatedTarget?.classList?.contains('playlist-page-container') ||
+		// 	e.relatedTarget?.classList?.contains('playlist') ||
+		// 	e.relatedTarget?.classList?.contains('playlist-header') ||
+		// 	e.relatedTarget?.classList?.contains('playlist-header-title') ||
+		// 	e.relatedTarget?.classList?.contains('playlist-header-actions') ||
+		// 	e.relatedTarget?.classList?.contains('playlist-game-container')
+		// ) {
+		// 	$mousedOverItemId = null;
+		// }
+		$mousedOverItemId = null;
+		showMoreActions = false;
 	};
 
 	afterUpdate(() => {
@@ -66,8 +74,32 @@
 	$: user = $session;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
 	$: showHover = $mousedOverItemId?.toString() === id?.toString();
-	$: showMoreInfo = showHover;
+	$: showMoreInfo = playlistWidth < 498 || (showHover && playlistWidth > 498);
+	$: console.log('playlistDAta::', playlist);
+	$: isOwner = user?.id.toString() === playlist?.owner_id.toString();
+	$: {
+		if (playlistWidth < 498) {
+			showMoreInfo = true;
+		}
+	}
 </script>
+
+<svelte:window
+	on:click={(e) => {
+		console.log('click_target::classList::', e.target.classList);
+
+		// if the target doesnt contain 'more-actions-container', or 'more-action-button', hide the more actions
+		if (
+			!e.target.classList.contains('more-actions-container') &&
+			!e.target.classList.contains('more-action-button') &&
+			!e.target.classList.contains('more-actions') &&
+			!e.target.classList.contains('show')
+		) {
+			console.log(e.target.classList);
+			showMoreActions = false;
+		}
+	}}
+/>
 
 {#await (playlist, id, thumbnail, user)}
 	Loading...
@@ -76,10 +108,13 @@
 		class="playlist"
 		class:showHover
 		style={`${themeString}`}
+		bind:clientWidth={playlistWidth}
 		on:mouseover={(e) => handleMouseOver(e, playlist)}
-		on:mouseout={(e) => handleMouseOut(e, playlist)}
+		on:mouseleave={(e) => handleMouseOut(e, playlist)}
+		on:touchstart={(e) => handleMouseOver(e, playlist)}
 		on:blur={() => {
 			$mousedOverItemId = null;
+			// showMoreActions = false;
 		}}
 		on:focus={() => {
 			console.log('focused');
@@ -104,7 +139,23 @@
 				<h4>{playlist?.name ?? playlist?.title}</h4>
 				<p class="card-text">{playlist?.description}</p>
 			</a>
-			<div class="more-actions" class:show={showMoreInfo}>...</div>
+			<div class="more-actions" class:show={showMoreInfo} on:click={handleToggleMoreActions}>
+				...
+
+				{#if showMoreActions}
+					<div class="more-actions-container">
+						{#if isOwner}<button class="more-action-button" on:click|preventDefault={() => {}}
+								>Edit</button
+							>{/if}
+						{#if !playlist?.is_category}<button
+								class="more-action-button"
+								on:click|preventDefault={() => {
+									console.log('delete_playlist::', playlist?.id);
+								}}>{isOwner ? 'Delete' : 'Remove from library'}</button
+							>{/if}
+					</div>
+				{/if}
+			</div>
 		</div>
 	</div>
 {/await}
@@ -208,5 +259,24 @@
 	}
 	.more-actions.show {
 		display: flex;
+	}
+	.more-actions-container {
+		display: flex;
+		flex-direction: column;
+		position: absolute;
+		top: 40px;
+		right: 10px;
+		background: var(--nav-dropdown);
+		border-radius: 6px;
+		padding: 10px;
+		height: 150px;
+		width: 200px;
+		gap: 10px;
+	}
+	.more-actions-container:hover {
+		cursor: default;
+	}
+	.more-action-button:hover {
+		cursor: pointer;
 	}
 </style>
