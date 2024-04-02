@@ -4,14 +4,20 @@
 	import PlaylistCard from '$lib/ui/PlaylistCard/index.svelte';
 	import Drawer from '$lib/ui/Drawer/index.svelte';
 	import Widget from '$lib/ui/Widget/index.svelte';
-	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
 	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
 	import { session } from '$lib/stores/sessionStore.js';
+	import { writable } from 'svelte/store';
+	import { setContext } from 'svelte';
 
 	export let data;
 
 	let componentOptions = [];
+
+	setContext('playlistContext', {
+		mousedOverItemId: writable(null),
+		showPlayButtonStore: writable(false)
+	});
 
 	$: (() => {
 		return (componentOptions = [
@@ -50,11 +56,15 @@
 					link={`/users/${$session?.id}/games`}
 				/>
 			{/if}
-			{#each data.playlists as playlist}
-				<div class="single-playlist-container">
-					<PlaylistCard id={playlist.id} {playlist} />
-				</div>
-			{/each}
+			<h3>Playlists</h3>
+			<h4>Your Playlists</h4>
+			<div class="playlist-container">
+				{#each data.playlists as playlist}
+					<div class="single-playlist-container">
+						<PlaylistCard id={playlist.id} {playlist} />
+					</div>
+				{/each}
+			</div>
 		</div>
 	{/if}
 	<Drawer>
@@ -89,5 +99,36 @@
 		overflow-y: scroll;
 		overflow-x: hidden;
 		padding-bottom: 20px;
+	}
+	h3,
+	h4 {
+		font-family: 'Inter', sans-serif;
+		font-weight: 500;
+		margin-block-end: 0;
+		color: var(--color-primary);
+		padding-left: 10px;
+	}
+	h3 {
+		font-size: 1.5rem;
+
+		margin-block-start: 40px;
+	}
+
+	h4 {
+		font-size: 1rem;
+		margin-block-start: 10px;
+		margin-block-end: 10px;
+	}
+	.playlist-container :global(.playlist .card-info p) {
+		white-space: pre;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		margin-block-end: 0;
+		margin-block-start: 0;
+		font-family: 'Inter', sans-serif;
+		font-size: 0.78rem;
+		font-weight: 450;
+		color: var(--folder-button-color);
+		width: 200px;
 	}
 </style>

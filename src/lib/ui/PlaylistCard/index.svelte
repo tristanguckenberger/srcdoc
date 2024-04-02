@@ -19,32 +19,32 @@
 
 	const mousedOverItemId = getContext('playlistContext')?.mousedOverItemId;
 
-	// const handleMouseOver = (e, game) => {
-	// 	$mousedOverItemId = null;
-	// 	$mousedOverItemId = game?.id;
-	// };
+	const handleMouseOver = (e, game) => {
+		$mousedOverItemId = null;
+		$mousedOverItemId = game?.id;
+	};
 
-	// const handleMouseOut = (e, game) => {
-	// 	// if the target doesnt contain the play button or isnt the play button itself or its svg, hide it
-	// 	if (
-	// 		!e.relatedTarget?.classList.contains('play-button-container') &&
-	// 		!e.relatedTarget?.classList.contains('action-button-icon') &&
-	// 		!e.relatedTarget?.classList.contains('linked-card-container') &&
-	// 		!e.relatedTarget?.tagName === 'svg' &&
-	// 		!e.relatedTarget?.classList?.contains('card-thumbnail-placeholder')
-	// 	) {
-	// 		$mousedOverItemId = null;
-	// 	} else if (
-	// 		e.relatedTarget?.classList?.contains('playlist-page-container') ||
-	// 		e.relatedTarget?.classList?.contains('playlist') ||
-	// 		e.relatedTarget?.classList?.contains('playlist-header') ||
-	// 		e.relatedTarget?.classList?.contains('playlist-header-title') ||
-	// 		e.relatedTarget?.classList?.contains('playlist-header-actions') ||
-	// 		e.relatedTarget?.classList?.contains('playlist-game-container')
-	// 	) {
-	// 		$mousedOverItemId = null;
-	// 	}
-	// };
+	const handleMouseOut = (e, game) => {
+		// if the target doesnt contain the play button or isnt the play button itself or its svg, hide it
+		if (
+			!e.relatedTarget?.classList.contains('play-button-container') &&
+			!e.relatedTarget?.classList.contains('action-button-icon') &&
+			!e.relatedTarget?.classList.contains('linked-card-container') &&
+			!e.relatedTarget?.tagName === 'svg' &&
+			!e.relatedTarget?.classList?.contains('card-thumbnail-placeholder')
+		) {
+			$mousedOverItemId = null;
+		} else if (
+			e.relatedTarget?.classList?.contains('playlist-page-container') ||
+			e.relatedTarget?.classList?.contains('playlist') ||
+			e.relatedTarget?.classList?.contains('playlist-header') ||
+			e.relatedTarget?.classList?.contains('playlist-header-title') ||
+			e.relatedTarget?.classList?.contains('playlist-header-actions') ||
+			e.relatedTarget?.classList?.contains('playlist-game-container')
+		) {
+			$mousedOverItemId = null;
+		}
+	};
 
 	afterUpdate(() => {
 		if (cardImage) {
@@ -76,6 +76,11 @@
 		class="playlist"
 		class:showHover
 		style={`${themeString}`}
+		on:mouseover={(e) => handleMouseOver(e, playlist)}
+		on:mouseout={(e) => handleMouseOut(e, playlist)}
+		on:blur={() => {
+			$mousedOverItemId = null;
+		}}
 		on:focus={() => {
 			console.log('focused');
 		}}

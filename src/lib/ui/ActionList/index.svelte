@@ -41,7 +41,7 @@
 				<ActionListCard
 					id={0}
 					title={'My Library'}
-					subtitle={'Play a random game'}
+					subtitle={'Open your library'}
 					cardLink={`/users/${$session?.id}/library`}
 				>
 					<svg
