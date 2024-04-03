@@ -5,8 +5,9 @@
 	export let gameId;
 	export let title;
 	export let description;
+	export let thumbnail;
 	export let published;
 	export let headerImage;
 </script>
 
-<EditGameDetails {gameId} {title} {description} {published} {headerImage} />
+<EditGameDetails {gameId} {title} {description} {thumbnail} {published} {headerImage} />

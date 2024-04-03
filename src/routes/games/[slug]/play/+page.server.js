@@ -102,7 +102,8 @@ export async function load({ params, fetch, setHeaders }) {
 		currentGame: { ...game },
 		bottomGame,
 		comments: game?.comments ?? [],
-		favorites: favorites ? { count: favorites.length, favorites } : { count: 0, favorites: [] }
+		favorites: favorites ? { count: favorites.length, favorites } : { count: 0, favorites: [] },
+		thumbnail: game?.thumbnail ?? ''
 	};
 }
 
@@ -141,7 +142,44 @@ export const actions = {
 				result
 			}
 		};
-	} //,
+	}, //,
+	updateDetails: async ({ cookies, request, params }) => {
+		const token = cookies.get('token');
+		const { slug } = params;
+		const formData = await request.formData();
+
+		const requestHeaders = new Headers();
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+
+		const requestInit = {
+			method: 'PUT',
+			mode: 'cors',
+			headers: requestHeaders,
+			body: formData
+		};
+
+		const authResponse = await fetch(
+			`${process.env.SERVER_URL}/api/games/update/${slug}`,
+			requestInit
+		);
+
+		if (!authResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to update project'
+				}
+			};
+		}
+
+		const project = await authResponse.json();
+
+		return {
+			body: {
+				project: project
+			}
+		};
+	}
 	// search: async ({ fetch, request }) => {
 	// 	const formData = await request.formData();
 	// 	const query = formData?.get('query');

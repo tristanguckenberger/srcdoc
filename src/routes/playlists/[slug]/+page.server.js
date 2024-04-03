@@ -118,8 +118,6 @@ export const actions = {
 		const formData = await request.formData();
 		const requestHeaders = new Headers();
 
-		console.log('updatePlaylist::formData::', formData);
-
 		requestHeaders.append('Authorization', `Bearer ${token}`);
 
 		const requestInit = {

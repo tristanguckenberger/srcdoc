@@ -8,6 +8,7 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { browser } from '$app/environment';
+	import { screenshot } from '$lib/stores/gamesStore';
 
 	export let game;
 	export let id;
@@ -147,7 +148,7 @@
 								setTimeout(() => {
 									// $playButton = !play;
 									// setTimeout(() => {
-									// 	$screenshot = true;
+									$screenshot = true;
 									// }, 200);
 								}, 200);
 							}}

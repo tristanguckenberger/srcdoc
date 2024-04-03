@@ -207,25 +207,26 @@
 		}
 	}
 
-	$: console.log('::score::', $gameSessionScore);
+	$: console.log('::thumbnail::', thumbnail);
 
-	$: $screenshot,
-		(() => {
-			if ($screenshot) {
-				setTimeout(() => {
-					try {
-						let doc = iframe?.contentDocument;
-						htmlToImage.toPng(doc?.body).then(function (dataUrl) {
-							thumbnail = dataUrl;
-						});
-						relaxed = false;
-						$screenshot = false;
-					} catch (error) {
-						console.log('error:;', error);
-					}
-				}, 2000);
-			}
-		})();
+	$: (() => {
+		if ($screenshot) {
+			relaxed = true;
+			console.log('::taking screenshot::');
+			setTimeout(() => {
+				try {
+					let doc = iframe?.contentDocument;
+					htmlToImage.toPng(doc?.body).then(function (dataUrl) {
+						thumbnail = dataUrl;
+					});
+					relaxed = false;
+					$screenshot = false;
+				} catch (error) {
+					console.log('error:;', error);
+				}
+			}, 1000);
+		}
+	})();
 </script>
 
 <div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight>

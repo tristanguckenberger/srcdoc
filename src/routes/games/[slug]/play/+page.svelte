@@ -318,6 +318,7 @@
 					gameId: data?.id,
 					title: data?.title,
 					description: data?.description,
+					thumbnail: data?.thumbnail,
 					published: Boolean(data?.published)
 				},
 				component: EditDetails

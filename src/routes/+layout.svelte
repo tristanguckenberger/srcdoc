@@ -243,6 +243,10 @@
 		}
 	};
 
+	// const takeScreenshot = () => {
+	// 	$screenshot = true;
+	// };
+
 	const updateTheme = (e) => {
 		themeKeyStore.set(e.matches ? 'light' : 'dark');
 	};
@@ -481,6 +485,9 @@
 								link={null}
 							/>
 						</li>
+						<!-- <li class:hiddenItem={!engineInRoute}>
+							<Button action={takeScreenshot} label={'screenshot'} link={null} />
+						</li> -->
 					{:else}
 						<li class="sidebar-toggle" class:showSideBar={$sideBarState}>
 							<Button action={toggleSideBar} label={$sideBarState ? 'close' : 'open'} link={null} />
