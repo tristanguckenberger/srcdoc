@@ -86,7 +86,7 @@ export const actions = {
 		const requestHeaders = new Headers();
 		requestHeaders.append('Authorization', `Bearer ${token}`);
 
-		// console.log('formData::', formData);
+		console.log('formData::', formData);
 
 		const requestInit = {
 			method: 'PUT',

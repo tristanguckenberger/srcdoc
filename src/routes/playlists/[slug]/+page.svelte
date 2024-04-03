@@ -202,7 +202,8 @@
 					name: playlist?.name ?? 'New Playlist',
 					description: playlist?.description ?? 'New Playlist Description',
 					isPublic: Boolean(playlist?.is_public ?? playlist?.isPublic),
-					playlistId: playlist?.id
+					playlistId: playlist?.id,
+					thumbnail: playlist?.thumbnail
 				},
 				component: EditPlaylistDetails
 			}

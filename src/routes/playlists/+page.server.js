@@ -35,40 +35,43 @@ export const actions = {
 			}
 		};
 	},
-	updatePlaylist: async ({ cookies, request, fetch }) => {
-		const token = cookies.get('token');
-		const formData = await request.formData();
-		console.log('playlists/+page.server.js::updatePlaylist::formData::', formData);
-		const id = formData?.get('playlistId');
-		const isPublicString = formData?.get('is_public');
-		const isPublic = JSON.parse(isPublicString);
-		const name = formData?.get('name');
-		const description = formData?.get('description');
-		const requestHeaders = new Headers();
+	// updatePlaylist: async ({ cookies, request, fetch }) => {
+	// 	const token = cookies.get('token');
+	// 	const formData = await request.formData();
+	// 	console.log('playlists/+page.server.js::updatePlaylist::formData::', formData);
+	// 	const id = formData?.get('playlistId');
+	// 	const isPublicString = formData?.get('is_public');
+	// 	const isPublic = JSON.parse(isPublicString);
+	// 	const name = formData?.get('name');
+	// 	const description = formData?.get('description');
+	// 	const thumbnail = formData?.get('thumbnail');
+	// 	const requestHeaders = new Headers();
 
-		requestHeaders.append('Content-Type', 'application/json');
-		requestHeaders.append('Authorization', `Bearer ${token}`);
+	// 	console.log('updatePlaylist::formData::', formData);
 
-		const requestInit = {
-			method: 'PUT',
-			headers: requestHeaders,
-			mode: 'cors',
-			body: JSON.stringify({
-				isPublic,
-				name,
-				description
-			})
-		};
+	// 	requestHeaders.append('Authorization', `Bearer ${token}`);
 
-		const response = await fetch(`${process.env.SERVER_URL}/api/playlist/${id}`, requestInit);
-		const result = await response.json();
-		return {
-			status: 200,
-			body: {
-				result
-			}
-		};
-	},
+	// 	const requestInit = {
+	// 		method: 'PUT',
+	// 		headers: requestHeaders,
+	// 		mode: 'cors',
+	// 		body: JSON.stringify({
+	// 			isPublic,
+	// 			name,
+	// 			description,
+	// 			thumbnail
+	// 		})
+	// 	};
+
+	// 	const response = await fetch(`${process.env.SERVER_URL}/api/playlist/${id}`, requestInit);
+	// 	const result = await response.json();
+	// 	return {
+	// 		status: 200,
+	// 		body: {
+	// 			result
+	// 		}
+	// 	};
+	// },
 	addGameToPlaylist: async () => {},
 	removeGameFromPlaylist: async () => {},
 	search: async ({ fetch, request }) => {

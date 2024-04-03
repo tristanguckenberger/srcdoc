@@ -38,6 +38,8 @@
 			}
 		]);
 	})();
+
+	$: console.log('data.playlists::', data.playlists);
 </script>
 
 <div class="playlist-drawer-container">
@@ -64,7 +66,7 @@
 			<div class="playlist-container">
 				{#each data.playlists as playlist}
 					<div class="single-playlist-container">
-						<PlaylistCard id={playlist.id} {playlist} />
+						<PlaylistCard id={playlist.id} {playlist} thumbnail={playlist?.thumbnail} />
 					</div>
 				{/each}
 			</div>

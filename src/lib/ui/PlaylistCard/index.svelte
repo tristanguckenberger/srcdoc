@@ -106,7 +106,7 @@
 		tabindex="0"
 	>
 		<a href={cardLink} class="linked-card-container">
-			{#if imageLoaded && (thumbnail || playlist?.thumbnail)}
+			{#if thumbnail || playlist?.thumbnail}
 				<img
 					bind:this={cardImage}
 					class="card-thumbnail"
@@ -114,12 +114,12 @@
 					src={loadedThumbnail ?? playlist?.thumbnail}
 					alt={playlist?.name}
 				/>
+			{:else}
+				<div
+					class="card-thumbnail-placeholder card-thumbnail"
+					class:hidePlaceholder={thumbnail || playlist?.thumbnail}
+				/>
 			{/if}
-
-			<div
-				class="card-thumbnail-placeholder card-thumbnail"
-				class:hidePlaceholder={imageLoaded && (thumbnail || playlist?.thumbnail)}
-			/>
 		</a>
 		<div class="card-info">
 			<a href={`/playlists/${id}`}>

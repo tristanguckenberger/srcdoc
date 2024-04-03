@@ -84,6 +84,9 @@
 			right: 0;
 		}
 	}
+	.drawer > :global(div:first-child) {
+		height: 100%;
+	}
 	/* .drawer:first-child,
 	.drawer > div {
 		overflow-y: scroll;
