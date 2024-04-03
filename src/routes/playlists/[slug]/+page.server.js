@@ -51,7 +51,11 @@ export async function load({ params, fetch }) {
 		throw redirect(303, '/games');
 	}
 
-	if (!playlist.is_public && playlist.owner_id.toString() !== user.id.toString()) {
+	if (
+		!playlist.is_public &&
+		(playlist?.owner_id?.toString() !== user?.id?.toString() ||
+			playlist?.ownerId?.toString() !== user?.id?.toString())
+	) {
 		throw redirect(303, '/games');
 	}
 

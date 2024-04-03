@@ -54,8 +54,8 @@
 	$: showHover = true;
 	$: showMoreInfo = playlistWidth < 498 || (showHover && playlistWidth > 498);
 	$: isOwner =
-		user?.id.toString() === playlist?.owner_id?.toString() ||
-		user?.id.toString() === playlist?.ownerId?.toString();
+		user?.id?.toString() === playlist?.owner_id?.toString() ||
+		user?.id?.toString() === playlist?.ownerId?.toString();
 	$: {
 		if (playlistWidth < 498) {
 			showMoreInfo = true;

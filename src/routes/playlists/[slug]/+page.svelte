@@ -211,7 +211,7 @@
 	$: isPublic = Boolean(playlist?.is_public ?? playlist?.isPublic);
 	$: isSaved = Boolean(playlist?.isSaved);
 
-	$: console.log('page::data::playlist::', playlist?.isSaved === false);
+	$: console.log('page::data::playlist::', playlist);
 </script>
 
 <!-- 'X' close, cancel, delete -->

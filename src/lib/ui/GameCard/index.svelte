@@ -22,8 +22,8 @@
 	export let user;
 
 	$: isOwner =
-		user?.id.toString() === playlist?.owner_id?.toString() ||
-		user?.id.toString() === playlist?.ownerId?.toString();
+		user?.id?.toString() === playlist?.owner_id?.toString() ||
+		user?.id?.toString() === playlist?.ownerId?.toString();
 
 	const mousedOverItemId = getContext('playlistContext')?.mousedOverItemId;
 
@@ -57,6 +57,7 @@
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
 	$: showHover = $mousedOverItemId?.toString() === id?.toString();
 	$: showMoreInfo = showHover;
+	$: console.log('game::', game);
 </script>
 
 {#await (game, id, thumbnail, user)}
