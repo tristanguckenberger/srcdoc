@@ -103,6 +103,9 @@
 		overflow-x: hidden;
 		padding-bottom: 20px;
 	}
+	:global(#editor-layout.playInRoute) {
+		padding-bottom: 0;
+	}
 	h3,
 	h4 {
 		font-family: 'Inter', sans-serif;

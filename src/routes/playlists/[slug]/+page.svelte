@@ -361,6 +361,8 @@ viewBox="0 0 256 256"
 							{dragStart}
 							{dragOver}
 							{dragEnd}
+							{playlist}
+							user={sessionData}
 						/>
 					</div>
 				{/each}

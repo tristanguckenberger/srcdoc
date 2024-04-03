@@ -160,13 +160,7 @@
 									const deltePlaylistRes = await fetch(
 										`/api/playlist/${playlist?.id}/${isOwner ? 'delete' : 'removePlaylist'}`
 									);
-									if (deltePlaylistRes.ok && isOwner) {
-										await tick();
-										invalidate(`/api/playlist/myLibrary`);
-									} else if (deltePlaylistRes.ok && !isOwner) {
-										await tick();
-										invalidateAll();
-									}
+									invalidateAll();
 									console.log('deltePlaylistRes::', deltePlaylistRes);
 								}}
 							>
