@@ -106,15 +106,20 @@
 		tabindex="0"
 	>
 		<a href={cardLink} class="linked-card-container">
-			<img
-				bind:this={cardImage}
-				class="card-thumbnail"
-				class:showImage={imageLoaded}
-				src={loadedThumbnail ?? playlist?.thumbnail}
-				alt={playlist?.name}
-			/>
+			{#if imageLoaded && (thumbnail || playlist?.thumbnail)}
+				<img
+					bind:this={cardImage}
+					class="card-thumbnail"
+					class:showImage={imageLoaded}
+					src={loadedThumbnail ?? playlist?.thumbnail}
+					alt={playlist?.name}
+				/>
+			{/if}
 
-			<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
+			<div
+				class="card-thumbnail-placeholder card-thumbnail"
+				class:hidePlaceholder={imageLoaded && (thumbnail || playlist?.thumbnail)}
+			/>
 		</a>
 		<div class="card-info">
 			<a href={`/playlists/${id}`}>
@@ -212,15 +217,8 @@
 		opacity: 1;
 	}
 	.card-thumbnail-placeholder {
-		width: 50px;
-		height: 50px;
-		border-radius: 6px;
 		background-color: var(--folder-button-color);
 		opacity: 1;
-		position: absolute;
-		top: 0;
-		transition: opacity 0.03s;
-		min-width: 50px;
 	}
 	.card-info {
 		color: var(--color-primary);

@@ -52,6 +52,7 @@ export async function load({ fetch, setHeaders }) {
 	// Assuming user is already sanitized before being sent to the client
 	if (userData?.id) {
 		user = userData;
+		// session.user = user;
 
 		if (!user?.is_active) {
 			throw redirect(303, `/users/${user?.id}/verify`);
@@ -65,9 +66,18 @@ export async function load({ fetch, setHeaders }) {
 		nextCursor = publishedGames[publishedGames?.length - 1].id;
 	}
 
-	setHeaders({
-		'cache-control': 'max-age=604800'
-	});
+	// console.log('session::', session);
+
+	if (!user) {
+		// Clear cache if user is not logged in
+		setHeaders({
+			'cache-control': 'no-store'
+		});
+	} else {
+		setHeaders({
+			'cache-control': 'max-age=604800'
+		});
+	}
 
 	return {
 		games: [], // [...publishedGames],

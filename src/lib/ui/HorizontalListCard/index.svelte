@@ -59,7 +59,7 @@
 		tabindex="0"
 	>
 		<a href={cardLink} class="linked-card-container">
-			{#if loadedThumbnail}
+			{#if thumbnail || item?.thumbnail}
 				<img
 					bind:this={cardImage}
 					class="card-thumbnail"
@@ -67,11 +67,11 @@
 					src={loadedThumbnail}
 					alt={title}
 				/>
-				<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
 			{:else}
-				<div class="leading">
-					<slot name="leading-item" />
-				</div>
+				<div
+					class="card-thumbnail-placeholder card-thumbnail"
+					class:hidePlaceholder={thumbnail || item?.thumbnail}
+				/>
 			{/if}
 		</a>
 		<div class="card-info">
@@ -79,7 +79,6 @@
 				<h4>{title}</h4>
 				<p class="card-text">{subtitle}</p>
 			</a>
-			<div class="more-actions" class:show={showMoreInfo}>...</div>
 		</div>
 	</div>
 {/await}
@@ -114,15 +113,9 @@
 		opacity: 1;
 	}
 	.card-thumbnail-placeholder {
-		width: 100%;
-		height: 100%;
-		border-radius: 6px;
 		background-color: var(--folder-button-color);
 		opacity: 1;
-		position: absolute;
-		top: 0;
-		transition: opacity 0.03s;
-		min-width: 50px;
+		margin-bottom: 10px;
 	}
 	.card-info {
 		color: var(--color-primary);

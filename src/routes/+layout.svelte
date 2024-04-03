@@ -544,7 +544,20 @@
 										<Button label="Home" link="/games" />
 									</li>
 									<li>
-										<form class="logout-form" action="/?/logout" method="POST">
+										<form
+											class="logout-form"
+											action="/?/logout"
+											method="POST"
+											use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+												return async ({ result }) => {
+													if (result.status === 200) {
+														console.log('logout successful');
+														session.set(null);
+														invalidateAll();
+													}
+												};
+											}}
+										>
 											<Button label="Logout" />
 										</form>
 									</li>

@@ -102,15 +102,20 @@
 		tabindex="0"
 	>
 		<a href={cardLink} class="linked-card-container">
-			<img
-				bind:this={cardImage}
-				class="card-thumbnail"
-				class:showImage={imageLoaded}
-				src={loadedThumbnail ?? game?.thumbnail}
-				alt={game?.title}
-			/>
-
-			<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
+			{#if game?.thumbnail}
+				<img
+					bind:this={cardImage}
+					class="card-thumbnail"
+					class:showImage={imageLoaded}
+					src={game?.thumbnail}
+					alt={game?.title}
+				/>
+			{:else}
+				<div
+					class="card-thumbnail-placeholder card-thumbnail"
+					class:hidePlaceholder={thumbnail || game?.thumbnail}
+				/>
+			{/if}
 		</a>
 		<div class="card-info">
 			<a href={`/games/${id}/play`}>
@@ -185,6 +190,7 @@
 		padding: 10px;
 		background: #32323229;
 		transition: background 0.2s linear(0.07 -1.12%, 1 100%);
+		height: fit-content;
 	}
 	.game:hover {
 		cursor: pointer;
@@ -202,14 +208,9 @@
 		opacity: 1;
 	}
 	.card-thumbnail-placeholder {
-		width: 100%;
-		height: 250px;
-		border-radius: 6px;
 		background-color: var(--folder-button-color);
 		opacity: 1;
-		position: absolute;
-		top: 0;
-		transition: opacity 0.03s;
+		margin-bottom: 10px;
 	}
 	.card-info {
 		color: var(--color-primary);

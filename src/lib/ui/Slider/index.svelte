@@ -450,7 +450,11 @@
 												<input type="hidden" name="gameId" value={$currentGameStore?.id} />
 												<button
 													class="action-button button add-to-playlist"
-													on:click={() => {
+													class:muted={$session?.id !== game?.user_id}
+													on:click|preventDefault={() => {
+														if ($session?.id !== game?.user_id) {
+															return;
+														}
 														$playButton = false;
 														if (browser) {
 															$selectedOption = 6;
@@ -820,5 +824,11 @@
 	}
 	.add-to-playlist svg {
 		fill: var(--color-primary);
+	}
+	button.muted {
+		opacity: 0.3;
+	}
+	button.muted:hover {
+		cursor: not-allowed;
 	}
 </style>

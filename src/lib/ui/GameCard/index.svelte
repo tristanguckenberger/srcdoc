@@ -34,6 +34,7 @@
 
 	afterUpdate(() => {
 		if (cardImage) {
+			console.log('cardImage::', cardImage);
 			imageLoaded = true;
 		}
 	});
@@ -78,14 +79,20 @@
 		tabindex="0"
 	>
 		<a href={cardLink} class="linked-card-container" tabindex="0">
-			<img
-				bind:this={cardImage}
-				class="card-thumbnail"
-				class:showImage={imageLoaded}
-				src={loadedThumbnail ?? game?.thumbnail}
-				alt={game?.title}
-			/>
-			<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
+			{#if thumbnail || playlist?.thumbnail}
+				<img
+					bind:this={cardImage}
+					class="card-thumbnail"
+					class:showImage={imageLoaded}
+					src={loadedThumbnail ?? game?.thumbnail}
+					alt={game?.title}
+				/>
+			{:else}
+				<div
+					class="card-thumbnail-placeholder card-thumbnail"
+					class:hidePlaceholder={thumbnail || playlist?.thumbnail}
+				/>
+			{/if}
 		</a>
 		<div class="card-info">
 			<a href={`/games/${id}/play`}>
@@ -196,15 +203,8 @@
 		opacity: 1;
 	}
 	.card-thumbnail-placeholder {
-		width: 100%;
-		height: 100%;
-		border-radius: 6px;
 		background-color: var(--folder-button-color);
 		opacity: 1;
-		position: absolute;
-		top: 0;
-		transition: opacity 0.03s;
-		min-width: 50px;
 	}
 	.card-info {
 		color: var(--color-primary);
