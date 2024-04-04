@@ -412,7 +412,11 @@
 												}}
 											>
 												<input type="hidden" name="gameId" value={$currentGameStore?.id} />
-												<button class="action-button button favorites" on:click={() => {}}>
+												<button
+													class="action-button button favorites"
+													class:muted={$session?.id !== game?.user_id}
+													on:click={() => {}}
+												>
 													<!-- {#if isFavorited && $gameFavoriteCount > 0} -->
 													<svg
 														width="27"

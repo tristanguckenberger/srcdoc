@@ -2,6 +2,7 @@
 	// @ts-nocheck
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import { page } from '$app/stores';
+	import { session } from '$lib/stores/sessionStore';
 
 	export let label;
 	export let link;
@@ -115,6 +116,7 @@
 			class:isDoneButton={label === 'Done'}
 			class:verifyMe={label === 'Verify Me'}
 			class={additionalClasses}
+			class:muted={label === 'New Project' && !$session?.id}
 			{style}
 		>
 			{#if label === 'open'}
@@ -436,5 +438,11 @@
 		width: 1.6rem;
 		height: 1.6rem;
 		fill: var(--color-primary);
+	}
+	button.muted {
+		opacity: 0.3;
+	}
+	button.muted:hover {
+		cursor: not-allowed;
 	}
 </style>

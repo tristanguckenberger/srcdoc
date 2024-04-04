@@ -412,6 +412,10 @@
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
 	$: disableBackButton = $routeHistoryStore?.length < 2;
 	$: console.log('$routeHistoryStore::', $routeHistoryStore);
+	$: myProjectsLink = !$session?.id ? null : `/users/${$session?.id}/games`;
+	$: myLibraryLink = !$session?.id ? null : `/users/${$session?.id}/library`;
+	$: newPlayListLink = !$session?.id ? null : `/users/${$session?.id}/library`;
+	$: favoritesLink = !$session?.id ? null : '/games/favorites';
 	/**
 	 * We have to reference the store to trigger the reactive statement
 	 */
@@ -570,12 +574,6 @@
 			>
 				<div id="primary-actions" class="sidebar-section">
 					<ul>
-						<!-- <button
-							class="loader-toggle"
-							on:click|preventDefault={() => {
-								canShowLoader = !canShowLoader;
-							}}>Show Loading Indicator</button
-						> -->
 						<a href="/games" class:active={!isUserGamesBrowsePage && isBrowsePage}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -602,7 +600,12 @@
 							>
 							<span>Quick Play</span>
 						</a>
-						<a href="/games/favorites" class:active={isUserFavoritesBrowsePage}>
+						<a
+							href={favoritesLink}
+							class:active={isUserFavoritesBrowsePage}
+							class="sidebar-item"
+							class:muted={!$session?.id}
+						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -616,8 +619,13 @@
 							<span>Favorites</span>
 						</a>
 						<a
-							href={`/users/${$session?.id}/library`}
+							href={newPlayListLink}
+							class="sidebar-item"
+							class:muted={!$session?.id}
 							on:click={() => {
+								if (!$session?.id) {
+									return;
+								}
 								creatingNewPlaylist = true;
 							}}
 						>
@@ -634,8 +642,10 @@
 							<span>New Playlist</span>
 						</a>
 						<a
-							href={`/users/${sessionData?.id ?? $session?.id}/library`}
+							href={myLibraryLink}
+							class="sidebar-item"
 							class:active={isUserLibraryPage}
+							class:muted={!$session?.id}
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -714,9 +724,11 @@
 					<h3>Projects</h3>
 					<ul>
 						<a
-							href="/users/{sessionData?.id}/games"
+							href={myProjectsLink}
 							class:active={isUserGamesBrowsePage}
 							class="sidebar-item"
+							class:muted={!$session?.id}
+							aria-disabled={!$session?.id}
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -730,7 +742,7 @@
 							>
 							<span>My Projects</span>
 						</a>
-						<div class="sidebar-action">
+						<div class="sidebar-action" class:muted={!$session?.id}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -1559,5 +1571,25 @@
 	}
 	a.back-button.disableBackButton:hover {
 		cursor: default;
+	}
+	.sidebar-item.muted span {
+		opacity: 0.3;
+	}
+	.sidebar-action.muted svg,
+	.sidebar-item.muted svg {
+		fill-opacity: 0.3;
+		opacity: 0.3;
+	}
+	.sidebar-action.muted:hover,
+	.sidebar-item.muted:hover,
+	.sidebar-action.muted svg:hover,
+	.sidebar-item.muted svg:hover {
+		cursor: not-allowed;
+		/* fill-opacity: 0.3;
+		opacity: 0.3; */
+	}
+
+	.sidebar-action.muted:hover {
+		cursor: not-allowed !important;
 	}
 </style>
