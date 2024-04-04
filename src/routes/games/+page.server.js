@@ -71,7 +71,7 @@ export async function load({ fetch, setHeaders }) {
 	if (!user) {
 		// Clear cache if user is not logged in
 		setHeaders({
-			'cache-control': 'no-store'
+			'cache-control': 'no-store, max-age=0'
 		});
 	} else {
 		setHeaders({

@@ -49,7 +49,7 @@ async function getAllCommentsForAGame(fetch, slug) {
 	return comments;
 }
 
-export async function load({ params, fetch }) {
+export async function load({ params, fetch, setHeaders }) {
 	const { slug } = params;
 	let user = null;
 	let userGames = [];
@@ -89,9 +89,9 @@ export async function load({ params, fetch }) {
 	const topGame = currentIndex > 0 ? games[currentIndex - 1] : games[games.length - 1];
 	const bottomGame = currentIndex < games.length - 1 ? games[currentIndex + 1] : games[0];
 
-	// setHeaders({
-	// 	'cache-control': 'max-age=604800'
-	// });
+	setHeaders({
+		'cache-control': 'max-age=604800'
+	});
 
 	return {
 		...game,

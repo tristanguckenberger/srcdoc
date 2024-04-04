@@ -236,6 +236,8 @@
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
 	$: visibleThumbnails = showSlides;
+	$: console.log('hideActionNav::', hideActionNav);
+	$: console.log('gamesAvailable::', gamesAvailable);
 </script>
 
 <svelte:window on:keyup={debouncedKeyUp} />
@@ -250,7 +252,9 @@
 						<div
 							class="overlay-blur blur_{i}"
 							class:drawerOpen={$drawerOpen}
-							style="--bg_{i}: url('{game?.thumbnail ?? 'https://picsum.photos/600/600'}');"
+							style="--bg_{i}: url('{visibleThumbnails
+								? game?.thumbnail || 'https://picsum.photos/600/600'
+								: 'https://picsum.photos/600/600'}');"
 						/>
 						<div class="overlay-light-fade" />
 						<div class="nav-action" bind:clientHeight={navActionHeight}>
