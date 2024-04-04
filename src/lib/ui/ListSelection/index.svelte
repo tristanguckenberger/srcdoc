@@ -26,12 +26,9 @@
 		let initialStoreValue;
 		let addGame = false;
 		let removeGame = false;
-		console.log('select::playlistId::', playlistId);
-		console.log('select::currentGameId::', currentGameId);
 		playlistSelectionStore.update(() => {
 			// find where the id is equal to the playlistId and update the checked value
 			const index = $playlistSelectionStore.findIndex((playlist) => {
-				console.log(`playlist::`, playlist);
 				return playlist.id === playlistId;
 			});
 
@@ -44,42 +41,13 @@
 			initialStoreValue = JSON.parse(JSON.stringify($playlistSelectionStore[index]));
 			$playlistSelectionStore[index].checked = !$playlistSelectionStore[index].checked;
 
-			// assuming the initialStoreValue?.checked !== $playlistSelectionStore[index].checked, this means, the initialStoreValue
-			// is the old value and the new value is $playlistSelectionStore[index].checked
-			// when this is the case we want to update our db to reflect the new value
-			// if (initialStoreValue?.checked !== $playlistSelectionStore[index].checked) {
-			// 	doDBUpdate = true;
-			// }
-
-			console.log(
-				'$playlistSelectionStore[index].checked !== initialStoreValue?.checked',
-				$playlistSelectionStore[index].checked !== initialStoreValue?.checked
-			);
-
 			if ($playlistSelectionStore[index].checked !== initialStoreValue?.checked) {
-				// querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
-				// 	checkbox.checked = false;
-				// });
 				addGame = Boolean($playlistSelectionStore[index].checked);
 				removeGame = !Boolean($playlistSelectionStore[index].checked);
-				// if ($playlistSelectionStore[index].checked) {
-				// 	addGame = true;
-				// 	removeGame = false;
-				// } else {
-				// 	addGame = false;
-				// 	removeGame = true;
-				// }
 			}
 
 			return $playlistSelectionStore;
 		});
-
-		// if (doDBUpdate) {
-		// 	console.log('doDBUpdate::', doDBUpdate);
-		// 	// update the db
-
-		console.log('playlistInfo::addGame::', addGame);
-		console.log('playlistInfo::removeGame::', removeGame);
 
 		if (removeGame) {
 			const removedGame = await fetch(`/api/playlist/${playlistId}/removeGame`, {
@@ -92,7 +60,6 @@
 				})
 			});
 			removeGame = false;
-			console.log('removedGame::', removedGame);
 			await invalidateAll();
 		} else if (addGame) {
 			const addedGame = await fetch(`/api/playlist/${playlistId}/addGame`, {
@@ -105,10 +72,8 @@
 				})
 			});
 			addGame = false;
-			console.log('addedGame::', addedGame);
 			await invalidateAll();
 		} else {
-			console.log('no action taken');
 			addGame = false;
 			removeGame = false;
 		}
@@ -134,20 +99,14 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: user = $session;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
-	$: console.log('playlist::', playlist);
-	// $: checked = $playlistSelectionStore?.includes(id);
-	$: console.log('$playlistSelectionStore::', $playlistSelectionStore);
 
 	// get the checked value from the store
 	// $: checked = $playlistSelectionStore?.filter((playlistId) => playlistId === id)?.[0]?.checked;
 	$: checkedStoreValue = $playlistSelectionStore?.find((playlist) => {
-		console.log('playlist::', playlist);
 		return playlist.id === id;
 	});
 
 	$: checked = checkedStoreValue?.checked;
-
-	$: console.log('checkedStoreValue::', checkedStoreValue);
 </script>
 
 {#await (playlist, id, thumbnail, user)}
@@ -159,7 +118,7 @@
 		on:mouseenter={() => (showMoreInfo = true)}
 		on:mouseleave={() => (showMoreInfo = false)}
 		on:focus={() => {
-			console.log('focused');
+			// console.log('focused');
 		}}
 		on:click={() => handleSelectionToggle(id)}
 		aria-roledescription="playlist"

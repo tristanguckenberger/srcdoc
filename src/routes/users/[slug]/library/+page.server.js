@@ -38,8 +38,6 @@ export async function load({ cookies, params, fetch }) {
 
 	const userPlaylists = await getAllPlaylistsByUser(fetch);
 
-	console.log('userPlaylists::', userPlaylists);
-
 	session.set({
 		...user
 	});

@@ -66,21 +66,12 @@ export async function load({ fetch, setHeaders }) {
 		nextCursor = publishedGames[publishedGames?.length - 1].id;
 	}
 
-	// console.log('session::', session);
-
-	if (!user) {
-		// Clear cache if user is not logged in
-		setHeaders({
-			'cache-control': 'no-store, max-age=0'
-		});
-	} else {
-		setHeaders({
-			'cache-control': 'max-age=604800'
-		});
-	}
+	setHeaders({
+		'cache-control': 'max-age=6000'
+	});
 
 	return {
-		games: [], // [...publishedGames],
+		games: [],
 		nextCursor: nextCursor,
 		user
 	};
@@ -95,8 +86,6 @@ export const actions = {
 		const name = formData?.get('name');
 		const description = formData?.get('description');
 		const requestHeaders = new Headers();
-
-		console.log('createPlaylist::formData::', formData);
 
 		requestHeaders.append('Content-Type', 'application/json');
 		requestHeaders.append('Authorization', `Bearer ${token}`);
@@ -195,8 +184,6 @@ export const actions = {
 				}
 			};
 		}
-
-		// console.log('authResponse::project::');
 
 		const project = await authResponse.json();
 
@@ -400,7 +387,6 @@ export const actions = {
 			`${process.env.SERVER_URL}/api/favorites/delete/${id}`,
 			requestInit
 		);
-		// console.log('favResponse::', favResponse);
 
 		if (!favResponse.ok) {
 			return {

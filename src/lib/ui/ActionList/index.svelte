@@ -15,21 +15,6 @@
 
 	let componentWidth;
 
-	const getAllCategories = async () => {
-		const response = await fetch('/api/categories/static/all', {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
-
-		console.log('category-response::', response);
-
-		const data = await response.json();
-		console.log('category data::', data);
-		items = [...data?.categories];
-	};
-
 	$: isMobile = componentWidth < 498;
 </script>
 

@@ -1,9 +1,7 @@
 // @ts-nocheck
 import { json } from '@sveltejs/kit';
 
-export async function GET({ params, cookies }) {
-	const { slug } = params;
-	console.log('slug::', slug);
+export async function GET({ cookies }) {
 	const requestHeaders = new Headers();
 	const token = cookies.get('token');
 
@@ -18,9 +16,5 @@ export async function GET({ params, cookies }) {
 	const response = await fetch(`${process.env.SERVER_URL}/api/playlist/get/library`, requestInit);
 
 	const result = await response.json();
-
-	console.log('result::', result);
-
-	// Return a response
 	return json(result);
 }

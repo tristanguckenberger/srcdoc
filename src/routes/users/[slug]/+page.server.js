@@ -80,13 +80,9 @@ export const actions = {
 		const token = cookies.get('token');
 		const { slug } = params;
 
-		// console.log('updateUserDetails::slug::', slug);
-
 		const formData = await request.formData();
 		const requestHeaders = new Headers();
 		requestHeaders.append('Authorization', `Bearer ${token}`);
-
-		console.log('formData::', formData);
 
 		const requestInit = {
 			method: 'PUT',
@@ -108,62 +104,9 @@ export const actions = {
 		}
 
 		const user = await response.json();
-		// console.log('Updated user:', user);
-
 		return {
 			body: user
 		};
-
-		// const { slug } = params;
-
-		// const formData = await request.formData();
-		// const file = formData.get('profilePhoto');
-		// const id = formData?.get('id');
-		// const username = formData?.get('username');
-		// const profilePhoto = formData?.get('profile_photo');
-		// const bio = formData?.get('bio');
-
-		// console.log('formData::', formData);
-
-		// const requestHeaders = new Headers();
-		// requestHeaders.append('Content-Type', 'application/json');
-		// requestHeaders.append('Authorization', `Bearer ${token}`);
-		// const requestInit = {
-		// 	method: 'PUT',
-		// 	headers: requestHeaders,
-		// 	mode: 'cors',
-		// 	body: JSON.stringify({
-		// 		username,
-		// 		profilePhoto,
-		// 		bio
-		// 	})
-		// };
-
-		// const authResponse = await fetch(
-		// 	`${process.env.SERVER_URL}/api/users/update/${id}`,
-		// 	requestInit
-		// );
-
-		// if (!authResponse.ok) {
-		// 	console.log('authResponse::user::');
-		// 	console.log('authResponse::user::FAILED::', authResponse);
-		// 	return {
-		// 		status: 401,
-		// 		body: {
-		// 			message: 'Failed to update user'
-		// 		}
-		// 	};
-		// }
-		// console.log('authResponse::user::OKAY::');
-
-		// const user = {}; //await authResponse.json();
-		// console.log('authResponse::user::', user);
-
-		// return {
-		// 	body: {
-		// 		...user
-		// 	}
-		// };
 	},
 	search: async ({ fetch, request }) => {
 		const formData = await request.formData();

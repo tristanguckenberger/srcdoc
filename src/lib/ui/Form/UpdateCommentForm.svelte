@@ -14,8 +14,6 @@
 	export let parentCommentId;
 	export let isEditingUpdate = true;
 
-	$: console.log('UpdateCommentForm::comment::', comment);
-
 	const commentText = writable('');
 	const newCommentMaxLength = 1500;
 
@@ -67,7 +65,6 @@
 	action="/games/?/updateComment"
 	use:enhance={({ formElement, formData, action, cancel, redirect }) => {
 		return async ({ result }) => {
-			console.log('enhance::result::', result);
 			if (result.status === 200) {
 				await tick();
 				inputText = '';

@@ -25,10 +25,7 @@
 			}
 		});
 
-		console.log('category-response::', response);
-
 		const data = await response.json();
-		console.log('category data::', data);
 
 		if (data?.categories?.length > limit) {
 			showViewMore = true;
@@ -48,7 +45,7 @@
 		if (games?.length > limit) {
 			showViewMore = true;
 		}
-		console.log('myProjects::games::', games);
+
 		items = [...games.slice(0, limit)];
 	};
 
@@ -63,7 +60,7 @@
 		if (games?.length > limit) {
 			showViewMore = true;
 		}
-		console.log('myProjects::games::', games);
+
 		items = [...games?.slice(0, limit)];
 	};
 
@@ -79,7 +76,6 @@
 	});
 
 	afterUpdate(() => {
-		// console.log('items::', items);
 		// if items is empty, fetch the categories
 		if (items?.length === 0 && type === 'categories') {
 			getAllCategories();
@@ -89,8 +85,6 @@
 			getMyFavorites();
 		}
 	});
-
-	$: console.log('horizontalList::type::', type);
 </script>
 
 <div class="horizontal-list">
@@ -116,7 +110,6 @@
 				/>
 			</div>
 		{/each}
-		<!-- <h1>Categories Here</h1> -->
 	</div>
 </div>
 
@@ -183,24 +176,11 @@
 		flex: 0 0 auto;
 	}
 
-	.horizontal-list .list-container .list-item img {
-		width: 100px;
-		height: 100px;
-		border-radius: 10px;
-	}
-
 	.horizontal-list .list-container .list-item h4 {
 		font-family: 'Inter', sans-serif;
 		font-size: 1rem;
 		font-weight: 500;
 		color: var(--color-primary);
-	}
-
-	.horizontal-list .list-container .list-item p {
-		font-family: 'Inter', sans-serif;
-		font-size: 0.78rem;
-		font-weight: 450;
-		color: var(--folder-button-color);
 	}
 
 	.horizontal-list .list-container .list-item a {
@@ -211,18 +191,7 @@
 		text-decoration: underline;
 	}
 
-	.horizontal-list .list-container .list-item .list-item-info {
-		display: flex;
-		flex-direction: column;
-		gap: 5px;
-	}
-
 	.horizontal-list .list-container .list-item .list-item-info h4 {
-		margin-block-start: 0;
-		margin-block-end: 0;
-	}
-
-	.horizontal-list .list-container .list-item .list-item-info p {
 		margin-block-start: 0;
 		margin-block-end: 0;
 	}

@@ -46,7 +46,5 @@ export async function GET({ setHeaders }) {
 	// before returning the games we need to remove any duplicates
 	const gamesSet = new Set(games?.games.map((game) => game));
 
-	// console.log('server::games::', games);
-
 	return json({ games: [...gamesSet] });
 }

@@ -373,7 +373,6 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
  *
  */
 const buildDynamicSrcDoc = (files, rootId, clientDimensions, gameControllerStore) => {
-	console.log('HIT::buildDynamicSrcDoc::');
 	if (!files || files.length === 0) {
 		return {
 			errorMessage: 'No files provided!'

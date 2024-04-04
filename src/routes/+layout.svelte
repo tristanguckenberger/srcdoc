@@ -80,6 +80,7 @@
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
 	export let data; // This is the data from the server, includes `sessionData`
+	export let formData;
 
 	// Variables
 	let preferedThemeMode;
@@ -145,8 +146,6 @@
 						sessionTotalScore: $gameSessionScore
 					})
 				}).then(async (res) => {
-					const resJSON = await res.json();
-					console.log('resJSON::', resJSON);
 					$gameSessionScore = 0;
 				});
 			} catch (error) {
@@ -335,16 +334,10 @@
 
 		const addActivityJSON = await addActivity;
 		const addActivityData = await addActivityJSON.json();
-
-		if (addActivityData?.game_user_activity_id) {
-			console.log('addActivityData::', addActivityData);
-		}
 	};
 
 	const playToggle = async () => {
 		const gameSessionId = $gameSessionState?.id;
-
-		console.log('playToggle::gameSessionId::', gameSessionId);
 
 		if ($drawerOpen) {
 			// if the drawer component is open, we dont want to show the play button or allow it to be clicked
@@ -366,24 +359,6 @@
 				} else {
 					$firstRun = false;
 				}
-			}
-		}
-	};
-
-	const newPlaylist = async () => {
-		console.log('newPlaylist::', $session?.id);
-
-		await tick();
-		if ($session?.id) {
-			try {
-				goto(`/users/${$session?.id}/playlists`, { replaceState: false }).then(() => {
-					$playButton = false;
-					browser && selectedOption.set(0);
-					$playButton = false;
-					$drawerOpen = true;
-				});
-			} catch (error) {
-				console.log('newPlaylist::error::', error);
 			}
 		}
 	};
@@ -430,7 +405,7 @@
 		// console.log('fileSys::softSelectedFileId::', $softSelectedFileId);
 		// console.log('fileSys::=======================');
 		// console.log('$page::', $page);
-		console.log('showBoxShadow::', $showBoxShadow);
+		// console.log('showBoxShadow::', $showBoxShadow);
 	}
 
 	$: console.log('routeHistoryStore::previousRoute::', previousRoute);
@@ -558,7 +533,6 @@
 											use:enhance={({ formElement, formData, action, cancel, redirect }) => {
 												return async ({ result }) => {
 													if (result.status === 200) {
-														console.log('logout successful');
 														session.set(null);
 														invalidateAll();
 													}
@@ -811,13 +785,22 @@
 						{/if}
 						{#if sessionData?.username || $session?.username}
 							<li class="sidebar-action">
-								<form class="logout-form" action="/?/logout" method="POST">
+								<form
+									class="logout-form"
+									action="/?/logout"
+									method="POST"
+									use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+										return async ({ result }) => {
+											if (result.status === 200) {
+												session.set(null);
+												invalidateAll();
+											}
+										};
+									}}
+								>
 									<Button label="Logout" />
 								</form>
 							</li>
-							<!-- {#if dropDownToggle} -->
-
-							<!-- {/if} -->
 						{/if}
 					</ul>
 				</div>
@@ -851,7 +834,7 @@
 						tabindex="0"
 						on:click={debouncedScrollBack}
 						on:keypress={() => {
-							console.log('key pressed');
+							// console.log('key pressed');
 						}}
 					>
 						<svg
@@ -871,7 +854,7 @@
 						tabindex="0"
 						on:click={debouncedScrollForward}
 						on:keypress={() => {
-							console.log('key pressed');
+							// console.log('key pressed');
 						}}
 					>
 						<svg

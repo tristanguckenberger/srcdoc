@@ -34,7 +34,6 @@
 
 	afterUpdate(() => {
 		if (cardImage) {
-			console.log('cardImage::', cardImage);
 			imageLoaded = true;
 		}
 	});
@@ -58,7 +57,6 @@
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
 	$: showHover = $mousedOverItemId?.toString() === id?.toString();
 	$: showMoreInfo = showHover;
-	$: console.log('game::', game);
 </script>
 
 {#await (game, id, thumbnail, user)}
@@ -69,7 +67,7 @@
 		class:showHover
 		style={`${themeString}`}
 		on:focus={() => {
-			console.log('focused');
+			// console.log('focused');
 		}}
 		on:dragstart={(e) => dragStart(e, game)}
 		on:dragover={(e) => dragOver(e, game)}
@@ -113,7 +111,6 @@
 						{#if isOwner}<button
 								class="more-action-button"
 								on:click={async () => {
-									console.log('button_click::edit_playlist::', game?.id);
 									goto(`/games/${game?.id}/play`).then(() => {
 										$selectedOption = 3;
 										$playButton = false;
@@ -135,7 +132,6 @@
 							<button
 								class="more-action-button"
 								on:click|preventDefault={async () => {
-									console.log('button_click::delete_playlist::', playlist?.id);
 									const deltePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/removeGame`, {
 										method: 'POST',
 										headers: {
@@ -152,7 +148,6 @@
 										await tick();
 										invalidateAll();
 									}
-									console.log('deltePlaylistRes::', deltePlaylistRes);
 								}}
 							>
 								<svg

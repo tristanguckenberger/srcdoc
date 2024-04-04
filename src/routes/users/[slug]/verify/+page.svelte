@@ -27,8 +27,6 @@
 	afterUpdate(async () => {
 		if (data?.sessionData?.is_active) {
 			throw redirect(307, '/games');
-		} else {
-			console.log('cannot navigate::', data?.sessionData);
 		}
 	});
 

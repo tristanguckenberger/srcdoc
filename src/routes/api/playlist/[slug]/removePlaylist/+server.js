@@ -2,7 +2,6 @@
 import { json } from '@sveltejs/kit';
 
 export async function GET({ cookies, params }) {
-	console.log(':::::::::::::::::::HIT RemovePlaylist from Library API route:::::::::::::::::::');
 	const token = cookies.get('token');
 	const playlistSlug = params.slug;
 

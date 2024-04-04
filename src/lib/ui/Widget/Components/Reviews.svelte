@@ -4,7 +4,7 @@
 
 	export let gameData;
 	onMount(() => {
-		console.log('gameData::', gameData);
+		// console.log('gameData::', gameData);
 	});
 </script>
 

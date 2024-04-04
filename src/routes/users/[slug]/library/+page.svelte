@@ -38,8 +38,6 @@
 			}
 		]);
 	})();
-
-	$: console.log('data.playlists::', data.playlists);
 </script>
 
 <div class="playlist-drawer-container">

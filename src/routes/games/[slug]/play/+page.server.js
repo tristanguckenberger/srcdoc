@@ -54,8 +54,6 @@ export async function load({ params, fetch, setHeaders }) {
 	let user = null;
 	let userGames = [];
 
-	console.log('HIT PLAY SERVER LOAD FUNCTION', slug);
-
 	const [allGames, userData, game, favorites] = await Promise.all([
 		fetchData(fetch, `/api/games/getAllGames`),
 		getCurrentUser(fetch),
@@ -78,7 +76,6 @@ export async function load({ params, fetch, setHeaders }) {
 
 	// Enhance game object with files and comments if available
 	if (game) {
-		console.log('server::game::', game);
 		const filesResponse = await fetchData(fetch, `/api/games/getSingleGame/${slug}/files`);
 		game.files = filesResponse ?? [];
 		game.comments = (await getAllCommentsForAGame(fetch, slug)) ?? [];

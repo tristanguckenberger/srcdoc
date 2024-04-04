@@ -36,7 +36,6 @@
 		const playlistsWithGames = await Promise.all(
 			playlists?.map(async (playlist) => {
 				let games = await getAllGamesForPlaylist(eventFetch, playlist.id);
-				// console.log('playlist::games::', await games);
 				const playlistAndGames = { ...(await games) };
 
 				return playlistAndGames;
@@ -53,10 +52,8 @@
 	};
 
 	onMount(async () => {
-		// console.log('gameId::', gameId);
 		// fetch all of a users OWNED playlists
 		getAllPlaylistsByUser(fetch).then((playlists) => {
-			console.log('getAllPlaylistsByUser::playlists::', playlists);
 			allUserOwnedPlaylists = playlists;
 
 			// Add all playlists to the playlistSelectionStore initially
@@ -67,7 +64,6 @@
 			// Check if the gameId is in any of the playlist's games (playlist.games.includes(gameId))
 			// Update the store checked values accordingly
 			playlists.forEach((playlist) => {
-				console.log('playlist::', playlist);
 				playlist.games.forEach((game) => {
 					if (game?.id === gameId) {
 						playlistSelectionStore.update((store) => {
@@ -83,13 +79,6 @@
 			});
 		});
 	});
-
-	// fetch all user owned playlists the game is in
-	// getGameInPlaylists(fetch).then((playlists) => {
-	// 	console.log('getGameInPlaylists::playlists::', playlists);
-	// 	playlistSelectionStore.set(playlists);
-	// });
-	// });
 
 	onDestroy(() => {
 		allUserOwnedPlaylists = [];

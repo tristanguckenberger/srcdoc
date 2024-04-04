@@ -104,10 +104,6 @@
 
 		const addActivityJSON = await addActivity;
 		const addActivityData = await addActivityJSON.json();
-
-		if (addActivityData?.game_user_activity_id) {
-			console.log('addActivityData::', addActivityData);
-		}
 	};
 
 	afterUpdate(async () => {
@@ -147,27 +143,17 @@
 			switch (e.data.event) {
 				case 'start-game':
 					try {
-						// gameSession.start();
 						await tick();
 						if ($gameSessionState?.id) {
 							await addGameSessionActivity($gameSessionState?.id, 'Start');
 						}
-						// console.log('switch::$gameSession::', $gameSession);
 					} catch (error) {
 						console.log('error::', error);
 					}
-
-					// setTimeout(() => {
-					// 	console.log('switch::$gameSession::', 'howdy...lol');
-					// }, 1000);
-
-					// gameSession.set({ ...$gameSession, isPaused: false });
 					break;
 				case 'update-score':
 					// Get score to add
 					const score = e?.data?.value;
-
-					console.log('switch::update-score::', score);
 
 					// if we have a session and a score, update the session with the summation of the user's existing score and the added score
 					if (score) {
@@ -207,12 +193,9 @@
 		}
 	}
 
-	$: console.log('::thumbnail::', thumbnail);
-
 	$: (() => {
 		if ($screenshot) {
 			relaxed = true;
-			console.log('::taking screenshot::');
 			setTimeout(() => {
 				try {
 					let doc = iframe?.contentDocument;

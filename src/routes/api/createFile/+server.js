@@ -28,8 +28,6 @@ export async function POST({ request, cookies }) {
 
 	const result = await response.json();
 
-	console.log('file_created::', result);
-
 	// Return a response
 	return new Response(
 		JSON.stringify({

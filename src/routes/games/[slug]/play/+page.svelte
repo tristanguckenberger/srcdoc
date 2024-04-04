@@ -115,10 +115,6 @@
 
 		const addActivityJSON = await addActivity;
 		const addActivityData = await addActivityJSON.json();
-
-		if (addActivityData?.game_user_activity_id) {
-			console.log('addActivityData::', addActivityData);
-		}
 	};
 
 	onMount(async () => {
@@ -127,31 +123,6 @@
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
 		}
-		// await invalidateAll();
-		// await tick();
-		// Trigger start game session activity
-		// attemptStartGameSession();
-
-		// try {
-		// 	const startGameSession = fetch(`/api/games/sessions/createGameSession/${data?.id}`, {
-		// 		method: 'POST',
-		// 		headers: {
-		// 			'Content-Type': 'application/json'
-		// 		},
-		// 		mode: 'cors'
-		// 	});
-
-		// 	let startGameSessionData = await startGameSession;
-		// 	const jsonBody = await startGameSessionData.json();
-
-		// 	if (jsonBody?.game_session_id) {
-		// 		gameSessionState.set({ id: jsonBody?.game_session_id });
-
-		// 		gameSession.setInitialState({ currentGame: jsonBody?.game_id });
-		// 	}
-		// } catch (error) {
-		// 	console.log('error::', error);
-		// }
 	});
 
 	afterUpdate(() => {
@@ -188,19 +159,6 @@
 	});
 
 	afterNavigate(async (nav) => {
-		console.log('nav::', nav);
-		// rerun all load functions
-		// invalidateAll();
-		// await tick();
-		// await invalidateAll();
-		// await goto(nav);
-
-		// Trigger start game session activity
-		// attemptStartGameSession();
-
-		console.log('data::id::', data?.id);
-		console.log('page::', $page);
-
 		try {
 			const startGameSession = fetch(
 				`/api/games/sessions/createGameSession/${data?.id ?? $page.params.slug}`,

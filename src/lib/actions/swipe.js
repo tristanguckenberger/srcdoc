@@ -1,8 +1,5 @@
 // @ts-nocheck
 export function swipe(node, callback) {
-	console.log('node::', node);
-	console.log('callback::', callback);
-
 	let startX, endX;
 
 	function handleStart(event) {

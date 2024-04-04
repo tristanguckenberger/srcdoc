@@ -77,10 +77,6 @@
 	let formStyleString = '';
 	let buttonStyleString = '';
 
-	$: console.log('searchQuery::', searchQuery);
-	$: console.log('searchResultsStore::', $searchResultsStore);
-	$: console.log('$searchResultsStore::', $searchHasResultsStore);
-
 	beforeNavigate(() => {
 		searchResultsStore.set([]);
 		searchQuery = null;
@@ -96,7 +92,6 @@
 		use:enhance={({ formElement, formData, action, cancel }) => {
 			return async ({ result }) => {
 				if (result.status === 200) {
-					console.log('search result::', result);
 					$searchResultsStore = result?.data?.result;
 				}
 			};

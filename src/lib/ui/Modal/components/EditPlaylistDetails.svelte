@@ -25,8 +25,6 @@
 		}
 
 		const file = event.target.files[0];
-
-		console.log('file::', file);
 		if (file) {
 			const maxSize = 127684; // this is in bytes, convert to KB
 			const roundedKB = maxSize / 1000;

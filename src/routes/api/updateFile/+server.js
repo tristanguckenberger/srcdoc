@@ -13,24 +13,7 @@ export async function POST({ request, cookies }) {
 		body: JSON.stringify(data)
 	};
 
-	const { gameId, fileId, name, type, content, parentFileId } = data;
-
-	console.log('================================================');
-	console.log('================================================');
-	console.log('================================================');
-	console.log('================================================');
-	console.log('+server_data::gameId::', gameId);
-	console.log('+server_data::fileId::', fileId);
-	console.log('+server_data::name::', name);
-	console.log('+server_data::type::', type);
-	console.log('+server_data::content::', content);
-	console.log('+server_data::parentFileId::', parentFileId);
-	console.log('================================================');
-	console.log('================================================');
-	console.log('================================================');
-	console.log('================================================');
-
-	// gameId = null;
+	const { gameId, fileId, parentFileId } = data;
 
 	if (!gameId || !token || !fileId) {
 		return {

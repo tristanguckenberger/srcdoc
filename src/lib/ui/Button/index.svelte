@@ -19,8 +19,6 @@
 
 	$: profileControl = Boolean(userName);
 
-	// $: console.log(userAvatar);
-
 	let close = '<-';
 
 	$: themeString = $themeDataStore?.theme?.join(' ');

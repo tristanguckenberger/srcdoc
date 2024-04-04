@@ -135,7 +135,6 @@
 			class:hidden={!$fileSystemSidebarOpen}
 			bind:clientWidth={$fileSystemSidebarWidth}
 		>
-			<!-- <button on:click={() => console.log('page::', $page)} /> -->
 			<a href={previousRoute} class="back">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"

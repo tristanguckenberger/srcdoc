@@ -13,7 +13,6 @@
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
-	import { setPointerControls, DEFAULT_DELAY } from 'svelte-gestures';
 
 	export let file;
 	export let closeTab;
@@ -26,18 +25,6 @@
 
 	$: isFocused = file?.id.toString() === $focusedFileId.toString();
 	$: isSoftSelected = file?.id === $softSelectedFileId;
-	$: console.log('filesToUpdate::Tab', $filesToUpdate);
-	// $: $filesToUpdate,
-	// 	(() => {
-	// 		if ($filesToUpdate?.length > 0) {
-	// 			$filesToUpdate.forEach((fileToUpdate) => {
-	// 				if (fileToUpdate?.id === file?.id && canSave === false) {
-	// 					canSave = true;
-	// 				}
-	// 			});
-	// 		}
-	// 	})();
-
 	$: if ($filesToUpdate?.some((fileToUpdate) => fileToUpdate?.id === file?.id)) {
 		canSave = true;
 	} else {

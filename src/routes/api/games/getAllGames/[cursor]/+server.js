@@ -10,8 +10,6 @@ export async function GET({ params }) {
 	};
 
 	const { cursor } = params;
-	console.log('getAllGames::cursor::', cursor);
-
 	/**
 	 * @type {{{
 	 * 	id: string;
@@ -36,17 +34,8 @@ export async function GET({ params }) {
 		existingGames = games ?? [];
 	});
 
-	// console.log('next::', next);
-	// console.log('existingGames::', existingGames);
-
 	if (existingGames.length === 0) {
 		next = 0;
-	}
-
-	if (existingGames.some((game) => game.id.toString() === next?.toString())) {
-		// console.log('getAllGames::nextCursor::', next);
-		// console.log('getAllGames::existingGames::', existingGames);
-		// next = 0;
 	}
 
 	next = cursor;

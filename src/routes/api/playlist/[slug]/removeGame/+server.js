@@ -2,7 +2,6 @@
 import { json } from '@sveltejs/kit';
 
 export async function POST({ cookies, params, request }) {
-	console.log(':::::::::::::::::::HIT AddGameToPlaylist API route:::::::::::::::::::');
 	const token = cookies.get('token');
 
 	const body = await request.json();

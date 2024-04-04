@@ -47,8 +47,6 @@
 	function longpressHandler(event, file) {
 		dX = event.detail.x;
 		dY = event.detail.y;
-		console.log('::longpressHandler::HIT');
-		console.log(dX, dY);
 		handleRightClick(event, file);
 	}
 
@@ -87,9 +85,6 @@
 	}
 
 	function doubletapHandler(event, file) {
-		// dx = event.detail.x;
-		// dy = event.detail.y;
-		console.log('::doubletapHandler::HIT');
 		handleFileDBClick(file);
 	}
 
@@ -169,10 +164,6 @@
 					console.error(res?.error);
 				}
 			});
-
-		if (returnedContent) {
-			console.log('::returnedContent::', returnedContent);
-		}
 	}
 	function cancelFileCreation() {
 		creatingFile = false;
@@ -381,10 +372,6 @@
 				}
 			});
 
-		if (returnedContent) {
-			console.log('::returnedContent::', returnedContent);
-		}
-
 		deleteFiles(file?.id, files);
 	}
 
@@ -455,7 +442,6 @@
 		}
 
 		if (init) {
-			console.log('IN_FILETREE::onMount::initializing_initialDataStore');
 			initialDataStore?.set(JSON.parse(JSON.stringify($baseDataStore)));
 			init = false;
 		}

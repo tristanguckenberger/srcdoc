@@ -3,6 +3,7 @@
 import { userStore } from '$lib/stores/authStore.js';
 import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
+// import { json } from '@sveltejs/kit';
 
 const getAllUsers = async () => {
 	const userReqHeaders = new Headers();
@@ -82,10 +83,6 @@ export const actions = {
 		};
 
 		const authResponse = await fetch(`${process.env.SERVER_URL}/api/auth/login`, requestInit);
-		// console.log(
-		// 	'authResponse::cookies::::::::::::::::::::::::::::::::::::::',
-		// 	authResponse.cookies
-		// );
 		if (!authResponse.ok) {
 			return {
 				status: 401,
@@ -96,9 +93,6 @@ export const actions = {
 		}
 
 		const resAuth = await authResponse.json();
-
-		// console.log('authResponse::::::::::::::::::::::::::::::::::::::::', resAuth);/
-
 		const token = resAuth?.token;
 
 		if (token) {
@@ -110,12 +104,7 @@ export const actions = {
 				console.log('cookieError::', error);
 			}
 
-			// const cookie_token = cookies?.get('token');
-
-			// console.log('cookie_token:::::::::::::', cookie_token);
-
 			const user = await getCurrentUser(fetch);
-
 			if (user) {
 				session.set({
 					...user
@@ -219,20 +208,23 @@ export const actions = {
 				}
 			};
 		}
-		cookies.delete('token');
-		// throw redirect(300, '/');
+		cookies.delete('token', { path: '/' });
+
+		// const logoutResponse = await authResponse.json();
 
 		setHeaders({
-			'cache-control': 'no-store, max-age=0'
+			'cache-control': 'no-store'
 		});
 
+		redirect(307, '/games');
+
 		return {
-			status: 307,
-			redirect: '/',
+			status: 200,
 			body: {
 				message: 'logout_success'
 			}
 		};
+		// return json(logoutResponse);
 	},
 	session: async ({ cookies }) => {
 		const user = await getCurrentUser(cookies);

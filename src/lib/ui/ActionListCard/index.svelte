@@ -53,7 +53,7 @@
 		class:showHover
 		style={`${themeString}`}
 		on:focus={() => {
-			console.log('focused');
+			// console.log('focused');
 		}}
 		aria-roledescription="playlist"
 		role="button"

@@ -96,7 +96,7 @@
 		style={`${themeString}`}
 		on:mouseover={() => (showMoreInfo = !showMoreInfo)}
 		on:focus={() => {
-			console.log('focused');
+			// console.log('focused');
 		}}
 		aria-roledescription="game"
 		role="button"

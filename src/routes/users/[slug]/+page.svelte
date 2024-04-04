@@ -17,7 +17,7 @@
 	let ComponentOptions = [];
 
 	const handleFollow = () => {
-		console.log('follow');
+		// console.log('follow');
 	};
 
 	$: (() => {

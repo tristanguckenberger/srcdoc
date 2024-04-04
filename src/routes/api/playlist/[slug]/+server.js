@@ -3,7 +3,6 @@ import { json } from '@sveltejs/kit';
 
 export async function GET({ params, cookies }) {
 	const { slug } = params;
-	console.log('slug::', slug);
 	const requestHeaders = new Headers();
 	const token = cookies.get('token');
 

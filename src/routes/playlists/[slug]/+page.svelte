@@ -40,8 +40,6 @@
 	$: sessionData = data?.sessionData;
 	$: isOwner = sessionData?.id === playlist?.ownerId;
 
-	$: console.log('isOwner::', isOwner);
-
 	onMount(() => {
 		if (games && games.length > 0) {
 			const initialOrder = games.sort((a, b) => a.item_order - b.item_order).map((game) => game.id);
@@ -170,19 +168,17 @@
 	};
 
 	const handleEdit = () => {
-		console.log('Edit Playlist');
 		$playButton = false;
-		console.log('selectedOption', $selectedOption);
+
 		selectedOption.set(0);
 		$playButton = false;
 		$drawerOpen = true;
 	};
 
 	const handleAddToLibrary = async () => {
-		console.log('Add to Library');
 		const response = await fetch(`/api/playlist/${playlist?.id}/savePlaylist`);
 		const data = await response.json();
-		console.log('data::', data);
+
 		invalidateAll();
 	};
 	$: if ($gamesOrder && games) {
@@ -194,7 +190,6 @@
 		});
 	}
 	$: (() => {
-		console.log('playlist::', playlist);
 		return (componentOptions = [
 			{
 				name: 'EditPlaylist',
@@ -211,24 +206,7 @@
 	})();
 	$: isPublic = Boolean(playlist?.is_public ?? playlist?.isPublic);
 	$: isSaved = Boolean(playlist?.isSaved);
-
-	$: console.log('page::data::playlist::', playlist);
 </script>
-
-<!-- 'X' close, cancel, delete -->
-<!-- <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"></path></svg> -->
-
-<!-- '+' add, create, -->
-<!-- <svg
-xmlns="http://www.w3.org/2000/svg"
-width="32"
-height="32"
-fill="#ffffff"
-viewBox="0 0 256 256"
-><path
-	d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"
-/></svg
-> -->
 
 <div class="playlist-page-container" class:showSideBar={$sideBarState}>
 	<div class="playlist-header">
@@ -255,14 +233,13 @@ viewBox="0 0 256 256"
 					on:click|preventDefault={!playlist?.isSaved
 						? handleAddToLibrary
 						: () => {
-								console.log('already saved to library');
+								// console.log('already saved to library');
 						  }}>Add to Library</button
 				>
 			{:else if isOwner && isSaved}
 				<button
 					class="btn btn-secondary"
 					on:click|preventDefault={async () => {
-						console.log('button_click::delete_playlist::', playlist?.id);
 						const deltePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/delete`);
 						if (deltePlaylistRes.ok) {
 							await tick();
@@ -275,13 +252,11 @@ viewBox="0 0 256 256"
 				<button
 					class="btn btn-secondary"
 					on:click|preventDefault={async () => {
-						console.log('button_click::remove_playlist::', playlist?.id);
 						const deletePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/removePlaylist`);
 						if (deletePlaylistRes.ok) {
 							await tick();
 							invalidateAll();
 						}
-						console.log('deletePlaylistRes::', deletePlaylistRes);
 					}}>Remove from Library</button
 				>
 			{/if}
@@ -302,10 +277,10 @@ viewBox="0 0 256 256"
 								role="button"
 								tabindex="0"
 								on:focus={() => {
-									console.log('focused::id::', game?.id);
+									// console.log('focused::id::', game?.id);
 								}}
 								on:blur={() => {
-									console.log('blurred::id::', game?.id);
+									// console.log('blurred::id::', game?.id);
 								}}
 							>
 								<a href={`/games/${game?.id}/play`}>
@@ -314,7 +289,7 @@ viewBox="0 0 256 256"
 										role="button"
 										tabindex="0"
 										on:focus={() => {
-											console.log('focused::id::', game?.id);
+											// console.log('focused::id::', game?.id);
 										}}
 										class="action-button-icon"
 										width="37"
@@ -349,10 +324,10 @@ viewBox="0 0 256 256"
 						on:mouseover={(e) => handleMouseOver(e, game)}
 						on:mouseout={handleMouseOut}
 						on:blur={() => {
-							console.log('blurred::id::', game?.id);
+							// console.log('blurred::id::', game?.id);
 						}}
 						on:focus={() => {
-							console.log('focused::id::', game?.id);
+							// console.log('focused::id::', game?.id);
 						}}
 					>
 						<GameCard

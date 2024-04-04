@@ -22,33 +22,21 @@
 	let newReplyTextArea;
 
 	function autoResize() {
-		console.log('autoResize');
 		newReplyTextArea.style.height = 'fit-content';
 		let textAreaCharCount = newReplyTextArea?.value?.length;
 		const textAreaLineCount = newReplyTextArea?.value?.split('\n').length;
 
 		if (init) {
-			console.log('::init::');
 			newReplyTextArea.style.height = 'fit-content';
 			newReplyTextArea.style.height = newReplyTextArea.scrollHeight - 20 + 'px';
-			console.log('newReplyTextArea.scrollHeight', newReplyTextArea.scrollHeight);
-			console.log('newReplyTextArea.style.height', newReplyTextArea.style.height);
 		} else if (textAreaLineCount <= 1 && textAreaCharCount < 87) {
-			console.log('textAreaLineCount <= 1 && textAreaCharCount < 87');
 			newReplyTextArea.style.height = newReplyTextArea.scrollHeight - 20 + 'px';
-			console.log('newReplyTextArea.style.height', newReplyTextArea.style.height);
 		} else if (newReplyTextArea.scrollHeight <= 46 && newReplyTextArea.scrollHeight > 30) {
-			console.log('::newReplyTextArea.scrollHeight <= 46 && newReplyTextArea.scrollHeight > 30::');
 			newReplyTextArea.style.height = newReplyTextArea.scrollHeight + 'px';
-			console.log('newReplyTextArea.style.height', newReplyTextArea.style.height);
 		} else if (newReplyTextArea.scrollHeight == 50) {
-			console.log('::newReplyTextArea.scrollHeight == 50::');
 			newReplyTextArea.style.height = newReplyTextArea.scrollHeight - 20 + 'px';
-			console.log('newReplyTextArea.style.height', newReplyTextArea.style.height);
 		} else {
-			console.log('::else::');
 			newReplyTextArea.style.height = newReplyTextArea.scrollHeight + 'px';
-			console.log('newReplyTextArea.style.height', newReplyTextArea.style.height);
 		}
 
 		if (textAreaCharCount > newReplyMaxLength) {

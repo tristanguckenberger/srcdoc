@@ -18,30 +18,12 @@
 		}, 250);
 	});
 
-	afterUpdate(() => {
-		// console.log('loader::::::::::::', loader);
-		// if (loader) {
-		// 	loader.addEventListener('animationiteration', (e) => {
-		// 		console.log('animationiteration::', e);
-		// 		console.log('animationiteration::time::', e?.elapsedTime);
-		// 		if (e?.elapsedTime > 3) {
-		// 			setTimeout(() => {
-		// 				loaderState.set(false);
-		// 			}, 2500);
-		// 		}
-		// 	});
-		// }
-	});
-
 	onDestroy(() => {
 		showBall = false;
 	});
-
-	// $: console.log('loader::::::::::::', loader);
 </script>
 
 <div class="loader-container" class:showSideBar={$sideBarState}>
-	<!-- <div class="loaders"> -->
 	<span
 		bind:this={loader}
 		class="loader top"

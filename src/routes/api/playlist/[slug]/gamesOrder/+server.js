@@ -3,7 +3,7 @@ import { json } from '@sveltejs/kit';
 
 export async function POST({ params, cookies, request }) {
 	const { slug } = params;
-	console.log('slug::', slug);
+
 	const requestHeaders = new Headers();
 	const token = cookies.get('token');
 	const body = await request.json();
@@ -21,8 +21,6 @@ export async function POST({ params, cookies, request }) {
 	const response = await fetch(`${process.env.SERVER_URL}/api/playlist/${slug}`, requestInit);
 
 	const result = await response.json();
-
-	console.log('result::', result);
 
 	// Return a response
 	return json(result);

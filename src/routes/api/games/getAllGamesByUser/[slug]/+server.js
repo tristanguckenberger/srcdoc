@@ -11,8 +11,6 @@ export async function GET({ setHeaders, params }) {
 	const userResponse = await fetch(`${process.env.SERVER_URL}/api/games/user/${slug}`, userReqInit);
 
 	if (!userResponse.ok) {
-		console.log('ERROR::');
-		console.log('getAllGamesByUser::userResponse::', userResponse);
 		return json([]);
 	}
 

@@ -16,9 +16,6 @@
 	let profilePhotoPreview = profile_photo; // Assuming 'profile_photo' is the current photo URL
 
 	function handleFileChange(event) {
-		console.log('event::', event);
-		console.log('event::', event.target);
-		console.log('event::', event.target.files[0]);
 		if (profilePhotoPreview && profilePhotoPreview.startsWith('blob:')) {
 			URL.revokeObjectURL(profilePhotoPreview);
 		}
@@ -35,11 +32,6 @@
 			URL.revokeObjectURL(profilePhotoPreview);
 		}
 	});
-
-	$: console.log('id::', id);
-	$: console.log('username::', username);
-	$: console.log('profile_photo::', profile_photo);
-	$: console.log('bio::', bio);
 </script>
 
 <form
@@ -48,15 +40,11 @@
 	action={`/users/${id}/?/updateUserDetails`}
 	enctype="multipart/form-data"
 	use:enhance={({ formElement, formData, action, cancel, redirect }) => {
-		console.log('editUser::formData::', formData);
 		return async ({ result }) => {
 			if (result.status === 200) {
-				// currentGame.set({ ...$currentGame, ...result?.data?.body?.project });
 				modalOpenState.set(false);
 				drawerOpen.set(false);
 				await invalidateAll();
-			} else {
-				// await applyAction(result);
 			}
 		};
 	}}
@@ -64,8 +52,6 @@
 	<div class="hide">
 		<CustomInput inputCapture={'id'} inputText={id} hidden />
 	</div>
-
-	<!-- <CustomInput inputCapture={'profile_photo'} inputText={profile_photo} hidden /> -->
 	<div class="file-input-container">
 		<label class="input-label" for="profilePhoto">Profile Photo</label>
 		<div class="avatar">
@@ -94,10 +80,6 @@
 				class="photo-preview"
 			/>
 		</div>
-
-		<!-- {#if profilePhotoPreview} -->
-
-		<!-- {/if} -->
 	</div>
 	<CustomInput inputCapture={'username'} inputText={username}>
 		<span slot="label" class="input-label modal">Username</span>

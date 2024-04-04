@@ -51,7 +51,6 @@
 			on:blur={() => {
 				const [name, type] = fullFileName.split('.');
 				const fileToUpdate = renameFile(file.id, name, type ?? 'folder', allFiles);
-				console.log('fileToUpdate::', fileToUpdate);
 				handleFileUpdate(fileToUpdate);
 
 				isRenaming = false;

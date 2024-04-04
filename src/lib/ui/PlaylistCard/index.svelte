@@ -140,7 +140,6 @@
 						{#if isOwner}<button
 								class="more-action-button"
 								on:click={async () => {
-									console.log('button_click::edit_playlist::', playlist?.id);
 									goto(`/playlists/${playlist?.id}`).then(() => {
 										$selectedOption = 0;
 										$playButton = false;
@@ -161,12 +160,10 @@
 						{#if !playlist?.is_category}<button
 								class="more-action-button"
 								on:click|preventDefault={async () => {
-									console.log('button_click::delete_playlist::', playlist?.id);
 									const deltePlaylistRes = await fetch(
 										`/api/playlist/${playlist?.id}/${isOwner ? 'delete' : 'removePlaylist'}`
 									);
 									invalidateAll();
-									console.log('deltePlaylistRes::', deltePlaylistRes);
 								}}
 							>
 								<svg

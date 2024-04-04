@@ -104,20 +104,17 @@
 
 	const debouncedNavigation = debounce(performNavigation, 150);
 	const onPointerDown = (event) => {
-		console.log('pointerDown::event::', event);
 		if (!$allowNavigationStore) {
 			allowNavigationStore.set(true);
 		}
 		lockGameStateStore.set(false);
 		pointerDown = true;
 		slidesSettled = false;
-		// $actionMenuOpen = false;
 		hidePlayButtonStore.set(true);
 	};
 
 	const onPointerUp = (event) => {
 		pointerDown = false;
-		// $actionMenuOpen = true;
 		setTimeout(() => {
 			hidePlayButtonStore.set(false);
 		}, 300);

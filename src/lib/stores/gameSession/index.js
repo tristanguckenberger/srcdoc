@@ -24,10 +24,8 @@ function createGameSessionStore() {
 
 	// Function definitions will go here
 	function start() {
-		console.log('::start function called::');
 		let currentState;
 		gameSessionState.subscribe((value) => {
-			console.log('::currentState::', value);
 			currentState = value;
 		});
 
