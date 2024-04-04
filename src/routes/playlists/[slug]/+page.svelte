@@ -431,4 +431,7 @@
 	button.muted:hover {
 		cursor: not-allowed;
 	}
+	.playlist-header-actions {
+		padding-left: 20px;
+	}
 </style>
