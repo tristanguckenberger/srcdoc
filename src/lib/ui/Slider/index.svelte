@@ -229,6 +229,14 @@
 		clearTimeout(debouncedNavigation);
 	});
 
+	const checkAndReturnThumbnail = (game) => {
+		if (game?.thumbnail) {
+			return game?.thumbnail;
+		} else {
+			return 'https://picsum.photos/600/600';
+		}
+	};
+
 	$: currentIndex = rawGamesData?.findIndex((game) => game?.id === currentGame?.id);
 	$: $currentGameStore = currentGame;
 	$: hideActionNav = !$actionMenuOpen;
@@ -236,8 +244,6 @@
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
 	$: visibleThumbnails = showSlides;
-	$: console.log('hideActionNav::', hideActionNav);
-	$: console.log('gamesAvailable::', gamesAvailable);
 </script>
 
 <svelte:window on:keyup={debouncedKeyUp} />
@@ -253,7 +259,7 @@
 							class="overlay-blur blur_{i}"
 							class:drawerOpen={$drawerOpen}
 							style="--bg_{i}: url('{visibleThumbnails
-								? game?.thumbnail || 'https://picsum.photos/600/600'
+								? checkAndReturnThumbnail(game)
 								: 'https://picsum.photos/600/600'}');"
 						/>
 						<div class="overlay-light-fade" />
