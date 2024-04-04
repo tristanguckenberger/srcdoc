@@ -13,6 +13,7 @@
 	import Widget from '$lib/ui/Widget/index.svelte';
 	import GameCard from '$lib/ui/GameCard/index.svelte';
 	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
+	import { session } from '$lib/stores/sessionStore.js';
 
 	export let data;
 
@@ -168,14 +169,16 @@
 	};
 
 	const handleEdit = () => {
+		console.log('edit playlist', $session);
+		if (!$session?.id) return;
 		$playButton = false;
-
 		selectedOption.set(0);
 		$playButton = false;
 		$drawerOpen = true;
 	};
 
 	const handleAddToLibrary = async () => {
+		if (!$session?.id) return;
 		const response = await fetch(`/api/playlist/${playlist?.id}/savePlaylist`);
 		const data = await response.json();
 
@@ -229,6 +232,8 @@
 			{/if}
 			{#if !isSaved}
 				<button
+					class:muted={!$session?.id}
+					disabled={!$session?.id}
 					class="btn btn-secondary"
 					on:click|preventDefault={!playlist?.isSaved
 						? handleAddToLibrary
@@ -239,7 +244,10 @@
 			{:else if isOwner && isSaved}
 				<button
 					class="btn btn-secondary"
+					class:muted={!$session?.id}
+					disabled={!$session?.id}
 					on:click|preventDefault={async () => {
+						if (!$session?.id) return;
 						const deltePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/delete`);
 						if (deltePlaylistRes.ok) {
 							await tick();
@@ -251,7 +259,10 @@
 			{:else if !isOwner && isSaved}
 				<button
 					class="btn btn-secondary"
+					class:muted={!$session?.id}
+					disabled={!$session?.id}
 					on:click|preventDefault={async () => {
+						if (!$session?.id) return;
 						const deletePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/removePlaylist`);
 						if (deletePlaylistRes.ok) {
 							await tick();
@@ -413,5 +424,11 @@
 		color: var(--color-primary);
 		font-weight: 300;
 		font-family: var(--paragraph-font);
+	}
+	button.muted {
+		opacity: 0.3;
+	}
+	button.muted:hover {
+		cursor: not-allowed;
 	}
 </style>

@@ -110,7 +110,9 @@
 					>
 						{#if isOwner}<button
 								class="more-action-button"
+								class:muted={!$session?.id}
 								on:click={async () => {
+									if (!$session?.id) return;
 									goto(`/games/${game?.id}/play`).then(() => {
 										$selectedOption = 3;
 										$playButton = false;
@@ -131,7 +133,9 @@
 
 							<button
 								class="more-action-button"
+								class:muted={!$session?.id}
 								on:click|preventDefault={async () => {
+									if (!$session?.id) return;
 									const deltePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/removeGame`, {
 										method: 'POST',
 										headers: {
@@ -314,5 +318,11 @@
 	}
 	:global(.game-container) {
 		overflow: unset !important;
+	}
+	button.muted {
+		opacity: 0.3;
+	}
+	button.muted:hover {
+		cursor: not-allowed;
 	}
 </style>
