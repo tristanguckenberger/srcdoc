@@ -199,7 +199,7 @@ export const actions = {
 			}
 		};
 	},
-	logout: async ({ cookies }) => {
+	logout: async ({ cookies, setHeaders }) => {
 		const token = cookies.get('token');
 		const requestHeaders = new Headers();
 		requestHeaders.append('Authorization', `Bearer ${token}`);
@@ -221,6 +221,10 @@ export const actions = {
 		}
 		cookies.delete('token');
 		// throw redirect(300, '/');
+
+		setHeaders({
+			'cache-control': 'no-store, max-age=0'
+		});
 
 		return {
 			status: 307,

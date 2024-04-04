@@ -143,7 +143,7 @@ export const actions = {
 			}
 		};
 	}, //,
-	updateDetails: async ({ cookies, request, params }) => {
+	updateDetails: async ({ cookies, request, params, setHeaders }) => {
 		const token = cookies.get('token');
 		const { slug } = params;
 		const formData = await request.formData();
@@ -173,6 +173,10 @@ export const actions = {
 		}
 
 		const project = await authResponse.json();
+
+		setHeaders({
+			'cache-control': 'no-store, max-age=0'
+		});
 
 		return {
 			body: {
