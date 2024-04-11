@@ -3,10 +3,10 @@
 	// Vercel Analytics
 	import { dev } from '$app/environment';
 	import { inject } from '@vercel/analytics';
-	import { debounce, set } from 'lodash-es';
+	import { debounce } from 'lodash-es';
 
 	// SVELTE IMPORTS
-	import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
+	import { onMount, onDestroy, afterUpdate, tick, setContext, getContext } from 'svelte';
 	import { page, navigating } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
@@ -796,6 +796,46 @@
 							>
 						{/if}
 						{#if sessionData?.username || $session?.username}
+							<ul class="profile-info" class:showSideBar={$sideBarState}>
+								{#if sessionData?.username || $session?.username}
+									<li>
+										<Button
+											link="/users/{sessionData?.id}"
+											userName={sessionData?.username ?? $session?.username}
+											userAvatar={sessionData?.profile_photo ?? $session?.profile_photo}
+											isRounded
+											action={toggleDropDown}
+											showDropDown={dropDownToggle}
+										/>
+									</li>
+								{/if}
+								<!-- <div class="more-container" class:dropDownToggle>
+									<div class="more" class:dropDownToggle class:isBrowsePage>
+										<ul>
+											<li>
+												<Button label="Home" link="/games" />
+											</li>
+											<li>
+												<form
+													class="logout-form"
+													action="/?/logout"
+													method="POST"
+													use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+														return async ({ result }) => {
+															if (result.status === 200) {
+																session.set(null);
+																invalidateAll();
+															}
+														};
+													}}
+												>
+													<Button label="Logout" />
+												</form>
+											</li>
+										</ul>
+									</div>
+								</div> -->
+							</ul>
 							<li class="sidebar-action">
 								<form
 									class="logout-form"
@@ -1060,6 +1100,9 @@
 	}
 	.profile-info {
 		justify-content: flex-end;
+		/* position: absolute;
+		top: 10px;
+		left: 70px; */
 	}
 	.isProfilePage {
 		height: calc(100% - 0px);

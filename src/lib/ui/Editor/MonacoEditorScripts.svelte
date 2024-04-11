@@ -100,7 +100,7 @@
 								range: defaultRange,
 								detail: 'Loads an asset from the asset manager (.png, .mp3, etc.)',
 								documentation:
-									'getAsset(path: string): Asset Name e.g. "assets/playerSprite.png", but just pass the name: getAsset("playerSprite"), Note: path is relative to the assets folder, and should not include the file extension.'
+									'getAsset(path: string): Asset Name e.g. "assets/playerSprite.png", but just pass the name: getAsset("playerSprite"), Note: path is relative to the assets folder, and should include the file extension.'
 							},
 							{
 								label: 'updateScore:: Play Engine::', // The function name you're replacing
