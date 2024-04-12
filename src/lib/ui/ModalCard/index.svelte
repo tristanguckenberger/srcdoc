@@ -11,7 +11,7 @@
 	<h2>{title}</h2>
 	<p>{message}</p>
 	<!-- <span>Index: {index}</span> -->
-	<ModalTimingIndicator />
+	<ModalTimingIndicator currentIndex={index} />
 </div>
 
 <style>

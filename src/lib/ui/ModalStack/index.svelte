@@ -28,7 +28,7 @@
 </script>
 
 <div class="stack-container">
-	{#each $itemsInStack as item, index}
+	{#each $itemsInStack as item, index (index)}
 		<ModalCard {index} title={item.title} message={item.message} />
 	{/each}
 </div>
