@@ -55,6 +55,7 @@
 		gameSessionScore,
 		gameSessionState
 	} from '$lib/stores/gameSession/index.js';
+	import { autoStack, itemsInStack } from '$lib/stores/modalStackStore';
 
 	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
@@ -64,6 +65,7 @@
 	import Drawer from '$lib/ui/Drawer/index.svelte';
 	import Widget from '$lib/ui/Widget/index.svelte';
 	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
+	import ModalStack from '$lib/ui/ModalStack/index.svelte';
 
 	// ASSET IMPORTS
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
@@ -76,6 +78,7 @@
 	import { searchResultsStore } from '$lib/stores/search/searchStore';
 	import SearchResults from '$lib/ui/NavWidgets/SearchResults.svelte';
 	import { writable } from 'svelte/store';
+	import { copyData } from '$lib/platformCopy/copyData.js';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
@@ -307,6 +310,19 @@
 					files: JSON.parse(JSON.stringify(updatedData)),
 					sessionData: null
 				});
+				const saveGameSuccessModalCopy = copyData?.alertCopy?.game?.save?.success;
+
+				console.log('saveGameSuccessModalCopy::', saveGameSuccessModalCopy);
+				console.log('copyData::', copyData?.alertCopy);
+
+				$itemsInStack = [
+					...$itemsInStack,
+					{
+						title: saveGameSuccessModalCopy.title,
+						message: saveGameSuccessModalCopy.message,
+						useTimeout: true
+					}
+				];
 			}
 		}
 	};
@@ -397,6 +413,8 @@
 
 	// CONSOLE LOGS
 	$: {
+		console.log('stack::$autoStack::', $autoStack);
+		console.log('stack::$itemsInStack::', $itemsInStack);
 		// console.log('fileSys::=======================');
 		// console.log('fileSys::openFiles::', $openFiles);
 		// console.log('fileSys::=======================');
@@ -966,6 +984,9 @@
 			</div>
 		{/if}
 	</div>
+	{#if $itemsInStack?.length > 0}
+		<ModalStack />
+	{/if}
 </div>
 
 {#if $searchResultsStore?.length > 0}

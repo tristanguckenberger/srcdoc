@@ -1,6 +1,6 @@
-export const copyData = () => {
+export const copyData = {
 	// Sorted by page
-	const fullInfoCopy = {
+	fullInfoCopy: {
 		home: {
 			firstLanding: {
 				title: 'Welcome to Play Engine!',
@@ -169,37 +169,43 @@ export const copyData = () => {
 					"To remove a playlist from your library, click the \"...\" button on the playlist card. You will see a modal with options like 'Edit' and 'Remove from library'. Select 'Remove from library'. This will remove the playlist from your library, but it will not delete the playlist from the platform."
 			}
 		}
-	};
-	const alertCopy = {
+	},
+	alertCopy: {
 		auth: {
 			login: {
 				success: {
 					title: 'Logged In',
-					message: 'You have successfully logged in.'
+					message: 'You have successfully logged in.',
+					useTimeout: true
 				},
 				error: {
 					title: 'Log In Error',
-					message: 'There was an error logging in.'
+					message: 'There was an error logging in.',
+					useTimeout: false
 				}
 			},
 			logout: {
 				success: {
 					title: 'Logged Out',
-					message: 'You have successfully logged out.'
+					message: 'You have successfully logged out.',
+					useTimeout: true
 				},
 				error: {
 					title: 'Log Out Error',
-					message: 'There was an error logging out.'
+					message: 'There was an error logging out.',
+					useTimeout: false
 				}
 			},
 			register: {
 				success: {
 					title: 'Registered',
-					message: 'You have successfully registered.'
+					message: 'You have successfully registered.',
+					useTimeout: true
 				},
 				error: {
 					title: 'Registration Error',
-					message: 'There was an error registering.'
+					message: 'There was an error registering.',
+					useTimeout: false
 				}
 			}
 		},
@@ -207,51 +213,61 @@ export const copyData = () => {
 			create: {
 				success: {
 					title: 'Game Created',
-					message: 'You have successfully created a game.'
+					message: 'You have successfully created a game.',
+					useTimeout: true
 				},
 				error: {
 					title: 'Game Creation Error',
-					message: 'There was an error creating the game.'
+					message: 'There was an error creating the game.',
+					useTimeout: false
 				}
 			},
 			save: {
 				success: {
 					title: 'Game Saved',
-					message: 'The game has been saved.'
+					message: 'The game has been saved.',
+					useTimeout: true
 				},
 				error: {
 					title: 'Game Save Error',
-					message: 'There was an error saving the game.'
+					message: 'There was an error saving the game.',
+					useTimeout: false
 				}
 			},
 			updateDetails: {
 				success: {
 					title: 'Game Details Updated',
-					message: 'The game details have been updated.'
+					message: 'The game details have been updated.',
+					useTimeout: true
 				},
 				error: {
 					title: 'Game Details Update Error',
-					message: 'There was an error updating the game details.'
+					message: 'There was an error updating the game details.',
+					useTimeout: false
 				}
 			},
 			start: {
 				success: {
 					title: 'Game Started',
-					message: 'You have successfully started a game.'
+					message: 'You have successfully started a game.',
+					useTimeout: true
 				},
 				error: {
 					title: 'Game Start Error',
-					message: 'There was an error starting a game.'
+					message: 'There was an error starting a game.',
+					useTimeout: false
 				}
 			},
 			end: {
 				success: {
 					title: 'Game Ended',
-					message: 'You have successfully ended a game.'
+					message: 'You have successfully ended a game.',
+					useTimeout: true
 				},
 				error: {
 					title: 'Game End Error',
-					message: 'There was an error ending a game.'
+					message: 'There was an error ending a game.',
+					useTimeout: false
 				}
 			}
 		},
@@ -259,35 +275,39 @@ export const copyData = () => {
 			create: {
 				success: {
 					title: 'Playlist Created',
-					message: 'You have successfully created a playlist.'
+					message: 'You have successfully created a playlist.',
+					useTimeout: true
 				},
 				error: {
 					title: 'Playlist Creation Error',
-					message: 'There was an error creating the playlist.'
+					message: 'There was an error creating the playlist.',
+					useTimeout: false
 				}
 			},
 			save: {
 				success: {
 					title: 'Playlist Saved',
-					message: 'The playlist has been saved.'
+					message: 'The playlist has been saved.',
+					useTimeout: true
 				},
 				error: {
 					title: 'Playlist Save Error',
-					message: 'There was an error saving the playlist.'
+					message: 'There was an error saving the playlist.',
+					useTimeout: false
 				}
 			},
 			updateDetails: {
 				success: {
 					title: 'Playlist Details Updated',
-					message: "The playlist's details have been updated."
+					message: "The playlist's details have been updated.",
+					useTimeout: true
 				},
 				error: {
 					title: 'Playlist Details Update Error',
-					message: "There was an error updating the playlist's details."
+					message: "There was an error updating the playlist's details.",
+					useTimeout: false
 				}
 			}
 		}
-	};
-
-	return { fullInfoCopy, alertCopy };
+	}
 };
