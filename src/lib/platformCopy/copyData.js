@@ -1,38 +1,57 @@
+import PlayEngineCircleIcon from '$lib/assets/PlayEngineCircleIcon.svg';
+import sideBarToggleClosed from '$lib/assets/sideBarToggleClosed.png';
+import sideBarToggleOpened from '$lib/assets/sideBarToggleOpened.png';
+import createNewGame from '$lib/assets/createNewGame.png';
+import actionMenuDark from '$lib/assets/actionMenuDark.png';
+
 export const copyData = {
 	// Sorted by page
 	fullInfoCopy: {
-		home: {
+		homePageInfo: {
 			firstLanding: {
+				store: 'homePageInfoStore',
 				title: 'Welcome to Play Engine!',
 				description:
 					'Play Engine is a platform for building, sharing, currating, and playing video games. Create a game, add games to a personal or public playlist, and of course PLAY!',
 				slides: [
 					{
+						title: 'Welcome to Play Engine!',
+						images: [PlayEngineCircleIcon],
+						description:
+							'Play Engine is a platform for building, sharing, currating, and playing video games. Create a game, find and/or add new games to your own personal or public playlists, and of course PLAY!'
+					},
+					{
 						title: 'The Sidebar',
+						images: [sideBarToggleClosed, sideBarToggleOpened],
 						description:
 							'Use the sidebar to navigate around the platform. You can toggle the sidebar by clicking the sidebar icon in the top left corner.'
 					},
 					{
-						title: 'Search',
-						description: 'Use the search bar to search for games, playlists, and users.'
+						title: 'The Action Menu',
+						images: [actionMenuDark],
+						imageLarge: true,
+						description:
+							'Use the action menu for quick access to things like your library (if you have an account), trending games, recent games, and more!'
 					},
 					{
 						title: 'Create a new Game',
+						images: [createNewGame],
 						description:
-							'Create a new game to play and share with friends or with the Play Engine community.'
-					},
-					{
-						title: 'Add Games to a personal or public Playlist',
-						description: 'Add games to the playlist for the game night.'
-					},
-					{
-						title: 'Invite Friends',
-						description: 'Invite friends to join the game night and play games.'
+							'Create a new game to play and/or publish it to share it with the Play Engine community. Select "New Project" in the sidebar to create a new game. You\'ll be taken to the new games page, from there you can edit it\'s details, add it to a playlist by selecting the (+) icon, or start building by selecting the (</>) icon.'
 					}
+					// {
+					// 	title: 'Add Games to a personal or public Playlist',
+					// 	description: 'Add games to the playlist for the game night.'
+					// },
+					// {
+					// 	title: 'Invite Friends',
+					// 	description: 'Invite friends to join the game night and play games.'
+					// }
 				]
 			}
 		},
-		game: {
+		gamePageInfo: {
+			store: 'gamePageInfoStore',
 			navigationActionOptions: [
 				{
 					title: 'Mobile Swipe Navigation',
@@ -80,12 +99,13 @@ export const copyData = {
 				}
 			}
 		},
-		editor: {
+		editorPageInfo: {
 			firstLanding: {
+				store: 'editorPageInfoStore',
 				title: 'Welcome to the Game Editor!',
 				description:
 					'The game editor is where you can create and edit your games. You can add levels, characters, and more to your game.',
-				layoutSlides: [
+				slides: [
 					{
 						title: 'Action Bar',
 						description:
@@ -157,8 +177,9 @@ export const copyData = {
 				]
 			}
 		},
-		myLibrary: {
+		libraryPageInfo: {
 			firstLanding: {
+				store: 'libraryPageInfoStore',
 				title: 'Welcome to Your Library!',
 				description:
 					"Your library is where you can view and manage your games, your favorited games, and all your playlists, including both public playlists you add to your library and ones you've created."

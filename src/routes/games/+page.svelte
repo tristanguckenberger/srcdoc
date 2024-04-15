@@ -11,6 +11,7 @@
 	import { firstRun } from '$lib/stores/filesStore.js';
 	import { gamesData } from '$lib/stores/gamesStore.js';
 	import { fetchData } from '$lib/utils/fetchData.js';
+	import { homePageInfoStore, modalFullInfoStore } from '$lib/stores/InfoStore.js';
 
 	// 3rd party imports
 	import { debounce } from 'lodash-es';
@@ -19,6 +20,7 @@
 	import Card from '$lib/ui/Card/index.svelte';
 	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
 	import ActionList from '$lib/ui/ActionList/index.svelte';
+	import { browser } from '$app/environment';
 
 	// data is a prop passed from the server's load function
 	export let data;
@@ -53,6 +55,14 @@
 
 		if ([...parsedGamesDataSet].length === 0) {
 			await runFetch();
+		}
+
+		if (browser) {
+			// Check if our local info stores for the homePage has been viewed already
+			if (!$homePageInfoStore?.viewed) {
+				// if this isnt viewed, we wanna display the info modal overlay
+				modalFullInfoStore.set($homePageInfoStore?.info);
+			}
 		}
 
 		// Initial fetch with no cursor

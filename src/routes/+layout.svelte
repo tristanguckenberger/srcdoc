@@ -79,6 +79,13 @@
 	import SearchResults from '$lib/ui/NavWidgets/SearchResults.svelte';
 	import { writable } from 'svelte/store';
 	import { copyData } from '$lib/platformCopy/copyData.js';
+	import {
+		editorPageInfoStore,
+		gamePageInfoStore,
+		homePageInfoStore,
+		infoStore,
+		modalFullInfoStore
+	} from '$lib/stores/InfoStore.js';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
@@ -125,6 +132,17 @@
 			if (sessionData && !$session) {
 				session.set(sessionData);
 			}
+
+			let homePageInfo = copyData?.fullInfoCopy?.homePageInfo?.firstLanding;
+			let gamePageInfo = copyData?.fullInfoCopy?.gamePageInfo;
+			let editorPageInfo = copyData?.fullInfoCopy?.editorPageInfo?.firstLanding;
+			let libraryPageInfo = copyData?.fullInfoCopy?.libraryPageInfo;
+			// Start local storage stores
+			// infoStore.useLocalStorage();
+			homePageInfoStore.useLocalStorage();
+			gamePageInfoStore.useLocalStorage();
+			// editorPageInfoStore.useLocalStorage();
+			editorPageInfoStore.useLocalStorage();
 		}
 
 		// try this in an onMount and an afterUpdate
@@ -267,63 +285,64 @@
 	};
 
 	const handleSave = async () => {
-		const fileToUpdate = $filesToUpdate?.find((file) => file.id === $focusedFileId);
-		const name = fileToUpdate?.name;
-		const type = fileToUpdate?.type;
-		const content = fileToUpdate?.content;
-		const gameId = fileToUpdate?.game_id ?? fileToUpdate?.gameId;
-		const parentFileId = fileToUpdate?.parentFileId ?? fileToUpdate?.parent_file_id;
-		const fileId = fileToUpdate?.id;
+		try {
+			const fileToUpdate = $filesToUpdate?.find((file) => file.id === $focusedFileId);
+			const name = fileToUpdate?.name;
+			const type = fileToUpdate?.type;
+			const content = fileToUpdate?.content;
+			const gameId = fileToUpdate?.game_id ?? fileToUpdate?.gameId;
+			const parentFileId = fileToUpdate?.parentFileId ?? fileToUpdate?.parent_file_id;
+			const fileId = fileToUpdate?.id;
 
-		if (fileId && name && type && gameId && parentFileId) {
-			const updatedFile = await fetch(`/api/updateFile`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					fileId: fileToUpdate?.id,
-					gameId,
-					name,
-					type,
-					content,
-					parentFileId
-				})
-			});
-
-			if (updatedFile?.ok) {
-				// If the file successfully updated:
-				// - remove it from the filesToUpdate array
-				// - update the initialDataStore so we can check for future changes
-				const updatedData = $initialDataStore?.files?.map((file) => {
-					if (file?.id === fileId) {
-						file.content = content;
-					}
-					return file;
+			if (fileId && name && type && gameId && parentFileId) {
+				const updatedFile = await fetch(`/api/updateFile`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						fileId: fileToUpdate?.id,
+						gameId,
+						name,
+						type,
+						content,
+						parentFileId
+					})
 				});
 
-				$filesToUpdate = $filesToUpdate?.filter((file) => file?.id !== fileId);
-				// Since only files are updated, we can spread all the existing data and just update the files
-				// also need to remove the sessionData, that shouldnt be in there
-				initialDataStore?.set({
-					...$initialDataStore,
-					files: JSON.parse(JSON.stringify(updatedData)),
-					sessionData: null
-				});
-				const saveGameSuccessModalCopy = copyData?.alertCopy?.game?.save?.success;
+				if (updatedFile?.ok) {
+					// If the file successfully updated:
+					// - remove it from the filesToUpdate array
+					// - update the initialDataStore so we can check for future changes
+					const updatedData = $initialDataStore?.files?.map((file) => {
+						if (file?.id === fileId) {
+							file.content = content;
+						}
+						return file;
+					});
 
-				console.log('saveGameSuccessModalCopy::', saveGameSuccessModalCopy);
-				console.log('copyData::', copyData?.alertCopy);
+					$filesToUpdate = $filesToUpdate?.filter((file) => file?.id !== fileId);
+					// Since only files are updated, we can spread all the existing data and just update the files
+					// also need to remove the sessionData, that shouldnt be in there
+					initialDataStore?.set({
+						...$initialDataStore,
+						files: JSON.parse(JSON.stringify(updatedData)),
+						sessionData: null
+					});
+					const saveGameSuccessModalCopy = copyData?.alertCopy?.game?.save?.success;
 
-				$itemsInStack = [
-					...$itemsInStack,
-					{
-						title: saveGameSuccessModalCopy.title,
-						message: saveGameSuccessModalCopy.message,
-						useTimeout: true
-					}
-				];
+					$itemsInStack = [
+						...$itemsInStack,
+						{
+							title: saveGameSuccessModalCopy.title,
+							message: saveGameSuccessModalCopy.message,
+							useTimeout: true
+						}
+					];
+				}
 			}
+		} catch (error) {
+			console.log('error::', error);
 		}
 	};
 
@@ -986,6 +1005,15 @@
 	</div>
 	{#if $itemsInStack?.length > 0}
 		<ModalStack />
+	{/if}
+
+	{#if $modalFullInfoStore}
+		<Modal
+			store={$modalFullInfoStore?.store}
+			title={$modalFullInfoStore?.title}
+			description={$modalFullInfoStore?.description}
+			slides={$modalFullInfoStore?.slides}
+		/>
 	{/if}
 </div>
 
