@@ -5,7 +5,8 @@
 	import { themeDataStore } from '$lib/stores/themeStore.js';
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
 	import EmblaDot from './emblaDot.svelte';
-	import { homePageInfoStore, modalFullInfoStore } from '$lib/stores/InfoStore';
+	import { homePageInfoStore, modalFullInfoStore, gamePageInfoStore } from '$lib/stores/InfoStore';
+	import { onMount } from 'svelte';
 
 	export let store;
 	export let title;
@@ -19,6 +20,11 @@
 	function onInit(event) {
 		emblaApi = event.detail;
 	}
+
+	onMount(() => {
+		// initializing = false;
+		console.log('modalFullInfoStore::', $modalFullInfoStore);
+	});
 	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
@@ -105,7 +111,8 @@
 										break;
 									case 'gamePageInfoStore':
 										console.log('gamePageInfoStore');
-										// sideBarState.set(true);
+										gamePageInfoStore.set({ ...$gamePageInfoStore, viewed: true });
+										modalFullInfoStore.set(null);
 										break;
 									case 'editorPageInfoStore':
 										console.log('editorPageInfoStore');
@@ -126,7 +133,7 @@
 		{/if}
 	</div>
 	<div class="embla__dots">
-		{#each Array.from({ length: slides.length }, (_, i) => i) as i}
+		{#each Array.from({ length: slides?.length }, (_, i) => i) as i}
 			<EmblaDot
 				{currentSlide}
 				scrollTo={emblaApi?.scrollTo}
@@ -140,8 +147,8 @@
 <style>
 	.embla__dots {
 		display: flex;
-		width: 150px;
-		height: 150px;
+		width: fit-content;
+		height: fit-content;
 		position: absolute;
 		bottom: 28px;
 		justify-content: center;
@@ -229,6 +236,7 @@
 	h1 {
 		font-family: var(--header-font);
 		padding: 0 2rem;
+		font-size: 1.5rem;
 	}
 	p {
 		padding: 0 2rem;

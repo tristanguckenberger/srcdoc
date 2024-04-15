@@ -3,6 +3,17 @@ import sideBarToggleClosed from '$lib/assets/sideBarToggleClosed.png';
 import sideBarToggleOpened from '$lib/assets/sideBarToggleOpened.png';
 import createNewGame from '$lib/assets/createNewGame.png';
 import actionMenuDark from '$lib/assets/actionMenuDark.png';
+import playPageCogIcon from '$lib/assets/playPageCogIcon.png';
+import playPageEditorIcon from '$lib/assets/playPageEditorIcon.png';
+import playPageLeaderboardIcon from '$lib/assets/playPageLeaderboardIcon.png';
+import playPageCommentIcon from '$lib/assets/playPageCommentIcon.png';
+import playPageFavoriteIcon from '$lib/assets/playPageFavoriteIcon.png';
+import playPageAddToPlaylistIcon from '$lib/assets/playPageAddToPlaylistIcon.png';
+import playPagePlayIcon from '$lib/assets/playPagePlayIcon.png';
+import playPagePauseIcon from '$lib/assets/playPagePauseIcon.png';
+import playPageSwipeIcon from '$lib/assets/playPageSwipeIcon.svg';
+import playPageArrowKeyNavIcons from '$lib/assets/playPageArrowKeyNavIcons.jpg';
+import playPageButtonNavIcons from '$lib/assets/playPageButtonNavIcons.png';
 
 export const copyData = {
 	// Sorted by page
@@ -52,52 +63,77 @@ export const copyData = {
 		},
 		gamePageInfo: {
 			store: 'gamePageInfoStore',
-			navigationActionOptions: [
+			slides: [
 				{
-					title: 'Mobile Swipe Navigation',
-					description: 'Swipe up or down to navigate to a new or previous game.'
+					title: 'Welcome to the Game Page!',
+					description:
+						'From here you can view (or edit if you are the creator) the game details, open the game in the play engine editor to start or continue building, comment on the game, play the game, discover other games, and more!'
+				},
+				{
+					title: 'Edit Game Details',
+					images: [playPageCogIcon],
+					description:
+						'Edit the game details to update the game title, description, and more. Click the cog icon in the top right corner of the game page to edit the game details. This will only be available if you are the game creator.'
+				},
+				{
+					title: 'Open in Editor',
+					images: [playPageEditorIcon],
+					description:
+						'Open the game in the game editor to make changes to the game. Click the code (</>) icon on the game page to open the game in the game editor. This will only be available if you are the game creator.'
+				},
+				{
+					title: 'Open Game Leaderboard',
+					images: [playPageLeaderboardIcon],
+					description:
+						'View the game leaderboard to see how you rank against other players. Click the user+list icon on the game page to open a games leaderboard (assuming the creator has opted into using this feature).'
+				},
+				{
+					title: 'Comment on a Game',
+					images: [playPageCommentIcon],
+					description:
+						'Leave a comment on the game page to share your thoughts on the game. Click the comment icon on the game page to leave a comment.'
+				},
+				{
+					title: 'Favorite A Game',
+					images: [playPageFavoriteIcon],
+					description:
+						"Users with an account can click the heart icon on an individual game's page to favorite a game. This will add the game to your favorites list."
+				},
+				{
+					title: 'Add Game to Playlist',
+					images: [playPageAddToPlaylistIcon],
+					description:
+						'Add the game to a category or one of your playlists to help with platform curation and making it easier to find similar games. Click the plus icon on the game page to add the game to a playlist.'
+				},
+				{
+					title: 'Play Game',
+					images: [playPagePlayIcon],
+					description: 'Click the play icon on the game page to play the game.'
+				},
+				{
+					title: 'Pause Game',
+					images: [playPagePauseIcon],
+					description:
+						'When the game is actively playing, click the pause icon on the game page to pause the game.'
+				},
+				{
+					title: 'Swipe & Drag Navigation',
+					images: [playPageSwipeIcon],
+					description:
+						'Swipe up or down on mobile, or drag up and down on desktop, to navigate to a new or previous game.'
 				},
 				{
 					title: 'Arrow-Key Navigation',
+					images: [playPageArrowKeyNavIcons],
 					description: 'Use the up and down arrow keys to navigate to a new or previous game.'
 				},
 				{
 					title: 'Button Navigation',
+					images: [playPageButtonNavIcons],
 					description:
 						'Use the up and down navigation buttons to navigate to a new or previous game.'
 				}
-			],
-			pageActions: {
-				EditGameDetails: {
-					title: 'Edit Game Details',
-					description:
-						'Edit the game details to update the game title, description, and more. Click the cog icon in the top right corner of the game page to edit the game details. This will only be available if you are the game creator.'
-				},
-				OpenInEditor: {
-					title: 'Open in Editor',
-					description:
-						'Open the game in the game editor to make changes to the game. Click the code (</>) icon on the game page to open the game in the game editor. This will only be available if you are the game creator.'
-				},
-				OpenGameLeaderboard: {
-					title: 'Open Game Leaderboard',
-					description:
-						'View the game leaderboard to see how you rank against other players. Click the user+list icon on the game page to open a games leaderboard (assuming the creator has opted into using this feature).'
-				},
-				AddGameToPlaylist: {
-					title: 'Add Game to Playlist',
-					description:
-						'Add the game to a category or one of your playlists to help with platform curation and making it easier to find similar games. Click the plus icon on the game page to add the game to a playlist.'
-				},
-				PlayGame: {
-					title: 'Play Game',
-					description: 'Click the play icon on the game page to play the game.'
-				},
-				PauseGame: {
-					title: 'Pause Game',
-					description:
-						'When the game is actively playing, click the pause icon on the game page to pause the game.'
-				}
-			}
+			]
 		},
 		editorPageInfo: {
 			firstLanding: {
@@ -106,6 +142,11 @@ export const copyData = {
 				description:
 					'The game editor is where you can create and edit your games. You can add levels, characters, and more to your game.',
 				slides: [
+					{
+						title: 'Welcome to the Game Editor!',
+						description:
+							'The game editor is where you can create and edit your games. You can add levels, characters, and more to your game.'
+					},
 					{
 						title: 'Action Bar',
 						description:

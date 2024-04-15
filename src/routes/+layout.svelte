@@ -1006,7 +1006,6 @@
 	{#if $itemsInStack?.length > 0}
 		<ModalStack />
 	{/if}
-
 	{#if $modalFullInfoStore}
 		<Modal
 			store={$modalFullInfoStore?.store}

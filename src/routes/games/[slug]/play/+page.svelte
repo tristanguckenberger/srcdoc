@@ -5,6 +5,7 @@
 	import { getRootFileId } from '$lib/utils/getter.js';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { tick } from 'svelte';
+	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import {
 		gamesData,
@@ -53,6 +54,7 @@
 	import { gameSession, gameSessionState } from '$lib/stores/gameSession/index.js';
 	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
 	import AddToPlaylist from '$lib/ui/Modal/components/AddToPlaylist.svelte';
+	import { gamePageInfoStore, modalFullInfoStore } from '$lib/stores/InfoStore.js';
 
 	export let data;
 
@@ -120,8 +122,22 @@
 	onMount(async () => {
 		firstRun.set(true);
 
+		modalFullInfoStore.set(null);
+
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
+		}
+
+		if (browser) {
+			console.log('browser');
+			// Check if our local info stores for the homePage has been viewed already
+			console.log('gamePageInfoStore', $gamePageInfoStore);
+			await tick();
+			if (!$gamePageInfoStore?.viewed) {
+				console.log('gamePageInfoStore::viewed::', $gamePageInfoStore?.viewed);
+				// if this isnt viewed, we wanna display the info modal overlay
+				$modalFullInfoStore = $gamePageInfoStore?.info;
+			}
 		}
 	});
 
