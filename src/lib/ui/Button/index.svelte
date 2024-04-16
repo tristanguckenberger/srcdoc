@@ -3,6 +3,7 @@
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import { page } from '$app/stores';
 	import { session } from '$lib/stores/sessionStore';
+	import ToolTip from '$lib/ui/ToolTip/index.svelte';
 
 	export let label;
 	export let link;
@@ -17,6 +18,7 @@
 	export let formaction;
 
 	let profileControl = false;
+	let showToolTip = false;
 
 	$: profileControl = Boolean(userName);
 
@@ -143,16 +145,29 @@
 					/></svg
 				>
 			{:else if label === 'info'}
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="32"
-					height="32"
-					fill="#000000"
-					viewBox="0 0 256 256"
-					><path
-						d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"
-					/></svg
+				<div
+					class="icon-tooltip-container"
+					on:mouseover={() => {
+						showToolTip = true;
+					}}
+					on:mouseleave={() => {
+						showToolTip = false;
+					}}
 				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="32"
+						height="32"
+						fill="#000000"
+						viewBox="0 0 256 256"
+						><path
+							d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"
+						/></svg
+					>
+					{#if showToolTip}
+						<ToolTip text="Show Page Info" position="bottom" />
+					{/if}
+				</div>
 			{:else if label === 'Logout'}
 				<div class="logout">
 					<svg
@@ -201,27 +216,53 @@
 					/></svg
 				>
 			{:else if label === 'play'}
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="32"
-					height="32"
-					fill="#000000"
-					viewBox="0 0 256 256"
-					><path
-						d="M234.49,111.07,90.41,22.94A20,20,0,0,0,60,39.87V216.13a20,20,0,0,0,30.41,16.93l144.08-88.13a19.82,19.82,0,0,0,0-33.86ZM84,208.85V47.15L216.16,128Z"
-					/></svg
+				<div
+					class="icon-tooltip-container"
+					on:mouseover={() => {
+						showToolTip = true;
+					}}
+					on:mouseleave={() => {
+						showToolTip = false;
+					}}
 				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="32"
+						height="32"
+						fill="#000000"
+						viewBox="0 0 256 256"
+						><path
+							d="M234.49,111.07,90.41,22.94A20,20,0,0,0,60,39.87V216.13a20,20,0,0,0,30.41,16.93l144.08-88.13a19.82,19.82,0,0,0,0-33.86ZM84,208.85V47.15L216.16,128Z"
+						/></svg
+					>
+					{#if showToolTip}
+						<ToolTip text="Compile Code" position="bottom" />
+					{/if}
+				</div>
 			{:else if label === 'save'}
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="32"
-					height="32"
-					fill="#000000"
-					viewBox="0 0 256 256"
-					><path
-						d="M222.14,77.17,178.83,33.86A19.86,19.86,0,0,0,164.69,28H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V91.31A19.86,19.86,0,0,0,222.14,77.17ZM164,204H92V156h72Zm40,0H188V152a20,20,0,0,0-20-20H88a20,20,0,0,0-20,20v52H52V52H163l41,41ZM164,80a12,12,0,0,1-12,12H96a12,12,0,0,1,0-24h56A12,12,0,0,1,164,80Z"
-					/></svg
+				<div
+					class="icon-tooltip-container"
+					on:mouseover={() => {
+						showToolTip = true;
+					}}
+					on:mouseleave={() => {
+						showToolTip = false;
+					}}
 				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="32"
+						height="32"
+						fill="#000000"
+						viewBox="0 0 256 256"
+						><path
+							d="M222.14,77.17,178.83,33.86A19.86,19.86,0,0,0,164.69,28H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V91.31A19.86,19.86,0,0,0,222.14,77.17ZM164,204H92V156h72Zm40,0H188V152a20,20,0,0,0-20-20H88a20,20,0,0,0-20,20v52H52V52H163l41,41ZM164,80a12,12,0,0,1-12,12H96a12,12,0,0,1,0-24h56A12,12,0,0,1,164,80Z"
+						/></svg
+					>
+					{#if showToolTip}
+						<ToolTip text="Save" position="bottom" />
+					{/if}
+				</div>
 			{:else if label === 'pause'}
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -456,5 +497,11 @@
 	}
 	button.muted:hover {
 		cursor: not-allowed;
+	}
+	.icon-tooltip-container {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 </style>

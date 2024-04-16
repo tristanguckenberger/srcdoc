@@ -26,6 +26,9 @@
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 	import { session } from '$lib/stores/sessionStore';
 
+	// Component Library Imports
+	import ToolTip from '$lib/ui/ToolTip/index.svelte';
+
 	// Props
 	export let navActionHeight = 0;
 	export let gamesAvailable = [];
@@ -45,6 +48,14 @@
 	let isFavorited = false;
 	let doNavigate = false;
 	let showSlides = false;
+	let showToolTip = false;
+	let showLeaderToolTip = false;
+	let showSettingsToolTip = false;
+	let showCommentsToolTip = false;
+	let showFavoritesToolTip = false;
+	let showAddToPlaylistToolTip = false;
+	let showNextGameToolTip = false;
+	let showPrevGameToolTip = false;
 
 	const linkBuilder = (game) => `/games/${game?.id}/play`;
 
@@ -308,6 +319,12 @@
 												<a
 													class="action-button button"
 													href={`/games/${$currentGameStore?.id}/engine`}
+													on:mouseover={() => {
+														showToolTip = true;
+													}}
+													on:mouseleave={() => {
+														showToolTip = false;
+													}}
 												>
 													<svg
 														class="action-button-icon"
@@ -320,6 +337,9 @@
 															d="M69.12,94.15,28.5,128l40.62,33.85a8,8,0,1,1-10.24,12.29l-48-40a8,8,0,0,1,0-12.29l48-40a8,8,0,0,1,10.24,12.3Zm176,27.7-48-40a8,8,0,1,0-10.24,12.3L227.5,128l-40.62,33.85a8,8,0,1,0,10.24,12.29l48-40a8,8,0,0,0,0-12.29ZM162.73,32.48a8,8,0,0,0-10.25,4.79l-64,176a8,8,0,0,0,4.79,10.26A8.14,8.14,0,0,0,96,224a8,8,0,0,0,7.52-5.27l64-176A8,8,0,0,0,162.73,32.48Z"
 														/></svg
 													>
+													{#if showToolTip}
+														<ToolTip text="Open In Editor" position="left" />
+													{/if}
 												</a>
 											{/if}
 											<!-- open leaderboards -->
@@ -332,6 +352,12 @@
 													// }
 													$playButton = false;
 													$drawerOpen = true;
+												}}
+												on:mouseover={() => {
+													showLeaderToolTip = true;
+												}}
+												on:mouseleave={() => {
+													showLeaderToolTip = false;
 												}}
 											>
 												<svg
@@ -348,6 +374,9 @@
 														fill-opacity="0.81"
 													/>
 												</svg>
+												{#if showLeaderToolTip}
+													<ToolTip text="View Leaderboards" position="left" />
+												{/if}
 											</button>
 											<!-- open comments -->
 											<button
@@ -359,6 +388,12 @@
 													}
 													$playButton = false;
 													$drawerOpen = true;
+												}}
+												on:mouseover={() => {
+													showCommentsToolTip = true;
+												}}
+												on:mouseleave={() => {
+													showCommentsToolTip = false;
 												}}
 											>
 												<svg
@@ -375,6 +410,9 @@
 														fill-opacity="0.81"
 													/>
 												</svg>
+												{#if showCommentsToolTip}
+													<ToolTip text="View Comments" position="left" />
+												{/if}
 											</button>
 											<!-- <button
 												class="action-button button"
@@ -417,7 +455,6 @@
 													class:muted={$session?.id !== game?.user_id}
 													on:click={() => {}}
 												>
-													<!-- {#if isFavorited && $gameFavoriteCount > 0} -->
 													<svg
 														width="27"
 														height="23"
@@ -444,17 +481,7 @@
 												</button>
 											</div>
 											{#if hideActionNav} -->
-											<form
-												class="gameDetails new-project-form modal"
-												method="POST"
-												action="/games/?/{isFavorited ? 'deleteFavorite' : 'createFavorite'}"
-												use:enhance={({ formElement, formData, action, cancel, redirect }) => {
-													return async ({ result }) => {
-														if (result.status === 200) {
-														}
-													};
-												}}
-											>
+											<form class="gameDetails new-project-form modal" method="POST">
 												<input type="hidden" name="gameId" value={$currentGameStore?.id} />
 												<button
 													class="action-button button add-to-playlist"
@@ -470,8 +497,13 @@
 														$playButton = false;
 														$drawerOpen = true;
 													}}
+													on:mouseover={() => {
+														showAddToPlaylistToolTip = true;
+													}}
+													on:mouseleave={() => {
+														showAddToPlaylistToolTip = false;
+													}}
 												>
-													<!-- {#if isFavorited && $gameFavoriteCount > 0} -->
 													<svg
 														xmlns="http://www.w3.org/2000/svg"
 														width="32"
@@ -482,6 +514,9 @@
 															d="M228,128a12,12,0,0,1-12,12H140v76a12,12,0,0,1-24,0V140H40a12,12,0,0,1,0-24h76V40a12,12,0,0,1,24,0v76h76A12,12,0,0,1,228,128Z"
 														/></svg
 													>
+													{#if showAddToPlaylistToolTip}
+														<ToolTip text="Add Game To Playlist" position="left" />
+													{/if}
 												</button>
 											</form>
 											<!-- {/if} -->
@@ -636,6 +671,7 @@
 		justify-content: center;
 		background-color: transparent;
 		border: none;
+		position: relative;
 	}
 	.action-button:hover {
 		cursor: pointer;
