@@ -5,7 +5,12 @@
 	import { themeDataStore } from '$lib/stores/themeStore.js';
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
 	import EmblaDot from './emblaDot.svelte';
-	import { homePageInfoStore, modalFullInfoStore, gamePageInfoStore } from '$lib/stores/InfoStore';
+	import {
+		homePageInfoStore,
+		modalFullInfoStore,
+		gamePageInfoStore,
+		editorPageInfoStore
+	} from '$lib/stores/InfoStore';
 	import { onMount } from 'svelte';
 
 	export let store;
@@ -16,6 +21,7 @@
 	let emblaApi;
 	let options = { loop: false, inViewThreshold: 0.7, watchDrag: false, duration: 20 };
 	let currentSlide = 0;
+	let dotsContainerWidth;
 
 	function onInit(event) {
 		emblaApi = event.detail;
@@ -51,16 +57,19 @@
 <div
 	class="modal embla"
 	class:sideBarOpen={$sideBarState}
+	class:homePageInfoModal={store === 'homePageInfoStore'}
+	class:gamePageInfoModal={store === 'gamePageInfoStore'}
+	class:editorPageInfoModal={store === 'editorPageInfoStore'}
 	use:emblaCarouselSvelte={{ options }}
 	on:emblaInit={onInit}
-	style={themeString}
+	style="--dotsContainerWidth: {dotsContainerWidth}px; {themeString}"
 >
 	<div class="modal-content embla__container">
 		<!-- <h1>{title}</h1>
 		<p>{description}</p> -->
 		{#if slides}
 			{#each slides as slide, i (`index_${i}`)}
-				<div class="embla__slide">
+				<div class="embla__slide index_{i}">
 					<button
 						disabled={currentSlide === 0}
 						class:disabled={currentSlide === 0}
@@ -75,7 +84,7 @@
 					>
 					<h1>{slide.title}</h1>
 
-					{#if slide?.images?.length === 1 && currentSlide !== 0}
+					{#if (slide?.images?.length === 1 && currentSlide !== 0) || (slide?.images?.length === 1 && slide?.imageLarge)}
 						<div class="image__container">
 							<img
 								src={slide.images[0]}
@@ -116,7 +125,8 @@
 										break;
 									case 'editorPageInfoStore':
 										console.log('editorPageInfoStore');
-										// themeDataStore.setTheme('light');
+										editorPageInfoStore.set({ ...$editorPageInfoStore, viewed: true });
+										modalFullInfoStore.set(null);
 										break;
 									case 'libraryPageInfoStore':
 										console.log('libraryPageInfoStore');
@@ -132,7 +142,7 @@
 			{/each}
 		{/if}
 	</div>
-	<div class="embla__dots">
+	<div class="embla__dots" bind:clientWidth={dotsContainerWidth}>
 		{#each Array.from({ length: slides?.length }, (_, i) => i) as i}
 			<EmblaDot
 				{currentSlide}
@@ -154,7 +164,7 @@
 		justify-content: center;
 		align-items: flex-end;
 		height: fit-content;
-		left: calc(50% - 150px / 2);
+		left: calc(50% - var(--dotsContainerWidth) / 2);
 	}
 	.modal {
 		position: fixed;
@@ -241,9 +251,11 @@
 	p {
 		padding: 0 2rem;
 		margin-top: 30px;
-		/* margin-bottom: 3px; */
 		font-family: 'Geologica';
 		font-weight: 200;
+		max-height: 100px;
+		overflow-y: scroll;
+		overflow-x: hidden;
 	}
 	.modal-content {
 		max-width: 100%;
@@ -268,5 +280,32 @@
 	div.image__container img.imageLarge {
 		height: 85px;
 		width: auto;
+	}
+
+	/* Editor Page Styles */
+	.modal.editorPageInfoModal .embla__slide.index_0 div.image__container img {
+		height: 200px;
+	}
+	.modal.editorPageInfoModal .embla__slide button.next {
+		margin-bottom: unset;
+		bottom: unset;
+		position: unset;
+	}
+	.modal.editorPageInfoModal .embla__slide.index_1 div.image__container img {
+		width: 65%;
+	}
+	.modal.editorPageInfoModal .embla__slide.index_3 div.image__container img {
+		width: 50%;
+		height: auto;
+	}
+	.modal.editorPageInfoModal .embla__slide.index_2 div.image__container img,
+	.modal.editorPageInfoModal .embla__slide.index_4 div.image__container img,
+	.modal.editorPageInfoModal .embla__slide.index_6 div.image__container img {
+		width: 55%;
+		height: auto;
+	}
+	.modal.editorPageInfoModal .embla__slide.index_5 div.image__container img {
+		width: 45%;
+		height: auto;
 	}
 </style>

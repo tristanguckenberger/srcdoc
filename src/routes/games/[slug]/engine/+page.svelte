@@ -35,6 +35,8 @@
 		baseDataStore,
 		focusedFolderId
 	} from '$lib/stores/filesStore.js';
+	import { browser } from '$app/environment';
+	import { tick } from 'svelte';
 
 	// Expiremental
 	import FileTree from '$lib/ui/FileSystem/FileTree.svelte';
@@ -43,6 +45,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { routeHistoryStore } from '$lib/stores/routeStore.js';
 	import { gameSession } from '$lib/stores/gameSession/index.js';
+	import { modalFullInfoStore, editorPageInfoStore } from '$lib/stores/InfoStore.js';
 
 	export let data;
 	const play = false;
@@ -91,11 +94,16 @@
 		}
 	);
 
-	onMount(() => {
-		// firstRun.set(true);
-
+	onMount(async () => {
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
+		}
+
+		if (browser) {
+			await tick();
+			if (!$editorPageInfoStore?.viewed) {
+				$modalFullInfoStore = $editorPageInfoStore?.info;
+			}
 		}
 	});
 

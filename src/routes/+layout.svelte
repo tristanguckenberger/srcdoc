@@ -398,6 +398,13 @@
 		}
 	};
 
+	const toggleEditorInfoModal = async () => {
+		if (browser) {
+			await tick();
+			$modalFullInfoStore = $editorPageInfoStore?.info;
+		}
+	};
+
 	// REACTIVE VARIABLES & STATEMENTS
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
@@ -543,6 +550,11 @@
 					{#if engineInRoute}
 						<li class:hiddenItem={!engineInRoute}>
 							<Button action={handleSave} label={'save'} link={null} />
+						</li>
+					{/if}
+					{#if engineInRoute}
+						<li class:hiddenItem={!engineInRoute}>
+							<Button action={toggleEditorInfoModal} label={'info'} link={null} />
 						</li>
 					{/if}
 				</ul>
