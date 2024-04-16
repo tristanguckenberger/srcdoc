@@ -283,9 +283,25 @@
 	}
 
 	/* Play Page Styles */
-	.modal.gamePageInfoModal .embla__slide.index_0 div.image__container img {
+	.modal.gamePageInfoModal .embla__slide.index_0 img {
 		width: 55%;
 		height: auto;
+		border-radius: 6px;
+		filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+	}
+
+	.modal.gamePageInfoModal .embla__slide.index_1 div.image__container img,
+	.modal.gamePageInfoModal .embla__slide.index_2 div.image__container img,
+	.modal.gamePageInfoModal .embla__slide.index_3 div.image__container img,
+	.modal.gamePageInfoModal .embla__slide.index_4 div.image__container img,
+	.modal.gamePageInfoModal .embla__slide.index_5 div.image__container img,
+	.modal.gamePageInfoModal .embla__slide.index_6 div.image__container img,
+	.modal.gamePageInfoModal .embla__slide.index_7 div.image__container img,
+	.modal.gamePageInfoModal .embla__slide.index_11 div.image__container img {
+		width: 55%;
+		height: auto;
+		border-radius: 6px;
+		filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
 	}
 
 	/* Editor Page Styles */
@@ -293,7 +309,8 @@
 		width: 55%;
 		height: auto;
 	}
-	.modal.editorPageInfoModal .embla__slide button.next {
+	.modal.editorPageInfoModal .embla__slide button.next,
+	.modal.gamePageInfoModal .embla__slide button.next {
 		margin-bottom: unset;
 		bottom: unset;
 		position: unset;
