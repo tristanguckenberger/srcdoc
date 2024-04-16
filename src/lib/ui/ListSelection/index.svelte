@@ -233,6 +233,7 @@
 		font-size: 0.78rem;
 		font-weight: 450;
 		color: var(--folder-button-color);
+		max-width: 250px;
 	}
 	.card-info div {
 		color: var(--color-primary);

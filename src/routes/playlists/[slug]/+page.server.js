@@ -48,6 +48,7 @@ export async function load({ params, fetch }) {
 	}, {});
 
 	if (!playlist) {
+		console.log('no playlist found');
 		throw redirect(303, '/games');
 	}
 
