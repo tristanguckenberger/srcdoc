@@ -6,9 +6,10 @@ import createNewGame from '$lib/assets/createNewGame.png';
 import actionMenuDark from '$lib/assets/actionMenuDark.png';
 
 // Play Page (/game/:id/play)
+import playPageHome from '$lib/assets/playPageHome.png';
 import playPageCogIcon from '$lib/assets/playPageCogIcon.png';
 import playPageEditorIcon from '$lib/assets/playPageEditorIcon.png';
-import playPageLeaderboardIcon from '$lib/assets/playPageLeaderboardIcon.png';
+import playPageLeaderBoardIcon from '$lib/assets/playPageLeaderBoardIcon.png';
 import playPageCommentIcon from '$lib/assets/playPageCommentIcon.png';
 import playPageFavoriteIcon from '$lib/assets/playPageFavoriteIcon.png';
 import playPageAddToPlaylistIcon from '$lib/assets/playPageAddToPlaylistIcon.png';
@@ -79,6 +80,7 @@ export const copyData = {
 			slides: [
 				{
 					title: 'Welcome to the Game Page!',
+					images: [playPageHome],
 					description:
 						'From here you can view (or edit if you are the creator) the game details, open the game in the play engine editor to start or continue building, comment on the game, play the game, discover other games, and more!'
 				},
@@ -96,7 +98,7 @@ export const copyData = {
 				},
 				{
 					title: 'Open Game Leaderboard',
-					images: [playPageLeaderboardIcon],
+					images: [playPageLeaderBoardIcon],
 					description:
 						'View the game leaderboard to see how you rank against other players. Click the user+list icon on the game page to open a games leaderboard (assuming the creator has opted into using this feature).'
 				},

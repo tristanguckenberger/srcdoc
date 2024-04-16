@@ -282,9 +282,16 @@
 		width: auto;
 	}
 
+	/* Play Page Styles */
+	.modal.gamePageInfoModal .embla__slide.index_0 div.image__container img {
+		width: 55%;
+		height: auto;
+	}
+
 	/* Editor Page Styles */
 	.modal.editorPageInfoModal .embla__slide.index_0 div.image__container img {
-		height: 200px;
+		width: 55%;
+		height: auto;
 	}
 	.modal.editorPageInfoModal .embla__slide button.next {
 		margin-bottom: unset;
