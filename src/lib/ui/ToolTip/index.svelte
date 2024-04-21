@@ -1,6 +1,11 @@
 <script>
+	/**
+	 * @name ToolTip
+	 * @description Used to display a tooltip on the screen.
+	 */
+
 	export let text = '';
-	export let position = 'top'; // top, bottom, left, right
+	export let position = 'top';
 </script>
 
 <div
@@ -15,17 +20,17 @@
 
 <style>
 	.tooltip__container {
-		position: absolute;
-		display: inline-block;
 		background-color: var(--color-primary);
-		color: var(--color-secondary);
 		border-radius: 6px;
-		z-index: 10;
-		padding: 5px;
+		color: var(--color-secondary);
+		display: inline-block;
+		font-family: var(--paragraph-font);
 		font-size: 0.9rem;
 		font-weight: 700;
-		font-family: var(--paragraph-font);
 		min-width: fit-content;
+		padding: 5px;
+		position: absolute;
+		z-index: 10;
 	}
 	.tooltip__container.left {
 		right: 50px;

@@ -6,44 +6,27 @@
 	import { debounce } from 'lodash-es';
 
 	// SVELTE IMPORTS
-	import { onMount, onDestroy, afterUpdate, tick, setContext, getContext } from 'svelte';
+	import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
 	import { page, navigating } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
-	import { redirect } from '@sveltejs/kit';
 
 	// CUSTOM STORE IMPORTS
+	import { playButton, actionMenuOpen, gameFavorites } from '$lib/stores/gamesStore.js';
+	import { hidePlayButtonStore } from '$lib/stores/gameControllerStore.js';
 	import {
-		playButton,
-		actionMenuOpen,
-		screenshot,
-		currentGame,
-		gameFavoriteCount,
-		gameFavorites
-	} from '$lib/stores/gamesStore.js';
-	import {
-		hidePlayButtonStore,
-		lockGameStateStore,
-		allowNavigationStore
-	} from '$lib/stores/gameControllerStore.js';
-	import {
-		autoCompile,
 		fileSystemSidebarOpen,
 		triggerCompile,
 		filesToUpdate,
 		focusedFileId,
 		initialDataStore,
-		baseDataStore,
-		openFiles,
-		firstRun,
-		softSelectedFileId
+		firstRun
 	} from '$lib/stores/filesStore';
 	import {
 		sideBarState,
 		sideBarWidth,
 		modalOpenState,
-		appClientWidth,
-		loaderState
+		appClientWidth
 	} from '$lib/stores/layoutStore.js';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
@@ -61,20 +44,11 @@
 	import Modal from '$lib/ui/Modal/index.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
 	import LoadingIndicator from '$lib/ui/LoadingIndicator/index.svelte';
-	import SearchBar from '$lib/ui/NavWidgets/SearchBar.svelte';
-	import Drawer from '$lib/ui/Drawer/index.svelte';
-	import Widget from '$lib/ui/Widget/index.svelte';
-	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
 	import ModalStack from '$lib/ui/ModalStack/index.svelte';
 
 	// ASSET IMPORTS
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
-	import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
-	import Comments from '$lib/ui/Widget/Components/Comments.svelte';
-	import Issues from '$lib/ui/Widget/Components/Issues.svelte';
-	import Reviews from '$lib/ui/Widget/Components/Reviews.svelte';
-	import EditDetails from '$lib/ui/Widget/Components/EditDetails.svelte';
-	import Leaderboards from '$lib/ui/Widget/Components/Leaderboards.svelte';
+	import { afterNavigate, beforeNavigate, invalidateAll } from '$app/navigation';
 	import { searchResultsStore } from '$lib/stores/search/searchStore';
 	import SearchResults from '$lib/ui/NavWidgets/SearchResults.svelte';
 	import { writable } from 'svelte/store';
@@ -83,26 +57,25 @@
 		editorPageInfoStore,
 		gamePageInfoStore,
 		homePageInfoStore,
-		infoStore,
 		modalFullInfoStore
 	} from '$lib/stores/InfoStore.js';
+	import NavigationBar from '$lib/ui/Navigation/index.svelte';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
 	export let data; // This is the data from the server, includes `sessionData`
-	export let formData;
 
 	// Variables
 	let preferedThemeMode;
 	let dropDownToggle = false;
 	let isFavorited = false;
 	let deleteOrCreateFav = false;
-	let ComponentOptions = [];
 	let creatingNewPlaylist = false;
 	let mainPageElement;
 	let mainElement;
 	const showBoxShadow = writable(false);
 
+	// FUNCTIONS
 	const handleScrollBack = () => {
 		$emblaInstance?.scrollNext();
 		setTimeout(() => {
@@ -121,7 +94,6 @@
 
 	const debouncedScrollForward = debounce(handleScrollForward, 350);
 
-	// FUNCTIONS
 	onMount(() => {
 		inject({ mode: dev ? 'development' : 'production' });
 
@@ -133,15 +105,9 @@
 				session.set(sessionData);
 			}
 
-			let homePageInfo = copyData?.fullInfoCopy?.homePageInfo?.firstLanding;
-			let gamePageInfo = copyData?.fullInfoCopy?.gamePageInfo;
-			let editorPageInfo = copyData?.fullInfoCopy?.editorPageInfo?.firstLanding;
-			let libraryPageInfo = copyData?.fullInfoCopy?.libraryPageInfo;
 			// Start local storage stores
-			// infoStore.useLocalStorage();
 			homePageInfoStore.useLocalStorage();
 			gamePageInfoStore.useLocalStorage();
-			// editorPageInfoStore.useLocalStorage();
 			editorPageInfoStore.useLocalStorage();
 		}
 
@@ -255,18 +221,6 @@
 
 		return canLoad;
 	};
-
-	const toggleFileSystemSidebar = () => {
-		if (!playInRoute) {
-			fileSystemSidebarOpen.set(!$fileSystemSidebarOpen);
-			$sideBarState = false;
-		}
-	};
-
-	// const takeScreenshot = () => {
-	// 	$screenshot = true;
-	// };
-
 	const updateTheme = (e) => {
 		themeKeyStore.set(e.matches ? 'light' : 'dark');
 	};
@@ -281,68 +235,6 @@
 		} else {
 			$sideBarState = !$sideBarState;
 			$fileSystemSidebarOpen = false;
-		}
-	};
-
-	const handleSave = async () => {
-		try {
-			const fileToUpdate = $filesToUpdate?.find((file) => file.id === $focusedFileId);
-			const name = fileToUpdate?.name;
-			const type = fileToUpdate?.type;
-			const content = fileToUpdate?.content;
-			const gameId = fileToUpdate?.game_id ?? fileToUpdate?.gameId;
-			const parentFileId = fileToUpdate?.parentFileId ?? fileToUpdate?.parent_file_id;
-			const fileId = fileToUpdate?.id;
-
-			if (fileId && name && type && gameId && parentFileId) {
-				const updatedFile = await fetch(`/api/updateFile`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({
-						fileId: fileToUpdate?.id,
-						gameId,
-						name,
-						type,
-						content,
-						parentFileId
-					})
-				});
-
-				if (updatedFile?.ok) {
-					// If the file successfully updated:
-					// - remove it from the filesToUpdate array
-					// - update the initialDataStore so we can check for future changes
-					const updatedData = $initialDataStore?.files?.map((file) => {
-						if (file?.id === fileId) {
-							file.content = content;
-						}
-						return file;
-					});
-
-					$filesToUpdate = $filesToUpdate?.filter((file) => file?.id !== fileId);
-					// Since only files are updated, we can spread all the existing data and just update the files
-					// also need to remove the sessionData, that shouldnt be in there
-					initialDataStore?.set({
-						...$initialDataStore,
-						files: JSON.parse(JSON.stringify(updatedData)),
-						sessionData: null
-					});
-					const saveGameSuccessModalCopy = copyData?.alertCopy?.game?.save?.success;
-
-					$itemsInStack = [
-						...$itemsInStack,
-						{
-							title: saveGameSuccessModalCopy.title,
-							message: saveGameSuccessModalCopy.message,
-							useTimeout: true
-						}
-					];
-				}
-			}
-		} catch (error) {
-			console.log('error::', error);
 		}
 	};
 
@@ -395,13 +287,6 @@
 					$firstRun = false;
 				}
 			}
-		}
-	};
-
-	const toggleEditorInfoModal = async () => {
-		if (browser) {
-			await tick();
-			$modalFullInfoStore = $editorPageInfoStore?.info;
 		}
 	};
 
@@ -480,131 +365,10 @@
 		class:gameProfile={(isProfilePage || playInRoute) && !engineInRoute}
 		bind:clientWidth={$appClientWidth}
 	>
-		<nav
-			class="top"
-			class:matchGridWidth={!engineInRoute && isBrowsePage}
-			class:isNotHomePage={!isHomePage}
-			class:engineInRoute
-			class:isHomePage
-			class:gameProfile={(isProfilePage || playInRoute) && !engineInRoute}
-			class:showSideBar={$sideBarState}
-			class:isBrowsePage
-			class:isUserGamesBrowsePage
-			class:isUserFavoritesBrowsePage
-			class:isPlayPage
-			class:isMobile
-			class:showBoxShadow={$showBoxShadow}
-		>
-			<ul class:matchGridWidth={!engineInRoute && isBrowsePage}>
-				<ul>
-					{#if engineInRoute}
-						<li class="sidebar-toggle" class:showSideBar={$sideBarState} class:engineInRoute>
-							<Button action={toggleSideBar} label={$sideBarState ? 'close' : 'open'} link={null} />
-						</li>
-						<li class:hiddenItem={!engineInRoute}>
-							<Button
-								action={toggleFileSystemSidebar}
-								label={$fileSystemSidebarOpen ? 'close-folder' : 'open-folder'}
-								link={null}
-							/>
-						</li>
-						<!-- <li class:hiddenItem={!engineInRoute}>
-							<Button action={takeScreenshot} label={'screenshot'} link={null} />
-						</li> -->
-					{:else}
-						<li class="sidebar-toggle" class:showSideBar={$sideBarState}>
-							<Button action={toggleSideBar} label={$sideBarState ? 'close' : 'open'} link={null} />
-						</li>
-						<li class="top-nav-action-bar" class:showSideBar={$sideBarState}>
-							<div class="back-button-container">
-								<a href={previousRoute} class="back-button" class:disableBackButton>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="32"
-										height="32"
-										fill="#000000"
-										viewBox="0 0 256 256"
-										><path
-											d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"
-										/></svg
-									>
-								</a>
-							</div>
-							<div class="search">
-								<SearchBar />
-							</div>
-						</li>
-						<!-- <li class="search">
-							<SearchBar />
-						</li> -->
-					{/if}
-					{#if engineInRoute}
-						<li class:hiddenItem={!engineInRoute && !$autoCompile}>
-							<Button
-								action={() => triggerCompile.set(!$triggerCompile)}
-								label={playPauseLabel}
-								link={null}
-							/>
-						</li>
-					{/if}
-					{#if engineInRoute}
-						<li class:hiddenItem={!engineInRoute}>
-							<Button action={handleSave} label={'save'} link={null} />
-						</li>
-					{/if}
-					{#if engineInRoute}
-						<li class:hiddenItem={!engineInRoute}>
-							<Button action={toggleEditorInfoModal} label={'info'} link={null} />
-						</li>
-					{/if}
-				</ul>
-				{#if !isMobile && engineInRoute}
-					<ul class="profile-info" class:showSideBar={$sideBarState}>
-						{#if sessionData?.username || $session?.username}
-							<li>
-								<Button
-									link="/users/{sessionData?.id}"
-									userName={sessionData?.username ?? $session?.username}
-									userAvatar={sessionData?.profile_photo ?? $session?.profile_photo}
-									isRounded
-									action={toggleDropDown}
-									showDropDown={dropDownToggle}
-								/>
-							</li>
-						{/if}
-						<div class="more-container" class:dropDownToggle>
-							<div class="more" class:dropDownToggle class:isBrowsePage>
-								<ul>
-									<li>
-										<Button label="Home" link="/games" />
-									</li>
-									<li>
-										<form
-											class="logout-form"
-											action="/?/logout"
-											method="POST"
-											use:enhance={({ formElement, formData, action, cancel, redirect }) => {
-												return async ({ result }) => {
-													if (result.status === 200) {
-														session.set(null);
-														invalidateAll();
-													}
-												};
-											}}
-										>
-											<Button label="Logout" />
-										</form>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</ul>
-				{/if}
-			</ul>
-		</nav>
-		{#if modalIsOpen}
+		<NavigationBar {data} {sessionData} />
+		<!-- {#if modalIsOpen}
 			<Modal />
-		{/if}
+		{/if} -->
 		<div
 			class="page-container"
 			class:engineInRoute
@@ -811,19 +575,6 @@
 				<hr class="sidebar-divider" />
 				<div class="sidebar-section">
 					<ul>
-						<!-- <a href="">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="32"
-								height="32"
-								fill="#000000"
-								viewBox="0 0 256 256"
-								><path
-									d="M128,76a52,52,0,1,0,52,52A52.06,52.06,0,0,0,128,76Zm0,80a28,28,0,1,1,28-28A28,28,0,0,1,128,156Zm92-27.21v-1.58l14-17.51a12,12,0,0,0,2.23-10.59A111.75,111.75,0,0,0,225,71.89,12,12,0,0,0,215.89,66L193.61,63.5l-1.11-1.11L190,40.1A12,12,0,0,0,184.11,31a111.67,111.67,0,0,0-27.23-11.27A12,12,0,0,0,146.3,22L128.79,36h-1.58L109.7,22a12,12,0,0,0-10.59-2.23A111.75,111.75,0,0,0,71.89,31.05,12,12,0,0,0,66,40.11L63.5,62.39,62.39,63.5,40.1,66A12,12,0,0,0,31,71.89,111.67,111.67,0,0,0,19.77,99.12,12,12,0,0,0,22,109.7l14,17.51v1.58L22,146.3a12,12,0,0,0-2.23,10.59,111.75,111.75,0,0,0,11.29,27.22A12,12,0,0,0,40.11,190l22.28,2.48,1.11,1.11L66,215.9A12,12,0,0,0,71.89,225a111.67,111.67,0,0,0,27.23,11.27A12,12,0,0,0,109.7,234l17.51-14h1.58l17.51,14a12,12,0,0,0,10.59,2.23A111.75,111.75,0,0,0,184.11,225a12,12,0,0,0,5.91-9.06l2.48-22.28,1.11-1.11L215.9,190a12,12,0,0,0,9.06-5.91,111.67,111.67,0,0,0,11.27-27.23A12,12,0,0,0,234,146.3Zm-24.12-4.89a70.1,70.1,0,0,1,0,8.2,12,12,0,0,0,2.61,8.22l12.84,16.05A86.47,86.47,0,0,1,207,166.86l-20.43,2.27a12,12,0,0,0-7.65,4,69,69,0,0,1-5.8,5.8,12,12,0,0,0-4,7.65L166.86,207a86.47,86.47,0,0,1-10.49,4.35l-16.05-12.85a12,12,0,0,0-7.5-2.62c-.24,0-.48,0-.72,0a70.1,70.1,0,0,1-8.2,0,12.06,12.06,0,0,0-8.22,2.6L99.63,211.33A86.47,86.47,0,0,1,89.14,207l-2.27-20.43a12,12,0,0,0-4-7.65,69,69,0,0,1-5.8-5.8,12,12,0,0,0-7.65-4L49,166.86a86.47,86.47,0,0,1-4.35-10.49l12.84-16.05a12,12,0,0,0,2.61-8.22,70.1,70.1,0,0,1,0-8.2,12,12,0,0,0-2.61-8.22L44.67,99.63A86.47,86.47,0,0,1,49,89.14l20.43-2.27a12,12,0,0,0,7.65-4,69,69,0,0,1,5.8-5.8,12,12,0,0,0,4-7.65L89.14,49a86.47,86.47,0,0,1,10.49-4.35l16.05,12.85a12.06,12.06,0,0,0,8.22,2.6,70.1,70.1,0,0,1,8.2,0,12,12,0,0,0,8.22-2.6l16.05-12.85A86.47,86.47,0,0,1,166.86,49l2.27,20.43a12,12,0,0,0,4,7.65,69,69,0,0,1,5.8,5.8,12,12,0,0,0,7.65,4L207,89.14a86.47,86.47,0,0,1,4.35,10.49l-12.84,16.05A12,12,0,0,0,195.88,123.9Z"
-								/></svg
-							>
-							<span>Settings</span>
-						</a> -->
 						{#if sessionData?.id && !sessionData?.is_active && !$session?.is_active}
 							<a href="/users/{sessionData?.id}/verify" class:active={isVerifyPage}>
 								Account Verfication
@@ -858,39 +609,13 @@
 										/>
 									</li>
 								{/if}
-								<!-- <div class="more-container" class:dropDownToggle>
-									<div class="more" class:dropDownToggle class:isBrowsePage>
-										<ul>
-											<li>
-												<Button label="Home" link="/games" />
-											</li>
-											<li>
-												<form
-													class="logout-form"
-													action="/?/logout"
-													method="POST"
-													use:enhance={({ formElement, formData, action, cancel, redirect }) => {
-														return async ({ result }) => {
-															if (result.status === 200) {
-																session.set(null);
-																invalidateAll();
-															}
-														};
-													}}
-												>
-													<Button label="Logout" />
-												</form>
-											</li>
-										</ul>
-									</div>
-								</div> -->
 							</ul>
 							<li class="sidebar-action">
 								<form
 									class="logout-form"
 									action="/?/logout"
 									method="POST"
-									use:enhance={({ formElement, formData, action, cancel, redirect }) => {
+									use:enhance={() => {
 										return async ({ result }) => {
 											if (result.status === 200) {
 												session.set(null);
@@ -1073,9 +798,6 @@
 	main.isPlayPage {
 		padding-top: 57px;
 	}
-	main.isProfilePage {
-		/* padding-top: 56.5px; */
-	}
 	main.isMobile {
 		padding-top: 10px;
 	}
@@ -1087,44 +809,6 @@
 		height: calc(100% - 20px);
 		width: calc(100% - 10px);
 		max-width: calc(100%);
-	}
-	nav {
-		color: var(--color-primary);
-		padding: 10px 10px 0 10px;
-		position: fixed;
-		/* top: 18px; */
-		z-index: 10;
-		width: calc(100% - 20px);
-		background: var(--color-secondary);
-	}
-
-	nav.isPlayPage {
-		padding: 10px;
-	}
-	nav.isHomePage {
-		background: transparent;
-	}
-
-	nav ul {
-		display: flex;
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		gap: 10px;
-		align-items: center;
-		height: 36.5px;
-		width: 100%;
-	}
-
-	nav.matchGridWidth {
-		justify-content: flex-start;
-		display: flex;
-	}
-	nav.isBrowsePage {
-		padding: 10px 10px 10px 10px;
-	}
-	li.hiddenItem {
-		display: none;
 	}
 	main.editor {
 		height: calc(100% - 66.5px) !important;
@@ -1174,57 +858,6 @@
 	.isProfilePage {
 		overflow: hidden;
 	}
-
-	.more-container {
-		position: relative;
-		display: none;
-	}
-	.more-container.dropDownToggle {
-		display: block;
-		left: 10px;
-	}
-	.more {
-		display: none;
-		gap: 9px;
-		align-items: center;
-		opacity: 0;
-		transition: opacity 0.5s linear;
-	}
-	.more.dropDownToggle {
-		display: flex;
-		height: 150px;
-		width: 200px;
-		background-color: var(--nav-dropdown);
-		position: absolute;
-		top: 18px;
-		right: 10px;
-		z-index: 100;
-		border-radius: 12px;
-		border-top-right-radius: 0px;
-		opacity: 1;
-	}
-	.more.isBrowsePage {
-		right: 10px;
-	}
-	.more ul {
-		height: 100%;
-		width: 100%;
-		display: flex;
-		justify-content: flex-start;
-		align-items: flex-end;
-		padding: 0 10px;
-		flex-direction: column;
-	}
-
-	.more ul > li {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		height: fit-content;
-		width: fit-content;
-		padding-top: 10px;
-	}
 	.layout-container.isBrowsePage {
 		background-color: var(--color-secondary);
 	}
@@ -1234,15 +867,6 @@
 	.bg-container.gameProfile {
 		background-color: var(--color-secondary) !important;
 		display: flex;
-	}
-	nav.engineInRoute {
-		background-color: var(--color-secondary) !important;
-		position: unset !important;
-	}
-	nav.gameProfile {
-		/* background-color: transparent !important; */
-		background-color: none !important;
-		/* display: none; */
 	}
 	::-webkit-scrollbar-thumb:hover {
 		/* background: #555 !important; */
@@ -1404,24 +1028,6 @@
 		border-radius: 25px;
 		width: 90%;
 	}
-	nav.showSideBar {
-		color: var(--color-primary);
-		padding: 10px;
-		position: fixed;
-		top: 0;
-		left: 230px;
-		z-index: 10;
-		width: calc(100% - 250px);
-		background: var(--color-secondary);
-		z-index: 9;
-		transition: box-shadow 0.05s linear;
-	}
-	nav.showBoxShadow {
-		box-shadow: var(--shadow);
-	}
-	nav.engineInRoute.showSideBar {
-		width: calc(100% - 20px);
-	}
 	.sidebar.engineInRoute.sidebar.showSideBar {
 		border-top-right-radius: 6px;
 	}
@@ -1436,20 +1042,6 @@
 	#primary-actions {
 		margin-block-start: 40px;
 	}
-	nav.isBrowsePage {
-		/* padding: 10px 10px 0 20px; */
-	}
-	nav.isUserGamesBrowsePage,
-	nav.isUserFavoritesBrowsePage {
-		padding: 10px 10px 0 10px;
-	}
-	nav.isMobile {
-		display: none;
-	}
-	nav.isMobile.engineInRoute {
-		display: block;
-	}
-
 	main.editor.isPlayPage.isMobile {
 		height: calc(100% - 10px) !important;
 	}
@@ -1509,20 +1101,6 @@
 		.play-button-container {
 			top: -34px;
 		}
-	}
-	.favorites {
-		font-family: 'Inter';
-		color: #dadada;
-		display: flex;
-		flex-direction: column;
-		gap: 5px;
-		font-weight: 400;
-		text-shadow: 0 0 3px black;
-	}
-	.mobile-profile-btn {
-		display: flex;
-		align-items: center;
-		padding-left: 10px;
 	}
 	@media (max-width: 498px) {
 		main.editor.isPlayPage.isMobile {
@@ -1588,17 +1166,6 @@
 		right: 35px;
 		z-index: 1;
 	}
-
-	div.search {
-		flex-grow: 1;
-		max-width: calc(100% - 113px);
-	}
-
-	nav.showSideBar div.search {
-		width: calc(100% - 250.5px);
-		right: 10px;
-	}
-
 	@media (max-width: 498px) {
 		.divider {
 			/* height: 100px; */
@@ -1627,53 +1194,10 @@
 	main.showLoading.showSideBar :global(.loader) {
 		right: 230px;
 	}
-
-	/* DEV util styling */
-	.loader-toggle {
-		position: absolute;
-		top: 0;
-		left: 100px;
-		z-index: 100000000000;
-	}
-
 	@media (min-width: 498px) {
 		.engineInRoute :global(#split-3) {
 			/* height: 100% !important; */
 		}
-	}
-	.top-nav-action-bar {
-		display: flex;
-		align-items: center;
-		width: 100%;
-		position: fixed;
-		left: 56.5px;
-	}
-	.top-nav-action-bar.showSideBar {
-		left: 240px;
-		width: calc(100% - 183.5px);
-	}
-	a.back-button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 0.25em;
-		background-color: var(--search-button);
-		border: none;
-		height: 36px;
-		width: 36px;
-		cursor: pointer;
-		align-self: center;
-	}
-	a.back-button svg {
-		fill: var(--color-primary);
-		width: 21px;
-		height: 21px;
-	}
-	a.back-button.disableBackButton svg {
-		fill: var(--color-primary-muted);
-	}
-	a.back-button.disableBackButton:hover {
-		cursor: default;
 	}
 	.sidebar-item.muted span {
 		opacity: 0.3;
@@ -1691,7 +1215,6 @@
 		/* fill-opacity: 0.3;
 		opacity: 0.3; */
 	}
-
 	.sidebar-action.muted:hover {
 		cursor: not-allowed !important;
 	}

@@ -40,33 +40,21 @@
 	import { beforeNavigate, invalidateAll } from '$app/navigation';
 
 	// Store imports
-	import { searchResultsStore, searchHasResultsStore } from '$lib/stores/search/searchStore';
+	import { searchResultsStore } from '$lib/stores/search/searchStore';
 
 	// Component imports
 	import CustomInput from '../Input/CustomInput.svelte';
 
-	export let placeholder = 'Search...';
-	export let value = '';
 	export let id = '';
 	export let name = '';
-	export let type = 'text';
 	export let label = '';
 	export let icon = '';
-	export let iconColor = '';
-	export let iconSize = '';
 	export let iconPosition = '';
 	export let iconClass = '';
-	export let iconStyle = '';
-	export let inputClass = '';
-	export let inputStyle = '';
 	export let labelClass = '';
-	export let labelStyle = '';
 	export let containerClass = '';
-	export let containerStyle = '';
 	export let formClass = '';
-	export let formStyle = '';
 	export let buttonClass = '';
-	export let buttonStyle = '';
 
 	let inputId = id || name;
 	let searchQuery;
@@ -87,9 +75,9 @@
 	<form
 		class={`search-bar-form ${formClass}`}
 		style={formStyleString}
-		action="?/search"
+		action="/?/search"
 		method="POST"
-		use:enhance={({ formElement, formData, action, cancel }) => {
+		use:enhance={() => {
 			return async ({ result }) => {
 				if (result.status === 200) {
 					$searchResultsStore = result?.data?.result;
