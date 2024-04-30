@@ -9,8 +9,9 @@
 	} from '$lib/stores/filesStore.js';
 	import { themeKeyStore, themeDataStore } from '$lib/stores/themeStore';
 	import { sideBarState, sideBarWidth, appClientWidth } from '$lib/stores/layoutStore.js';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
 	import { browser } from '$app/environment';
+	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
 
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
@@ -20,7 +21,12 @@
 	$: isSideBarOpen = $fileSystemSidebarOpen ?? $sideBarState;
 	$: engineInRoute && sideBarState?.set(false);
 	$: isMobile = $appClientWidth < 768;
+	$: $openFiles?.length > 0
+		? ($addPaddingToEditorStore = true)
+		: ($addPaddingToEditorStore = false);
+
 	let preferedThemeMode;
+	let shouldAddPadding = false;
 
 	const updateTheme = (e) => {
 		themeKeyStore?.set(e.matches ? 'light' : 'dark');
@@ -32,6 +38,13 @@
 			preferedThemeMode?.addEventListener('change', updateTheme);
 			updateTheme(preferedThemeMode);
 		}
+	});
+
+	afterUpdate(async () => {
+		await tick();
+		$openFiles?.length > 0 ? ($addPaddingToEditorStore = true) : ($addPaddingToEditorStore = false);
+		await tick();
+		shouldAddPadding = $addPaddingToEditorStore;
 	});
 
 	onDestroy(() => {
@@ -48,6 +61,7 @@
 	class:showSideBar={$sideBarState}
 	class:engineInRoute
 	class:playInRoute
+	class:addPaddingToEditorStore={shouldAddPadding}
 	class:noOpenTabs={$openFiles?.length === 0}
 	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px; {themeString}"
 >
@@ -172,5 +186,10 @@
 		max-height: unset !important;
 		height: 100% !important;
 		margin-top: 0 !important;
+	}
+	#editor-layout.engineInRoute.addPaddingToEditorStore {
+		height: calc(100%) !important;
+		padding-top: 20px !important;
+		max-height: calc(100%) !important;
 	}
 </style>

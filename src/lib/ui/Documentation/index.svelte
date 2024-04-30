@@ -28,24 +28,28 @@
 	 *
 	 */
 
+	// Svelte Imports
 	import { tick } from 'svelte';
+
+	// Data imports
+	import { docs } from '$lib/platformCopy/docs.js';
 
 	let docsSelection;
 	let selectedOption = 0;
-	let docs = [
-		{
-			title: 'Getting Started',
-			content: 'Getting started content goes here'
-		},
-		{
-			title: 'Basic Concepts',
-			content: 'Basic concepts content goes here'
-		},
-		{
-			title: 'Advanced Concepts',
-			content: 'Advanced concepts content goes here'
-		}
-	];
+	// let docs = [
+	// 	{
+	// 		title: 'Getting Started',
+	// 		content: 'Getting started content goes here'
+	// 	},
+	// 	{
+	// 		title: 'Basic Concepts',
+	// 		content: 'Basic concepts content goes here'
+	// 	},
+	// 	{
+	// 		title: 'Advanced Concepts',
+	// 		content: 'Advanced concepts content goes here'
+	// 	}
+	// ];
 
 	async function handleDocPageChange(event) {
 		await tick();
@@ -79,7 +83,7 @@
 
 	<div class="documentation-content">
 		<h1>{docs[selectedOption]?.title}</h1>
-		<p>{docs[selectedOption]?.content}</p>
+		<p>{@html docs[selectedOption]?.content}</p>
 	</div>
 
 	<div class="doc-navigation-container">
@@ -89,7 +93,19 @@
 </div>
 
 <style>
+	.documentation-container {
+		overflow-y: auto;
+		overflow-x: hidden;
+	}
 	.documentation-content {
 		color: var(--color-primary);
+	}
+	:global(.documentation-content pre) {
+		width: 100%;
+	}
+
+	:global(.documentation-content pre code) {
+		width: 100%;
+		white-space: pre-wrap;
 	}
 </style>

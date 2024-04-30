@@ -20,7 +20,8 @@
 		filesToUpdate,
 		focusedFileId,
 		initialDataStore,
-		firstRun
+		firstRun,
+		openFiles
 	} from '$lib/stores/filesStore';
 	import {
 		sideBarState,
@@ -60,6 +61,7 @@
 		modalFullInfoStore
 	} from '$lib/stores/InfoStore.js';
 	import NavigationBar from '$lib/ui/Navigation/index.svelte';
+	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
@@ -73,6 +75,7 @@
 	let creatingNewPlaylist = false;
 	let mainPageElement;
 	let mainElement;
+	let shouldAddPadding = false;
 	const showBoxShadow = writable(false);
 
 	// FUNCTIONS
@@ -168,7 +171,10 @@
 		}
 	});
 
-	afterUpdate(() => {
+	afterUpdate(async () => {
+		await tick();
+		shouldAddPadding = $addPaddingToEditorStore;
+
 		$gameFavorites?.favorites?.some((fav) => {
 			isFavorited = fav?.user_id === sessionData?.id ?? false;
 		});
@@ -291,6 +297,9 @@
 	};
 
 	// REACTIVE VARIABLES & STATEMENTS
+	$: $openFiles?.length > 0
+		? ($addPaddingToEditorStore = true)
+		: ($addPaddingToEditorStore = false);
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
@@ -371,6 +380,7 @@
 		{/if} -->
 		<div
 			class="page-container"
+			class:addPaddingToEditorStore={shouldAddPadding}
 			class:engineInRoute
 			class:isGameProfile={isProfilePage || playInRoute}
 			class:showSideBar={!engineInRoute && $sideBarState}
@@ -1217,5 +1227,10 @@
 	}
 	.sidebar-action.muted:hover {
 		cursor: not-allowed !important;
+	}
+	.page-container :global(.engineInRoute.addPaddingToEditorStore) {
+		height: calc(100%) !important;
+		padding-top: 20px !important;
+		max-height: calc(100%) !important;
 	}
 </style>

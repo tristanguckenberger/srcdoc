@@ -13,6 +13,8 @@
 	} from '$lib/stores/filesStore.js';
 	import { clearSplit } from '$lib/stores/splitStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
+	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
+	import { afterUpdate, tick } from 'svelte';
 
 	export let file;
 	export let closeTab;
@@ -30,6 +32,15 @@
 	} else {
 		canSave = false;
 	}
+
+	// $: $addPaddingToEditorStore = tick.then(() => isFocused || isSoftSelected);
+
+	afterUpdate(() => {
+		// await tick();
+		// console.log();
+		$addPaddingToEditorStore =
+			file?.id.toString() === $focusedFileId.toString() || file?.id === $softSelectedFileId;
+	});
 
 	function handleClose(file) {
 		closeTab(file.id);
@@ -53,6 +64,7 @@
 			})
 		);
 		triggerCompile.set(true);
+		$addPaddingToEditorStore = false;
 	}
 
 	// Handle File Double Click
