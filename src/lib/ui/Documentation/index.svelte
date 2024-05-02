@@ -108,4 +108,10 @@
 		width: 100%;
 		white-space: pre-wrap;
 	}
+	:global(.documentation-content img) {
+		width: 80%;
+		border-radius: 3px;
+		background: var(--menu-bg);
+		padding: 4px;
+	}
 </style>
