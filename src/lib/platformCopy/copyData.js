@@ -24,10 +24,10 @@ import editorPage from '$lib/assets/editorPage.png';
 import editorPageActionBar from '$lib/assets/editorPageActionBar.png';
 // import editorPageFileExplorer from '$lib/assets/editorPageFileExplorer.png';
 // import editorPageFileExplorerActions from '$lib/assets/editorPageFileExplorerActions.png';
-import editorPageResizablePanes from '$lib/assets/editorPageResizablePanes.png';
-import editorPageCodePanes from '$lib/assets/editorPageCodePanes.png';
-import editorPageGamePreview from '$lib/assets/editorPageGamePreview.png';
-import pixilogo from '$lib/assets/pixilogo.svg';
+// import editorPageResizablePanes from '$lib/assets/editorPageResizablePanes.png';
+// import editorPageCodePanes from '$lib/assets/editorPageCodePanes.png';
+// import editorPageGamePreview from '$lib/assets/editorPageGamePreview.png';
+// import pixilogo from '$lib/assets/pixilogo.svg';
 
 export const copyData = {
 	// Sorted by page
@@ -171,60 +171,10 @@ export const copyData = {
 							'Use the action bar to toggle the sidebar, toggle the file explorer, compile the game, and to save your code.'
 					},
 					{
-						title: 'Resizing Editor Panes',
-						images: [editorPageResizablePanes],
-						imageLarge: true,
-						description: 'You can resize the editor panes by dragging the border between the panes.'
-					},
-					{
-						title: 'Code Editor Panes',
-						images: [editorPageCodePanes],
-						description:
-							'Use the code editor panes to write the code for your game. You can also open up to 3 files side by side by right clicking files in the file explorer and selecting the "Open in New Pane" option. You can write code in JavaScript, HTML, and CSS. I recommend starting with 3 primary files: index.html, index.css, and index.js.'
-					},
-					{
-						title: 'Game Preview',
-						images: [editorPageGamePreview],
-						description:
-							'Use the game preview to see how your game looks and functions. You can play the game in the game preview.'
-					},
-					{
-						title: 'PIXI.js Integration',
-						images: [pixilogo],
-						description:
-							'Play Engine optionally provides PIXI.js as a game engine. You can use PIXI.js to create games. You can use the PIXI.js documentation to learn more about PIXI.js. You can also use the PIXI.js examples to learn how to use PIXI.js to simplify your development process.'
-					},
-					{
 						title: 'Play Engine API',
-						description: 'Play Engine provides an API for you to use in your games.'
+						description:
+							'Play Engine provides an API for you to use in your games. You access the API documentation in the editors documentation panel.'
 						// You can toggle the API documentation panel for more information by clicking the Docs button in the editors top action bar.
-					},
-					{
-						title: 'Play Engine API: getAsset()',
-						description:
-							"The getAsset() function is PIXI wrapper function that encapsulates PIXI's load  should be used to load image assets (into a PIXI.js game) that have been uploaded to the optional assets folder. ",
-						documentation:
-							'getAsset(path: string): Asset Name e.g. "playerSprite.png", but just pass the name: getAsset("playerSprite"), Note: path is relative to the assets folder, ensure you include the file extension.'
-					},
-					{
-						title: 'Play Engine API: updateScore()',
-						description:
-							'The updateScore() function is a Play Engine API function that should be used to update the score in a game if you want to track user game scores within a leaderboard.',
-						documentation:
-							'updateScore(score: number;): Use this function to update the user score. Note: The score param is what will be added to the existing user score and IS NOT the new total score; Play Engine will handle this for you.'
-					},
-					{
-						title: 'Play Engine API: gameAction()',
-						description:
-							'The gameAction() function is a Play Engine API function that should be used to send game actions to the Play Engine server. For game analytics.',
-						documentation:
-							"gameAction(action: string;): Use this function for setting session activity, the action can be 'start-game', 'stop-game', 'resume-game', or 'pause-game', Note: start and stop actions can only be called once per game session."
-					},
-					{
-						title: 'Play Engine API: getClientDimensions()',
-						description: 'Returns the width and height of the client window in an object.',
-						documentation:
-							'getClientDimensions(): { width: number, height: number }, Note: This is the size of the client window. You can use this to make your game responsive.'
 					}
 				]
 			}

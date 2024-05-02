@@ -27,8 +27,8 @@ import editorPageFileExplorer from '$lib/assets/editorPageFileExplorer.png';
 import editorPageFileExplorerActions from '$lib/assets/editorPageFileExplorerActions.png';
 import editorPageResizablePanes from '$lib/assets/editorPageResizablePanes.png';
 import editorPageCodePanes from '$lib/assets/editorPageCodePanes.png';
-// import editorPageGamePreview from '$lib/assets/editorPageGamePreview.png';
-// import pixilogo from '$lib/assets/pixilogo.svg';
+import editorPageGamePreview from '$lib/assets/editorPageGamePreview.png';
+import pixilogo from '$lib/assets/pixilogo.svg';
 
 export const docs = [
 	{
@@ -81,6 +81,13 @@ export const docs = [
             index.js.
         </p>
         <img src="${editorPageCodePanes}" alt="Editor Page Code Panes">
+        <br>
+        <h3>Editor Panes - Game Preview</h3>
+        <p>
+            Use the game preview to see how your game looks and functions. You 
+            can play the game in the game preview.
+        </p>
+        <img src="${editorPageGamePreview}" alt="Editor Page Game Preview">
         `
 	},
 	{
@@ -89,7 +96,19 @@ export const docs = [
 	},
 	{
 		title: 'Advanced Concepts',
-		content: 'Advanced concepts content goes here'
+		content: `
+        <h2>PIXI.js</h2>
+        <p>
+            Play Engine optionally provides PIXI.js as a game engine. PIXI.js is
+            a 2D rendering engine that simplifies the process of creating games
+            in the browser. PIXI.js uses WebGL to render graphics, but can also
+            fall back to HTML5 Canvas if WebGL is not available. You can use 
+            PIXI.js to create games. You can use the PIXI.js documentation to 
+            learn more about PIXI.js. You can also use the PIXI.js examples to 
+            learn how to use PIXI.js to simplify your development process.
+        </p>
+        <img src="${pixilogo}" alt="PIXI.js Logo">
+        `
 	},
 	{
 		title: 'API Reference',
@@ -107,10 +126,44 @@ export const docs = [
                     </code>
                 </pre>
             </p>
+            <br>
+            <h2>updateScore()</h2>
+            <p>
+                The updateScore() function is a Play Engine API function that should be used to update the score in a game if you want to track user game scores within a leaderboard.
+            
+            
+                <pre>
+                    <code>
+                        updateScore(score: number;): Use this function to update the user score. Note: The score param is what will be added to the existing user score and IS NOT the new total score; Play Engine will handle this for you.
+                    </code>
+                </pre>
+            </p>
+            <br>
+            <h2>gameAction()</h2>
+            <p>
+                The gameAction() function is a Play Engine API function that should be used to send game actions to the Play Engine server. For game analytics.
+            
+                <pre>
+                    <code>
+                        gameAction(action: string;): Use this function for setting session activity, the action can be 'start-game', 'stop-game', 'resume-game', or 'pause-game', Note: start and stop actions can only be called once per game session.
+                    </code>
+                </pre>
+            </p>
+            <br>
+            <h2>getClientDimensions()</h2>
+            <p>
+                Returns the width and height of the client window in an object.
+            
+                <pre>
+                    <code>
+                        getClientDimensions(): { width: number, height: number }, Note: This is the size of the client window. You can use this to make your game responsive.
+                    </code>
+                </pre>
+            </p>
         `
 	},
 	{
-		title: 'Gotchas',
+		title: 'Common Issues & Troubleshooting',
 		content: `
             <h2>Save Frequently/Often</h2>
             <p>
