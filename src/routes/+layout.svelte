@@ -172,7 +172,14 @@
 	});
 
 	afterUpdate(async () => {
-		await tick();
+		// await tick();
+		if ($openFiles?.length > 0) {
+			$addPaddingToEditorStore = true;
+		} else {
+			$addPaddingToEditorStore = false;
+		}
+
+		// await tick();
 		shouldAddPadding = $addPaddingToEditorStore;
 
 		$gameFavorites?.favorites?.some((fav) => {
@@ -297,9 +304,9 @@
 	};
 
 	// REACTIVE VARIABLES & STATEMENTS
-	$: $openFiles?.length > 0
-		? ($addPaddingToEditorStore = true)
-		: ($addPaddingToEditorStore = false);
+	// $: $openFiles?.length > 0
+	// 	? ($addPaddingToEditorStore = true)
+	// 	: ($addPaddingToEditorStore = false);
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');

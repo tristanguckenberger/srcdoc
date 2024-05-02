@@ -84,5 +84,7 @@
 		height: 30px;
 		flex-grow: 1;
 		gap: 3px;
+		margin-bottom: 10px;
+		margin-top: -10px;
 	}
 </style>

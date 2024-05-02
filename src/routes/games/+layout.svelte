@@ -41,14 +41,15 @@
 	});
 
 	afterUpdate(async () => {
-		await tick();
+		// await tick();
 		$openFiles?.length > 0 ? ($addPaddingToEditorStore = true) : ($addPaddingToEditorStore = false);
-		await tick();
+		// await tick();
 		shouldAddPadding = $addPaddingToEditorStore;
 	});
 
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
+		$addPaddingToEditorStore = false;
 	});
 </script>
 

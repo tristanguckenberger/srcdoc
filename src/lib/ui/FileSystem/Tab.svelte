@@ -35,14 +35,15 @@
 
 	// $: $addPaddingToEditorStore = tick.then(() => isFocused || isSoftSelected);
 
-	afterUpdate(() => {
+	afterUpdate(async () => {
 		// await tick();
 		// console.log();
 		$addPaddingToEditorStore =
 			file?.id.toString() === $focusedFileId.toString() || file?.id === $softSelectedFileId;
 	});
 
-	function handleClose(file) {
+	async function handleClose(file) {
+		await tick();
 		closeTab(file.id);
 
 		// If the file is open in a pane, close it.
@@ -68,7 +69,8 @@
 	}
 
 	// Handle File Double Click
-	function handleFileDBClick(file) {
+	async function handleFileDBClick(file) {
+		await tick();
 		// If the file is not already open, is not a folder, AND is soft selected, then open it.
 		if (!$openFiles?.some((openFile) => openFile.id === file.id) && file.type !== 'folder') {
 			$openFiles = [...$openFiles, file];
@@ -88,45 +90,50 @@
 	}
 
 	// Handle File Single Click
-	function HandleFileSingleClick(file) {
-		const isFileAlreadyOpen = $openFiles?.some((openFile) => openFile.id === file.id);
+	async function HandleFileSingleClick(file) {
+		// await tick();
+		const isFileAlreadyOpen = $openFiles?.some(
+			(openFile) => openFile?.id?.toString() === file?.id?.toString()
+		);
 
 		// If the clicked file is already open and not soft-selected, focus it and return.
-		if (isFileAlreadyOpen && $softSelectedFileId !== file.id) {
-			previouslyFocusedFileId.set($focusedFileId);
-			focusedFileId.set(file.id);
-			focusedFolderId.set(null);
+		if (isFileAlreadyOpen && $softSelectedFileId?.toString() !== file?.id?.toString()) {
+			$previouslyFocusedFileId = $focusedFileId;
+			$focusedFileId = file?.id;
+			$focusedFolderId = null;
 			if ($autoCompile) {
-				clearSplit.set(true);
+				$clearSplit = true;
 			}
 			return;
 		}
 
 		// Handle the case where a soft-selected file exists.
-		if ($softSelectedFileId && $softSelectedFileId !== file.id) {
-			$openFiles = $openFiles.filter((openFile) => openFile.id !== $softSelectedFileId);
-			softSelectedFileId.set(file.id);
+		if ($softSelectedFileId && $softSelectedFileId?.toString() !== file?.id?.toString()) {
+			$openFiles = $openFiles?.filter(
+				(openFile) => openFile?.id?.toString() !== $softSelectedFileId?.toString()
+			);
+			$softSelectedFileId = file?.id;
 			$openFiles = [...$openFiles, file];
 		}
 
 		// Handle the case where the clicked file is already open but not soft-selected.
 		if (isFileAlreadyOpen && file.type !== 'folder') {
-			$openFiles = $openFiles.filter((openFile) => openFile.id !== file.id);
-			softSelectedFileId.set(file.id);
+			$openFiles = $openFiles?.filter((openFile) => openFile?.id !== file?.id);
+			$softSelectedFileId = file?.id;
 			$openFiles = [...$openFiles, file];
 		}
 
 		// Handle the case where the clicked file is neither open nor a folder.
-		if (!isFileAlreadyOpen && file.type !== 'folder') {
-			softSelectedFileId.set(file.id);
+		if (!isFileAlreadyOpen && file?.type !== 'folder') {
+			$softSelectedFileId = file?.id;
 			$openFiles = [...$openFiles, file];
 		}
 
-		previouslyFocusedFileId.set($focusedFileId);
-		focusedFileId.set(file.id);
-		focusedFolderId.set(null);
+		$previouslyFocusedFileId = $focusedFileId;
+		$focusedFileId = file?.id;
+		$focusedFolderId = null;
 		if ($autoCompile) {
-			clearSplit.set(true);
+			$clearSplit = true;
 		}
 	}
 
