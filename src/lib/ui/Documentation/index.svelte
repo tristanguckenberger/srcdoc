@@ -105,7 +105,7 @@
 	}
 	.content-gen {
 		overflow: hidden;
-		height: calc(var(--parent-height) - 20%);
+		height: calc(var(--parent-height) - 35%);
 	}
 	.content-gen.allowScroll {
 		overflow-y: auto;
