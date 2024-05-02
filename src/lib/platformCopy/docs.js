@@ -24,9 +24,9 @@
 // import editorPage from '$lib/assets/editorPage.png';
 // import editorPageActionBar from '$lib/assets/editorPageActionBar.png';
 import editorPageFileExplorer from '$lib/assets/editorPageFileExplorer.png';
-// import editorPageFileExplorerActions from '$lib/assets/editorPageFileExplorerActions.png';
-// import editorPageResizablePanes from '$lib/assets/editorPageResizablePanes.png';
-// import editorPageCodePanes from '$lib/assets/editorPageCodePanes.png';
+import editorPageFileExplorerActions from '$lib/assets/editorPageFileExplorerActions.png';
+import editorPageResizablePanes from '$lib/assets/editorPageResizablePanes.png';
+import editorPageCodePanes from '$lib/assets/editorPageCodePanes.png';
 // import editorPageGamePreview from '$lib/assets/editorPageGamePreview.png';
 // import pixilogo from '$lib/assets/pixilogo.svg';
 
@@ -47,6 +47,40 @@ export const docs = [
             within the file explorer.
         </p>
         <img src="${editorPageFileExplorer}" alt="Editor Page File Explorer">
+        <br>
+        <h3>File Explorer - Actions</h3>
+        <p>
+            Right click on a file or folder in the file explorer to see a list 
+            of actions you can take on that file or folder. You can create new 
+            files, new folders, delete files, and save individual files from 
+            here.
+        </p>
+        <img src="${editorPageFileExplorerActions}" alt="Editor Page File Explorer Actions">
+        <br>
+        <h2>Editor Panes</h2>
+        <p>
+            The editor panes are where you will write your code. The editor 
+            panes are resizable, so you can adjust the size of each pane to 
+            your liking.
+        </p>
+        <br>
+        <h3>Editor Panes - Resizing Editor Panes</h3>
+        <p>
+            You can resize the editor panes by dragging the border between 
+            the panes.
+        </p>
+        <img src="${editorPageResizablePanes}" alt="Editor Page Resizable Panes">
+        <br>
+        <h3>Editor Panes - Code Editor</h3>
+        <p>
+            Use the code editor panes to write the code for your game. You 
+            can also open up to 3 files side by side by right clicking files 
+            in the file explorer and selecting the "Open in New Pane" option. 
+            You can write code in JavaScript, HTML, and CSS. I recommend 
+            starting with 3 primary files: index.html, index.css, and 
+            index.js.
+        </p>
+        <img src="${editorPageCodePanes}" alt="Editor Page Code Panes">
         `
 	},
 	{

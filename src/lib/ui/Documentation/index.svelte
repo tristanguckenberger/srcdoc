@@ -34,22 +34,11 @@
 	// Data imports
 	import { docs } from '$lib/platformCopy/docs.js';
 
+	export let parentHeight = 0;
+
 	let docsSelection;
 	let selectedOption = 0;
-	// let docs = [
-	// 	{
-	// 		title: 'Getting Started',
-	// 		content: 'Getting started content goes here'
-	// 	},
-	// 	{
-	// 		title: 'Basic Concepts',
-	// 		content: 'Basic concepts content goes here'
-	// 	},
-	// 	{
-	// 		title: 'Advanced Concepts',
-	// 		content: 'Advanced concepts content goes here'
-	// 	}
-	// ];
+	let contentHeight = 0;
 
 	async function handleDocPageChange(event) {
 		await tick();
@@ -58,7 +47,6 @@
 
 	async function navigate(direction) {
 		let selectedCopy = parseInt(selectedOption);
-
 		direction === 'next' ? (selectedCopy += 1) : (selectedCopy -= 1);
 		selectedOption = selectedCopy;
 		await tick();
@@ -81,24 +69,49 @@
 		{/each}
 	</select>
 
-	<div class="documentation-content">
+	<div
+		class="documentation-content"
+		style={'--content-height: ' +
+			contentHeight +
+			'px;' +
+			' --parent-height: ' +
+			parentHeight +
+			'px;'}
+	>
+		<div class="doc-navigation-container">
+			<button disabled={!canNavigatePrevious} on:click={() => navigate('prev')}>Previous</button>
+			<button disabled={!canNavigateNext} on:click={() => navigate('next')}>Next</button>
+		</div>
 		<h1>{docs[selectedOption]?.title}</h1>
-		<p>{@html docs[selectedOption]?.content}</p>
-	</div>
-
-	<div class="doc-navigation-container">
-		<button disabled={!canNavigatePrevious} on:click={() => navigate('prev')}>Previous</button>
-		<button disabled={!canNavigateNext} on:click={() => navigate('next')}>Next</button>
+		<div
+			class="content-gen"
+			bind:clientHeight={contentHeight}
+			class:allowScroll={contentHeight > 0}
+		>
+			{@html docs[selectedOption]?.content}
+		</div>
 	</div>
 </div>
 
 <style>
 	.documentation-container {
-		overflow-y: auto;
-		overflow-x: hidden;
+		/* overflow-y: auto; */
+		overflow: hidden;
 	}
 	.documentation-content {
 		color: var(--color-primary);
+		height: calc(var(--parent-height) - 100px);
+		/* overflow: scroll; */
+	}
+	.content-gen {
+		overflow: hidden;
+		height: calc(var(--parent-height) - 20%);
+	}
+	.content-gen.allowScroll {
+		overflow-y: auto;
+		/* height: var(--content-height); */
+		display: flex;
+		flex-direction: column;
 	}
 	:global(.documentation-content pre) {
 		width: 100%;

@@ -127,6 +127,9 @@
 		fileSystemSidebarOpen.set(true);
 		codePanes2.set([]);
 	});
+
+	// bind for fileExplorer pane height
+	let areaHeight = 0;
 </script>
 
 <svelte:head>
@@ -145,6 +148,7 @@
 			class:hidden={!$fileSystemSidebarOpen}
 			class:docsOpen
 			bind:clientWidth={$fileSystemSidebarWidth}
+			bind:clientHeight={areaHeight}
 		>
 			<div class="action-row">
 				<a href={previousRoute} class="docs-button">
@@ -204,7 +208,7 @@
 					userId={data?.userId ?? data?.user_id}
 				/>
 			{:else}
-				<Documentation />
+				<Documentation parentHeight={areaHeight} />
 			{/if}
 		</div>
 		<div

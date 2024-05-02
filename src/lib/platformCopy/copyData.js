@@ -22,8 +22,8 @@ import playPageButtonNavIcons from '$lib/assets/playPageButtonNavIcons.png';
 // Editor Page (/game/:id/engine)
 import editorPage from '$lib/assets/editorPage.png';
 import editorPageActionBar from '$lib/assets/editorPageActionBar.png';
-import editorPageFileExplorer from '$lib/assets/editorPageFileExplorer.png';
-import editorPageFileExplorerActions from '$lib/assets/editorPageFileExplorerActions.png';
+// import editorPageFileExplorer from '$lib/assets/editorPageFileExplorer.png';
+// import editorPageFileExplorerActions from '$lib/assets/editorPageFileExplorerActions.png';
 import editorPageResizablePanes from '$lib/assets/editorPageResizablePanes.png';
 import editorPageCodePanes from '$lib/assets/editorPageCodePanes.png';
 import editorPageGamePreview from '$lib/assets/editorPageGamePreview.png';
@@ -169,18 +169,6 @@ export const copyData = {
 						images: [editorPageActionBar],
 						description:
 							'Use the action bar to toggle the sidebar, toggle the file explorer, compile the game, and to save your code.'
-					},
-					{
-						title: 'File Explorer',
-						images: [editorPageFileExplorer],
-						description:
-							'Use the file explorer to navigate through the folders and files in your game. You can right click on a file or folder for actions within the file explorer.'
-					},
-					{
-						title: 'File Explorer Actions',
-						images: [editorPageFileExplorerActions],
-						description:
-							'Right click on a file or folder in the file explorer to see a list of actions you can take on that file or folder. You can create new files, new folders, delete files, and save individual files from here.'
 					},
 					{
 						title: 'Resizing Editor Panes',
