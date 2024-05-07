@@ -34,11 +34,13 @@ export const docs = [
 	{
 		title: 'Getting Started',
 		content: `
+        <h1>Getting Started</h1>
         <p>
             Welcome to the editor documentation! Here you will find all the 
             information you need to get started with the editor. As well as 
             a reference to all the features and options available to you.
         </p>
+        <hr>
         <br>
         <h2>File Explorer</h2>
         <p>
@@ -56,6 +58,8 @@ export const docs = [
             here.
         </p>
         <img src="${editorPageFileExplorerActions}" alt="Editor Page File Explorer Actions">
+        <br>
+        <hr>
         <br>
         <h2>Editor Panes</h2>
         <p>
@@ -119,10 +123,61 @@ export const docs = [
                 encapsulates PIXI's load  should be used to load image 
                 assets (into a PIXI.js game) that have been uploaded to the 
                 optional assets folder.
+            </p>
+            <p>
+                getAsset(path: string): Asset Name e.g. "playerSprite.png", but just pass the name: getAsset("playerSprite"), Note: path is relative to the assets folder, ensure you include the file extension.
 
                 <pre>
                     <code>
-                        getAsset(path: string): Asset Name e.g. "playerSprite.png", but just pass the name: getAsset("playerSprite"), Note: path is relative to the assets folder, ensure you include the file extension.
+... Init code here ... 
+
+// Get the PIXI loader
+const Loader = PIXI.Assets;
+
+// use getAsset to load a png image asset such as a sprite sheet
+let sprite = getAsset('characterSpriteSheet.png');
+
+... Other code here ... 
+
+try {
+    // We can now load the sprite sheet, saving it as a variable, 'texture'
+    const texture = await Loader.load(sprite);
+    if (!texture) {
+        console.log('sprite not found...');
+    }
+
+    // Create a rectangle for the sprite sheet to use when the character is facing down
+    let characterDownRectangle = new PIXI.Rectangle(0, 48, 32, 32);
+
+    // Create a texture for the sprite sheet to use when the character is facing down, based on the rectangle
+    let characterDownTexture = new PIXI.Texture(texture, characterDownRectangle);
+    
+    // Set the texture frame to the rectangle
+    texture.frame = characterDownRectangle;
+
+
+    // Create a rectangle for the sprite sheet to use when the character is facing up
+    let characterUpRectangle = new PIXI.Rectangle(0, 0, 32, 32);
+    
+    // Create a texture for the sprite sheet to use when the character is facing up, based on the rectangle
+    let characterUpTexture = new PIXI.Texture(texture, characterUpRectangle);
+
+
+    // Set our character sprite to the characterUpTexture as a default
+    let character = new PIXI.Sprite(characterUpTexture);
+    
+
+    // Set the character sprite's width and height
+    const baseHeight = height * .13;
+    character.width = baseHeight;
+    character.height = baseHeight;
+
+    
+    // You can now add the sprite to the PIXI game stage
+    app.stage.addChild(character);
+
+... Remaining code here ...
+
                     </code>
                 </pre>
             </p>
@@ -131,10 +186,11 @@ export const docs = [
             <p>
                 The updateScore() function is a Play Engine API function that should be used to update the score in a game if you want to track user game scores within a leaderboard.
             
-            
+                updateScore(score: number;): Use this function to update the user score. Note: The score param is what will be added to the existing user score and IS NOT the new total score; Play Engine will handle this for you.
+
                 <pre>
                     <code>
-                        updateScore(score: number;): Use this function to update the user score. Note: The score param is what will be added to the existing user score and IS NOT the new total score; Play Engine will handle this for you.
+                        
                     </code>
                 </pre>
             </p>
@@ -142,10 +198,25 @@ export const docs = [
             <h2>gameAction()</h2>
             <p>
                 The gameAction() function is a Play Engine API function that should be used to send game actions to the Play Engine server. For game analytics.
-            
+            </p>
+            <p>
+                gameAction(action: string;): Use this function for setting session activity, the action can be 'start-game', 'stop-game', 'resume-game', or 'pause-game', Note: start and stop actions can only be called once per game session.
                 <pre>
                     <code>
-                        gameAction(action: string;): Use this function for setting session activity, the action can be 'start-game', 'stop-game', 'resume-game', or 'pause-game', Note: start and stop actions can only be called once per game session.
+document.getElementById('startButton').addEventListener('click', function() {
+    // Trigger the start-game action when the start button is clicked
+    gameAction('start-game');
+    document.getElementById('gameMenu').style.display = 'none';
+    document.getElementById('ship').style.display = 'block';
+    
+    // Variable to track if the game has started
+    if (!gameStarted) {
+        gameStarted = true;
+    }
+
+    // Start the game loop
+    setTimeout(function() {
+        ...
                     </code>
                 </pre>
             </p>
@@ -154,9 +225,10 @@ export const docs = [
             <p>
                 Returns the width and height of the client window in an object.
             
+                getClientDimensions(): { width: number, height: number }, Note: This is the size of the client window. You can use this to make your game responsive.
                 <pre>
                     <code>
-                        getClientDimensions(): { width: number, height: number }, Note: This is the size of the client window. You can use this to make your game responsive.
+                        
                     </code>
                 </pre>
             </p>

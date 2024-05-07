@@ -307,7 +307,7 @@
 	}
 
 	#split-file-explorer.docsOpen {
-		max-width: 500px !important;
+		max-width: 50% !important;
 	}
 
 	@media (min-width: 498px) {
@@ -356,7 +356,7 @@
 	}
 	#split-input-output.isFileSystemSideBarOpen.docsOpen {
 		max-width: calc(100%);
-		min-width: calc(100% - 30%);
+		min-width: calc(100% - 50%);
 		/* max-width: calc(100% - var(--sidebar-width));
 	.sidebar-divider {
 		border: unset;
