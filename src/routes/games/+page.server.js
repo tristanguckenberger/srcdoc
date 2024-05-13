@@ -39,7 +39,7 @@ const getAllFavoritesSingleGame = async (slug, eventFetch) => {
 export async function load({ fetch, setHeaders }) {
 	let user = null;
 	const [allGames, userData] = await Promise.all([
-		fetchData(fetch, `/api/games/getAllGames`),
+		fetchData(fetch, `/api/games/getAllGames/0`),
 		getCurrentUser(fetch)
 	]);
 

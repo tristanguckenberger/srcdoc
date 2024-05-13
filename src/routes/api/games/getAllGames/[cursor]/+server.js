@@ -28,7 +28,7 @@ export async function GET({ params }) {
 	let newGamesSet;
 	let games;
 	let next;
-	const limit = 20;
+	const limit = 50;
 
 	gamesData.subscribe((games) => {
 		existingGames = games ?? [];
