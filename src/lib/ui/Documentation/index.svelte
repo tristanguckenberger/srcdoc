@@ -246,7 +246,7 @@
 		padding: 1rem;
 		border-radius: 6px;
 		overflow: scroll;
-		min-height: 250px;
+		min-height: fit-content;
 	}
 
 	:global(.documentation-content pre code) {

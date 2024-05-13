@@ -254,13 +254,31 @@ export const docs = [
         <hr>
         <ol>
             <li>
-                <strong>HTML Setup: </strong> Start by creating a basic HTML structure with a <div> that will serve as the game board.
+                <strong>HTML Setup:</strong> Start by creating a basic HTML structure with a &lt;div&gt; that will serve as the game board. We'll also add a start button and a dropdown menu to select the game difficulty.
                 <p>
                     <pre>
                         <code class="step-1-1">
     &lt;div id="gameBoard"&gt;&lt;/div&gt;
+    &lt;html&gt;
+	&lt;head&gt;
+        &lt;/head&gt;
+	&lt;body&gt;
+            &lt;div id="gameMenu"&gt;
+                &lt;button&gt; id="startButton"&gt;Start Game&gt;&lt;/button&gt;
+                &lt;select name="modes" id="modeSelection"&gt;
+                    &lt;option value=0&gt;Difficulty - Easy&gt;&lt;/option&gt;
+                    &lt;option value=1&gt;Difficulty - Medium&gt;&lt;/option&gt;
+                    &lt;option value=2&gt;Difficulty - Hard&gt;&lt;/option&gt;
+                &lt;/select&gt;
+            &lt;/div&gt;
+            &lt;div class="gameBoardContainer"&gt;
+                &lt;div id="gameBoard" /&gt;
+            &lt;/div&gt;
+        &lt;/body&gt;
+    &lt;/html&gt;
                         </code>
                     </pre>
+                    That's it for the HTML setup! We'll now use CSS to style the game.
                 </p>
             </li>
             <li>
@@ -268,42 +286,146 @@ export const docs = [
                 <p>
                     <pre>
                         <code>
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gameBoardContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+}
+
 #gameBoard {
     display: grid;
-    grid-template-columns: repeat(20, 20px); /* Creates a 20x20 grid */
-    grid-template-rows: repeat(20, 20px);
-    width: 400px;
-    height: 400px;
-    border: 2px solid black;
+    background-color: rgb(46, 127, 208);
+    padding: 20px;
+    border-radius: 6px;
+    border: 4px solid rebeccapurple;
+    border-inline-color: red;
+    height: fit-content;
 }
+
 .snake {
-    background-color: green;
+    background-color: rgb(149, 200, 149);
 }
+
 .food {
     background-color: red;
+}
+
+#gameMenu {
+    position: absolute;
+    width: 100vw;
+    left: 0;
+    height: 100%;
+    display: flex;
+    z-index: 10;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    flex-direction: column-reverse;
+    gap: 40px;
+}
+
+select, button {
+    border: none;
+    background-color: rgb(231, 227, 103);
+    height: 36.5px;
+    padding: 0 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-family: monospace;
+}
+
+select:hover, button:hover {
+    cursor: pointer;
+}
+ 
+                        </code>
+                    </pre>
+                </p>
+            </li>
+            <li>
+                <strong>JavaScript Setup: Initialize Game Variables</strong> First, in your index.js file, define the variables to maintain the state of the game. This includes the game board, buttons, snake's initial position, food's position, movement direction, and game settings.
+                <p>
+                    <pre>
+                        <code>
+//Get game elements from the DOM
+const gameBoard = document.getElementById('gameBoard'); //Get the game board element
+const gameMenu = document.getElementById('gameMenu'); //Get the game menu element
+const startButton = document.getElementById('startButton'); //Get the start button element
+const modeSelection = document.getElementById('modeSelection'); //Get the game difficulty selection dropdown element
+
+//Initialize game variables 
+const boardSize = 20; //20x20 grid
+let gameStarted = false; //Game state
+let snake = [{ x: 8, y: 12 }]; //Initial snake position
+let food = { x: 5, y: 5 }; //Initial food position
+let direction = { x: 0, y: -1 }; //Initial direction: moving up
+let lastMoveTime = Date.now(); // Var to track last move time, defaults to Date.now()
+let moveDelay = 120; // Var to track move delay, defaults to 120 milliseconds
+let score = 0; // Var to track player score, defaults to 0
+
+//Initialize game difficulty settings
+let difficulty = {
+    easy: { interval: 50, moveDelay: 200 },
+    medium: { interval: 30, moveDelay: 120 },
+    hard: { interval: 30, moveDelay: 90 }
+};
+//Game difficulty option refs
+let gameMode = [difficulty.easy, difficulty.medium, difficulty.hard];
+//Defaults game difficulty selection to Medium
+let playerGameModeSelection = 1;
+                        </code>
+                    </pre>
+                </p>
+            </li>
+        </ol>
+        <br>
+        <h2>Step 2: Game Logic Implementation</h2>
+        <hr>
+        <ol>
+            <li>
+                <strong>Calculate Cell Size for Responsive Design:</strong> The getCellSize function computes the size of each cell based on the smallest dimension of the window to ensure the game is responsive.
+                <p>
+                    <pre>
+                        <code>
+function getCellSize() {
+    //ensure the game board fits within the window
+    const minSize = Math.min(window.innerWidth, window.innerHeight);
+    return Math.floor(minSize / (boardSize + 2)); // +2 for padding and border
 }
                         </code>
                     </pre>
                 </p>
             </li>
             <li>
-                <strong>JavaScript Setup:</strong> Initialize the grid in JavaScript by creating a matrix representation of the grid cells.
+                <strong>Set Up the Game Board:</strong> The setupBoard function initializes the game grid and renders the initial state of the snake and the food.
                 <p>
                     <pre>
                         <code>
-const gameBoard = document.getElementById('gameBoard');
-const boardSize = 20; // 20x20 grid
-let snake = [{ x: 8, y: 12 }]; // Initial snake position
-let food = { x: 5, y: 5 }; // Initial food position
-
 function setupBoard() {
+    const cellSize = getCellSize();
+    gameBoard.style.gridTemplateColumns = \`repeat(\${boardSize}, \${cellSize}px)\`;
+    gameBoard.style.gridTemplateRows = \`repeat(\${boardSize}, \${cellSize}px)\`;
     gameBoard.innerHTML = '';
-    for (let i = 0; i < boardSize; i++) {
-        for (let j = 0; j < boardSize; j++) {
-            const cell = document.createElement('div');
-            gameBoard.appendChild(cell);
-        }
+    
+    for (let i = 0; i < boardSize * boardSize; i++) {
+        const cell = document.createElement('div');
+        cell.style.width = \`\${cellSize}px\`;
+        cell.style.height = \`\${cellSize}px\`;
+        gameBoard.appendChild(cell);
     }
+
     renderSnake();
     renderFood();
 }
@@ -311,135 +433,168 @@ function setupBoard() {
                     </pre>
                 </p>
             </li>
-        </ol>
-        <br>
-        <h2>Step 2: Implement Snake Movement</h2>
-        <hr>
-        <ol>
             <li>
-                <strong>Handling Arrow Keys:</strong> Add event listeners to capture keyboard inputs to control the snake's direction.
+                <strong>Update Snake Position:</strong> The updateSnakePosition function moves the snake in the current direction, checks for collisions with food to grow the snake, and handles self-collisions to reset the game.
                 <p>
                     <pre>
                         <code>
-let direction = { x: 0, y: -1 }; // Initial direction: moving up
-document.addEventListener('keydown', (e) => {
+async function updateSnakePosition() {
+    if (Date.now() - lastMoveTime < gameMode[playerGameModeSelection].moveDelay) {
+        return;
+    }
+    lastMoveTime = Date.now();
+
+    const head = {
+        x: (snake[0].x + direction.x + boardSize) % boardSize,
+        y: (snake[0].y + direction.y + boardSize) % boardSize,
+    };
+
+    snake.unshift(head);
+
+    if (head.x === food.x && head.y === food.y) {
+        placeFood();
+        renderFood();
+        console.log("length::", snake?.length);
+        const snakeLength = snake?.length;
+        if (snakeLength !== score) {
+            score = snakeLength;
+            await scoreChange(score);
+        }
+    } else {
+        snake.pop();
+    }
+
+    if (snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
+        resetGame();
+    }
+
+    renderSnake();
+}
+                        </code>
+                    </pre>
+                </p>
+            </li>
+            <li>
+                <strong>Render Snake and Render & Place Food:</strong> The renderSnake and renderFood functions update the visual representation of the snake and food on the grid. The placeFood function handles the relocation of food after the user has collected food.
+                <p>
+                    <pre>
+                        <code>
+function renderSnake() {
+    const cells = gameBoard.children;
+    for (let i = 0; i < cells.length; i++) {
+        cells[i].classList.remove('snake');
+    }
+
+    snake.forEach((segment) => {
+        const index = segment.y * boardSize + segment.x;
+        if (index >= 0 && index < cells.length) {
+            cells[index].classList.add('snake');
+        }
+    });
+}
+
+function renderFood() {
+    const cells = gameBoard.children;
+    for (let i = 0; i < cells.length; i++) {
+        cells[i].classList.remove('food');
+    }
+
+    const index = food.y * boardSize + food.x;
+    if (index >= 0 && index < cells.length) {
+        cells[index].classList.add('food');
+    }
+}
+
+function placeFood() {
+    let newFoodPosition;
+    do {
+        newFoodPosition = {
+            x: Math.floor(Math.random() * boardSize),
+            y: Math.floor(Math.random() * boardSize)
+        };
+    } while (snake.some(segment => segment.x === newFoodPosition.x && segment.y === newFoodPosition.y));
+    food = newFoodPosition;
+}
+                        </code>
+                    </pre>
+                </p>
+            </li>
+            <li>
+                <strong>Reset Game:</strong> The resetGame function reinitializes the game after a collision.
+                <p>
+                    <pre>
+                        <code>
+function resetGame() {
+    snake = [{ x: 8, y: 12 }];
+    direction = { x: 0, y: -1 };
+    placeFood();
+    setupBoard();
+    gameMenu.style.display = 'flex';
+    document.removeEventListener('keydown', handleKeydown);
+    playerGameModeSelection = 0;
+    modeSelection.value = 0;
+    gameAction('stop-game');
+}
+                        </code>
+                    </pre>
+                </p>
+            </li>
+            <li>
+                <strong>Handle Snake Movement:</strong> The handleKeydown function changes the snake's direction based on arrow key presses. 
+                <p>
+                    <pre>
+                        <code>
+function handleKeydown(e) {
     switch (e.key) {
         case 'ArrowUp': direction = { x: 0, y: -1 }; break;
         case 'ArrowDown': direction = { x: 0, y: 1 }; break;
         case 'ArrowLeft': direction = { x: -1, y: 0 }; break;
         case 'ArrowRight': direction = { x: 1, y: 0 }; break;
     }
+}
+                        </code>
+                    </pre>
+                </p>
+            </li>
+            <li>
+                <strong>Add Game Start, Difficulty Selection, and Window Resize Event Listeners:</strong> The startButton click event listener starts the game and sets the update interval. The modeSelection event listener updates the game mode based on user selection, and the resize event ensures the game board adapts to window size changes.
+                <p>
+                    <pre>
+                        <code>
+startButton.addEventListener('click', function() {
+    gameMenu.style.display = 'none';
+    document.addEventListener('keydown', handleKeydown);
+    if (!gameStarted) {
+        gameStarted = true;
+    }
+    setInterval(updateSnakePosition, gameMode[playerGameModeSelection].interval);
 });
+
+// Handle Game Difficulty Change Event
+modeSelection.addEventListener('change', (e) => {
+    playerGameModeSelection = e.target.value;
+    setInterval(updateSnakePosition, gameMode[playerGameModeSelection].interval);
+});
+
+// Handle Window Resize Event
+window.addEventListener('resize', setupBoard);
                         </code>
                     </pre>
                 </p>
             </li>
-        </ol>
-        <br>
-        <h2>Step 3: Game Logic for Growth and Collision</h2>
-        <hr>
-        <ol>
             <li>
-                <strong>Update Snake Position:</strong> Create a function that updates the snake's position based on the direction, checks for food consumption, and handles collisions.
+                <strong>Initialization Call:</strong> Finally, call the setupBoard function to initialize the game board.
                 <p>
                     <pre>
                         <code>
-function updateSnakePosition() {
-    const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
-    snake.unshift(head);
-
-    // Check if the snake eats the food
-    if (head.x === food.x && head.y === food.y) {
-        placeFood();
-    } else {
-        snake.pop(); // Remove the last segment
-    }
-
-    // Check for collision with walls or self
-    if (head.x < 0 || head.x >= boardSize || head.y < 0 || head.y >= boardSize || snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
-        resetGame();
-    }
-}                    
-                        </code>  
-                    </pre>
-                </p>
-            </li>
-        </ol>
-        <br>
-        <h2>Step 4: Rendering the Snake and Food</h2>
-        <hr>
-        <ol>
-            <li>
-                <strong>Rendering Functions:</strong> Add functions to draw the snake and food on the game board.
-                <p>
-                    <pre>
-                        <code>
-function renderSnake() {
-    snake.forEach(segment => {
-        const index = segment.y * boardSize + segment.x;
-        gameBoard.children[index].classList.add('snake');
-    });
-}
-
-function renderFood() {
-    const index = food.y * boardSize + food.x;
-    gameBoard.children[index].classList.add('food');
-}    
-
-function resetGame() {
-    // Reset the snake's starting position
-    snake = [{ x: 8, y: 12 }];
-    direction = { x: 0, y: -1 }; // Moving up initially
-
-    // Place a new piece of food
-    placeFood();
-
-    // Clear the grid of all snake and food classes
-    setupBoard();
-}
-
-function placeFood() {
-    let newFoodPosition;
-    do {
-        // Generate a random x and y position within the grid
-        newFoodPosition = {
-            x: Math.floor(Math.random() * boardSize),
-            y: Math.floor(Math.random() * boardSize)
-        };
-    } while (snake.some(segment => segment.x === newFoodPosition.x && segment.y === newFoodPosition.y));
-
-    food = newFoodPosition; // Update global food position
-}
-                        </code>
-                    </pre>
-                </p>
-            </li>
-        </ol>
-        <br>
-        <h2>Step 5: Starting the Game</h2>
-        <hr>
-        <ol>
-            <li>
-                <strong>Game Loop:</strong> Use setInterval to update the game state at regular intervals.
-                <p>
-                    <pre>
-                        <code>
+// Initial Call to setup the game board
 setupBoard();
-setInterval(updateSnakePosition, 200); // Update every 200 milliseconds
                         </code>
                     </pre>
                 </p>
             </li>
         </ol>
-        `,
-		htmlCode: [
-			{
-				location: 'step-1-1',
-				code: `
-            <div id="gameBoard"></div>  
         `
-			}
-		]
 	},
 	{
 		title: 'Advanced Concepts',
