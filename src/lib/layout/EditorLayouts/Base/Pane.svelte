@@ -27,7 +27,7 @@
 		fileSystemSidebarWidth
 	} from '$lib/stores/filesStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
-	import { afterUpdate, onDestroy } from 'svelte';
+	import { afterUpdate, onDestroy, tick } from 'svelte';
 
 	/**
 	 * @type {string | string[]}
@@ -60,12 +60,13 @@
 			let splitModel = split?.querySelector('.slot-control-bar .container');
 			// Edge case 1: the editor is full and the output is closed
 			if (isOutput && !isEditor) {
-				split.style.minWidth = `${30}px`;
+				split.style.minWidth = `${30}px !important`;
 
 				if (id?.includes('js') || id?.includes('css') || id?.includes('html')) {
-					if (splitClientWidth <= 33) {
+					if (splitClientWidth <= 45) {
 						splitModel.style.transform = 'rotate(90deg)';
 					} else {
+						console.log('splitClientWidth::', splitClientWidth);
 						splitModel.style.transform = 'rotate(0deg)';
 					}
 				}
@@ -78,7 +79,7 @@
 				// Edge case 3: the editor and the output are both open
 			} else if (!isEditor && !isOutput) {
 				split.style.minWidth = `${30}px`;
-				if (splitClientWidth <= 33) {
+				if (splitClientWidth <= 45) {
 					if (!isEditor && !isOutput) {
 						splitModel.style.transform = 'rotate(90deg)';
 					}
@@ -90,6 +91,7 @@
 			}
 		}
 	})();
+	$: codePanesLength = $codePanes2?.length;
 	$: idSplit = id?.split('-');
 	$: fileId = idSplit[idSplit?.length - 1];
 	$: isFocused =
@@ -106,25 +108,28 @@
 	) => {
 		const { target } = currentChild;
 		const selection = target.closest('section');
-		switch (selection?.id) {
-			case 'split-html':
-				$editorSplit.setSizes([93.12459240436259, 3.437263361299153, 3.4381442343382815]);
-				$splitInstanceStore.setSizes([97, 3]);
-				break;
-			case 'split-css':
-				$editorSplit.collapse(0);
-				$editorSplit.collapse(2);
-				$splitInstanceStore.setSizes([97, 3]);
-				break;
-			case 'split-js':
-				$editorSplit.collapse(0);
-				$editorSplit.collapse(1);
-				$splitInstanceStore.setSizes([97, 3]);
 
-				break;
-			case 'split-output':
-				$splitInstanceStore.setSizes([3, 97]);
-				break;
+		// get the target index
+		const targetIndex = $codePanes2?.findIndex((pane) => {
+			return pane.paneID?.includes(selection?.id);
+		});
+
+		if (codePanesLength === 1) {
+			$editorSplit.setSizes([100]);
+		} else if (codePanesLength === 2) {
+			if (targetIndex === 0) {
+				$editorSplit.setSizes([97, 3]);
+			} else if (targetIndex === 1) {
+				$editorSplit.setSizes([3, 97]);
+			}
+		} else if (codePanesLength === 3) {
+			if (targetIndex === 0) {
+				$editorSplit.setSizes([93.12459240436259, 3.437263361299153, 3.4381442343382815]);
+			} else if (targetIndex === 1) {
+				$editorSplit.setSizes([3.437263361299153, 93.12459240436259, 3.4381442343382815]);
+			} else if (targetIndex === 2) {
+				$editorSplit.setSizes([3.437263361299153, 3.4381442343382815, 93.12459240436259]);
+			}
 		}
 	};
 
@@ -136,7 +141,7 @@
 		focusedFileId.set(fileId);
 		focusedFolderId.set(null);
 		if ($autoCompile) {
-			clearSplit.set(true);
+			$clearSplit = true;
 		}
 	};
 
@@ -261,12 +266,14 @@
 			on:mouseleave={() => (showPaneOptions = false)}
 		>
 			{#if label}
-				{label}
+				<span class="label noSelect">
+					{label}
+				</span>
 			{/if}
 			{#if focusedFileId && $codePanes2?.length > 1}
 				{focusedLabel}
 			{/if}
-			{#if showOptionsObserved}
+			<!-- {#if showOptionsObserved}
 				<div
 					class="pane-options"
 					in:fade|local={{ delay: 50, duration: 100 }}
@@ -274,7 +281,7 @@
 				>
 					option
 				</div>
-			{/if}
+			{/if} -->
 		</div>
 	</div>
 	<slot name="pane-content" />
@@ -310,5 +317,19 @@
 	}
 	section.isFocused {
 		border: 2px solid #4ca5ff;
+	}
+	span.label {
+		font-family: var(--header-font), 'sans-serif';
+		font-size: 14px;
+		font-weight: 200;
+	}
+	span.label.noSelect {
+		-webkit-touch-callout: none; /* iOS Safari */
+		-webkit-user-select: none; /* Safari */
+		-khtml-user-select: none; /* Konqueror HTML */
+		-moz-user-select: none; /* Old versions of Firefox */
+		-ms-user-select: none; /* Internet Explorer/Edge */
+		user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
 	}
 </style>

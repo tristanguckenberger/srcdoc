@@ -37,6 +37,8 @@
 	export let parentHeight = 0;
 
 	let docsSelection;
+	let contentGen;
+	let window;
 	let selectedOption = 0;
 	let contentHeight = 0;
 
@@ -55,6 +57,27 @@
 
 	$: canNavigateNext = selectedOption < docs.length - 1;
 	$: canNavigatePrevious = selectedOption > 0;
+	// $: docs?.[selectedOption]?.htmlCode?.forEach(async (element) => {
+	// 	if (contentGen) {
+	// 		console.log('contentGen::', contentGen);
+	// 		// console.log(contentGen.innerHTML.getElementById(element.location));
+	// 		try {
+	// 			console.log('htmlCode::element::', element.location);
+	// 			let targetCollection = await contentGen.getElementsByClassName(element.location);
+	// 			console.log('htmlCode::targetCollection::');
+	// 			// targetCollection[0].innerHTML = element.code;
+	// 			// let targetArray = Array.from(targetCollection);
+
+	// 			// console.log('htmlCode::targetArray::', targetArray);
+	// 			// contentGen.innerHTML.getElementsByTagName(element.location)[0].innerHTML = element.code;
+	// 			// contentGen.getElementById(element.location).innerHTML = element.code;
+	// 		} catch (error) {
+	// 			console.log('htmlCode::error::', error);
+	// 		}
+	// 	}
+
+	// 	// console.log('htmlCode::selectedOption::', docs?.[selectedOption]);
+	// });
 </script>
 
 <div class="documentation-container">
@@ -114,6 +137,7 @@
 		<!-- <h1>{docs[selectedOption]?.title}</h1> -->
 		<div
 			class="content-gen"
+			bind:this={contentGen}
 			bind:clientHeight={contentHeight}
 			class:allowScroll={contentHeight > 0}
 		>
@@ -197,6 +221,9 @@
 		margin-block-end: 0;
 		font-family: var(--header-font);
 	}
+	:global(.documentation-content h3) {
+		text-decoration: underline;
+	}
 	:global(.documentation-content p) {
 		font-family: var(--paragraph-font);
 		margin-block-start: 5px;
@@ -233,5 +260,21 @@
 		border-radius: 3px;
 		background: var(--menu-bg);
 		padding: 4px;
+	}
+	:global(.documentation-content ul) {
+		/* width: 80%;
+		border-radius: 3px;
+		background: var(--menu-bg);
+		padding: 4px; */
+		margin-block-start: 0;
+	}
+	:global(.documentation-content hr) {
+		margin-block-start: -5px;
+	}
+	:global(.documentation-content span) {
+		font-family: var(--paragraph-font);
+	}
+	:global(.documentation-content ul li) {
+		font-family: var(--paragraph-font);
 	}
 </style>

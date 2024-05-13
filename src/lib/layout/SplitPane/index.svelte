@@ -2,7 +2,7 @@
 
 <script>
 	// @ts-nocheck
-	import { afterUpdate, onDestroy } from 'svelte';
+	import { afterUpdate, onDestroy, tick } from 'svelte';
 	import {
 		clearSplit,
 		splitInstanceStore,
@@ -40,6 +40,11 @@
 	 * @type {boolean}
 	 */
 	export let vertical = false;
+
+	/**
+	 * @type {string}
+	 */
+	export let splitParent;
 
 	/**
 	 * @type {Split.Instance}
@@ -175,13 +180,25 @@
 		setTimeout(() => reloadSplit(), 50);
 	}
 
-	$: if (splitInstance && splitInstance?.getSizes()?.length > 2 && !$editorSplit) {
+	// $: if (splitInstance && splitInstance?.getSizes()?.length > 2 && !$editorSplit) {
+	// 	editorSplit.set(splitInstance);
+	// 	console.log('splitInstance::', splitInstance);
+	// }
+
+	$: console.log('splitParent::', splitParent);
+
+	$: if (
+		splitInstance &&
+		splitParent === 'split-input-output' &&
+		splitInstance?.getSizes()?.length >= 2
+	) {
+		console.log('splitInstance::', splitInstance);
 		editorSplit.set(splitInstance);
 	}
 
-	$: if (splitInstance && splitInstance?.getSizes()?.length <= 2 && !$splitInstanceStore) {
-		splitInstanceStore.set(splitInstance);
-	}
+	// $: if (splitInstance && splitInstance?.getSizes()?.length < 2 && !$splitInstanceStore) {
+	// 	splitInstanceStore.set(splitInstance);
+	// }
 
 	$: isSideBarOpen = $fileSystemSidebarOpen;
 </script>

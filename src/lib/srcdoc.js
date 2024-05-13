@@ -139,10 +139,22 @@ const resolveDependencies = (file, files) => {
 
 	let content = file?.content;
 	if (content) {
-		files.forEach((dependency) => {
-			if (content.includes(dependency.name) && file?.type === dependency?.type) {
-				content = content.replace(dependency.name, dependency.content);
-			}
+		console.log('resolveDependencies()::var_content::', content);
+		files?.forEach((dependency) => {
+			console.log('resolveDependencies()::dependency?.name::', dependency?.name);
+			console.log('resolveDependencies()::dependency?.content::', dependency?.content);
+			console.log('resolveDependencies()::dependency?.type::', dependency?.type);
+			// if (content?.includes(dependency?.name) && file?.type === dependency?.type) {
+			// 	console.log('resolveDependencies()::content::before::', content);
+			// 	console.log('resolveDependencies()::dependency?.content::before::', dependency?.content);
+			// 	console.log('resolveDependencies()::dependency?.name::before::', dependency?.name);
+			// 	content = content?.replace(dependency?.name, dependency?.content);
+			// 	console.log('new_content::', content);
+			// } else {
+			// 	console.log('resolveDependencies()::dependency?.name::', dependency?.name);
+			// 	console.log('resolveDependencies()::dependency?.content::', dependency?.content);
+			// 	console.log('resolveDependencies()::dependency?.type::', dependency?.type);
+			// }
 		});
 	}
 
@@ -254,37 +266,37 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 		${jsContent}
 	`;
 
-	function onKeyDown(keyEvent, gameControllerStore, update) {
-		if (keyEvent?.target !== document?.body) return;
+	// function onKeyDown(keyEvent, gameControllerStore, update) {
+	// 	// if (keyEvent?.target !== document?.body) return;
 
-		gameControllerStore.previous = gameControllerStore?.current;
-		gameControllerStore.current = {
-			keyEvent,
-			pressedTime: Date.now(),
-			releasedTime: null
-		};
-		gameControllerStore.pressed = true;
+	// 	gameControllerStore.previous = gameControllerStore?.current;
+	// 	gameControllerStore.current = {
+	// 		keyEvent,
+	// 		pressedTime: Date.now(),
+	// 		releasedTime: null
+	// 	};
+	// 	gameControllerStore.pressed = true;
 
-		update({ ...gameControllerStore });
+	// 	update({ ...gameControllerStore });
 
-		// Send message to parent window for key down event
-		window.parent.postMessage({ event: 'keydown', key: keyEvent.key }, '*');
-	}
+	// 	// Send message to parent window for key down event
+	// 	window.parent.postMessage({ event: 'keydown', key: keyEvent.key }, '*');
+	// }
 
 	// Function to handle keyup events
-	function onKeyUp(keyEvent, gameControllerStore, update) {
-		if (keyEvent?.target !== document?.body) return;
+	// function onKeyUp(keyEvent, gameControllerStore, update) {
+	// 	if (keyEvent?.target !== document?.body) return;
 
-		update({
-			current: {
-				...gameControllerStore?.current,
-				releasedTime: Date.now()
-			},
-			previous: gameControllerStore?.previous,
-			pressed: false
-		});
-		window.parent.postMessage({ event: 'keyup', key: keyEvent.key }, '*');
-	}
+	// 	update({
+	// 		current: {
+	// 			...gameControllerStore?.current,
+	// 			releasedTime: Date.now()
+	// 		},
+	// 		previous: gameControllerStore?.previous,
+	// 		pressed: false
+	// 	});
+	// 	window.parent.postMessage({ event: 'keyup', key: keyEvent.key }, '*');
+	// }
 
 	// Function to sync the user's game session score with a svelte store
 	// this should be called everytime the game score changes
@@ -318,7 +330,7 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 
 	const stringifiedStore = JSON.stringify(gameControllerStore);
 
-	return `
+	const srcdoc = `
 	  <!DOCTYPE html>
 	  <html style="touch-action: manipulation;">
 	  <head>
@@ -333,12 +345,9 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 
 			function updateParent(value) {
 				// Post a message to the parent window with the value to update the store
-				parent.postMessage({ type: 'updateStore', value: value }, '*'); // replace '*' with your parent domain for security
-				keyState = value;
+				// parent.postMessage({ type: 'updateStore', value: value }, '*'); // replace '*' with your parent domain for security
+				// keyState = value;
 			}
-
-			const kU = ${onKeyUp};
-			const kD = ${onKeyDown};
 
 			// Play Engine API Actions
 			const gS = ${onGameStart};
@@ -348,18 +357,20 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
 			const gP = ${onGamePause};
 			
 			// Function to handle keydown events
-			const onKeyDown = (keyEvent) => kD(keyEvent, keyState, updateParent);
+			// const onKeyDown = (keyEvent) => kD(keyEvent, keyState, updateParent);
 			// Function to handle keyup events
-			const onKeyUp = (keyEvent) => kU(keyEvent, keyState, updateParent);
+			// const onKeyUp = (keyEvent) => kU(keyEvent, keyState, updateParent);
 
-			window.addEventListener('keydown', onKeyDown);
-			window.addEventListener('keyup', onKeyUp);
+			// window.addEventListener('keydown', onKeyDown);
+			// window.addEventListener('keyup', onKeyUp);
 		</script>
 		${htmlContent}
 		${jsContentWithCustomLoadImage}
 	  </body>
 	  </html>
 	`;
+
+	return srcdoc;
 };
 
 /**
@@ -373,6 +384,7 @@ const generateSrcDoc = (files, clientDimensions, gameControllerStore) => {
  *
  */
 const buildDynamicSrcDoc = (files, rootId, clientDimensions, gameControllerStore) => {
+	console.log('HIT::buildDynamicSrcDoc::');
 	if (!files || files.length === 0) {
 		return {
 			errorMessage: 'No files provided!'

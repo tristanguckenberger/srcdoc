@@ -42,7 +42,7 @@
 	bind:clientWidth={$editorContainerWidth}
 	bind:clientHeight={$editorContainerHeight}
 >
-	<SplitPane panes={$codePanes2} vertical={!$isVertical}>
+	<SplitPane panes={$codePanes2} vertical={!$isVertical} splitParent={'split-input-output'}>
 		{#each $codePanes2 as pane}
 			<Pane
 				id={pane.paneID.split('#')[1]}

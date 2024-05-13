@@ -142,6 +142,7 @@
 		sizes={[50, 50]}
 		vertical={false}
 		bind:this={$editorElement}
+		splitParent={'split-main'}
 	>
 		<div
 			id="split-file-explorer"
@@ -227,6 +228,7 @@
 				panes={$openFiles?.length > 0 ? ['#split-2', '#split-3'] : ['#split-3']}
 				sizes={$openFiles?.length > 0 ? [50, 50] : [100]}
 				vertical={true}
+				splitParent={'split-editor'}
 				bind:this={$editorElement}
 			>
 				<!-- Editor Content -->

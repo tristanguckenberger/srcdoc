@@ -267,7 +267,7 @@
 				</li>
 			{/if}
 		</ul>
-		{#if !isMobile && engineInRoute}
+		<!-- {#if !isMobile && engineInRoute}
 			<ul class="profile-info" class:showSideBar={$sideBarState}>
 				{#if sessionData?.username || $session?.username}
 					<li>
@@ -308,7 +308,7 @@
 					</div>
 				</div>
 			</ul>
-		{/if}
+		{/if} -->
 	</ul>
 </nav>
 

@@ -11,7 +11,7 @@
 		filesToUpdate,
 		focusedFolderId
 	} from '$lib/stores/filesStore.js';
-	import { clearSplit } from '$lib/stores/splitStore';
+	import { clearSplit, splitInstanceStore } from '$lib/stores/splitStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
 	import { afterUpdate, tick } from 'svelte';
@@ -64,6 +64,7 @@
 				return pane.paneID !== paneID;
 			})
 		);
+		splitInstanceStore.set(null);
 		triggerCompile.set(true);
 		$addPaddingToEditorStore = false;
 	}

@@ -22,7 +22,7 @@
 		initialDataStore,
 		focusedFolderId
 	} from '$lib/stores/filesStore.js';
-	import { clearSplit } from '$lib/stores/splitStore';
+	import { clearSplit, splitInstanceStore } from '$lib/stores/splitStore';
 	import { afterUpdate, onMount, tick } from 'svelte';
 	import File from './File.svelte';
 	import { setPointerControls, DEFAULT_DELAY } from 'svelte-gestures';
@@ -173,7 +173,7 @@
 		if (!$openFiles?.some((openFile) => openFile.id === file.id) && file.type !== 'folder') {
 			$openFiles = [...$openFiles, file];
 		}
-
+		splitInstanceStore.set(null);
 		if ($softSelectedFileId === file.id) {
 			softSelectedFileId.set(null);
 		}
@@ -187,6 +187,7 @@
 	}
 	async function HandleFileSingleClick(file) {
 		if (preventOpen) return;
+		splitInstanceStore.set(null);
 		const isFileAlreadyOpen = $openFiles?.some((openFile) => openFile.id === file.id);
 
 		// If the clicked file is already open and not soft-selected, focus it and return.

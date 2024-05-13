@@ -154,11 +154,13 @@
 				case 'update-score':
 					// Get score to add
 					const score = e?.data?.value;
+					console.log('score::', score);
 
 					// if we have a session and a score, update the session with the summation of the user's existing score and the added score
 					if (score) {
 						await tick();
 						gameSessionScore.set(score);
+						console.log('gameSessionScore::', $gameSessionScore);
 					}
 
 					break;
