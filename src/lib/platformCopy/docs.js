@@ -258,7 +258,6 @@ export const docs = [
                 <p>
                     <pre>
                         <code class="step-1-1">
-    &lt;div id="gameBoard"&gt;&lt;/div&gt;
     &lt;html&gt;
 	&lt;head&gt;
         &lt;/head&gt;
