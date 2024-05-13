@@ -221,6 +221,14 @@
 		margin-block-end: 0;
 		font-family: var(--header-font);
 	}
+	:global(.documentation-content li) {
+		font-family: var(--paragraph-font);
+		font-size: 14px;
+	}
+	:global(.documentation-content strong) {
+		font-family: var(--header-font);
+		/* font-size: 1.2rem; */
+	}
 	:global(.documentation-content h3) {
 		text-decoration: underline;
 	}
