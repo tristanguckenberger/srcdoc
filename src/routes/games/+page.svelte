@@ -101,7 +101,7 @@
 	$: gamesData.set([...gamesSet].filter((game) => game?.id));
 	$: parsedGamesData = [...$gamesData];
 	$: parsedGamesDataSet = new Set(parsedGamesData.map((game) => game));
-	$: copiedParsedGamesDataSet = [...parsedGamesDataSet];
+	$: copiedParsedGamesDataSet = [...parsedGamesDataSet].filter((game) => game?.published);
 </script>
 
 <svelte:head>
