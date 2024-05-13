@@ -101,7 +101,10 @@
 	$: gamesData.set([...gamesSet].filter((game) => game?.id));
 	$: parsedGamesData = [...$gamesData];
 	$: parsedGamesDataSet = new Set(parsedGamesData.map((game) => game));
-	$: copiedParsedGamesDataSet = [...parsedGamesDataSet].filter((game) => game?.published);
+	$: copiedParsedGamesDataSet = [...parsedGamesDataSet].filter((game) => {
+		console.log('game::', game);
+		return game?.published;
+	});
 </script>
 
 <svelte:head>
