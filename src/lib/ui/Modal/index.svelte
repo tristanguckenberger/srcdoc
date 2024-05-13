@@ -332,4 +332,14 @@
 		width: 45%;
 		height: auto;
 	}
+	@media (max-width: 498px) {
+		.modal {
+			width: 100%;
+			border-radius: 0;
+			height: 100%;
+			max-height: unset;
+			top: 0;
+			left: 0;
+		}
+	}
 </style>
