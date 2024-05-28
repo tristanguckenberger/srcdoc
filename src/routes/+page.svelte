@@ -21,6 +21,7 @@
 	import { writable } from 'svelte/store';
 	import { fade, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
+	import MockEditor from '$lib/ui/MockEditor/index.svelte';
 
 	export let form;
 	export let data;
@@ -131,12 +132,6 @@
 <div class="main" style="--svg-bg: url('{Frame}');" class:sideBarOpen={$sideBarState}>
 	<div class="left" class:fullWidth={!showAuth} style="--xDistance: {$xDistanceStore}px;">
 		<div class="example-container">
-			<!-- <div class="logo-and-title">
-				<div class="outer-logo-ring">
-					<Logo xDistance={0} />
-				</div>
-				<h1 class="logo-title">PlayEngine</h1>
-			</div> -->
 			<ResponsiveLogo size={'xs'} />
 			<div class="page-contents">
 				<section class="heroSection">
@@ -147,9 +142,18 @@
 							previousShowAuthVal = showAuth;
 							showAuth = !showAuth;
 						}}
-						label={'Continue'}
+						label={'Sign Up/In'}
 						style={'background-color: #4da5ff; color: white; border-radius: 6px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; height: 57.5px; max-height: unset; width: 50%; max-width: 210px;'}
 					/>
+				</section>
+				<hr class="divider" />
+				<section class="engineSection">
+					<p>Introducing the Engine Editor</p>
+					<MockEditor />
+					<p class="small">
+						Unleash your creativity in the Engine. Build games using HTML, CSS, and JS. Modify code
+						live and see the changes instantly.
+					</p>
 				</section>
 			</div>
 		</div>
@@ -574,6 +578,8 @@
 		/* margin: 20px; */
 		border-radius: 15px;
 		/* background-color: red; */
+		overflow-x: hidden;
+		overflow-y: auto;
 	}
 	.auth-container {
 		width: calc(100% + var(--xDistance) - 40px);
@@ -646,16 +652,6 @@
 		margin-top: 10%;
 		margin-block-end: 0;
 	}
-	.heroSection p {
-		font-family: 'Source Sans 3', sans-serif;
-		font-optical-sizing: auto;
-		font-weight: 400;
-		font-style: normal;
-		font-size: 2.5rem;
-		color: var(--color-primary);
-		width: 80%;
-		margin-inline-start: 0;
-	}
 	.right.auth :global(.logo-container),
 	.right.auth :global(.auth-container) {
 		/* transition: opacity 0.15s linear; */
@@ -685,5 +681,45 @@
 	} */
 	.right.lockedRightWidth {
 		width: var(--lockedRightWidth);
+	}
+
+	/* Editor Section */
+	.engineSection {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		/* margin-top: 10%; */
+	}
+	section p {
+		font-family: 'Source Sans 3', sans-serif;
+		font-optical-sizing: auto;
+		font-weight: 400;
+		font-style: normal;
+		font-size: 2.5rem;
+		color: var(--color-primary);
+		width: 80%;
+		margin-inline-start: 0;
+	}
+	section p.small {
+		font-size: 1.5rem;
+		margin-top: 20px;
+		margin-block-end: 10%;
+	}
+
+	.engineSection p {
+		margin-block-end: 20px;
+		margin-block-start: 0;
+	}
+	hr.divider {
+		margin-block-start: 10%;
+		width: 95%;
+		margin-block-end: 10%;
+		border-radius: 6px;
+		border: 0;
+		height: 4px;
+		background-image: linear-gradient(to right, rgba(0, 0, 0, 0), #4ca5ff08, rgba(0, 0, 0, 0));
 	}
 </style>

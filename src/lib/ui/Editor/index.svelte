@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import { initialDataStore, openFiles } from '$lib/stores/filesStore.js';
+	import { autoCompile, initialDataStore, openFiles } from '$lib/stores/filesStore.js';
 	import MonacoEditorScripts from './MonacoEditorScripts.svelte';
 	import {
 		derivedCodeData,
@@ -12,6 +12,7 @@
 	} from '$lib/stores/filesStore.js';
 	import { onDestroy, onMount } from 'svelte';
 
+	export let readonly = false;
 	export let id;
 	export let code;
 	export let type;
@@ -31,8 +32,7 @@
 	// Add this in the onMount lifecycle hook or another suitable place
 	onMount(() => {
 		// Attach event listener
-		window.addEventListener('keydown', handleKeyDown);
-
+		// window?.addEventListener('keydown', handleKeyDown);
 		// // Cleanup
 		// return () => {
 		// 	window.removeEventListener('keydown', handleKeyDown);
@@ -41,7 +41,7 @@
 
 	onDestroy(() => {
 		// Cleanup
-		window.removeEventListener('keydown', handleKeyDown);
+		// window?.removeEventListener('keydown', handleKeyDown);
 	});
 
 	$: codeType = type;
@@ -83,6 +83,8 @@
 
 	let options;
 
+	$: $autoCompile = readonly;
+
 	$: options = {
 		theme: 'omni-light',
 		language: codeType,
@@ -119,6 +121,10 @@
 		bind:value={code}
 		{options}
 		on:update={(e) => {
+			if (readonly) {
+				console.log('readonly::e::', e);
+			}
+
 			openFiles?.update((files) => {
 				const file = files?.find((file) => {
 					const newId = `#split-${file?.name}-${file?.type}-${file?.id}`;

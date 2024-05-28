@@ -57,6 +57,7 @@
 	$: if (data) {
 		// this will be our data's starting point
 		// We will need to update this data on every keystroke
+		console.log('baseData::', data);
 		baseDataStore.set(data);
 	}
 

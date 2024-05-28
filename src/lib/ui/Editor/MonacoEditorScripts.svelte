@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import { afterUpdate, createEventDispatcher, onDestroy, onMount } from 'svelte';
+	import { afterUpdate, createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
 	import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 	import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
 	import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
@@ -173,6 +173,7 @@
 	});
 
 	afterUpdate(async () => {
+		await tick();
 		let editorMatch;
 		if ($editorStore === null && editor !== null) {
 			// we want to track multiple editors
@@ -225,10 +226,12 @@
 <div
 	id={IFTitle}
 	bind:this={container}
-	on:keyup={() =>
-		dispatch('update', {
+	on:keyup={async () => {
+		await tick();
+		return dispatch('update', {
 			value: editor.getValue()
-		})}
+		});
+	}}
 	style="height:100%;"
 	role="textbox"
 	tabindex="0"

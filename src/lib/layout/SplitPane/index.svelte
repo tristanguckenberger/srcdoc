@@ -125,6 +125,8 @@
 
 		if (!paneIDs || paneIDs?.length === 0) return;
 
+		console.log('paneIDs::', paneIDs);
+
 		// Init a new split instance
 		splitInstance = Split(paneIDs, {
 			direction: vertical ? 'vertical' : 'horizontal',
@@ -146,7 +148,7 @@
 
 	$: $fileSystemSidebarOpen,
 		(() => {
-			if ($autoCompile || firstRun) {
+			if ($autoCompile) {
 				clearSplit.set(true);
 			}
 		})();
@@ -165,7 +167,11 @@
 
 	onDestroy(() => {
 		split = null;
+		paneIDs = null;
+		sizes = null;
+		panes = null;
 		splitInstance?.destroy();
+		clearSplit.set(true);
 	});
 
 	// Replaces functionality found in onMount

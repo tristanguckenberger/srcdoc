@@ -48,7 +48,13 @@
 				id={pane.paneID.split('#')[1]}
 				label={$codePanes2?.length > 1 ? `${pane?.label}.${pane?.type}` : makePaneLabel(pane)}
 			>
-				<Editor slot="pane-content" code={pane.source} type={pane.type} id={pane.paneID} />
+				<Editor
+					slot="pane-content"
+					code={pane.source}
+					type={pane.type}
+					id={pane.paneID}
+					readonly={true}
+				/>
 			</Pane>
 		{/each}
 	</SplitPane>
