@@ -203,13 +203,13 @@
 		padding: 10px;
 		overflow: hidden;
 		border-radius: 6px;
-		background: #32323229;
+		background: var(--list-item-bg-default);
 		transition: background 0.09s linear(0.07 -1.12%, 1 100%);
 	}
 
 	.list-item:hover {
 		cursor: pointer;
-		background-color: var(--search-result-card) !important;
+		background-color: var(--list-item-hover) !important;
 	}
 
 	.action-list :global(.playlist) {

@@ -2,7 +2,7 @@
 	// @ts-nocheck
 
 	// Svelte imports
-	import { onMount, afterUpdate } from 'svelte';
+	import { onMount, afterUpdate, tick, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
 
 	// Stores
@@ -24,6 +24,7 @@
 
 	// data is a prop passed from the server's load function
 	export let data;
+	let gamesList = [];
 
 	const handleScroll = async (e) => {
 		scrolling = true;
@@ -65,6 +66,8 @@
 			}
 		}
 
+		deduplicateGames();
+
 		// Initial fetch with no cursor
 		return () => {
 			// Cleanup the event listener when the component is destroyed
@@ -76,6 +79,21 @@
 			session.set(data?.user);
 		}
 	});
+
+	onDestroy(() => {
+		gamesList = [];
+	});
+
+	// Deduplicate games by id
+	function deduplicateGames() {
+		const uniqueGames = new Map();
+
+		copiedParsedGamesDataSet.forEach((game) => {
+			uniqueGames.set(game.id, game);
+		});
+
+		gamesList = Array.from(uniqueGames.values());
+	}
 
 	const debouncedHandleScroll = debounce(handleScroll, 50);
 	let dataGames = [];
@@ -105,6 +123,24 @@
 		console.log('game::', game);
 		return game?.published;
 	});
+
+	// $: dedupedGames = [...new Set([...copiedParsedGamesDataSet].map((game) => game))];
+
+	// $: dedupedGames?.forEach((dedupedGame, gameIndex) => {
+	// 	//
+	// 	if (gamesList.length < dedupedGames.length) {
+	// 		if (gamesList.length === 0) {
+	// 			gamesList = [...gamesList, game];
+	// 		} else {
+	// 			if (gamesList.some((game) => game?.id.toString() === dedupedGame?.id.toString())) {
+	// 				gamesList = [...gamesList];
+	// 			} else {
+	// 				gamesList = [...gamesList, game];
+	// 			}
+	// 		}
+	// 	}
+	// });
+	$: console.log('gamesList::', gamesList);
 </script>
 
 <svelte:head>
@@ -130,8 +166,8 @@
 		on:scrollend={() => (scrolling = false)}
 		bind:this={scrollableElement}
 	>
-		{#if copiedParsedGamesDataSet?.length > 0}
-			{#each copiedParsedGamesDataSet as game, i (`game_${game?.id}_${i}`)}
+		{#if gamesList?.length > 0}
+			{#each gamesList as game, i (`game_${game?.id}_${i}`)}
 				<Card id={game?.id} {game} thumbnail={game?.thumbnail} />
 			{/each}
 		{/if}

@@ -189,7 +189,7 @@
 	}
 	.playlist:hover {
 		cursor: pointer;
-		background: var(--meun-blur-bg);
+		background: var(--home-gradient-color-1);
 	}
 	.card-thumbnail {
 		width: 100%;

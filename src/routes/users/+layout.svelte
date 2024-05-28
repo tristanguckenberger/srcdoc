@@ -6,9 +6,10 @@
 	import { themeKeyStore, themeDataStore } from '$lib/stores/themeStore';
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
+	import { sideBarState } from '$lib/stores/layoutStore';
 
 	let preferedThemeMode;
-	$: isSideBarOpen = $fileSystemSidebarOpen;
+	$: isSideBarOpen = $fileSystemSidebarOpen || $sideBarState;
 
 	const updateTheme = (e) => {
 		themeKeyStore.set(e.matches ? 'light' : 'dark');
@@ -31,7 +32,7 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
-<div id="editor-layout">
+<div id="editor-layout" class:sideBarOpen={isSideBarOpen}>
 	<slot />
 </div>
 
@@ -40,8 +41,29 @@
 		display: flex;
 		flex-direction: column;
 		height: 100%;
-		width: 100%;
+		width: calc(100% - 20px);
+		margin-left: 10px;
 		background-color: var(--color-secondary);
-		/* background-color: var(--darker-bg); */
+		background: var(--home-gradient-color-2);
+		background: linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		background: -moz-linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		background: -webkit-linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		border-radius: 8px;
+	}
+	#editor-layout.sideBarOpen {
+		width: calc(100% - 250px);
+		margin-left: 10px;
 	}
 </style>

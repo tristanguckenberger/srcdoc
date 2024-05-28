@@ -96,7 +96,7 @@
 		font-family: var(--header-font), sans-serif;
 	}
 	.playlists-container.sideBarOpen {
-		width: calc(100% - 230px);
+		width: calc(100%);
 	}
 	:global(#editor-layout) {
 		overflow-y: scroll;

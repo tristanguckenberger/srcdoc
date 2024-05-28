@@ -199,7 +199,7 @@
 	}
 	.playlist:hover {
 		cursor: pointer;
-		background: var(--search-result-card) !important;
+		background: var(--home-gradient-color-1) !important;
 	}
 	.card-thumbnail {
 		width: 50px;

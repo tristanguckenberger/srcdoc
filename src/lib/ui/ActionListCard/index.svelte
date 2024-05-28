@@ -101,7 +101,7 @@
 	}
 	.playlist:hover {
 		cursor: pointer;
-		background: var(--search-result-card) !important;
+		background: var(--home-gradient-color-1) !important;
 	}
 	.card-thumbnail {
 		width: 100%;
@@ -197,7 +197,7 @@
 		align-items: center;
 		width: 50px;
 		height: 50px;
-		background-color: #52505029;
+		background-color: var(--leading-icon-bg);
 		border-radius: 6px;
 	}
 </style>

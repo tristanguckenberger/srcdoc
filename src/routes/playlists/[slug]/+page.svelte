@@ -369,10 +369,31 @@
 	.playlist-page-container {
 		width: 100%;
 		padding: 0 10px;
+		background-color: var(--color-secondary);
+		background: var(--home-gradient-color-2);
+		background: linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		background: -moz-linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		background: -webkit-linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		border-radius: 8px;
+		width: calc(100% - 40px);
+		margin-left: 10px;
 	}
 	.playlist-page-container.showSideBar {
-		width: calc(100% - 250px);
-		margin-top: 20px;
+		width: calc(100% - 270px);
+		/* margin-top: 20px; */
+		margin-left: 10px;
 	}
 	.playlist-game-container {
 		display: flex;

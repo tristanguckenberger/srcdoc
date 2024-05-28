@@ -1,0 +1,153 @@
+<script>
+	// @ts-nocheck
+	import { spring } from 'svelte/motion';
+	import { onMount, tick } from 'svelte';
+	import { goto } from '$app/navigation';
+
+	export let xDistance = 0;
+
+	let initialized = false;
+
+	let dot1Height;
+	let dot2Height;
+	let dot3Height;
+
+	const dot1 = spring(
+		{ top: randomPercentage('dot1'), left: randomPercentage('dot1') },
+		{ stiffness: 0.007, damping: 0.95, precision: 0.007 }
+	);
+	const dot2 = spring(
+		{ top: randomPercentage('dot2'), left: randomPercentage('dot2') },
+		{ stiffness: 0.007, damping: 0.95, precision: 0.007 }
+	);
+	const dot3 = spring(
+		{ top: randomPercentage('dot3'), left: randomPercentage('dot3') },
+		{ stiffness: 0.007, damping: 0.95, precision: 0.007 }
+	);
+
+	function randomPercentage(dot) {
+		const min = 0;
+		const max = 100;
+		const ranPer = Math.floor(Math.random() * (max - min + 1)) + min;
+
+		switch (dot) {
+			case 'dot1':
+				if (ranPer + dot1Height > 100) {
+					return ranPer - 45;
+				}
+				return ranPer;
+			case 'dot2':
+				if (ranPer + dot2Height > 100) {
+					return ranPer - 60;
+				}
+				return ranPer;
+			case 'dot3':
+				if (ranPer + dot3Height > 100) {
+					return ranPer - 45;
+				}
+				return ranPer;
+			default:
+				return ranPer;
+		}
+	}
+
+	function updatePositions() {
+		dot1.set({ top: randomPercentage('dot1'), left: randomPercentage('dot1') }, { soft: 0.08 });
+		dot2.set({ top: randomPercentage('dot2'), left: randomPercentage('dot2') }, { soft: 0.08 });
+		dot3.set({ top: randomPercentage('dot3'), left: randomPercentage('dot3') }, { soft: 0.08 });
+	}
+
+	onMount(() => {
+		updatePositions();
+		setInterval(updatePositions, 3000);
+		initialized = true;
+	});
+
+	$: console.log('xDistance::', xDistance);
+	$: calcDistance = xDistance / 3;
+</script>
+
+{#if xDistance && initialized}
+	<div
+		class="logo-container"
+		style="left: calc(-{xDistance}px + 20px);"
+		on:click={() => goto('/games')}
+	>
+		<div
+			class="logo-outer"
+			style="width: {xDistance}px; height: {xDistance}px; --calcDistance: {calcDistance}px;"
+		>
+			<div>
+				<div class="logo-blur-container" />
+				<div
+					class="dot color1"
+					style="top: {$dot1.top}%; left: {$dot1.left}%;"
+					bind:clientHeight={dot1Height}
+				/>
+				<div
+					class="dot color2"
+					style="top: {$dot2.top}%; left: {$dot2.left}%;"
+					bind:clientHeight={dot2Height}
+				/>
+				<div
+					class="dot color3"
+					style="top: {$dot3.top}%; left: {$dot3.left}%;"
+					bind:clientHeight={dot3Height}
+				/>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<style>
+	.logo-container {
+		position: absolute;
+		left: 20px;
+		top: 20px;
+		background: #2e324c;
+		border-radius: 50%;
+		padding: 5px;
+	}
+	.logo-container:hover {
+		cursor: pointer;
+	}
+
+	.logo-outer {
+		width: 10rem;
+		height: 10rem;
+		background-color: #232c6914;
+		border-radius: 500px;
+		overflow: hidden;
+		position: relative;
+	}
+
+	.logo-blur-container {
+		position: absolute;
+		filter: saturate(180%) blur(20%);
+		z-index: 10;
+		width: 100%;
+		height: 100%;
+	}
+
+	.dot {
+		width: 45%;
+		height: 45%;
+		border-radius: 50%;
+		position: absolute;
+		filter: saturate(4) blur(var(--calcDistance));
+	}
+
+	.color1 {
+		background-color: #d73ce5;
+	}
+
+	.color2 {
+		background-color: #145ce6;
+		width: 60%;
+		height: 60%;
+	}
+
+	.color3 {
+		background-color: #440c66;
+	}
+</style>

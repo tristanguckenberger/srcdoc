@@ -48,9 +48,9 @@
 		height: 100%;
 		width: 100%;
 	}
-	.game-page-container.expandSideNav {
+	/* .game-page-container.expandSideNav {
 		background-color: #121314;
-	}
+	} */
 	.main {
 		margin: 10px;
 		height: calc(100% - 20px);

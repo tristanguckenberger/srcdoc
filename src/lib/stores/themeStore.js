@@ -55,7 +55,10 @@ const lightTheme = readable([
 	'--color-primary-muted: #2e324c26;',
 	'--search-result-card: #ededed;',
 	'--home-gradient-color-1: #f6f6f6;',
-	'--home-gradient-color-2: #d0d0d0;'
+	'--home-gradient-color-2: #d0d0d0;',
+	'--list-item-hover: #efeff0;',
+	'--leading-icon-bg: #52505029;',
+	'--list-item-bg-default: #444449fc;'
 ]);
 
 const darkTheme = readable([
@@ -89,8 +92,11 @@ const darkTheme = readable([
 	'--search-button: #1c1d1fab;',
 	'--color-primary-muted: #f6f6f61c;',
 	'--search-result-card: #242528;',
-	'--home-gradient-color-1: #11121363;',
-	'--home-gradient-color-2: #000000;'
+	'--home-gradient-color-1: #43484cb3;',
+	'--home-gradient-color-2: #1d1e21;',
+	'--list-item-hover: #53555c;',
+	'--leading-icon-bg: #1d1e206e;',
+	'--list-item-bg-default: #4446495e;'
 ]);
 
 const fontTheme = readable([

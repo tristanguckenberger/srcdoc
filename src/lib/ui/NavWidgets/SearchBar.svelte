@@ -38,6 +38,7 @@
 	// Svelte imports
 	import { enhance } from '$app/forms';
 	import { beforeNavigate, invalidateAll } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	// Store imports
 	import { searchResultsStore } from '$lib/stores/search/searchStore';
@@ -69,9 +70,15 @@
 		searchResultsStore.set([]);
 		searchQuery = null;
 	});
+
+	$: hideSearch = $page?.route?.id === '/'; // if on home page, hide search bar
 </script>
 
-<div class={`search-bar-container ${containerClass}`} style={containerStyleString}>
+<div
+	class={`search-bar-container ${containerClass}`}
+	class:hideMe={hideSearch}
+	style={containerStyleString}
+>
 	<form
 		class={`search-bar-form ${formClass}`}
 		style={formStyleString}
@@ -165,6 +172,9 @@
 		flex-direction: column;
 		width: 100%;
 	}
+	.search-bar-container.hideMe {
+		display: none;
+	}
 	.search-bar-form {
 		display: flex;
 		flex-direction: column;
@@ -202,7 +212,7 @@
 		align-items: center;
 		justify-content: center;
 		border-radius: 0.25em;
-		background-color: var(--search-button);
+		background-color: var(--home-gradient-color-1);
 		border: none;
 		height: 36px;
 		width: 36px;
@@ -210,7 +220,7 @@
 		align-self: center;
 	}
 	.search-bar-button svg {
-		fill: var(--color-primary-muted) !important;
+		fill: var(--color-primary) !important;
 	}
 	.search-bar-button:hover {
 		/* background-color: var(--button-blue-hover); */
@@ -239,7 +249,7 @@
 		flex-direction: row;
 		gap: 10px;
 		border-radius: 4px;
-		background-color: var(--search-bar-bg);
+		background-color: var(--home-gradient-color-1);
 		max-width: calc(100% - 0px);
 		max-height: 330px;
 		width: 100%;

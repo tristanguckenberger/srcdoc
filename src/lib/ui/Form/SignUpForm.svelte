@@ -7,8 +7,12 @@
 	import { icons } from '$lib/stores/themeStore.js';
 	import PasswordInputValidate from '../Input/PasswordInputValidate.svelte';
 	import { fade } from 'svelte/transition';
+	import { writable } from 'svelte/store';
+
+	let boundInputHeight = writable(0);
 </script>
 
+<h1>Sign up</h1>
 <form action="?/register" method="POST">
 	<!-- <div class="tagline">
 		<Button label="Sign Up with Google" isRounded />
@@ -21,31 +25,37 @@
 	</div> -->
 	<div class="email-username">
 		<EmailInput formType={'register'}>
-			<span slot="label" class="input-label">Email</span>
+			<span slot="label" class="input-label">Email*</span>
 			<div slot="icon" class="input-icon">
 				{@html $icons.email}
 			</div>
 		</EmailInput>
 		<UsernameInput formType={'register'}>
-			<span slot="label" class="input-label">Username</span>
+			<span slot="label" class="input-label">Username*</span>
 			<div slot="icon" class="input-icon">
 				{@html $icons.username}
 			</div>
 		</UsernameInput>
 	</div>
-	<PasswordInput>
-		<span slot="label" class="input-label">Password</span>
-		<div slot="icon" class="input-icon">
-			{@html $icons.password}
-		</div>
-	</PasswordInput>
+	<div bind:clientHeight={$boundInputHeight}>
+		<PasswordInput>
+			<span slot="label" class="input-label">Password*</span>
+			<div slot="icon" class="input-icon">
+				{@html $icons.password}
+			</div>
+		</PasswordInput>
+	</div>
 	<PasswordInputValidate formType={'register'}>
-		<span slot="label" class="input-label">Confirm Password</span>
+		<span slot="label" class="input-label">Confirm Password*</span>
 		<div slot="icon" class="input-icon">
 			{@html $icons.password}
 		</div>
 	</PasswordInputValidate>
-	<Button label="Sign Up" isRounded />
+	<Button
+		label="Continue"
+		style="border-radius: 6px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; height: {$boundInputHeight -
+			24.5}px; max-height: unset;"
+	/>
 </form>
 
 <style>
@@ -81,7 +91,7 @@
 		height: 100%;
 		display: flex;
 		flex-direction: column;
-		gap: 30px;
+		/* gap: 30px; */
 	}
 	:global(form h1) {
 		font-family: 'Rubik', sans-serif;
@@ -92,13 +102,21 @@
 	}
 	.email-username {
 		display: flex;
-		flex-direction: row;
-		gap: 20px;
+		flex-direction: column;
+		/* gap: 20px; */
 		width: 100%;
 	}
 	@media (max-width: 498px) {
 		form {
 			height: unset;
 		}
+	}
+	h1 {
+		font-size: 2.5em;
+		text-align: center;
+		margin-block-end: 0;
+		font-family: 'Montserrat';
+		font-weight: 550;
+		color: #2e324c;
 	}
 </style>

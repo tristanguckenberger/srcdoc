@@ -319,7 +319,7 @@
 		position: fixed;
 		z-index: 10;
 		width: calc(100% - 20px);
-		background: var(--color-secondary);
+		/* background: var(--color-secondary); */
 	}
 
 	nav.isPlayPage {
@@ -484,7 +484,7 @@
 		left: 230px;
 		z-index: 10;
 		width: calc(100% - 250px);
-		background: var(--color-secondary);
+		/* background: var(--color-secondary); */
 		z-index: 9;
 		transition: box-shadow 0.05s linear;
 	}
@@ -534,6 +534,7 @@
 		width: 100%;
 		position: fixed;
 		left: 56.5px;
+		top: 10px;
 	}
 	.top-nav-action-bar.showSideBar {
 		left: 240px;
@@ -544,11 +545,12 @@
 		align-items: center;
 		justify-content: center;
 		border-radius: 0.25em;
-		background-color: var(--search-button);
+		background-color: var(--home-gradient-color-1);
 		border: none;
 		height: 36px;
 		width: 36px;
 		cursor: pointer;
+
 		align-self: center;
 	}
 	a.back-button svg {

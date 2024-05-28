@@ -62,6 +62,7 @@
 	} from '$lib/stores/InfoStore.js';
 	import NavigationBar from '$lib/ui/Navigation/index.svelte';
 	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
+	import Logo from '$lib/ui/Logo/index.svelte';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
@@ -317,6 +318,7 @@
 	$: sessionData = data?.sessionData ?? $session;
 	$: modalIsOpen = $modalOpenState;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
+	$: isAuthPage = $page?.route?.id === '/';
 	$: isMobile = $appClientWidth < 768;
 	$: play = $playButton;
 	$: isProfilePage =
@@ -655,11 +657,24 @@
 				class:showSideBar={$sideBarState}
 				class:isPlayPage
 				class:isMobile
+				class:isAuthPage
+				class:isHomePage
 				class:showLoading={canShowLoader}
 				style={`${themeString}`}
 				bind:this={mainElement}
 			>
-				<slot />
+				{#if isAuthPage}
+					<div>
+						<!-- <div>
+					
+							<Logo />
+						</div> -->
+						<div />
+					</div>
+					<slot />
+				{:else}
+					<slot />
+				{/if}
 			</main>
 			{#if isMobile && !$playButton && !engineInRoute}
 				<li class="sidebar-toggle isMobile" class:showSideBar={$sideBarState} class:engineInRoute>
@@ -786,7 +801,7 @@
 	.bg-container {
 		height: 100%;
 		width: 100%;
-		background-image: var(--svg-bg);
+		/* background-image: var(--svg-bg); */
 		background-color: var(--color-secondary);
 		background-repeat: repeat;
 		background-size: 28%;
@@ -809,7 +824,7 @@
 		display: flex;
 		flex-direction: row;
 		max-width: 100%;
-		padding-top: 47px;
+		padding-top: 56px;
 		background-color: var(--color-secondary);
 	}
 	main.isPlayPage {
@@ -960,7 +975,7 @@
 			backdrop-filter: saturate(180%) blur(20px);
 		}
 		.sidebar-action ul a.active {
-			background-color: #2b2c2ded !important;
+			background-color: var(--home-gradient-color-1) !important;
 		}
 		.profile-info.showSideBar {
 			position: absolute;
@@ -1027,12 +1042,12 @@
 
 	.sidebar-section ul a:hover,
 	.sidebar-section ul .sidebar-action:hover {
-		background-color: var(--sidbar-highlight);
+		background-color: var(--home-gradient-color-1);
 		color: var(--color-primary);
 		cursor: pointer;
 	}
 	.sidebar-section ul a.active {
-		background-color: var(--sidbar-highlight);
+		background-color: var(--home-gradient-color-1);
 		color: var(--color-primary);
 	}
 	.sidebar-action :global(button) {
@@ -1239,5 +1254,8 @@
 		height: calc(100%) !important;
 		padding-top: 20px !important;
 		max-height: calc(100%) !important;
+	}
+	main.isHomePage {
+		padding-top: 0 !important;
 	}
 </style>

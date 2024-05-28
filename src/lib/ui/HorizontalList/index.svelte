@@ -174,6 +174,14 @@
 
 	.horizontal-list .list-container .list-item {
 		flex: 0 0 auto;
+		background: var(--list-item-bg-default);
+		border-radius: 6px;
+		transition: none !important;
+	}
+
+	.horizontal-list .list-container .list-item:hover {
+		cursor: pointer;
+		background-color: var(--list-item-hover) !important;
 	}
 
 	.horizontal-list .list-container .list-item h4 {
