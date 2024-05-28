@@ -70,8 +70,12 @@
 {#if xDistance && initialized}
 	<div
 		class="logo-container"
+		role="button"
+		tabindex="0"
 		style="left: calc(-{xDistance}px + 20px);"
 		on:click={() => goto('/games')}
+		on:keypress={(e) => e.key === 'Enter'}
+		aria-label="Platform Blob Logo: Click this to navigate to the games page."
 	>
 		<div
 			class="logo-outer"
