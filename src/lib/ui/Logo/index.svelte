@@ -1,8 +1,9 @@
 <script>
 	// @ts-nocheck
 	import { spring } from 'svelte/motion';
-	import { onMount, tick } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { fade } from 'svelte/transition';
 
 	export let xDistance = 0;
 
@@ -63,23 +64,30 @@
 		initialized = true;
 	});
 
+	onDestroy(() => {
+		initialized = false;
+		xDistance = 0;
+	});
+
 	$: console.log('xDistance::', xDistance);
-	$: calcDistance = xDistance / 3;
+	$: calcDistance = xDistance ? xDistance / 3 : 80 / 3;
 </script>
 
-{#if xDistance && initialized}
+{#if xDistance || (xDistance >= 0 && initialized)}
 	<div
 		class="logo-container"
 		role="button"
 		tabindex="0"
-		style="left: calc(-{xDistance}px + 20px);"
+		style="left: calc(-{xDistance}px + {xDistance ? 20 : 0}px);"
 		on:click={() => goto('/games')}
 		on:keypress={(e) => e.key === 'Enter'}
 		aria-label="Platform Blob Logo: Click this to navigate to the games page."
 	>
 		<div
 			class="logo-outer"
-			style="width: {xDistance}px; height: {xDistance}px; --calcDistance: {calcDistance}px;"
+			style="width: {xDistance ? xDistance : 80}px; height: {xDistance
+				? xDistance
+				: 80}px; --calcDistance: {calcDistance}px;"
 		>
 			<div>
 				<div class="logo-blur-container" />

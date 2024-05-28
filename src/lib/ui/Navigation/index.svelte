@@ -325,9 +325,6 @@
 	nav.isPlayPage {
 		padding: 10px;
 	}
-	nav.isHomePage {
-		background: transparent;
-	}
 
 	nav ul {
 		display: flex;
@@ -497,6 +494,9 @@
 	.sidebar-toggle {
 		position: absolute;
 	}
+	nav.isHomePage .sidebar-toggle {
+		bottom: 10px;
+	}
 	.sidebar-toggle.showSideBar {
 		left: -220px;
 		z-index: 10;
@@ -540,6 +540,10 @@
 		left: 240px;
 		width: calc(100% - 183.5px);
 	}
+	nav.isHomePage .top-nav-action-bar {
+		top: unset;
+		bottom: 10px;
+	}
 	a.back-button {
 		display: flex;
 		align-items: center;
@@ -563,5 +567,10 @@
 	}
 	a.back-button.disableBackButton:hover {
 		cursor: default;
+	}
+	nav.isHomePage {
+		background: transparent;
+		top: unset;
+		bottom: 0;
 	}
 </style>

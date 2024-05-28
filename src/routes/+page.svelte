@@ -8,7 +8,7 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { goto } from '$app/navigation';
 	import { userStore } from '$lib/stores/authStore.js';
-	import { onMount, setContext, getContext } from 'svelte';
+	import { onMount, setContext, getContext, afterUpdate } from 'svelte';
 	import playbg from '$lib/assets/playbg.svg';
 	import bg from '$lib/assets/bg.svg';
 	import Frame from '$lib/assets/Frame.svg';
@@ -17,12 +17,20 @@
 	import SignUpForm from '$lib/ui/Form/SignUpForm.svelte';
 	import { sideBarState } from '$lib/stores/layoutStore.js';
 	import Logo from '$lib/ui/Logo/index.svelte';
+	import ResponsiveLogo from '$lib/ui/ResponsiveLogo/index.svelte';
 	import { writable } from 'svelte/store';
+	import { fade, slide } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 
 	export let form;
 	export let data;
 
 	let quickHide = false;
+	let showAuth = false;
+	let lockXDistance;
+	let lockedWidth = 0;
+	let lockedRightWidth = 0;
+	let previousShowAuthVal = false;
 	const authFlowOptions = [
 		{ option: 'register', component: SignUpForm },
 		{ option: 'login', component: SignInForm }
@@ -79,6 +87,7 @@
 
 	let centerLeftWidth;
 	let centerRightWidth;
+	let rightWidth;
 
 	// xDistanceStore is used to modify specific styles for the Logo component
 	setContext('authPageStyleValues', {
@@ -86,62 +95,146 @@
 	});
 	const { xDistanceStore } = getContext('authPageStyleValues');
 	$: $xDistanceStore = centerRightWidth;
+
+	afterUpdate(() => {
+		console.log('centerRightWidth::', centerRightWidth);
+		console.log('rightWidth::', rightWidth);
+		if (showAuth === false && previousShowAuthVal === true) {
+			if (!lockXDistance) {
+				lockedWidth = centerRightWidth;
+				lockedRightWidth = rightWidth;
+				lockXDistance = true;
+			}
+
+			setTimeout(() => {
+				previousShowAuthVal = false;
+				centerLeftWidth = null;
+				centerRightWidth = null;
+				rightWidth = null;
+			}, 1000);
+		}
+
+		if (showAuth === true && previousShowAuthVal === true) {
+			if (lockXDistance) {
+				lockXDistance = false;
+				lockedWidth = 0;
+				lockedRightWidth = 0;
+			}
+
+			setTimeout(() => {
+				previousShowAuthVal = true;
+			}, 1000);
+		}
+	});
 </script>
 
 <div class="main" style="--svg-bg: url('{Frame}');" class:sideBarOpen={$sideBarState}>
-	<div class="left">
-		<div class="example-container" />
-	</div>
-	<div class="center-left" bind:clientWidth={centerLeftWidth}>
-		<div class="left-cover">
-			{#if centerLeftWidth}
-				<div
-					class="left-clip-top"
-					style="height: calc(100% - {centerLeftWidth ?? 0}px) !important;"
-				/>
-				<div
-					class="left-clip-bottom"
-					style="height: {centerLeftWidth ?? 0}px; width: cacl({centerLeftWidth ??
-						0}px + 1px); border-bottom-right-radius: calc({centerRightWidth}px / 1.5);"
-				/>
-			{/if}
+	<div class="left" class:fullWidth={!showAuth} style="--xDistance: {$xDistanceStore}px;">
+		<div class="example-container">
+			<!-- <div class="logo-and-title">
+				<div class="outer-logo-ring">
+					<Logo xDistance={0} />
+				</div>
+				<h1 class="logo-title">PlayEngine</h1>
+			</div> -->
+			<ResponsiveLogo size={'xs'} />
+			<div class="page-contents">
+				<section class="heroSection">
+					<h1>Discover, Create, and Play Games Like Never Before.</h1>
+					<p>Join a community of creators and gamers. Endless possibilities await.</p>
+					<Button
+						action={() => {
+							previousShowAuthVal = showAuth;
+							showAuth = !showAuth;
+						}}
+						label={'Continue'}
+						style={'background-color: #4da5ff; color: white; border-radius: 6px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; height: 57.5px; max-height: unset; width: 50%; max-width: 210px;'}
+					/>
+				</section>
+			</div>
 		</div>
 	</div>
-	<div class="center-right" bind:clientWidth={centerRightWidth}>
-		{#if centerRightWidth}
-			<div class="right-cover">
-				<div
-					class="right-clip-top"
-					style="height: {centerRightWidth ?? 0}px; width: calc({centerRightWidth ??
-						0}px + 1px); border-top-left-radius: calc({centerRightWidth}px / 1.5);"
-				/>
-				<div
-					class="right-clip-bottom"
-					style="height: calc(100% - {centerRightWidth ?? 0}px) !important;"
-				/>
+	{#if showAuth}
+		<div
+			class="center-left"
+			class:hidden={!showAuth}
+			bind:clientWidth={centerLeftWidth}
+			in:slide={{ delay: 250, duration: 300, easing: quintOut, axis: 'x' }}
+			out:slide={{ delay: 0, duration: 250, easing: quintOut, axis: 'x' }}
+		>
+			<div class="left-cover">
+				{#if centerLeftWidth}
+					<div
+						class="left-clip-top"
+						style="height: calc(100% - {centerLeftWidth ?? 0}px) !important;"
+					/>
+					<div
+						class="left-clip-bottom"
+						style="height: {centerLeftWidth ?? 0}px; width: cacl({centerLeftWidth ??
+							0}px + 1px); border-bottom-right-radius: calc({centerRightWidth}px / 1.5);"
+					/>
+				{/if}
 			</div>
-		{/if}
-	</div>
-	<div class="right" style="--xDistance: {$xDistanceStore}px;">
-		<Logo xDistance={$xDistanceStore} />
-		<div class="auth-container">
-			<div class="authentication" class:quickHide>
-				<div class="form-container" class:isSignIn={selected === authFlowOptions[1]}>
-					<div class="flexed-form" class:sideBarOpen={$sideBarState}>
-						<svelte:component this={selected.component} />
-						<div class="form-action">
-							<span>{formSwitchText}</span>
-							<Button
-								action={toggleAuthForm}
-								label={formSwitchAction}
-								style={'background-color: transparent !important; color: #4da5ff !important; text-decoration: underline; font-size: 0.9rem;'}
-							/>
+		</div>
+		<div
+			class="center-right"
+			class:hidden={!showAuth}
+			bind:clientWidth={centerRightWidth}
+			class:lockedWidth={lockXDistance}
+			in:slide={{ delay: 250, duration: 300, easing: quintOut, axis: 'x' }}
+			out:slide={{ delay: 0, duration: 250, easing: quintOut, axis: 'x' }}
+			style="--lockedWidth: {lockedWidth}px;"
+		>
+			{#if centerRightWidth}
+				<div class="right-cover">
+					<div
+						class="right-clip-top"
+						style="height: {centerRightWidth ?? 0}px; width: calc({centerRightWidth ??
+							0}px + 1px); border-top-left-radius: calc({centerRightWidth}px / 1.5);"
+					/>
+					<div
+						class="right-clip-bottom"
+						style="height: calc(100% - {centerRightWidth ?? 0}px) !important;"
+					/>
+				</div>
+			{/if}
+		</div>
+		<div
+			class="right auth"
+			class:hidden={!showAuth}
+			class:lockedRightWidth={lockXDistance}
+			style="--xDistance: {$xDistanceStore}px; --lockedRightWidth: {lockedRightWidth}px;"
+			in:slide={{ delay: 250, duration: 300, easing: quintOut, axis: 'x' }}
+			out:slide={{ delay: 0, duration: 250, easing: quintOut, axis: 'x' }}
+			bind:clientWidth={rightWidth}
+		>
+			<div in:fade={{ delay: 750, duration: 600 }} out:fade={{ duration: 10 }}>
+				<Logo xDistance={$xDistanceStore} />
+			</div>
+
+			<div
+				class="auth-container"
+				in:fade={{ delay: 750, duration: 600 }}
+				out:fade={{ duration: 10 }}
+			>
+				<div class="authentication" class:quickHide>
+					<div class="form-container" class:isSignIn={selected === authFlowOptions[1]}>
+						<div class="flexed-form" class:sideBarOpen={$sideBarState}>
+							<svelte:component this={selected.component} />
+							<div class="form-action">
+								<span>{formSwitchText}</span>
+								<Button
+									action={toggleAuthForm}
+									label={formSwitchAction}
+									style={'background-color: transparent !important; color: #4da5ff !important; text-decoration: underline; font-size: 0.9rem;'}
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	{/if}
 </div>
 
 <style>
@@ -430,6 +523,9 @@
 		height: 100%;
 		width: 10%;
 	}
+	.center-right.lockedWidth {
+		min-width: var(--lockedWidth);
+	}
 	.left-cover {
 		width: 100%;
 		height: 100%;
@@ -473,9 +569,9 @@
 		bottom: 0;
 	}
 	.example-container {
-		width: calc(100% - 40px);
-		height: calc(100% - 40px);
-		margin: 20px;
+		width: calc(100%);
+		height: calc(100%);
+		/* margin: 20px; */
 		border-radius: 15px;
 		/* background-color: red; */
 	}
@@ -496,6 +592,13 @@
 		}
 		.right {
 			width: 100%;
+			display: flex;
+			justify-content: center;
+		}
+		.right :global(.logo-container) {
+			margin-top: calc(var(--xDistance) / 2);
+			left: unset !important;
+			/* top: unset !important; */
 		}
 		.center-left {
 			display: none;
@@ -521,14 +624,66 @@
 		.right-clip-bottom {
 			display: none;
 		}
-		/* .example-container {
-			width: 100%;
-			height: 100%;
-		}
-		.auth-container {
-			width: 100%;
-			height: 100%;
-			margin: 0;
-		} */
+	}
+	.left.fullWidth {
+		width: 100%;
+	}
+	.heroSection {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+	}
+	.heroSection h1 {
+		font-family: 'Source Sans 3', sans-serif;
+		font-optical-sizing: auto;
+		font-weight: 700;
+		font-style: normal;
+		font-size: 4rem;
+		color: var(--color-primary);
+		width: 80%;
+		margin-top: 10%;
+		margin-block-end: 0;
+	}
+	.heroSection p {
+		font-family: 'Source Sans 3', sans-serif;
+		font-optical-sizing: auto;
+		font-weight: 400;
+		font-style: normal;
+		font-size: 2.5rem;
+		color: var(--color-primary);
+		width: 80%;
+		margin-inline-start: 0;
+	}
+	.right.auth :global(.logo-container),
+	.right.auth :global(.auth-container) {
+		/* transition: opacity 0.15s linear; */
+	}
+	.right.auth.hidden :global(.logo-container),
+	.right.auth.hidden :global(.auth-container) {
+		opacity: 0;
+	}
+	/* div.removed {
+		display: none;
+	} */
+	.left :global(div.authBtn) {
+		width: 80%;
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+	}
+	/* :global(div.authBtn) :global(button.authBtn) {
+		border-radius: 6px;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-top: 20px;
+		height: 57.5px;
+		max-height: unset;
+	} */
+	.right.lockedRightWidth {
+		width: var(--lockedRightWidth);
 	}
 </style>
