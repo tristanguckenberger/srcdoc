@@ -229,6 +229,13 @@
 			<div in:fade={{ delay: 750, duration: 600 }} out:fade={{ duration: 10 }}>
 				<Logo xDistance={$xDistanceStore} />
 			</div>
+			<button
+				class="close"
+				on:click={() => {
+					$showAuth = false;
+					centerRightWidth = null;
+				}}>close</button
+			>
 
 			<div
 				class="auth-container"
@@ -606,15 +613,42 @@
 		border-radius: 15px;
 		background-color: unset;
 	}
+	.right div.close {
+		display: none;
+	}
+
+	button.close {
+		background-color: transparent;
+		position: absolute;
+		top: 25px;
+		right: 20px;
+		border: none;
+		font-size: 4vmin;
+		font-family: 'Source Sans 3';
+		font-weight: 650;
+		color: var(--vibrant-blue);
+		display: none;
+		z-index: 10000;
+	}
 
 	@media (max-width: 768px) {
 		.left {
 			/* display: none; */
 		}
+		button.close {
+			display: block;
+		}
 		.right {
-			width: 100%;
+			width: 100% !important;
 			display: flex;
 			justify-content: center;
+			position: absolute;
+			z-index: 1000;
+			top: 0;
+			left: 0;
+		}
+		.right div.close {
+			display: block;
 		}
 		.right :global(.logo-container) {
 			margin-top: calc(var(--xDistance) / 2);
