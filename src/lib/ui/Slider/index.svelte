@@ -88,6 +88,7 @@
 	}
 
 	const onInit = (event) => {
+		console.log('rawGamesData::', rawGamesData);
 		emblaApi = event.detail;
 		emblaApi.scrollTo(1, true);
 		emblaApi.on('pointerUp', debounce(onPointerUp, 300));

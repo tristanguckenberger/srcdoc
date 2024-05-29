@@ -22,12 +22,13 @@
 	import { fade, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import MockEditor from '$lib/ui/MockEditor/index.svelte';
+	import MockSlider from '$lib/ui/MockSlider/index.svelte';
+	import MockPlay from '$lib/ui/MockPlay/index.svelte';
 
 	export let form;
 	export let data;
 
 	let quickHide = false;
-	let showAuth = false;
 	let lockXDistance;
 	let lockedWidth = 0;
 	let lockedRightWidth = 0;
@@ -85,22 +86,25 @@
 		selected === authFlowOptions[0] ? 'Already have an account?' : "Don't have an account?";
 	$: formSwitchAction = selected === authFlowOptions[0] ? 'Sign In' : 'Sign Up';
 	$: quickHide && setTimeout(() => (quickHide = false), 1000);
+	$: console.log('leftWidth::', leftWidth);
 
 	let centerLeftWidth;
 	let centerRightWidth;
 	let rightWidth;
+	let leftWidth;
 
 	// xDistanceStore is used to modify specific styles for the Logo component
 	setContext('authPageStyleValues', {
-		xDistanceStore: writable(null)
+		xDistanceStore: writable(null),
+		showAuth: writable(false)
 	});
-	const { xDistanceStore } = getContext('authPageStyleValues');
+	const { xDistanceStore, showAuth } = getContext('authPageStyleValues');
 	$: $xDistanceStore = centerRightWidth;
 
 	afterUpdate(() => {
 		console.log('centerRightWidth::', centerRightWidth);
 		console.log('rightWidth::', rightWidth);
-		if (showAuth === false && previousShowAuthVal === true) {
+		if ($showAuth === false && previousShowAuthVal === true) {
 			if (!lockXDistance) {
 				lockedWidth = centerRightWidth;
 				lockedRightWidth = rightWidth;
@@ -115,7 +119,7 @@
 			}, 1000);
 		}
 
-		if (showAuth === true && previousShowAuthVal === true) {
+		if ($showAuth === true && previousShowAuthVal === true) {
 			if (lockXDistance) {
 				lockXDistance = false;
 				lockedWidth = 0;
@@ -130,38 +134,49 @@
 </script>
 
 <div class="main" style="--svg-bg: url('{Frame}');" class:sideBarOpen={$sideBarState}>
-	<div class="left" class:fullWidth={!showAuth} style="--xDistance: {$xDistanceStore}px;">
+	<div
+		class="left"
+		class:fullWidth={!$showAuth}
+		style="--xDistance: {$xDistanceStore}px;"
+		bind:clientWidth={leftWidth}
+	>
 		<div class="example-container">
 			<ResponsiveLogo size={'xs'} />
 			<div class="page-contents">
 				<section class="heroSection">
-					<h1>Discover, Create, and Play Games Like Never Before.</h1>
-					<p>Join a community of creators and gamers. Endless possibilities await.</p>
-					<Button
-						action={() => {
-							previousShowAuthVal = showAuth;
-							showAuth = !showAuth;
-						}}
-						label={'Sign Up/In'}
-						style={'background-color: #4da5ff; color: white; border-radius: 6px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; height: 57.5px; max-height: unset; width: 50%; max-width: 210px;'}
-					/>
+					<div class="textCTA">
+						<h1>Discover, Create, and Play Games Like Never Before.</h1>
+						<p>Join a community of creators and gamers. Endless possibilities await.</p>
+						<Button
+							action={() => {
+								previousShowAuthVal = $showAuth;
+								$showAuth = !$showAuth;
+							}}
+							label={'Sign Up/In'}
+							style={'background-color: #4da5ff; color: white; border-radius: 6px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; height: 57.5px; max-height: unset; width: 50%; max-width: 210px;'}
+						/>
+					</div>
+					<MockSlider />
+					<!-- <div> -->
+					<!-- <MockPlay /> -->
+					<!-- </div> -->
 				</section>
 				<hr class="divider" />
 				<section class="engineSection">
 					<p>Introducing the Engine Editor</p>
-					<MockEditor />
 					<p class="small">
 						Unleash your creativity in the Engine. Build games using HTML, CSS, and JS. Modify code
 						live and see the changes instantly.
 					</p>
+					<MockEditor />
 				</section>
 			</div>
 		</div>
 	</div>
-	{#if showAuth}
+	{#if $showAuth || (centerLeftWidth === undefined && centerRightWidth === undefined)}
 		<div
 			class="center-left"
-			class:hidden={!showAuth}
+			class:hidden={!$showAuth}
 			bind:clientWidth={centerLeftWidth}
 			in:slide={{ delay: 250, duration: 300, easing: quintOut, axis: 'x' }}
 			out:slide={{ delay: 0, duration: 250, easing: quintOut, axis: 'x' }}
@@ -182,7 +197,7 @@
 		</div>
 		<div
 			class="center-right"
-			class:hidden={!showAuth}
+			class:hidden={!$showAuth}
 			bind:clientWidth={centerRightWidth}
 			class:lockedWidth={lockXDistance}
 			in:slide={{ delay: 250, duration: 300, easing: quintOut, axis: 'x' }}
@@ -205,7 +220,6 @@
 		</div>
 		<div
 			class="right auth"
-			class:hidden={!showAuth}
 			class:lockedRightWidth={lockXDistance}
 			style="--xDistance: {$xDistanceStore}px; --lockedRightWidth: {lockedRightWidth}px;"
 			in:slide={{ delay: 250, duration: 300, easing: quintOut, axis: 'x' }}
@@ -580,6 +594,7 @@
 		/* background-color: red; */
 		overflow-x: hidden;
 		overflow-y: auto;
+		/* background-image: var(--svg-bg); */
 	}
 	.auth-container {
 		width: calc(100% + var(--xDistance) - 40px);
@@ -594,7 +609,7 @@
 
 	@media (max-width: 768px) {
 		.left {
-			display: none;
+			/* display: none; */
 		}
 		.right {
 			width: 100%;
@@ -634,23 +649,37 @@
 	.left.fullWidth {
 		width: 100%;
 	}
+
+	section p {
+		font-family: 'Source Sans 3', sans-serif;
+		font-optical-sizing: auto;
+		font-weight: 400;
+		font-style: normal;
+		font-size: 2.5vmax;
+		color: var(--color-primary);
+		width: 80%;
+		margin-inline-start: 0;
+	}
 	.heroSection {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		align-items: end;
 		height: 100%;
+		justify-items: center;
 	}
 	.heroSection h1 {
 		font-family: 'Source Sans 3', sans-serif;
 		font-optical-sizing: auto;
 		font-weight: 700;
 		font-style: normal;
-		font-size: 4rem;
+		font-size: 4vmax;
 		color: var(--color-primary);
-		width: 80%;
+		width: 100%;
 		margin-top: 10%;
 		margin-block-end: 0;
+	}
+	.heroSection p {
+		width: 100%;
 	}
 	.right.auth :global(.logo-container),
 	.right.auth :global(.auth-container) {
@@ -664,7 +693,7 @@
 		display: none;
 	} */
 	.left :global(div.authBtn) {
-		width: 80%;
+		width: 100%;
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;
@@ -691,26 +720,17 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		/* margin-top: 10%; */
+		margin-bottom: 10%;
 	}
-	section p {
-		font-family: 'Source Sans 3', sans-serif;
-		font-optical-sizing: auto;
-		font-weight: 400;
-		font-style: normal;
-		font-size: 2.5rem;
-		color: var(--color-primary);
-		width: 80%;
-		margin-inline-start: 0;
-	}
+
 	section p.small {
 		font-size: 1.5rem;
-		margin-top: 20px;
-		margin-block-end: 10%;
+		/* margin-top: 20px; */
+		margin-block-end: 20px;
 	}
 
 	.engineSection p {
-		margin-block-end: 20px;
+		margin-block-end: 0;
 		margin-block-start: 0;
 	}
 	hr.divider {
@@ -721,5 +741,12 @@
 		border: 0;
 		height: 4px;
 		background-image: linear-gradient(to right, rgba(0, 0, 0, 0), #4ca5ff08, rgba(0, 0, 0, 0));
+	}
+	.textCTA {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 80%;
 	}
 </style>

@@ -119,7 +119,7 @@
 					},
 					$gameControllerStore
 				);
-			const blob = new Blob([srcdocBuilt ?? srcdoc], { type: 'text/html' });
+			const blob = new Blob([srcdoc], { type: 'text/html' });
 			const blobUrl = URL.createObjectURL(blob);
 			iframe.src = blobUrl;
 			id++;

@@ -253,6 +253,9 @@
 		class="slot-control-bar"
 		role="button"
 		tabindex="0"
+		on:keyup={(e) => {
+			console.log(e.key);
+		}}
 		on:dblclick={(e) => {
 			maximize(e, !value);
 		}}
