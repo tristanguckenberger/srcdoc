@@ -119,25 +119,29 @@
 		})();
 
 	const reloadSplit = () => {
-		$protectPaneManager = true;
-		// Destory existing splitInstance
-		if (splitInstance) splitInstance?.destroy(true, false);
+		try {
+			$protectPaneManager = true;
+			// Destory existing splitInstance
+			if (splitInstance) splitInstance?.destroy(true, false);
 
-		if (!paneIDs || paneIDs?.length === 0) return;
+			if (!paneIDs || paneIDs?.length === 0) return;
 
-		console.log('paneIDs::', paneIDs);
+			console.log('paneIDs::', paneIDs);
 
-		// Init a new split instance
-		splitInstance = Split(paneIDs, {
-			direction: vertical ? 'vertical' : 'horizontal',
-			gutterSize: 10,
-			// @ts-ignore
-			sizes: sizeUpdate ?? sizes,
-			minSize: $paneMinHeightModifier
-		});
+			// Init a new split instance
+			splitInstance = Split(paneIDs, {
+				direction: vertical ? 'vertical' : 'horizontal',
+				gutterSize: 10,
+				// @ts-ignore
+				sizes: sizeUpdate ?? sizes,
+				minSize: $paneMinHeightModifier
+			});
 
-		splitStore.set(splitInstance);
-		$protectPaneManager = false;
+			splitStore.set(splitInstance);
+			$protectPaneManager = false;
+		} catch (error) {
+			console.log('error::', error);
+		}
 	};
 
 	/**
