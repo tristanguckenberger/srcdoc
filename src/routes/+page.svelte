@@ -670,7 +670,7 @@
 		}
 		.right :global(.logo-container) {
 			margin-top: calc(var(--xDistance) / 2);
-			left: unset !important;
+			left: calc(50% - 45px) !important;
 			/* top: unset !important; */
 		}
 		.center-left {
