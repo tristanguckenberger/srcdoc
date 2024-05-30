@@ -176,7 +176,6 @@
 
 	const performNavigation = async () => {
 		const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
-		console.log('nextGame::', nextGame);
 
 		if (nextGame?.id !== currentGame?.id) {
 			currentGame = nextGame;
@@ -271,8 +270,6 @@
 			return 'https://picsum.photos/600/600';
 		}
 	};
-
-	$: console.log('currentGame::', currentGame);
 </script>
 
 <svelte:window on:keyup={debouncedKeyUp} />

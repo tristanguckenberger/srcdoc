@@ -7,13 +7,8 @@
 	export let selectedScrollSnap;
 	export let index;
 
-	//
-
-	$: async () => console.log(await selectedScrollSnap?.())();
-
 	afterUpdate(async () => {
 		await tick();
-		console.log(await selectedScrollSnap?.());
 	});
 	const handleScrollTo = () => {
 		// scrollTo(index);

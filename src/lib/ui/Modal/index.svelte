@@ -27,10 +27,6 @@
 		emblaApi = event.detail;
 	}
 
-	onMount(() => {
-		// initializing = false;
-		console.log('modalFullInfoStore::', $modalFullInfoStore);
-	});
 	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
@@ -112,24 +108,20 @@
 								emblaApi?.scrollNext();
 								currentSlide += 1;
 							} else {
-								console.log('store::', store);
 								switch (store) {
 									case 'homePageInfoStore':
 										homePageInfoStore.set({ ...$homePageInfoStore, viewed: true });
 										modalFullInfoStore.set(null);
 										break;
 									case 'gamePageInfoStore':
-										console.log('gamePageInfoStore');
 										gamePageInfoStore.set({ ...$gamePageInfoStore, viewed: true });
 										modalFullInfoStore.set(null);
 										break;
 									case 'editorPageInfoStore':
-										console.log('editorPageInfoStore');
 										editorPageInfoStore.set({ ...$editorPageInfoStore, viewed: true });
 										modalFullInfoStore.set(null);
 										break;
 									case 'libraryPageInfoStore':
-										console.log('libraryPageInfoStore');
 										// sideBarState.set(true);
 										break;
 									default:

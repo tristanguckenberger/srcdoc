@@ -126,7 +126,7 @@
 
 			if (!paneIDs || paneIDs?.length === 0) return;
 
-			console.log('paneIDs::', paneIDs);
+			// console.log('paneIDs::', paneIDs);
 
 			// Init a new split instance
 			splitInstance = Split(paneIDs, {
@@ -195,14 +195,14 @@
 	// 	console.log('splitInstance::', splitInstance);
 	// }
 
-	$: console.log('splitParent::', splitParent);
+	// $: console.log('splitParent::', splitParent);
 
 	$: if (
 		splitInstance &&
 		splitParent === 'split-input-output' &&
 		splitInstance?.getSizes()?.length >= 2
 	) {
-		console.log('splitInstance::', splitInstance);
+		// console.log('splitInstance::', splitInstance);
 		editorSplit.set(splitInstance);
 	}
 

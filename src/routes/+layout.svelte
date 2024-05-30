@@ -339,26 +339,8 @@
 	})();
 	$: canShowLoader = (() => loaderCheck($navigating))();
 	$: gameSessionId = $gameSessionState?.id;
-
-	// CONSOLE LOGS
-	$: {
-		console.log('stack::$autoStack::', $autoStack);
-		console.log('stack::$itemsInStack::', $itemsInStack);
-		// console.log('fileSys::=======================');
-		// console.log('fileSys::openFiles::', $openFiles);
-		// console.log('fileSys::=======================');
-		// console.log('fileSys::focusedFileId::', $focusedFileId);
-		// console.log('fileSys::=======================');
-		// console.log('fileSys::softSelectedFileId::', $softSelectedFileId);
-		// console.log('fileSys::=======================');
-		// console.log('$page::', $page);
-		// console.log('showBoxShadow::', $showBoxShadow);
-	}
-
-	$: console.log('routeHistoryStore::previousRoute::', previousRoute);
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
 	$: disableBackButton = $routeHistoryStore?.length < 2;
-	$: console.log('$routeHistoryStore::', $routeHistoryStore);
 	$: myProjectsLink = !$session?.id ? null : `/users/${$session?.id}/games`;
 	$: myLibraryLink = !$session?.id ? null : `/users/${$session?.id}/library`;
 	$: newPlayListLink = !$session?.id ? null : `/users/${$session?.id}/library`;

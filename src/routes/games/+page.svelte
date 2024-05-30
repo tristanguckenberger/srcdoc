@@ -120,27 +120,8 @@
 	$: parsedGamesData = [...$gamesData];
 	$: parsedGamesDataSet = new Set(parsedGamesData.map((game) => game));
 	$: copiedParsedGamesDataSet = [...parsedGamesDataSet].filter((game) => {
-		console.log('game::', game);
 		return game?.published;
 	});
-
-	// $: dedupedGames = [...new Set([...copiedParsedGamesDataSet].map((game) => game))];
-
-	// $: dedupedGames?.forEach((dedupedGame, gameIndex) => {
-	// 	//
-	// 	if (gamesList.length < dedupedGames.length) {
-	// 		if (gamesList.length === 0) {
-	// 			gamesList = [...gamesList, game];
-	// 		} else {
-	// 			if (gamesList.some((game) => game?.id.toString() === dedupedGame?.id.toString())) {
-	// 				gamesList = [...gamesList];
-	// 			} else {
-	// 				gamesList = [...gamesList, game];
-	// 			}
-	// 		}
-	// 	}
-	// });
-	$: console.log('gamesList::', gamesList);
 </script>
 
 <svelte:head>

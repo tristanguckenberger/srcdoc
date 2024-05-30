@@ -100,7 +100,6 @@
 		// this will be our data's starting point
 		// We will need to update this data on every keystroke
 		setTimeout(() => {
-			console.log('data', data);
 			baseDataStore.set(data);
 			data.files.forEach((file) => {
 				if (file.type === 'js' || file.type === 'css' || file.type === 'html') {

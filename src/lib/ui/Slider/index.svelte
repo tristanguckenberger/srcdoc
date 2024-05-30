@@ -78,7 +78,6 @@
 					text: 'I found this cool game on Play Engine. Check it out!',
 					url: $page?.url?.href
 				});
-				console.log('Content shared successfully');
 			} catch (error) {
 				console.error('Error sharing content', error);
 			}
@@ -88,7 +87,6 @@
 	}
 
 	const onInit = (event) => {
-		console.log('rawGamesData::', rawGamesData);
 		emblaApi = event.detail;
 		emblaApi.scrollTo(1, true);
 		emblaApi.on('pointerUp', debounce(onPointerUp, 300));

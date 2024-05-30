@@ -169,7 +169,6 @@
 	};
 
 	const handleEdit = () => {
-		console.log('edit playlist', $session);
 		if (!$session?.id) return;
 		$playButton = false;
 		selectedOption.set(0);

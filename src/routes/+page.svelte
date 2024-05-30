@@ -86,7 +86,6 @@
 		selected === authFlowOptions[0] ? 'Already have an account?' : "Don't have an account?";
 	$: formSwitchAction = selected === authFlowOptions[0] ? 'Sign In' : 'Sign Up';
 	$: quickHide && setTimeout(() => (quickHide = false), 1000);
-	$: console.log('leftWidth::', leftWidth);
 
 	let centerLeftWidth;
 	let centerRightWidth;
@@ -102,8 +101,6 @@
 	$: $xDistanceStore = centerRightWidth;
 
 	afterUpdate(() => {
-		console.log('centerRightWidth::', centerRightWidth);
-		console.log('rightWidth::', rightWidth);
 		if ($showAuth === false && previousShowAuthVal === true) {
 			if (!lockXDistance) {
 				lockedWidth = centerRightWidth;

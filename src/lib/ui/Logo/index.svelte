@@ -69,7 +69,6 @@
 		xDistance = 0;
 	});
 
-	$: console.log('xDistance::', xDistance);
 	$: calcDistance = xDistance ? xDistance / 3 : 80 / 3;
 </script>
 

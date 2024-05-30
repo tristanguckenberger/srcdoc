@@ -55,9 +55,6 @@
 	let showToolTip = false;
 
 	$: if (data) {
-		// this will be our data's starting point
-		// We will need to update this data on every keystroke
-		console.log('baseData::', data);
 		baseDataStore.set(data);
 	}
 
@@ -170,8 +167,6 @@
 					on:click={() => {
 						// fileSystemSidebarOpen.set(false);
 						docsOpen = !docsOpen;
-
-						console.log('docsOpen::', docsOpen);
 					}}
 				>
 					<div

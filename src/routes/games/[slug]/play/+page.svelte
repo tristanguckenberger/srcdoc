@@ -129,12 +129,9 @@
 		}
 
 		if (browser) {
-			console.log('browser');
 			// Check if our local info stores for the homePage has been viewed already
-			console.log('gamePageInfoStore', $gamePageInfoStore);
 			await tick();
 			if (!$gamePageInfoStore?.viewed) {
-				console.log('gamePageInfoStore::viewed::', $gamePageInfoStore?.viewed);
 				// if this isnt viewed, we wanna display the info modal overlay
 				$modalFullInfoStore = $gamePageInfoStore?.info;
 			}
