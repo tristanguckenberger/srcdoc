@@ -4,6 +4,7 @@
 	games, or users * * @prop {Array} items - An array of items to display * @prop {String} type - The type
 	of items to display * @prop {String} title - The title of the list * @prop {String} subtitle - The subtitle
 	of the list * @prop {String} link - The link to the full list grid */
+	import { actionListHoverStore } from '$lib/stores/themeStore';
 	import { afterUpdate, onMount } from 'svelte';
 	import { session } from '$lib/stores/sessionStore.js';
 	import ActionListCard from '$lib/ui/ActionListCard/index.svelte';
@@ -13,9 +14,21 @@
 	export let subtitle = '';
 	export let link = '';
 
+	const colorMap = ['#523b3b', '#4f3b52', '#3b3e52', '#3b5242', '#524f3b', '#52483b'];
+	let highlightedColor = null;
 	let componentWidth;
 
 	$: isMobile = componentWidth < 498;
+	$: $actionListHoverStore = highlightedColor;
+
+	function handleHover(e, index) {
+		if (index === null) {
+			highlightedColor = null;
+			$actionListHoverStore = null;
+			return;
+		}
+		highlightedColor = colorMap[index];
+	}
 </script>
 
 <div class="action-list-container" bind:clientWidth={componentWidth}>
@@ -23,7 +36,11 @@
 	<h4>{subtitle}</h4>
 	<div class="action-list">
 		<!-- My Library or Auth -->
-		<div class="list-item">
+		<div
+			class="list-item color-1"
+			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseover|preventDefault={(e) => handleHover(e, 0)}
+		>
 			{#if $session?.id}
 				<ActionListCard
 					id={0}
@@ -68,7 +85,11 @@
 		</div>
 
 		<!-- Quick Play Card -->
-		<div class="list-item">
+		<div
+			class="list-item color-2"
+			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseover|preventDefault={(e) => handleHover(e, 1)}
+		>
 			<ActionListCard
 				id={1}
 				title={'Quick Play'}
@@ -91,7 +112,11 @@
 		</div>
 
 		<!-- Trending -->
-		<div class="list-item">
+		<div
+			class="list-item color-3"
+			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseover|preventDefault={(e) => handleHover(e, 2)}
+		>
 			<ActionListCard
 				id={2}
 				title={'Trending'}
@@ -114,7 +139,11 @@
 		</div>
 
 		<!-- Top Played -->
-		<div class="list-item">
+		<div
+			class="list-item color-4"
+			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseover|preventDefault={(e) => handleHover(e, 3)}
+		>
 			<ActionListCard
 				id={3}
 				title={'Top Played'}
@@ -137,7 +166,11 @@
 		</div>
 
 		<!-- Top Rated -->
-		<div class="list-item">
+		<div
+			class="list-item color-5"
+			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseover|preventDefault={(e) => handleHover(e, 4)}
+		>
 			<ActionListCard
 				id={4}
 				title={'Top Rated'}
@@ -160,7 +193,11 @@
 		</div>
 
 		<!-- Recently Added -->
-		<div class="list-item">
+		<div
+			class="list-item color-6"
+			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseover|preventDefault={(e) => handleHover(e, 5)}
+		>
 			<ActionListCard
 				id={5}
 				title={'Recently Added'}
@@ -209,7 +246,7 @@
 
 	.list-item:hover {
 		cursor: pointer;
-		background-color: var(--list-item-hover) !important;
+		/* background-color: var(--list-item-hover) !important; */
 	}
 
 	.action-list :global(.playlist) {
@@ -273,5 +310,24 @@
 			grid-template-columns: repeat(2, 1fr); /* 2 columns */
 			grid-template-rows: repeat(3, auto); /* 3 rows, height adjusted automatically */
 		}
+	}
+
+	.list-item.color-1:hover {
+		background-color: #523b3bb3 !important;
+	}
+	.list-item.color-2:hover {
+		background-color: #4f3b52b3 !important;
+	}
+	.list-item.color-3:hover {
+		background-color: #3b3e52b3 !important;
+	}
+	.list-item.color-4:hover {
+		background-color: #3b5242b3 !important;
+	}
+	.list-item.color-5:hover {
+		background-color: #524f3bb3 !important;
+	}
+	.list-item.color-6:hover {
+		background-color: #52483bb3 !important;
 	}
 </style>

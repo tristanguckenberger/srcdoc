@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { writable, derived, readable } from 'svelte/store';
+import { tweened } from 'svelte/motion';
 
 import { gridWidth } from './layoutStore';
 
@@ -133,3 +134,44 @@ export const themeDataStore = derived(
 		};
 	}
 );
+
+// Track action list hover value, default is null, will take the string id of the hovered action
+export const actionListHoverStore = writable(null);
+
+export const tweenedHex = (hexadecimalString, options) => {
+	const decimalToHex = (decimal) => Math.round(decimal).toString(16).padStart(2, '0');
+
+	const getColor = (hex, index) => parseInt(hex.slice(index, index + 2), 16);
+
+	const getRGBs = (hex) => [getColor(hex, 1), getColor(hex, 3), getColor(hex, 5)];
+
+	const scaledValue = (start, delta, t) => start + delta * t;
+
+	function rgbInterpolate(fromColor, toColor) {
+		const [fromRed, fromGreen, fromBlue] = getRGBs(fromColor);
+		const [toRed, toGreen, toBlue] = getRGBs(toColor);
+		const deltaRed = toRed - fromRed;
+		const deltaGreen = toGreen - fromGreen;
+		const deltaBlue = toBlue - fromBlue;
+
+		return (t) => {
+			const red = scaledValue(fromRed, deltaRed, t);
+			const green = scaledValue(fromGreen, deltaGreen, t);
+			const blue = scaledValue(fromBlue, deltaBlue, t);
+			return '#' + decimalToHex(red) + decimalToHex(green) + decimalToHex(blue);
+		};
+	}
+
+	const color = tweened(hexadecimalString, {
+		...options,
+		interpolate: rgbInterpolate
+	});
+
+	return {
+		...color,
+		setAndExecuteAction: async (newHex, actionCallback) => {
+			await color.set(newHex);
+			actionCallback?.();
+		}
+	};
+};

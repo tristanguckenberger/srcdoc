@@ -7,7 +7,12 @@
 		fileSystemSidebarOpen,
 		openFiles
 	} from '$lib/stores/filesStore.js';
-	import { themeKeyStore, themeDataStore } from '$lib/stores/themeStore';
+	import {
+		themeKeyStore,
+		themeDataStore,
+		actionListHoverStore,
+		tweenedHex
+	} from '$lib/stores/themeStore';
 	import { sideBarState, sideBarWidth, appClientWidth } from '$lib/stores/layoutStore.js';
 	import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
 	import { browser } from '$app/environment';
@@ -24,6 +29,10 @@
 	$: $openFiles?.length > 0
 		? ($addPaddingToEditorStore = true)
 		: ($addPaddingToEditorStore = false);
+	let color = '#43484cb3';
+	const tweenedColor = tweenedHex(color, {
+		duration: 1000
+	});
 
 	let preferedThemeMode;
 	let shouldAddPadding = false;
@@ -45,6 +54,14 @@
 		$openFiles?.length > 0 ? ($addPaddingToEditorStore = true) : ($addPaddingToEditorStore = false);
 		// await tick();
 		shouldAddPadding = $addPaddingToEditorStore;
+
+		if ($actionListHoverStore) {
+			tweenedColor.setAndExecuteAction($actionListHoverStore, () => {
+				console.log('Interpolation Ended!');
+			});
+		} else {
+			tweenedColor.set(color);
+		}
 	});
 
 	onDestroy(() => {
@@ -64,7 +81,9 @@
 	class:playInRoute
 	class:addPaddingToEditorStore={shouldAddPadding}
 	class:noOpenTabs={$openFiles?.length === 0}
-	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 15 : 0}px; {themeString}"
+	style="--sidebar-width: {isSideBarOpen
+		? $fileSystemSidebarWidth + 15
+		: 0}px; {themeString} --theme-or-highlight: {$tweenedColor};"
 >
 	{#if $openFiles?.length > 0}
 		<div
@@ -107,10 +126,11 @@
 		);
 		background: -webkit-linear-gradient(
 			270deg,
-			var(--home-gradient-color-1) 0%,
+			var(--theme-or-highlight) 0%,
 			var(--home-gradient-color-2) 100%
 		);
 		border-radius: 8px;
+		transition: background 0.09s linear(0.07 -1.12%, 1 100%);
 	}
 	@media (min-width: 498px) {
 		#editor-layout {
