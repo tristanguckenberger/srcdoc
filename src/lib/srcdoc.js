@@ -130,7 +130,7 @@ const collectFiles = (files, rootId, collected = []) => {
  *
  * @returns {string|ErrorObject}
  */
-const resolveDependencies = (file, files) => {
+const resolveDependencies = (file) => {
 	if (!file) {
 		return {
 			errorMessage: 'No file provided!'
@@ -138,25 +138,25 @@ const resolveDependencies = (file, files) => {
 	}
 
 	let content = file?.content;
-	if (content) {
-		console.log('resolveDependencies()::var_content::', content);
-		files?.forEach((dependency) => {
-			console.log('resolveDependencies()::dependency?.name::', dependency?.name);
-			console.log('resolveDependencies()::dependency?.content::', dependency?.content);
-			console.log('resolveDependencies()::dependency?.type::', dependency?.type);
-			// if (content?.includes(dependency?.name) && file?.type === dependency?.type) {
-			// 	console.log('resolveDependencies()::content::before::', content);
-			// 	console.log('resolveDependencies()::dependency?.content::before::', dependency?.content);
-			// 	console.log('resolveDependencies()::dependency?.name::before::', dependency?.name);
-			// 	content = content?.replace(dependency?.name, dependency?.content);
-			// 	console.log('new_content::', content);
-			// } else {
-			// 	console.log('resolveDependencies()::dependency?.name::', dependency?.name);
-			// 	console.log('resolveDependencies()::dependency?.content::', dependency?.content);
-			// 	console.log('resolveDependencies()::dependency?.type::', dependency?.type);
-			// }
-		});
-	}
+	// if (content) {
+	// console.log('resolveDependencies()::var_content::', content);
+	// files?.forEach((dependency) => {
+	// console.log('resolveDependencies()::dependency?.name::', dependency?.name);
+	// console.log('resolveDependencies()::dependency?.content::', dependency?.content);
+	// console.log('resolveDependencies()::dependency?.type::', dependency?.type);
+	// if (content?.includes(dependency?.name) && file?.type === dependency?.type) {
+	// 	console.log('resolveDependencies()::content::before::', content);
+	// 	console.log('resolveDependencies()::dependency?.content::before::', dependency?.content);
+	// 	console.log('resolveDependencies()::dependency?.name::before::', dependency?.name);
+	// 	content = content?.replace(dependency?.name, dependency?.content);
+	// 	console.log('new_content::', content);
+	// } else {
+	// 	console.log('resolveDependencies()::dependency?.name::', dependency?.name);
+	// 	console.log('resolveDependencies()::dependency?.content::', dependency?.content);
+	// 	console.log('resolveDependencies()::dependency?.type::', dependency?.type);
+	// }
+	// });
+	// }
 
 	return content;
 };
