@@ -14,8 +14,8 @@
 	export let link = '';
 	export let userId = '';
 	export let limit = 10;
-
-	let showViewMore = false;
+	export let showViewMore = false;
+	export let viewMoreLabel = 'View More';
 
 	const getAllCategories = async () => {
 		const response = await fetch('/api/categories/static/all', {
@@ -93,7 +93,7 @@
 		<h4>{subtitle}</h4>
 		{#if showViewMore}
 			<a href={link}>
-				<h5>View More</h5>
+				<h5>{viewMoreLabel}</h5>
 			</a>
 		{/if}
 	</div>

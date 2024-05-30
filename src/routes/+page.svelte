@@ -24,6 +24,7 @@
 	import MockEditor from '$lib/ui/MockEditor/index.svelte';
 	import MockSlider from '$lib/ui/MockSlider/index.svelte';
 	import MockPlay from '$lib/ui/MockPlay/index.svelte';
+	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
 
 	export let form;
 	export let data;
@@ -154,18 +155,38 @@
 						/>
 					</div>
 					<MockSlider />
-					<!-- <div> -->
-					<!-- <MockPlay /> -->
-					<!-- </div> -->
 				</section>
 				<hr class="divider" />
 				<section class="engineSection">
-					<p>Introducing the Engine Editor</p>
+					<h1>Introducing the Engine Editor</h1>
 					<p class="small">
 						Unleash your creativity in the Engine. Build games using HTML, CSS, and JS. Modify code
 						live and see the changes instantly.
 					</p>
 					<MockEditor />
+				</section>
+				<hr class="divider" />
+				<section class="exploreSection">
+					<div class="textCTA">
+						<h1>Explore</h1>
+						<p class="small">
+							See what Play Engine has to offer. Discover games created by the community.
+						</p>
+						<Button
+							action={() => {
+								goto('/games');
+							}}
+							label={'Continue To Games'}
+							style={'background-color: #4da5ff; color: white; border-radius: 6px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; height: 57.5px; max-height: unset; width: 50%; max-width: 210px;'}
+						/>
+						<HorizontalList
+							title={'Categories'}
+							type={'categories'}
+							link={'/games'}
+							viewMoreLabel={'All Games & Categories'}
+							showViewMore={true}
+						/>
+					</div>
 				</section>
 			</div>
 		</div>
@@ -697,6 +718,7 @@
 		align-items: end;
 		height: 100%;
 		justify-items: center;
+		margin-block-end: 10%;
 	}
 	.heroSection h1 {
 		font-family: 'Source Sans 3', sans-serif;
@@ -765,9 +787,9 @@
 		margin-block-start: 0;
 	}
 	hr.divider {
-		margin-block-start: 10%;
+		margin-block-start: 3vmin;
 		width: 95%;
-		margin-block-end: 10%;
+		margin-block-end: 3vmin;
 		border-radius: 6px;
 		border: 0;
 		height: 4px;
@@ -777,7 +799,31 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		align-items: center;
+		align-items: baseline;
 		width: 80%;
+	}
+	.exploreSection {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+		margin-bottom: 10%;
+	}
+	h1 {
+		font-family: 'Source Sans 3', sans-serif;
+		font-optical-sizing: auto;
+		font-weight: 700;
+		font-style: normal;
+		font-size: 4vmax;
+		color: var(--color-primary);
+		/* width: 100%; */
+		/* margin-top: 10%; */
+		margin-block-end: 0;
+	}
+	.engineSection h1 {
+		width: 80%;
+		margin-block-start: 0;
 	}
 </style>
