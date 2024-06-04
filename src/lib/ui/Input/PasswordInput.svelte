@@ -6,12 +6,15 @@
 	export let blurAction = () => {};
 
 	let inputText = '';
+	let labelFocused = false;
 	$: loginRequestPassword.set(inputText);
 	$: registerRequestPassword.set(inputText);
 </script>
 
 <div class="input-container">
-	<slot name="label" />
+	<div class="label-container" class:labelFocused={labelFocused || inputText !== ''}>
+		<slot name="label" />
+	</div>
 	<div class="row">
 		<!-- <slot name="icon" /> -->
 		<input
@@ -21,6 +24,8 @@
 			on:blur={() => {
 				blurAction();
 			}}
+			on:focusin={() => (labelFocused = true)}
+			on:focusout={() => (labelFocused = false)}
 		/>
 	</div>
 </div>
@@ -48,7 +53,7 @@
 		padding: 0 2px !important;
 		position: relative !important;
 		top: 15px !important;
-		background: #ffffff !important;
+		background: transparent !important;
 	}
 	input {
 		border: none;
@@ -74,5 +79,13 @@
 		width: 24px;
 		height: 24px;
 		fill: #dedbd7;
+	}
+	div.label-container {
+		position: relative;
+		top: 15px;
+		transition: top 0.3s cubic-bezier(1, 0.01, 0, 0.99);
+	}
+	div.label-container.labelFocused {
+		top: -15px;
 	}
 </style>
