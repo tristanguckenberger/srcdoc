@@ -9,13 +9,16 @@
 	export let formType = 'register';
 
 	let inputText = '';
+	let labelFocused = false;
 	$: registerRequestPasswordConfirm.set(inputText);
 	$: passwordIsConfirmed = JSON.parse($registerRequest)?.passwordIsConfirmed ?? false;
 	export let blurAction = () => {};
 </script>
 
 <div class="input-container">
-	<slot name="label" />
+	<div class="label-container" class:labelFocused={labelFocused || inputText !== ''}>
+		<slot name="label" />
+	</div>
 	<div class="row">
 		<!-- <slot name="icon" /> -->
 		<input
@@ -26,6 +29,8 @@
 			on:blur={() => {
 				blurAction();
 			}}
+			on:focusin={() => (labelFocused = true)}
+			on:focusout={() => (labelFocused = false)}
 		/>
 	</div>
 </div>
@@ -53,7 +58,7 @@
 		padding: 0 2px !important;
 		position: relative !important;
 		top: 15px !important;
-		background: #ffffff !important;
+		/* background: #ffffff !important; */
 	}
 	input {
 		border: none;
@@ -82,5 +87,13 @@
 	}
 	.not-confirmed {
 		border: 2px solid red;
+	}
+	div.label-container {
+		position: relative;
+		top: 15px !important;
+		transition: top 0.3s cubic-bezier(1, 0.01, 0, 0.99);
+	}
+	div.label-container.labelFocused {
+		top: -15px !important;
 	}
 </style>

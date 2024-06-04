@@ -92,10 +92,10 @@
 
 	div.label-container {
 		position: relative;
-		top: 15px;
+		top: 15px !important;
 		transition: top 0.3s cubic-bezier(1, 0.01, 0, 0.99);
 	}
 	div.label-container.labelFocused {
-		top: -15px;
+		top: -15px !important;
 	}
 </style>

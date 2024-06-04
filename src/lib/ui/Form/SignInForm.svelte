@@ -43,7 +43,7 @@
 		height: 100%;
 		display: flex;
 		flex-direction: column;
-		/* gap: 30px; */
+		gap: 10px;
 	}
 	:global(form h1) {
 		font-family: 'Rubik', sans-serif;
