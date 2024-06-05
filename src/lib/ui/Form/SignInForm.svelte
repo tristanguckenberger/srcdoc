@@ -5,12 +5,27 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import { icons } from '$lib/stores/themeStore.js';
 	import { writable } from 'svelte/store';
+	import { enhance } from '$app/forms';
 
 	let boundInputHeight = writable(0);
+	let creating = false;
 </script>
 
 <h1>Welcome back</h1>
-<form action="?/login" method="POST">
+<form
+	action="?/login"
+	method="POST"
+	use:enhance={() => {
+		creating = true;
+
+		return async ({ update }) => {
+			await update();
+			setTimeout(() => {
+				creating = false;
+			}, 500);
+		};
+	}}
+>
 	<EmailInput formType={'login'}>
 		<span slot="label" class="input-label">Email*</span>
 		<div slot="icon" class="input-icon">
@@ -26,6 +41,7 @@
 		</PasswordInput>
 	</div>
 	<Button
+		bind:creating
 		label="Continue"
 		style="border-radius: 6px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; height: {$boundInputHeight -
 			24.5}px; max-height: unset;"

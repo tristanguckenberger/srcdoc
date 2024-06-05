@@ -16,6 +16,7 @@
 	export let showDropDown;
 	export let style;
 	export let formaction;
+	export let creating;
 
 	let profileControl = false;
 	let showToolTip = false;
@@ -285,8 +286,10 @@
 						d="M178,28c-20.09,0-37.92,7.93-50,21.56C115.92,35.93,98.09,28,78,28A66.08,66.08,0,0,0,12,94c0,72.34,105.81,130.14,110.31,132.57a12,12,0,0,0,11.38,0C138.19,224.14,244,166.34,244,94A66.08,66.08,0,0,0,178,28Zm-5.49,142.36A328.69,328.69,0,0,1,128,202.16a328.69,328.69,0,0,1-44.51-31.8C61.82,151.77,36,123.42,36,94A42,42,0,0,1,78,52c17.8,0,32.7,9.4,38.89,24.54a12,12,0,0,0,22.22,0C145.3,61.4,160.2,52,178,52a42,42,0,0,1,42,42C220,123.42,194.18,151.77,172.51,170.36Z"
 					/></svg
 				>
-			{:else if label}
+			{:else if label && !creating}
 				{label}
+			{:else if label && creating}
+				<div id="loading" />
 			{:else if userName}
 				<a href={link} class="profile-quick-control">
 					<img
@@ -503,5 +506,26 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+	}
+	#loading {
+		display: inline-block;
+		width: 2vmin;
+		height: 2vmin;
+		border: 3px solid rgba(255, 255, 255, 0.3);
+		border-radius: 50%;
+		border-top-color: #fff;
+		animation: spin 1s ease-in-out infinite;
+		-webkit-animation: spin 1s ease-in-out infinite;
+	}
+
+	@keyframes spin {
+		to {
+			-webkit-transform: rotate(360deg);
+		}
+	}
+	@-webkit-keyframes spin {
+		to {
+			-webkit-transform: rotate(360deg);
+		}
 	}
 </style>
