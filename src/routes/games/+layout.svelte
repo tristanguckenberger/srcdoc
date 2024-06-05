@@ -58,9 +58,13 @@
 		if ($actionListHoverStore) {
 			tweenedColor.setAndExecuteAction($actionListHoverStore, () => {
 				console.log('Interpolation Ended!');
+
+				// setTimeout(() => {
+				// 	if (!$actionListHoverStore) {
+				// 		tweenedColor.set(color);
+				// 	}
+				// }, 600);
 			});
-		} else {
-			tweenedColor.set(color);
 		}
 	});
 
