@@ -10,10 +10,24 @@
 	import { writable } from 'svelte/store';
 
 	let boundInputHeight = writable(0);
+	let creating = false;
 </script>
 
 <h1>Sign up</h1>
-<form action="?/register" method="POST">
+<form
+	action="?/register"
+	method="POST"
+	use:enhance={() => {
+		creating = true;
+
+		return async ({ update }) => {
+			await update();
+			setTimeout(() => {
+				creating = false;
+			}, 500);
+		};
+	}}
+>
 	<!-- <div class="tagline">
 		<Button label="Sign Up with Google" isRounded />
 		<Button label="Sign Up with GitHub" isRounded />
@@ -52,6 +66,7 @@
 		</div>
 	</PasswordInputValidate>
 	<Button
+		bind:creating
 		label="Continue"
 		style="border-radius: 6px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; height: {$boundInputHeight -
 			24.5}px; max-height: unset;"
