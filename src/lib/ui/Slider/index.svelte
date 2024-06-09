@@ -57,7 +57,8 @@
 	let showNextGameToolTip = false;
 	let showPrevGameToolTip = false;
 
-	const linkBuilder = (game) => `/games/${game?.id}/play`;
+	const linkBuilder = (game) =>
+		isPlaylistSlider ? `/games/playlist/${playlistId}/${game?.id}/play` : `/games/${game?.id}/play`;
 
 	const handleExpandMore = () => {
 		$actionMenuOpen = !$actionMenuOpen;
@@ -107,7 +108,12 @@
 			currentGame = nextGame;
 			$currentGameStore = currentGame;
 			gamesAvailable[emblaApi?.selectedScrollSnap()];
-			goto(`/games/${nextGame?.id}/play`, { replaceState: false });
+			goto(
+				isPlaylistSlider
+					? `/games/playlist/${playlistId}/${nextGame?.id}/play`
+					: `/games/${nextGame?.id}/play`,
+				{ replaceState: false }
+			);
 			emblaApi?.scrollTo(1, true);
 		}
 	};
@@ -153,6 +159,7 @@
 	});
 
 	afterUpdate(async () => {
+		console.log('isPlaylistSlider::', isPlaylistSlider);
 		// Update favorites store and count
 		gameFavoriteCount.set(favoritesCount);
 		gameFavorites.set(favoritesObj);
@@ -251,6 +258,9 @@
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
 	$: visibleThumbnails = showSlides;
+	$: isPlaylistSlider = $page?.route?.id === '/games/playlist/[playlistId]/[gameSlug]/play';
+	$: playlistId = $page?.params?.playlistId;
+	$: console.log('isPlaylistSlider::', isPlaylistSlider);
 </script>
 
 <svelte:window on:keyup={debouncedKeyUp} />

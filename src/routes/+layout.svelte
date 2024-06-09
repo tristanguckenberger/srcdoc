@@ -317,7 +317,9 @@
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
 	$: sessionData = data?.sessionData ?? $session;
 	$: modalIsOpen = $modalOpenState;
-	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
+	$: isPlayPage =
+		$page?.route?.id === '/games/[slug]/play' ||
+		$page?.route?.id === '/games/playlist/[playlistId]/[gameSlug]/play';
 	$: isAuthPage = $page?.route?.id === '/';
 	$: isMobile = $appClientWidth < 768;
 	$: play = $playButton;

@@ -24,51 +24,70 @@
 // 	return user;
 // };
 
-// async function getUser(fetch, id) {
-// 	if (!id) return null;
-// 	const user = await fetchData(fetch, `${process.env.SERVER_URL}/api/users/${id}`);
-// 	if (!user) return { status: 401, body: { message: 'No User found with id provided' } };
-// 	return user;
-// }
+async function getUser(fetch, id) {
+	if (!id) return null;
+	const user = await fetchData(fetch, `${process.env.SERVER_URL}/api/users/${id}`);
+	if (!user) return { status: 401, body: { message: 'No User found with id provided' } };
+	return user;
+}
 
-// async function getAllCommentsForAGame(fetch, slug) {
-// 	const commentsRaw = await fetchData(fetch, `${process.env.SERVER_URL}/api/comments/game/${slug}`);
-// 	if (!commentsRaw) return [];
+async function getAllCommentsForAGame(fetch, slug) {
+	const commentsRaw = await fetchData(fetch, `${process.env.SERVER_URL}/api/comments/game/${slug}`);
+	if (!commentsRaw) return [];
 
-// 	const comments = await Promise.all(
-// 		commentsRaw.map(async (comment) => {
-// 			const user = await getUser(fetch, comment?.user_id);
-// 			return {
-// 				...comment,
-// 				userName: user?.username,
-// 				userAvatar: user?.profile_photo
-// 			};
-// 		})
-// 	);
+	const comments = await Promise.all(
+		commentsRaw.map(async (comment) => {
+			const user = await getUser(fetch, comment?.user_id);
+			return {
+				...comment,
+				userName: user?.username,
+				userAvatar: user?.profile_photo
+			};
+		})
+	);
 
-// 	return comments;
-// }
+	return comments;
+}
 
-export async function load({ params, /*fetch,*/ setHeaders }) {
+async function fetchData(eventFetch, endpoint) {
+	try {
+		const response = await eventFetch(endpoint);
+		if (!response.ok) throw new Error('Failed to fetch data');
+		return await response.json();
+	} catch (error) {
+		console.error(error);
+		return null; // Return null to handle errors gracefully in the load function
+	}
+}
+
+const getAllGamesForPlaylist = async (eventFetch, playlistId) => {
+	const playlistRes = await eventFetch(`/api/playlist/${playlistId}/games`);
+	const games = await playlistRes.json();
+	return games;
+};
+
+export async function load({ params, fetch, setHeaders, session }) {
 	const { playlistId, gameSlug } = params;
 	let user = null;
 	// let userGames = [];
 
 	console.log('playing playlist::playlistId::', playlistId);
 	console.log('playing playlist::gameSlug::', gameSlug);
+	console.log('playing playlist::session::', session);
 
 	// ------------------ Get Playlist Data TODO ------------------
 	// TODO: Only get All Playlist games, not all Games for this route
+	const [allGames, game, favorites] = await Promise.all([
+		getAllGamesForPlaylist(fetch, playlistId),
+		fetchData(fetch, `/api/games/getSingleGame/${gameSlug}`),
+		fetchData(fetch, `/api/favorites/${gameSlug}/getAllFavoritesSingleGame`)
+	]);
 
-	// const [allGames, userData, game, favorites] = await Promise.all([
-	// 	fetchData(fetch, `/api/games/getAllGames`),
-	// 	getCurrentUser(fetch),
-	// 	fetchData(fetch, `/api/games/getSingleGame/${gameSlug}`) ||
-	// 		gameData.find((g) => g.id.toString() === gameSlug.toString()),
-	// 	fetchData(fetch, `/api/favorites/${gameSlug}/getAllFavoritesSingleGame`)
-	// ]);
+	console.log('playing playlist::allGames::', allGames);
+	console.log('playing playlist::game::', game);
+	console.log('playing playlist::favorites::', favorites);
 
-	// const { games = [] } = allGames;
+	const { games = [] } = allGames;
 
 	// if (userData && userData?.status === 401) {
 	// 	user = null;
@@ -81,32 +100,32 @@ export async function load({ params, /*fetch,*/ setHeaders }) {
 	// userGames = user?.id ? await fetchData(fetch, `/api/games/getAllGamesByUser/${user?.id}`) : [];
 
 	// // Enhance game object with files and comments if available
-	// if (game) {
-	// 	const filesResponse = await fetchData(fetch, `/api/games/getSingleGame/${gameSlug}/files`);
-	// 	game.files = filesResponse ?? [];
-	// 	game.comments = (await getAllCommentsForAGame(fetch, gameSlug)) ?? [];
-	// }
+	if (game) {
+		const filesResponse = await fetchData(fetch, `/api/games/getSingleGame/${gameSlug}/files`);
+		game.files = filesResponse ?? [];
+		game.comments = (await getAllCommentsForAGame(fetch, gameSlug)) ?? [];
+	}
 
 	// // Calculate top and bottom games
-	// const currentIndex = games?.findIndex((g) => g.id.toString() === gameSlug.toString());
-	// const topGame = currentIndex > 0 ? games[currentIndex - 1] : games[games.length - 1];
-	// const bottomGame = currentIndex < games.length - 1 ? games[currentIndex + 1] : games[0];
+	const currentIndex = games?.findIndex((g) => g.id.toString() === gameSlug.toString());
+	const topGame = currentIndex > 0 ? games[currentIndex - 1] : games[games.length - 1];
+	const bottomGame = currentIndex < games.length - 1 ? games[currentIndex + 1] : games[0];
 
 	setHeaders({
 		'cache-control': 'max-age=604800'
 	});
 
 	return {
-		// ...game,
-		user
-		// allGames: games,
+		...game,
+		user,
+		allGames: games,
 		// userGames: userGames?.reverse(),
-		// topGame,
-		// currentGame: { ...game },
-		// bottomGame,
-		// comments: game?.comments ?? [],
-		// favorites: favorites ? { count: favorites.length, favorites } : { count: 0, favorites: [] },
-		// thumbnail: game?.thumbnail ?? ''
+		topGame,
+		currentGame: { ...game },
+		bottomGame,
+		comments: game?.comments ?? [],
+		favorites: favorites ? { count: favorites.length, favorites } : { count: 0, favorites: [] },
+		thumbnail: game?.thumbnail ?? ''
 	};
 }
 
