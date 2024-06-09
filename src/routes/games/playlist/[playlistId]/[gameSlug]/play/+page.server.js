@@ -66,14 +66,10 @@ const getAllGamesForPlaylist = async (eventFetch, playlistId) => {
 	return games;
 };
 
-export async function load({ params, fetch, setHeaders, session }) {
+export async function load({ params, fetch, setHeaders }) {
 	const { playlistId, gameSlug } = params;
 	let user = null;
 	// let userGames = [];
-
-	console.log('playing playlist::playlistId::', playlistId);
-	console.log('playing playlist::gameSlug::', gameSlug);
-	console.log('playing playlist::session::', session);
 
 	// ------------------ Get Playlist Data TODO ------------------
 	// TODO: Only get All Playlist games, not all Games for this route
@@ -82,10 +78,6 @@ export async function load({ params, fetch, setHeaders, session }) {
 		fetchData(fetch, `/api/games/getSingleGame/${gameSlug}`),
 		fetchData(fetch, `/api/favorites/${gameSlug}/getAllFavoritesSingleGame`)
 	]);
-
-	console.log('playing playlist::allGames::', allGames);
-	console.log('playing playlist::game::', game);
-	console.log('playing playlist::favorites::', favorites);
 
 	const { games = [] } = allGames;
 
@@ -206,24 +198,4 @@ export const actions = {
 			}
 		};
 	}
-	// search: async ({ fetch, request }) => {
-	// 	const formData = await request.formData();
-	// 	const query = formData?.get('query');
-	// 	const searchResults = await fetch(`${process.env.SERVER_URL}/api/search/basic?q=${query}`);
-
-	// 	if (!searchResults.ok) {
-	// 		return {
-	// 			status: 401,
-	// 			body: {
-	// 				message: 'Failed to search'
-	// 			}
-	// 		};
-	// 	}
-
-	// 	const result = await searchResults.json();
-
-	// 	return {
-	// 		result
-	// 	};
-	// }
 };

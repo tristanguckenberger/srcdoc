@@ -11,6 +11,7 @@
 	import { tick } from 'svelte';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore.js';
 	import { playButton } from '$lib/stores/gamesStore.js';
+	import { page } from '$app/stores';
 
 	export let game;
 	export let id;
@@ -31,8 +32,11 @@
 	let cardImage;
 	let showMoreInfo = true;
 	let showMoreActions = false;
+	let playlistId;
+	let isPlaylistSlider;
+	let cardLink;
 
-	afterUpdate(() => {
+	afterUpdate(async () => {
 		if (cardImage) {
 			imageLoaded = true;
 		}
@@ -51,7 +55,9 @@
 	});
 
 	// REACTIVE VARIABLES & STATEMENTS
-	$: cardLink = `/playlists/${id}/play`;
+	$: playlistId = $page?.params?.slug;
+	$: isPlaylistSlider = $page?.route?.id == '/playlists/[slug]';
+	$: cardLink = isPlaylistSlider ? `/games/playlist/${playlistId}/${id}/play` : `/games/${id}/play`;
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: user = $session;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
@@ -93,7 +99,7 @@
 			{/if}
 		</a>
 		<div class="card-info">
-			<a href={`/games/${id}/play`}>
+			<a href={cardLink}>
 				<h4>{game?.title}</h4>
 				<p>{game?.description}</p>
 			</a>
