@@ -8,6 +8,7 @@
 	import PasswordInputValidate from '../Input/PasswordInputValidate.svelte';
 	import { fade } from 'svelte/transition';
 	import { writable } from 'svelte/store';
+	import { enhance } from '$app/forms';
 
 	let boundInputHeight = writable(0);
 	let creating = false;
@@ -68,8 +69,9 @@
 	<Button
 		bind:creating
 		label="Continue"
-		style="border-radius: 6px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; height: {$boundInputHeight -
-			24.5}px; max-height: unset;"
+		style={`border-radius: 6px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; height: ${
+			$boundInputHeight - 24.5
+		}px; max-height: unset;`}
 	/>
 </form>
 

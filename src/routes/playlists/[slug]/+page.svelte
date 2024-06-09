@@ -276,7 +276,7 @@
 		{#await games}
 			<p>Loading...</p>
 		{:then games}
-			{#if games.length > 0}
+			{#if games?.length > 0}
 				{#each games as game, i}
 					{#if $showPlayButtonStore && game.id === $mousedOverItemId}
 						<div class="tiny-absolute">
@@ -293,7 +293,7 @@
 									// console.log('blurred::id::', game?.id);
 								}}
 							>
-								<a href={`/games/${game?.id}/play`}>
+								<a href={`/games/playlist/${playlist?.id}/${game?.id}/play`}>
 									<svg
 										on:mouseover={(e) => handleMouseOver(e, game)}
 										role="button"
