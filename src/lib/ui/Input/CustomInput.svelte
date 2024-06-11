@@ -85,7 +85,7 @@
 					blurAction();
 				}}
 			/>
-		{:else if inputCapture === 'published'}
+		{:else if inputCapture === 'published' || inputCapture === 'hidePopUpInfo' || inputCapture === 'darkMode'}
 			<input
 				class:hideMe={hidden}
 				type="text"
@@ -202,9 +202,9 @@
 		font-family: 'Nunito', sans-serif;
 		color: var(--darker-bg);
 	}
-	.hideMe {
+	.input-container.modal .row.modal.hideMe {
 		opacity: 0;
-		height: 0 !important;
-		width: 0 !important;
+		height: 0px !important;
+		width: 0px !important;
 	}
 </style>

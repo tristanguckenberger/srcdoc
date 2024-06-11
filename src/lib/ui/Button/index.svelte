@@ -298,18 +298,6 @@
 						alt="user avatar"
 					/><span>{userName}</span>
 				</a>
-				<button class="dropdown-btn" on:click={() => action && action(showDropDown)}>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="32"
-						height="32"
-						fill="#000000"
-						viewBox="0 0 256 256"
-						><path
-							d="M144,128a16,16,0,1,1-16-16A16,16,0,0,1,144,128ZM60,112a16,16,0,1,0,16,16A16,16,0,0,0,60,112Zm136,0a16,16,0,1,0,16,16A16,16,0,0,0,196,112Z"
-						/></svg
-					>
-				</button>
 			{:else if label === 'engine-edit'}
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -354,7 +342,7 @@
 	button:hover {
 		color: var(--text-color-highlight);
 		cursor: pointer;
-		background-color: var(--button-highlight) !important;
+		background-color: var(--button-highlight);
 		transition: background-color 250ms ease;
 	}
 	button.isHomePage,

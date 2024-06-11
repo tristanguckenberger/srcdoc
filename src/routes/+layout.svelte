@@ -46,12 +46,17 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import LoadingIndicator from '$lib/ui/LoadingIndicator/index.svelte';
 	import ModalStack from '$lib/ui/ModalStack/index.svelte';
+	import Drawer from '$lib/ui/Drawer/index.svelte';
+	import NavigationBar from '$lib/ui/Navigation/index.svelte';
+	import Logo from '$lib/ui/Logo/index.svelte';
+	import SearchResults from '$lib/ui/NavWidgets/SearchResults.svelte';
+	import Widget from '$lib/ui/Widget/index.svelte';
+	import Settings from '$lib/ui/Widget/Components/Settings.svelte';
 
 	// ASSET IMPORTS
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
 	import { afterNavigate, beforeNavigate, invalidateAll } from '$app/navigation';
 	import { searchResultsStore } from '$lib/stores/search/searchStore';
-	import SearchResults from '$lib/ui/NavWidgets/SearchResults.svelte';
 	import { writable } from 'svelte/store';
 	import { copyData } from '$lib/platformCopy/copyData.js';
 	import {
@@ -60,9 +65,7 @@
 		homePageInfoStore,
 		modalFullInfoStore
 	} from '$lib/stores/InfoStore.js';
-	import NavigationBar from '$lib/ui/Navigation/index.svelte';
 	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
-	import Logo from '$lib/ui/Logo/index.svelte';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
@@ -77,6 +80,8 @@
 	let mainPageElement;
 	let mainElement;
 	let shouldAddPadding = false;
+	let showSettings = false;
+	let ComponentOptions = [];
 	const showBoxShadow = writable(false);
 
 	// FUNCTIONS
@@ -304,6 +309,14 @@
 		}
 	};
 
+	const toggleSettingsDrawer = () => {
+		// $drawerOpen = !$drawerOpen;
+		console.log('toggleSettingsDrawer');
+		$selectedOption = 0;
+		showSettings = !showSettings;
+		$drawerOpen = !drawerOpen;
+	};
+
 	// REACTIVE VARIABLES & STATEMENTS
 	// $: $openFiles?.length > 0
 	// 	? ($addPaddingToEditorStore = true)
@@ -347,6 +360,18 @@
 	$: myLibraryLink = !$session?.id ? null : `/users/${$session?.id}/library`;
 	$: newPlayListLink = !$session?.id ? null : `/users/${$session?.id}/library`;
 	$: favoritesLink = !$session?.id ? null : '/games/favorites';
+	$: (() => {
+		return (ComponentOptions = [
+			{
+				name: 'Settings',
+				props: {
+					userId: $session?.id,
+					userSettings: data?.userSettings ?? data?.user_settings
+				},
+				component: Settings
+			}
+		]);
+	})();
 	/**
 	 * We have to reference the store to trigger the reactive statement
 	 */
@@ -599,7 +624,7 @@
 							>
 						{/if}
 						{#if sessionData?.username || $session?.username}
-							<ul class="profile-info" class:showSideBar={$sideBarState}>
+							<!-- <ul class="profile-info" class:showSideBar={$sideBarState}>
 								{#if sessionData?.username || $session?.username}
 									<li>
 										<Button
@@ -612,7 +637,39 @@
 										/>
 									</li>
 								{/if}
-							</ul>
+							</ul> -->
+							<a
+								href="/users/{sessionData?.id}"
+								class="sidebar-item"
+								class:muted={!$session?.id}
+								on:click={toggleSettingsDrawer}
+							>
+								<img
+									class="avatar"
+									src={`${sessionData?.profile_photo ?? $session?.profile_photo}` ??
+										'https://picsum.photos/50'}
+									alt="user avatar"
+								/>
+								<span>{sessionData?.username ?? $session?.username}</span>
+							</a>
+							<button
+								class="sidebar-action settings-button"
+								class:muted={!$session?.id}
+								on:click={toggleSettingsDrawer}
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="36"
+									height="36"
+									fill="#ffffff"
+									viewBox="0 0 256 256"
+									class="action-button-icon"
+									><path
+										d="M216,130.16q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.6,107.6,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.29,107.29,0,0,0-26.25-10.86,8,8,0,0,0-7.06,1.48L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.6,107.6,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"
+									/></svg
+								>
+								<span>Settings</span>
+							</button>
 							<li class="sidebar-action">
 								<form
 									class="logout-form"
@@ -650,9 +707,9 @@
 				{#if isAuthPage}
 					<div>
 						<!-- <div>
-					
-							<Logo />
-						</div> -->
+						
+								<Logo />
+							</div> -->
 						<div />
 					</div>
 					<slot />
@@ -775,6 +832,14 @@
 
 {#if canShowLoader}
 	<LoadingIndicator />
+{/if}
+
+{#if showSettings}
+	<Settings
+		userId={$session?.id}
+		userSettings={data?.userSettings ?? data?.user_settings}
+		action={() => (showSettings = !showSettings)}
+	/>
 {/if}
 
 <style>
@@ -1241,5 +1306,17 @@
 	}
 	main.isHomePage {
 		padding-top: 0 !important;
+	}
+	.avatar {
+		border-radius: 50%;
+		width: 23.5px;
+		height: 23.5px;
+		object-fit: cover;
+		border: 2px solid #a69160;
+		color: #e3f1f6;
+	}
+	.settings-button {
+		background-color: transparent;
+		height: unset !important;
 	}
 </style>

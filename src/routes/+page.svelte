@@ -252,7 +252,7 @@
 				on:click={() => {
 					$showAuth = false;
 					centerRightWidth = null;
-				}}>close</button
+				}}>Close</button
 			>
 
 			<div

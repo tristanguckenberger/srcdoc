@@ -269,6 +269,42 @@ export const actions = {
 			}
 		};
 	},
+	updateSettings: async ({ cookies, request }) => {
+		const token = cookies.get('token');
+		const formData = await request.formData();
+		const hide_pop_up_info = formData?.get('hidePopUpInfo');
+		const dark_mode = formData?.get('darkMode');
+		const requestHeaders = new Headers();
+
+		console.log('hide_pop_up_info::', JSON.parse(JSON.stringify(hide_pop_up_info)));
+		console.log('dark_mode::', JSON.parse(JSON.stringify(dark_mode)));
+
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+
+		const requestInit = {
+			method: 'PUT',
+			headers: requestHeaders,
+			mode: 'cors',
+			body: JSON.stringify({
+				hide_pop_up_info: JSON.parse(JSON.stringify(hide_pop_up_info)),
+				dark_mode: JSON.parse(JSON.stringify(dark_mode))
+			})
+		};
+
+		const response = await fetch(`${process.env.SERVER_URL}/api/settings/update`, requestInit);
+
+		const result = await response.json();
+
+		console.log('result::', result);
+
+		return {
+			status: 200,
+			body: {
+				result: 'Howdy'
+			}
+		};
+	},
 	createPlaylist: async ({ cookies, request, fetch }) => {
 		const token = cookies.get('token');
 		const formData = await request.formData();
