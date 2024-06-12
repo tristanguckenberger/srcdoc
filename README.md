@@ -1,3 +1,5 @@
+![Screenshot 2024-06-12 at 18 52 05](https://github.com/tristanguckenberger/srcdoc/assets/19194337/06c68fec-0418-45f2-9422-488579d3d1fa)
+
 # Welcome to Play Engine's client repo!
 ## Visit Play Engine [Visit Play Engine](https://playengine.xyz)
 
