@@ -1,55 +1,25 @@
-# create-svelte
+# Welcome to Play Engine's client repo!
+## Visit Play Engine [Visit Play Engine](playengine.xyz)
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+🚀 Our Mission: We're on a quest to demystify game development and blend the worlds of gaming and creation. Whether you're a seasoned developer or a gaming aficionado, Play Engine is your new playground.
 
-## Creating a project
+💡 Innovate & Play: Dive into a platform where you can both create and enjoy games. With features like a semi-traditional coding environment, game-leaderboard integration, and TikTok-like game navigation, we're making sure everyone can get in on the fun.
 
-If you're seeing this, you've probably already done this step. Congrats!
+🌱 Community at Heart: Join a burgeoning community of creators and gamers. Share your creations, get feedback, and discover your next favorite game—all in one place.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
-# srcdoc
-
-
+🛠 What's Next: Think multiplayer support, live code pairing, game controller integration, and even no-code options for the aspiring developer in all of us. Plus, a mobile app to keep the community thriving on the go.
 
 # Play Engine Road Map
 ## MVP Beta
 
 ### Todo
-- Basic Authentication w/ sessions & cookies
-- Basic Game Creation with simplified EngineAPI
-- Simplified Game Publication Process
-- User Profile & Management
-- Favorites
 - Simplified Review System
+- User Points System
+- Activity Feeds
+- Direct Messaging
+- Feedback & Voting System
+- Friend System
+- Notifications
 - Simplified Game Profile & Management
 - Hosting Setup
     - Register “play” subdomain for srcdoc.io, setup hosting for play.srcdoc.io
@@ -63,10 +33,8 @@ You can preview the production build with `npm run preview`.
 - Robust EngineAPI w/ localStorage integration
 - Simplified CommunityAPI
 - Robust Game Profile & Management
-- Simplified Game Comments
 - Robust Review System
 - Simplified Issues Tracker
-- Simplified Friend System
 
 ## MVP Pre-Launch
 
