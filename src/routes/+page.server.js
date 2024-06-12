@@ -288,7 +288,7 @@ export const actions = {
 			mode: 'cors',
 			body: JSON.stringify({
 				hide_pop_up_info: JSON.parse(JSON.stringify(hide_pop_up_info)),
-				dark_mode: JSON.parse(JSON.stringify(dark_mode))
+				dark_mode: true
 			})
 		};
 
@@ -301,7 +301,7 @@ export const actions = {
 		return {
 			status: 200,
 			body: {
-				result: 'Howdy'
+				result
 			}
 		};
 	},

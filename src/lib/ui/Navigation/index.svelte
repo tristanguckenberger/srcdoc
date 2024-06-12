@@ -78,7 +78,7 @@
 	};
 
 	const updateTheme = (e) => {
-		themeKeyStore.set(e.matches ? 'light' : 'dark');
+		themeKeyStore.set('dark');
 	};
 
 	const toggleDropDown = () => {

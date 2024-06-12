@@ -12,7 +12,8 @@
 	$: isSideBarOpen = $fileSystemSidebarOpen || $sideBarState;
 
 	const updateTheme = (e) => {
-		themeKeyStore.set(e.matches ? 'light' : 'dark');
+		// themeKeyStore.set(e.matches ? 'light' : 'dark');
+		themeKeyStore.set('dark');
 	};
 
 	onMount(() => {

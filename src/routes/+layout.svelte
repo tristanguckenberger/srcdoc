@@ -40,6 +40,7 @@
 		gameSessionState
 	} from '$lib/stores/gameSession/index.js';
 	import { autoStack, itemsInStack } from '$lib/stores/modalStackStore';
+	import { settingsStore } from '$lib/stores/settingsStore.js';
 
 	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
@@ -103,7 +104,14 @@
 
 	const debouncedScrollForward = debounce(handleScrollForward, 350);
 
-	onMount(() => {
+	const getSettings = async () => {
+		const settingsRes = await fetch(`/api/settings/byUser/get`);
+		const settings = await settingsRes.json();
+
+		return settings;
+	};
+
+	onMount(async () => {
 		inject({ mode: dev ? 'development' : 'production' });
 
 		if (browser) {
@@ -118,6 +126,16 @@
 			homePageInfoStore.useLocalStorage();
 			gamePageInfoStore.useLocalStorage();
 			editorPageInfoStore.useLocalStorage();
+
+			const settingsRes = await getSettings();
+
+			if (settingsRes) {
+				settingsStore.set(settingsRes);
+			}
+			// if ($settingsStore) {
+			// 	hidePopUpInfo = $settingsStore?.hidePopUpInfo ?? $settingsStore?.hide_pop_up_info;
+			// 	darkMode = $settingsStore?.darkMode ?? $settingsStore?.dark_mode;
+			// }
 		}
 
 		// try this in an onMount and an afterUpdate
@@ -241,7 +259,7 @@
 		return canLoad;
 	};
 	const updateTheme = (e) => {
-		themeKeyStore.set(e.matches ? 'light' : 'dark');
+		themeKeyStore.set('dark');
 	};
 
 	const toggleDropDown = () => {
@@ -321,6 +339,15 @@
 	// $: $openFiles?.length > 0
 	// 	? ($addPaddingToEditorStore = true)
 	// 	: ($addPaddingToEditorStore = false);
+	$: $settingsStore?.hide_pop_up_info,
+		(() => {
+			// homePageInfoStore.set({ ...$homePageInfoStore, viewed: $settingsStore?.hide_pop_up_info });
+			// gamePageInfoStore.set({ ...$gamePageInfoStore, viewed: $settingsStore?.hide_pop_up_info });
+			// editorPageInfoStore.set({
+			// 	...$editorPageInfoStore,
+			// 	viewed: $settingsStore?.hide_pop_up_info
+			// });
+		})();
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
