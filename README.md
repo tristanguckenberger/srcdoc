@@ -1,5 +1,5 @@
 # Welcome to Play Engine's client repo!
-## Visit Play Engine [Visit Play Engine](playengine.xyz)
+## Visit Play Engine [Visit Play Engine](https://playengine.xyz)
 
 🚀 Our Mission: We're on a quest to demystify game development and blend the worlds of gaming and creation. Whether you're a seasoned developer or a gaming aficionado, Play Engine is your new playground.
 
