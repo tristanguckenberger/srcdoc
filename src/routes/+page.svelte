@@ -25,6 +25,7 @@
 	import MockSlider from '$lib/ui/MockSlider/index.svelte';
 	import MockPlay from '$lib/ui/MockPlay/index.svelte';
 	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
+	import ForgotPasswordRequest from '$lib/ui/Form/ForgotPasswordRequest.svelte';
 
 	export let form;
 	export let data;
@@ -36,7 +37,8 @@
 	let previousShowAuthVal = false;
 	const authFlowOptions = [
 		{ option: 'register', component: SignUpForm },
-		{ option: 'login', component: SignInForm }
+		{ option: 'login', component: SignInForm },
+		{ option: 'forgotPassword', component: ForgotPasswordRequest }
 	];
 	let selected = authFlowOptions[0];
 
@@ -79,12 +81,16 @@
 		quickHide = true;
 		selected = selected === authFlowOptions[0] ? authFlowOptions[1] : authFlowOptions[0];
 	};
+	let formSwitchText = 'Already have an account?';
 
 	$: browser && form, session.set({ ...form?.body?.user });
 	$: data?.users?.length && userStore.set(data?.users);
 	$: $session?.username && browser && goto('/games');
-	$: formSwitchText =
-		selected === authFlowOptions[0] ? 'Already have an account?' : "Don't have an account?";
+	$: if (selected === authFlowOptions[0]) {
+		formSwitchText = 'Already have an account?';
+	} else if (selected === authFlowOptions[1]) {
+		formSwitchText = "Don't have an account?";
+	}
 	$: formSwitchAction = selected === authFlowOptions[0] ? 'Sign In' : 'Sign Up';
 	$: quickHide && setTimeout(() => (quickHide = false), 1000);
 
@@ -264,14 +270,39 @@
 					<div class="form-container" class:isSignIn={selected === authFlowOptions[1]}>
 						<div class="flexed-form" class:sideBarOpen={$sideBarState}>
 							<svelte:component this={selected.component} />
-							<div class="form-action">
-								<span>{formSwitchText}</span>
-								<Button
-									action={toggleAuthForm}
-									label={formSwitchAction}
-									style={'background-color: transparent !important; color: #4da5ff !important; text-decoration: underline; font-size: 0.9rem;'}
-								/>
-							</div>
+							{#if selected === authFlowOptions[1]}
+								<div class="form-action">
+									<span>Forgot Password?</span>
+									<Button
+										action={() => {
+											selected = authFlowOptions[2];
+										}}
+										label={'Request reset'}
+										style={'background-color: transparent !important; color: #4da5ff !important; text-decoration: underline; font-size: 0.9rem;'}
+									/>
+								</div>
+							{/if}
+							{#if selected !== authFlowOptions[2]}
+								<div class="form-action">
+									<span>{formSwitchText}</span>
+									<Button
+										action={toggleAuthForm}
+										label={formSwitchAction}
+										style={'background-color: transparent !important; color: #4da5ff !important; text-decoration: underline; font-size: 0.9rem;'}
+									/>
+								</div>
+							{/if}
+							{#if selected === authFlowOptions[2]}
+								<div class="form-action">
+									<Button
+										action={() => {
+											selected = authFlowOptions[1];
+										}}
+										label={'Back to Sign In'}
+										style={'background-color: transparent !important; color: #4da5ff !important; text-decoration: underline; font-size: 0.9rem;'}
+									/>
+								</div>
+							{/if}
 						</div>
 					</div>
 				</div>

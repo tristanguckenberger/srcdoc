@@ -305,6 +305,69 @@ export const actions = {
 			}
 		};
 	},
+	forgotPasswordRequest: async ({ request }) => {
+		const formData = await request.formData();
+		const email = formData?.get('email');
+		const requestHeaders = new Headers();
+
+		requestHeaders.append('Content-Type', 'application/json');
+
+		const requestInit = {
+			method: 'PUT',
+			headers: requestHeaders,
+			mode: 'cors',
+			body: JSON.stringify({
+				email
+			})
+		};
+
+		const response = await fetch(`${process.env.SERVER_URL}/api/auth/forgot-password`, requestInit);
+		const { message } = await response.json();
+
+		console.log('message::', message);
+
+		return {
+			status: 200,
+			body: {
+				message
+			}
+		};
+	},
+	resetPassword: async ({ request }) => {
+		const formData = await request.formData();
+		const password = formData?.get('password');
+		const token = formData?.get('token');
+		const requestHeaders = new Headers();
+
+		requestHeaders.append('Content-Type', 'application/json');
+
+		const requestInit = {
+			method: 'PUT',
+			headers: requestHeaders,
+			mode: 'cors',
+			body: JSON.stringify({
+				password
+			})
+		};
+
+		const response = await fetch(
+			`${process.env.SERVER_URL}/api/auth/reset-password/${token}`,
+			requestInit
+		);
+
+		// console.log('response::', response);
+
+		const { message } = await response.json();
+
+		// console.log('result::', result);
+
+		return {
+			status: 200,
+			body: {
+				message
+			}
+		};
+	},
 	createPlaylist: async ({ cookies, request, fetch }) => {
 		const token = cookies.get('token');
 		const formData = await request.formData();

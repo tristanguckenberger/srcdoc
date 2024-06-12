@@ -153,12 +153,12 @@
 			sideBarState.set(false);
 		}
 
-		if (browser) {
-			await tick();
-			if (!$editorPageInfoStore?.viewed) {
-				$modalFullInfoStore = $editorPageInfoStore?.info;
-			}
-		}
+		// if (browser) {
+		// 	await tick();
+		// 	if (!$editorPageInfoStore?.viewed) {
+		// 		$modalFullInfoStore = $editorPageInfoStore?.info;
+		// 	}
+		// }
 	});
 
 	afterUpdate(async () => {
