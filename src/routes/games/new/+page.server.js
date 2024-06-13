@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { gamesData } from '$lib/stores/gamesStore.js';
+// import { gamesData } from '$lib/stores/gamesStore.js';
 // import { redirect } from '@sveltejs/kit';
 
 const getNewGames = async (eventFetch) => {
@@ -18,7 +18,7 @@ const getNewGames = async (eventFetch) => {
 export async function load({ fetch }) {
 	const newGames = await getNewGames(fetch);
 
-	gamesData.set([...newGames]);
+	// gamesData.set([...newGames]);
 
 	return {
 		games: [...newGames]

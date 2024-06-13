@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { gamesData } from '$lib/stores/gamesStore.js';
+// import { gamesData } from '$lib/stores/gamesStore.js';
 // import { redirect } from '@sveltejs/kit';
 
 const getTopPlayedGames = async (eventFetch) => {
@@ -18,7 +18,7 @@ const getTopPlayedGames = async (eventFetch) => {
 export async function load({ fetch }) {
 	const topPlayed = await getTopPlayedGames(fetch);
 
-	gamesData.set([...topPlayed]);
+	// gamesData.set([...topPlayed]);
 
 	return {
 		games: [...topPlayed]

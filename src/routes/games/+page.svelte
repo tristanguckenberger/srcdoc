@@ -42,7 +42,7 @@
 		fetchMoreGames = [...fetchMoreGames, ...(newGames?.games ?? null)];
 	};
 	onMount(async () => {
-		firstRun.set(true);
+		// firstRun.set(true);
 
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);

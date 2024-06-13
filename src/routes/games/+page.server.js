@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { gamesData } from '$lib/stores/gamesStore.js';
+// import { gamesData } from '$lib/stores/gamesStore.js';
 import { redirect } from '@sveltejs/kit';
 
 const getCurrentUser = async (eventFetch) => {
@@ -60,7 +60,7 @@ export async function load({ fetch, setHeaders }) {
 	}
 
 	const publishedGames = games?.filter((game) => game.published);
-	gamesData.set([...publishedGames]);
+	// gamesData.set([...publishedGames]);
 
 	if (publishedGames.length > 0 && nextCursor === 0) {
 		nextCursor = publishedGames[publishedGames?.length - 1].id;
@@ -71,7 +71,7 @@ export async function load({ fetch, setHeaders }) {
 	});
 
 	return {
-		games: [],
+		games: [...publishedGames],
 		nextCursor: nextCursor,
 		user
 	};

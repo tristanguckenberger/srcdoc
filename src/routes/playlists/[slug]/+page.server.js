@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { session } from '$lib/stores/sessionStore.js';
+// import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 // import { playlistData } from '$lib/stores/playlistStore.js';
 
@@ -62,11 +62,11 @@ export async function load({ params, fetch }) {
 
 	const playlistGames = await getAllGamesForPlaylist(fetch, slug);
 
-	if (user) {
-		session.set({
-			...user
-		});
-	}
+	// if (user) {
+	// 	session.set({
+	// 		...user
+	// 	});
+	// }
 
 	return {
 		playlist: { ...playlistMap },

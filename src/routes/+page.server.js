@@ -1,7 +1,7 @@
 // @ts-nocheck
 // import { session } from '$lib/stores/sessionStore.js';
-import { userStore } from '$lib/stores/authStore.js';
-import { session } from '$lib/stores/sessionStore.js';
+// import { userStore } from '$lib/stores/authStore.js';
+// import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 // import { json } from '@sveltejs/kit';
 
@@ -47,7 +47,7 @@ export async function load({ cookies, fetch }) {
 	const token = cookies?.get('token');
 
 	const users = await getAllUsers();
-	users?.length && userStore.set(users);
+	// users?.length && userStore.set(users);
 
 	if (!token) {
 		return {
@@ -106,9 +106,9 @@ export const actions = {
 
 			const user = await getCurrentUser(fetch);
 			if (user) {
-				session.set({
-					...user
-				});
+				// session.set({
+				// 	...user
+				// });
 
 				if (user?.is_active) {
 					throw redirect(303, `/games`);
@@ -164,18 +164,18 @@ export const actions = {
 
 			const user = await getCurrentUser(fetch);
 
-			if (user) {
-				session.set({
-					...user
-				});
-			}
+			// if (user) {
+			// 	session.set({
+			// 		...user
+			// 	});
+			// }
 
 			return {
 				status: 200,
 				redirect: '/games',
 				body: {
 					message: 'registration_success',
-					user: { token, ...user, password: '' }
+					user: { ...user, password: '' }
 				}
 			};
 		}

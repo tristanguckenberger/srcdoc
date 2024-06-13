@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { session } from '$lib/stores/sessionStore.js';
+// import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
-import { playlistData } from '$lib/stores/playlistStore.js';
+// import { playlistData } from '$lib/stores/playlistStore.js';
 
 const getCurrentUser = async (eventFetch) => {
 	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
@@ -38,11 +38,11 @@ export async function load({ cookies, params, fetch }) {
 
 	const userPlaylists = await getAllPlaylistsByUser(fetch);
 
-	session.set({
-		...user
-	});
+	// session.set({
+	// 	...user
+	// });
 
-	playlistData.set(userPlaylists ? [...userPlaylists].reverse() : []);
+	// playlistData.set(userPlaylists ? [...userPlaylists].reverse() : []);
 
 	return {
 		playlists: userPlaylists ? [...userPlaylists].reverse() : [],

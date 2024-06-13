@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { session } from '$lib/stores/sessionStore.js';
+// import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
-import { gamesData } from '$lib/stores/gamesStore.js';
+// import { gamesData } from '$lib/stores/gamesStore.js';
 
 const getCurrentUser = async (eventFetch) => {
 	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
@@ -32,11 +32,11 @@ export async function load({ cookies, params, fetch }) {
 	}
 	const userGames = await getAllGamesByUser(params?.slug, fetch);
 
-	session.set({
-		...user
-	});
+	// session.set({
+	// 	...user
+	// });
 
-	gamesData.set([...userGames].reverse());
+	// gamesData.set([...userGames].reverse());
 
 	return {
 		games: [...userGames].reverse(),

@@ -665,12 +665,7 @@
 									</li>
 								{/if}
 							</ul> -->
-							<a
-								href="/users/{sessionData?.id}"
-								class="sidebar-item"
-								class:muted={!$session?.id}
-								on:click={toggleSettingsDrawer}
-							>
+							<a href="/users/{sessionData?.id}" class="sidebar-item" class:muted={!$session?.id}>
 								<img
 									class="avatar"
 									src={`${sessionData?.profile_photo ?? $session?.profile_photo}` ??

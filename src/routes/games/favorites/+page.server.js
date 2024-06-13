@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { gamesData } from '$lib/stores/gamesStore.js';
+// import { gamesData } from '$lib/stores/gamesStore.js';
 import { redirect } from '@sveltejs/kit';
 
 const getAllFavoritesByUser = async (eventFetch) => {
@@ -41,7 +41,7 @@ export async function load({ cookies, fetch }) {
 
 	const favorites = await getAllFavoritesByUser(fetch);
 
-	gamesData.set([...favorites].reverse());
+	// gamesData.set([...favorites].reverse());
 
 	return {
 		games: [...favorites].reverse()
