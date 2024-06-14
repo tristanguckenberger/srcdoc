@@ -3,6 +3,7 @@
 // import { userStore } from '$lib/stores/authStore.js';
 // import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
+import { getCurrentUser } from './api/utils/getFuncs.js';
 // import { json } from '@sveltejs/kit';
 
 const getAllUsers = async () => {
@@ -29,18 +30,6 @@ const getAllUsers = async () => {
 	}
 
 	return users;
-};
-
-const getCurrentUser = async (eventFetch) => {
-	let user;
-	try {
-		const userResponse = await eventFetch(`/api/users/getCurrentUser`);
-		user = await userResponse.json();
-	} catch (error) {
-		console.log('getCurrentUser::error::', error);
-	}
-
-	return user;
 };
 
 export async function load({ cookies, fetch }) {
@@ -96,15 +85,24 @@ export const actions = {
 		const token = resAuth?.token;
 
 		if (token) {
+			let user;
+
 			try {
-				cookies.set('token', token, {
+				await cookies.set('token', token, {
+					path: '/'
+				});
+				user = await getCurrentUser(fetch);
+				console.log('user::', user);
+				cookies.set('userId', JSON.stringify(user?.id), {
+					path: '/'
+				});
+				cookies.set('username', JSON.stringify(user?.username), {
 					path: '/'
 				});
 			} catch (error) {
 				console.log('cookieError::', error);
 			}
 
-			const user = await getCurrentUser(fetch);
 			if (user) {
 				// session.set({
 				// 	...user
@@ -154,15 +152,23 @@ export const actions = {
 
 		const token = (await authResponse.json()).token;
 		if (token) {
+			let user;
+
 			try {
-				cookies.set('token', token, {
+				await cookies.set('token', token, {
+					path: '/'
+				});
+				user = await getCurrentUser(fetch);
+				console.log('user::', user);
+				cookies.set('userId', JSON.stringify(user?.id), {
+					path: '/'
+				});
+				cookies.set('username', JSON.stringify(user?.username), {
 					path: '/'
 				});
 			} catch (error) {
 				console.log('cookieError::', error);
 			}
-
-			const user = await getCurrentUser(fetch);
 
 			// if (user) {
 			// 	session.set({
@@ -277,10 +283,6 @@ export const actions = {
 		const hide_pop_up_info_editor = formData?.get('hidePopUpInfoEditor');
 		// const dark_mode = formData?.get('darkMode');
 		const requestHeaders = new Headers();
-
-		console.log('updateSettings::hide_pop_up_info_home::', hide_pop_up_info_home);
-		console.log('updateSettings::hide_pop_up_info_games::', hide_pop_up_info_games);
-		console.log('updateSettings::hide_pop_up_info_editor::', hide_pop_up_info_editor);
 
 		requestHeaders.append('Content-Type', 'application/json');
 		requestHeaders.append('Authorization', `Bearer ${token}`);

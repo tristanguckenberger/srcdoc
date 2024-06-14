@@ -1,26 +1,19 @@
-import { getCurrentUser, getSettings } from './api/utils/getFuncs.js';
+//@ts-nocheck
+import { getSettings } from './api/utils/getFuncs.js';
 
 export async function load({ fetch, cookies }) {
 	const token = cookies?.get('token');
-	// let sessionData = null;
-	// session.subscribe(async (session) => {
-	// 	try {
-	// 		if (session && token) {
-	// 			sessionData = session;
-	// 		}
-	// 	} catch (error) {
-	// 		console.log('error::', error);
-	// 	}
-	// });
+	const id = cookies?.get('userId');
+	const username = cookies?.get('username');
 
 	if (token) {
 		const settings = await getSettings(fetch);
-		const user = await getCurrentUser(fetch);
 
 		return {
 			sessionData: {
 				settings,
-				...user
+				id,
+				username: JSON.parse(username)
 				// ...sessionData,
 				// token
 			}

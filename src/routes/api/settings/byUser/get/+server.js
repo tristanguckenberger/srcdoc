@@ -29,8 +29,6 @@ export async function GET({ cookies }) {
 		}
 
 		settings = await settingsResponse.json();
-
-		console.log('settings::', settings);
 	} catch (error) {
 		console.log('gameResponse::error::', error);
 	}
