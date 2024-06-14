@@ -1,7 +1,7 @@
-import { getSettings } from './api/utils/getFuncs.js';
+import { getCurrentUser, getSettings } from './api/utils/getFuncs.js';
 
-export async function load({ fetch }) {
-	// const token = cookies?.get('token');
+export async function load({ fetch, cookies }) {
+	const token = cookies?.get('token');
 	// let sessionData = null;
 	// session.subscribe(async (session) => {
 	// 	try {
@@ -13,13 +13,21 @@ export async function load({ fetch }) {
 	// 	}
 	// });
 
-	const settings = await getSettings(fetch);
+	if (token) {
+		const settings = await getSettings(fetch);
+		const user = await getCurrentUser(fetch);
+
+		return {
+			sessionData: {
+				settings,
+				...user
+				// ...sessionData,
+				// token
+			}
+		};
+	}
 
 	return {
-		sessionData: {
-			settings
-			// ...sessionData,
-			// token
-		}
+		sessionData: null
 	};
 }
