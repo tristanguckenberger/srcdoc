@@ -9,16 +9,32 @@
 	import { session } from '$lib/stores/sessionStore';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 	import EditUserDetails from '$lib/ui/Modal/components/EditUserDetails.svelte';
+	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
+	import { afterUpdate, onMount } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	export let data;
 
 	let imageLoaded = false;
 	let reactiveData = {};
 	let ComponentOptions = [];
+	let updating = false;
+	let followers;
+	let following;
+	let currentUser;
 
-	const handleFollow = () => {
-		// console.log('follow');
-	};
+	onMount(async () => {
+		followers = data?.followers;
+		following = data?.following;
+		currentUser = data?.currentUser;
+	});
+
+	afterUpdate(async () => {
+		followers = data?.followers;
+		following = data?.following;
+		currentUser = data?.currentUser;
+	});
 
 	$: (() => {
 		return (ComponentOptions = [
@@ -35,10 +51,21 @@
 		]);
 	})();
 	$: data?.user, (reactiveData = data?.user ?? {});
+	$: userId = $page?.params?.slug;
 	$: themeString = $themeDataStore?.theme?.join(' ');
 
 	$: loadedHeader = data?.header ?? 'https://picsum.photos/2000/300';
 	$: loadedProfilePhoto = data?.profile_photo ?? 'https://picsum.photos/2000/300';
+
+	$: currentUserIsFollowingProfileUser = followers?.some(
+		(follower) => follower?.id?.toString() === currentUser?.toString()
+	);
+	$: currentUserIsProfileUser = currentUser === userId;
+
+	$: {
+		console.log('currentUserIsFollowingProfileUser::', currentUserIsFollowingProfileUser);
+		console.log('currentUserIsProfileUser::', currentUserIsProfileUser);
+	}
 </script>
 
 <svelte:head>
@@ -57,26 +84,28 @@
 				}}
 				alt="User Profile Header"
 			/>
-			<button
-				class="settings-action"
-				class:drawerOpen={$drawerOpen}
-				on:click={() => {
-					browser && selectedOption.set(0);
-					drawerOpen.set(true);
-				}}
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="36"
-					height="36"
-					fill="#ffffff"
-					viewBox="0 0 256 256"
-					class="action-button-icon"
-					><path
-						d="M216,130.16q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.6,107.6,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.29,107.29,0,0,0-26.25-10.86,8,8,0,0,0-7.06,1.48L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.6,107.6,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"
-					/></svg
+			{#if currentUserIsProfileUser}
+				<button
+					class="settings-action"
+					class:drawerOpen={$drawerOpen}
+					on:click={() => {
+						browser && selectedOption.set(0);
+						drawerOpen.set(true);
+					}}
 				>
-			</button>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="36"
+						height="36"
+						fill="#ffffff"
+						viewBox="0 0 256 256"
+						class="action-button-icon"
+						><path
+							d="M216,130.16q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.6,107.6,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.29,107.29,0,0,0-26.25-10.86,8,8,0,0,0-7.06,1.48L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.6,107.6,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"
+						/></svg
+					>
+				</button>
+			{/if}
 			<div class="user-header-placeholder" class:hidePlaceholder={imageLoaded} />
 		</div>
 		<div class="user-details">
@@ -94,7 +123,34 @@
 						/>
 						<div class="user-header-placeholder avatar" class:hidePlaceholder={imageLoaded} />
 					</div>
-					<Button link={null} label={'Follow'} action={() => handleFollow} />
+					{#if !currentUserIsProfileUser}
+						<form
+							class="settingsForm"
+							method="POST"
+							action="/?/{currentUserIsFollowingProfileUser ? 'unfollowUser' : 'followUser'}"
+							enctype="multipart/form-data"
+							use:enhance={async ({ formElement, formData, action, cancel, submitter }) => {
+								formData.set('userId', userId);
+
+								updating = true;
+
+								return async ({ update, result }) => {
+									await update();
+									setTimeout(async () => {
+										updating = false;
+										await invalidateAll();
+									}, 500);
+								};
+							}}
+						>
+							<Button
+								bind:creating={updating}
+								label={currentUserIsFollowingProfileUser ? 'Unfollow' : 'Follow'}
+								isRounded
+								style="background-color: #6495ED; margin-top: 60px;"
+							/>
+						</form>
+					{/if}
 				</div>
 			</div>
 			<div class="user-text">
@@ -119,9 +175,9 @@
 		display: flex;
 		justify-content: center;
 	}
-	.user-info-container.showSideBar {
+	/* .user-info-container.showSideBar {
 		width: calc(100% - 230px);
-	}
+	} */
 	.user-info {
 		height: 100%;
 		width: 40%;

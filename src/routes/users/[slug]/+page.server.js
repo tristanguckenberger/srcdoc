@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { redirect } from '@sveltejs/kit';
+import { getFollowers, getFollowing } from '../../api/utils/getFuncs.js';
 
 const getUser = async (/** @type {String} */ id) => {
 	if (id) {
@@ -24,20 +26,30 @@ const getUser = async (/** @type {String} */ id) => {
 	}
 };
 
-export async function load({ params, setHeaders }) {
+export async function load({ params, setHeaders, fetch, cookies }) {
 	const { slug } = params;
 	const user = await getUser(slug);
 
 	if (user?.id) {
 		delete user.password;
 		delete user.email;
+	} else {
+		throw redirect(303, '/games');
 	}
+
+	const followers = await getFollowers(fetch, user?.id);
+	const following = await getFollowing(fetch, user?.id);
+	const currentUser = cookies.get('userId');
 
 	setHeaders({
 		'cache-control': 'max-age=604800'
 	});
+
 	return {
-		...user
+		...user,
+		followers,
+		following,
+		currentUser
 	};
 }
 export const actions = {

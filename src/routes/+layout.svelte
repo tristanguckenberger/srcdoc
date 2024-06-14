@@ -67,6 +67,7 @@
 		modalFullInfoStore
 	} from '$lib/stores/InfoStore.js';
 	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
+	import { getCurrentUser } from './api/utils/getFuncs.js';
 
 	// PROPS
 	export let sessionData; // TODO, ensure this isn't being used and remove it
@@ -241,6 +242,15 @@
 		// return () => {
 		// 	mainPageElement?.removeEventListener('scroll', handleScroll);
 		// };
+
+		if (!sessionData?.username) {
+			const user = await getCurrentUser();
+			session.set(...$session, user);
+			sessionData = {
+				...sessionData,
+				...user
+			};
+		}
 	});
 
 	onDestroy(() => {
@@ -653,7 +663,7 @@
 					<ul>
 						{#if sessionData?.id && !sessionData?.is_active && !$session?.is_active}
 							<a href="/users/{sessionData?.id}/verify" class:active={isVerifyPage}>
-								Account Verfication
+								Account Verification
 							</a>
 						{/if}
 						{#if !sessionData?.username && !$session?.username}

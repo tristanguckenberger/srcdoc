@@ -414,38 +414,6 @@ export const actions = {
 			}
 		};
 	},
-	// updatePlaylist: async ({ cookies, request, fetch }) => {
-	// 	const token = cookies.get('token');
-	// 	const formData = await request.formData();
-	// 	const id = formData?.get('id');
-	// 	const is_public = formData?.get('is_public');
-	// 	const name = formData?.get('name');
-	// 	const description = formData?.get('description');
-	// 	const requestHeaders = new Headers();
-
-	// 	requestHeaders.append('Content-Type', 'application/json');
-	// 	requestHeaders.append('Authorization', `Bearer ${token}`);
-
-	// 	const requestInit = {
-	// 		method: 'PUT',
-	// 		headers: requestHeaders,
-	// 		mode: 'cors',
-	// 		body: JSON.stringify({
-	// 			is_public,
-	// 			name,
-	// 			description
-	// 		})
-	// 	};
-
-	// 	const response = await fetch(`${process.env.SERVER_URL}/api/playlist/${id}`, requestInit);
-	// 	const result = await response.json();
-	// 	return {
-	// 		status: 200,
-	// 		body: {
-	// 			result
-	// 		}
-	// 	};
-	// },
 	search: async ({ fetch, request }) => {
 		const formData = await request.formData();
 		const query = formData?.get('query');
@@ -464,6 +432,62 @@ export const actions = {
 
 		return {
 			result
+		};
+	},
+	followUser: async ({ cookies, request }) => {
+		const token = cookies.get('token');
+		const formData = await request.formData();
+		const userId = formData?.get('userId');
+		const requestHeaders = new Headers();
+
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+
+		const requestInit = {
+			method: 'POST',
+			headers: requestHeaders
+		};
+
+		const response = await fetch(
+			`${process.env.SERVER_URL}/api/follows/follow/${userId}`,
+			requestInit
+		);
+
+		const result = await response.json();
+
+		return {
+			status: 200,
+			body: {
+				result
+			}
+		};
+	},
+	unfollowUser: async ({ cookies, request }) => {
+		const token = cookies.get('token');
+		const formData = await request.formData();
+		const userId = formData?.get('userId');
+		const requestHeaders = new Headers();
+
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+
+		const requestInit = {
+			method: 'DELETE',
+			headers: requestHeaders
+		};
+
+		const response = await fetch(
+			`${process.env.SERVER_URL}/api/follows/unfollow/${userId}`,
+			requestInit
+		);
+
+		const result = await response.json();
+
+		return {
+			status: 200,
+			body: {
+				result
+			}
 		};
 	}
 };
