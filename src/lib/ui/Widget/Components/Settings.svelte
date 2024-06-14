@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import { afterUpdate, onMount, tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { sideBarState } from '$lib/stores/layoutStore';
 	import { themeDataStore, themeKeyStore } from '$lib/stores/themeStore';
 	import ToggleSwitch from '$lib/ui/ToggleSwitch/index.svelte';
@@ -32,7 +32,9 @@
 	export let userSettings;
 	export let action;
 
-	let hidePopUpInfo = false;
+	let hidePopUpInfoHome = false;
+	let hidePopUpInfoGames = false;
+	let hidePopUpInfoEditor = false;
 	let darkMode = true;
 	let updating = false;
 	let themeString = '';
@@ -66,13 +68,15 @@
 				settingsStore.set(settingsRes);
 			}
 			if ($settingsStore) {
-				hidePopUpInfo = $settingsStore?.hidePopUpInfo ?? $settingsStore?.hide_pop_up_info;
-				// darkMode = $settingsStore?.darkMode ?? $settingsStore?.dark_mode;
+				hidePopUpInfoHome = $settingsStore?.hide_pop_up_info_home;
+				hidePopUpInfoGames = $settingsStore?.hide_pop_up_info_games;
+				hidePopUpInfoEditor = $settingsStore?.hide_pop_up_info_editor;
 			}
 		}
 	});
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
+
 	$: console.log('Session::', $session);
 </script>
 
@@ -85,7 +89,12 @@
 		method="POST"
 		action="/?/updateSettings"
 		enctype="multipart/form-data"
-		use:enhance={() => {
+		use:enhance={async ({ formElement, formData, action, cancel, submitter }) => {
+			formData.set('hidePopUpInfoHome', hidePopUpInfoHome);
+			formData.set('hidePopUpInfoGames', hidePopUpInfoGames);
+			formData.set('hidePopUpInfoEditor', hidePopUpInfoEditor);
+			formData.set('darkMode', darkMode);
+
 			updating = true;
 
 			return async ({ update, result }) => {
@@ -95,20 +104,19 @@
 				}, 500);
 
 				if (result?.status === 200) {
-					// settingsStore.set(result?.data?.body?.result?.hide_pop_up_info);
 					console.log(result?.data?.body?.result);
 					await tick();
 					homePageInfoStore.set({
 						...$homePageInfoStore,
-						viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info)
+						viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_home)
 					});
 					gamePageInfoStore.set({
 						...$gamePageInfoStore,
-						viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info)
+						viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_games)
 					});
 					editorPageInfoStore.set({
 						...$editorPageInfoStore,
-						viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info)
+						viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_editor)
 					});
 					await invalidateAll();
 				}
@@ -117,14 +125,33 @@
 	>
 		<svelte:component this={tabs[$currentTab]?.component}>
 			<div slot="tab_form_elements">
-				<CustomInput inputCapture={'hidePopUpInfo'} inputValue={hidePopUpInfo} hidden />
+				<!-- {#await hidePopUpInfoHome !== null && hidePopUpInfoGames !== null && hidePopUpInfoEditor !== null} -->
+
 				<CustomInput inputCapture={'darkMode'} inputValue={true} hidden />
 				{#if $currentTab === 0}
+					<CustomInput inputCapture={'hidePopUpInfoHome'} inputValue={hidePopUpInfoHome} hidden />
 					<ToggleSwitch
-						bind:value={hidePopUpInfo}
-						label="Disable Tutorial Pop-ups"
+						bind:value={hidePopUpInfoHome}
+						label="Disable Home Tutorial Pop-up"
 						design="slider"
 					/>
+					<CustomInput inputCapture={'hidePopUpInfoGames'} inputValue={hidePopUpInfoGames} hidden />
+					<ToggleSwitch
+						bind:value={hidePopUpInfoGames}
+						label="Disable Game Tutorial Pop-up"
+						design="slider"
+					/>
+					<CustomInput
+						inputCapture={'hidePopUpInfoEditor'}
+						inputValue={hidePopUpInfoEditor}
+						hidden
+					/>
+					<ToggleSwitch
+						bind:value={hidePopUpInfoEditor}
+						label="Disable Editor Tutorial Pop-up"
+						design="slider"
+					/>
+
 					<!-- {:else if $currentTab === 1}
 					<ToggleSwitch bind:value={hidePopUpInfo} label="Editor" design="slider" /> -->
 					<!-- {:else if $currentTab === 2} -->
@@ -134,6 +161,7 @@
 				{:else if $currentTab === 4}
 					<ToggleSwitch bind:value={hidePopUpInfo} label="Activity & Data" design="slider" /> -->
 				{/if}
+				<!-- {/await} -->
 			</div>
 		</svelte:component>
 

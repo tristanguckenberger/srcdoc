@@ -272,12 +272,15 @@ export const actions = {
 	updateSettings: async ({ cookies, request }) => {
 		const token = cookies.get('token');
 		const formData = await request.formData();
-		const hide_pop_up_info = formData?.get('hidePopUpInfo');
-		const dark_mode = formData?.get('darkMode');
+		const hide_pop_up_info_home = formData?.get('hidePopUpInfoHome');
+		const hide_pop_up_info_games = formData?.get('hidePopUpInfoGames');
+		const hide_pop_up_info_editor = formData?.get('hidePopUpInfoEditor');
+		// const dark_mode = formData?.get('darkMode');
 		const requestHeaders = new Headers();
 
-		console.log('hide_pop_up_info::', JSON.parse(JSON.stringify(hide_pop_up_info)));
-		console.log('dark_mode::', JSON.parse(JSON.stringify(dark_mode)));
+		console.log('updateSettings::hide_pop_up_info_home::', hide_pop_up_info_home);
+		console.log('updateSettings::hide_pop_up_info_games::', hide_pop_up_info_games);
+		console.log('updateSettings::hide_pop_up_info_editor::', hide_pop_up_info_editor);
 
 		requestHeaders.append('Content-Type', 'application/json');
 		requestHeaders.append('Authorization', `Bearer ${token}`);
@@ -287,7 +290,10 @@ export const actions = {
 			headers: requestHeaders,
 			mode: 'cors',
 			body: JSON.stringify({
-				hide_pop_up_info: JSON.parse(JSON.stringify(hide_pop_up_info)),
+				hide_pop_up_info: false,
+				hide_pop_up_info_home: hide_pop_up_info_home,
+				hide_pop_up_info_games: hide_pop_up_info_games,
+				hide_pop_up_info_editor: hide_pop_up_info_editor,
 				dark_mode: true
 			})
 		};

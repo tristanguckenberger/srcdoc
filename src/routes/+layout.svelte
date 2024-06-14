@@ -104,19 +104,19 @@
 
 	const debouncedScrollForward = debounce(handleScrollForward, 350);
 
-	const getSettings = async () => {
-		const settingsRes = await fetch(`/api/settings/byUser/get`);
-		const settings = await settingsRes.json();
+	// const getSettings = async () => {
+	// 	const settingsRes = await fetch(`/api/settings/byUser/get`);
+	// 	const settings = await settingsRes.json();
 
-		return settings;
-	};
+	// 	return settings;
+	// };
 
 	onMount(async () => {
 		inject({ mode: dev ? 'development' : 'production' });
 
 		if (browser) {
-			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
-			preferedThemeMode?.addEventListener('change', updateTheme);
+			// preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
+			// preferedThemeMode?.addEventListener('change', updateTheme);
 			updateTheme(preferedThemeMode);
 			if (sessionData && !$session) {
 				session.set(sessionData);
@@ -127,11 +127,32 @@
 			gamePageInfoStore.useLocalStorage();
 			editorPageInfoStore.useLocalStorage();
 
-			const settingsRes = await getSettings();
+			console.log('data::settings', data?.sessionData?.settings);
+			console.log('data::gamePageInfoStore', $gamePageInfoStore);
 
-			if (settingsRes) {
-				settingsStore.set(settingsRes);
+			if (data?.sessionData?.settings) {
+				// settingsStore.set(data?.sessionData?.settings);
+				homePageInfoStore.set({
+					...$homePageInfoStore,
+					viewed: data?.sessionData?.settings?.hide_pop_up_info_home
+				});
+				gamePageInfoStore.set({
+					...$gamePageInfoStore,
+					viewed: data?.sessionData?.settings?.hide_pop_up_info_games
+				});
+				editorPageInfoStore.set({
+					...$editorPageInfoStore,
+					viewed: data?.sessionData?.settings?.hide_pop_up_info_editor
+				});
+
+				$modalFullInfoStore = null;
 			}
+
+			// const settingsRes = await getSettings();
+
+			// if (settingsRes) {
+			// 	settingsStore.set(settingsRes);
+			// }
 			// if ($settingsStore) {
 			// 	hidePopUpInfo = $settingsStore?.hidePopUpInfo ?? $settingsStore?.hide_pop_up_info;
 			// 	darkMode = $settingsStore?.darkMode ?? $settingsStore?.dark_mode;
@@ -142,9 +163,9 @@
 		mainPageElement = mainElement?.querySelector('.main');
 
 		// if we have the main page element, we can add the event listeners for scrolling
-		return () => {
-			preferedThemeMode?.removeListener('change', updateTheme);
-		};
+		// return () => {
+		// 	preferedThemeMode?.removeListener('change', updateTheme);
+		// };
 	});
 
 	beforeNavigate(async (nav) => {
@@ -212,27 +233,27 @@
 
 		deleteOrCreateFav = isFavorited ?? false;
 
-		if (mainPageElement) {
-			mainPageElement?.removeEventListener('scroll', handleScroll);
-			mainPageElement.addEventListener('scroll', handleScroll);
-		}
+		// if (mainPageElement) {
+		// 	mainPageElement?.removeEventListener('scroll', handleScroll);
+		// 	mainPageElement.addEventListener('scroll', handleScroll);
+		// }
 
-		return () => {
-			mainPageElement?.removeEventListener('scroll', handleScroll);
-		};
+		// return () => {
+		// 	mainPageElement?.removeEventListener('scroll', handleScroll);
+		// };
 	});
 
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
 
-	const handleScroll = (e) => {
-		if (e.target.scrollTop > 0) {
-			$showBoxShadow = true;
-		} else {
-			$showBoxShadow = false;
-		}
-	};
+	// const handleScroll = (e) => {
+	// 	if (e.target.scrollTop > 0) {
+	// 		$showBoxShadow = true;
+	// 	} else {
+	// 		$showBoxShadow = false;
+	// 	}
+	// };
 
 	const loaderCheck = (navigation) => {
 		let canLoad = false;
@@ -339,15 +360,15 @@
 	// $: $openFiles?.length > 0
 	// 	? ($addPaddingToEditorStore = true)
 	// 	: ($addPaddingToEditorStore = false);
-	$: $settingsStore?.hide_pop_up_info,
-		(() => {
-			// homePageInfoStore.set({ ...$homePageInfoStore, viewed: $settingsStore?.hide_pop_up_info });
-			// gamePageInfoStore.set({ ...$gamePageInfoStore, viewed: $settingsStore?.hide_pop_up_info });
-			// editorPageInfoStore.set({
-			// 	...$editorPageInfoStore,
-			// 	viewed: $settingsStore?.hide_pop_up_info
-			// });
-		})();
+	// $: $settingsStore?.hide_pop_up_info,
+	// 	(() => {
+	// 		// homePageInfoStore.set({ ...$homePageInfoStore, viewed: $settingsStore?.hide_pop_up_info });
+	// 		// gamePageInfoStore.set({ ...$gamePageInfoStore, viewed: $settingsStore?.hide_pop_up_info });
+	// 		// editorPageInfoStore.set({
+	// 		// 	...$editorPageInfoStore,
+	// 		// 	viewed: $settingsStore?.hide_pop_up_info
+	// 		// });
+	// 	})();
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');

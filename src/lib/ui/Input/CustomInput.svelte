@@ -40,6 +40,8 @@
 					break;
 			}
 		})();
+
+	$: console.log('inputCapture::inputText', inputCapture);
 </script>
 
 <div class="input-container modal">
@@ -85,7 +87,7 @@
 					blurAction();
 				}}
 			/>
-		{:else if inputCapture === 'published' || inputCapture === 'hidePopUpInfo' || inputCapture === 'darkMode'}
+		{:else if inputCapture === 'published' || inputCapture === 'hidePopUpInfoHome' || inputCapture === 'hidePopUpInfoGames' || inputCapture === 'hidePopUpInfoEditor' || inputCapture === 'darkMode'}
 			<input
 				class:hideMe={hidden}
 				type="text"

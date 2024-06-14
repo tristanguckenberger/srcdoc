@@ -44,7 +44,7 @@
 	let preferedThemeMode;
 	let dropDownToggle = false;
 	let isFavorited = false;
-	let mainPageElement;
+	// let mainPageElement;
 	let mainElement;
 	const showBoxShadow = writable(false);
 
@@ -62,12 +62,12 @@
 		}
 
 		// try this in an onMount and an afterUpdate
-		mainPageElement = mainElement?.querySelector('.main');
+		// mainPageElement = mainElement?.querySelector('.main');
 
 		// if we have the main page element, we can add the event listeners for scrolling
-		return () => {
-			preferedThemeMode?.removeListener('change', updateTheme);
-		};
+		// return () => {
+		// 	preferedThemeMode?.removeListener('change', updateTheme);
+		// };
 	});
 
 	const toggleFileSystemSidebar = () => {
