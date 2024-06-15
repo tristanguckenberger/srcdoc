@@ -103,9 +103,11 @@
 
 		if (browser) {
 			await tick();
-			if (!$editorPageInfoStore?.viewed) {
-				$modalFullInfoStore = $editorPageInfoStore?.info;
-			}
+			setTimeout(() => {
+				if (!$editorPageInfoStore?.viewed) {
+					$modalFullInfoStore = $editorPageInfoStore?.info;
+				}
+			}, 500);
 		}
 	});
 

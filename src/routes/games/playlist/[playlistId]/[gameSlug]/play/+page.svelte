@@ -131,10 +131,12 @@
 		if (browser) {
 			// Check if our local info stores for the homePage has been viewed already
 			await tick();
-			if (!$gamePageInfoStore?.viewed) {
-				// if this isnt viewed, we wanna display the info modal overlay
-				$modalFullInfoStore = $gamePageInfoStore?.info;
-			}
+			setTimeout(() => {
+				if (!$gamePageInfoStore?.viewed) {
+					// if this isnt viewed, we wanna display the info modal overlay
+					$modalFullInfoStore = $gamePageInfoStore?.info;
+				}
+			}, 500);
 		}
 	});
 

@@ -10,6 +10,7 @@
 	import { writable } from 'svelte/store';
 	import { onMount, setContext } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
+	import { platformSession } from '$lib/stores/platformSession/index.js';
 
 	export let data;
 
@@ -43,20 +44,20 @@
 <div class="playlist-drawer-container">
 	{#if data}
 		<div class="playlists-container" class:sideBarOpen={$sideBarState}>
-			{#if $session?.id}
+			{#if $platformSession?.currentUser?.id}
 				<HorizontalList
 					title="Favorites"
 					subtitle="Your Favorites"
 					type={'favorites'}
 					link={'/games/favorites'}
-					userId={$session?.id}
+					userId={$platformSession?.currentUser?.id}
 				/>
 				<HorizontalList
 					title="Projects"
 					subtitle="Your Projects"
 					type={'projects'}
-					userId={$session?.id}
-					link={`/users/${$session?.id}/games`}
+					userId={$platformSession?.currentUser?.id}
+					link={`/users/${$platformSession?.currentUser?.id}/games`}
 				/>
 			{/if}
 			<h3>Playlists</h3>

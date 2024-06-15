@@ -12,7 +12,8 @@
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
 	import { afterUpdate, onMount } from 'svelte';
-	import { invalidateAll } from '$app/navigation';
+	import { invalidateAll, invalidate } from '$app/navigation';
+	import FollowButton from '$lib/ui/FollowButton/index.svelte';
 
 	export let data;
 
@@ -53,15 +54,12 @@
 	$: data?.user, (reactiveData = data?.user ?? {});
 	$: userId = $page?.params?.slug;
 	$: themeString = $themeDataStore?.theme?.join(' ');
-
 	$: loadedHeader = data?.header ?? 'https://picsum.photos/2000/300';
 	$: loadedProfilePhoto = data?.profile_photo ?? 'https://picsum.photos/2000/300';
-
 	$: currentUserIsFollowingProfileUser = followers?.some(
 		(follower) => follower?.id?.toString() === currentUser?.toString()
 	);
 	$: currentUserIsProfileUser = currentUser === userId;
-
 	$: {
 		console.log('currentUserIsFollowingProfileUser::', currentUserIsFollowingProfileUser);
 		console.log('currentUserIsProfileUser::', currentUserIsProfileUser);
@@ -124,7 +122,7 @@
 						<div class="user-header-placeholder avatar" class:hidePlaceholder={imageLoaded} />
 					</div>
 					{#if !currentUserIsProfileUser}
-						<form
+						<!-- <form
 							class="settingsForm"
 							method="POST"
 							action="/?/{currentUserIsFollowingProfileUser ? 'unfollowUser' : 'followUser'}"
@@ -149,7 +147,8 @@
 								isRounded
 								style="background-color: #6495ED; margin-top: 60px;"
 							/>
-						</form>
+						</form> -->
+						<FollowButton {currentUserIsFollowingProfileUser} {userId} />
 					{/if}
 				</div>
 			</div>
@@ -183,7 +182,8 @@
 		width: 40%;
 		display: flex;
 		flex-direction: column;
-		min-width: 680px;
+
+		position: relative;
 	}
 	.user-header-image-container {
 		width: 100%;
@@ -206,6 +206,9 @@
 		justify-content: space-between;
 		border-radius: 6px;
 		padding: 10px 0 10px 0;
+		position: absolute;
+		width: 100%;
+		top: 14vmin;
 	}
 	.main-action-container {
 		display: flex;

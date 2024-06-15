@@ -56,9 +56,9 @@
 			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
 			preferedThemeMode?.addEventListener('change', updateTheme);
 			updateTheme(preferedThemeMode);
-			if (sessionData && !$session) {
-				session.set(sessionData);
-			}
+			// if (sessionData && !$session) {
+			// 	session.set(sessionData);
+			// }
 		}
 
 		// try this in an onMount and an afterUpdate
@@ -169,7 +169,7 @@
 	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isHomePage = $page?.route?.id === '/';
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
-	$: sessionData = data?.sessionData ?? $session;
+	// $: sessionData = data?.sessionData ?? $session;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
 	$: isMobile = $appClientWidth < 768;
 	$: isProfilePage =
@@ -184,7 +184,7 @@
 		splitPath[splitPath?.length - 1] === 'favorites' && splitPath[1] === 'games';
 	$: (() => {
 		$gameFavorites?.favorites?.some((fav) => {
-			isFavorited = fav?.user_id === sessionData?.id ?? false;
+			isFavorited = fav?.user_id === sessionData?.currentUser?.id ?? false;
 		});
 	})();
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];

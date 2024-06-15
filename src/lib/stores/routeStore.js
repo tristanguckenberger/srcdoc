@@ -11,9 +11,9 @@ export const routeHistoryStore = derived([page, visitedRoutes], ([$page, $visite
 		}
 	}
 
-	if ($visitedRoutes?.length >= 5) {
-		visitedRoutes.set($visitedRoutes.slice(1));
-	}
+	// if ($visitedRoutes?.length >= 5) {
+	// 	visitedRoutes.set($visitedRoutes.slice(1));
+	// }
 
 	// Check if the user navigated to the previous route
 	if ($visitedRoutes?.length >= 2 && $visitedRoutes[$visitedRoutes.length - 2] === route) {

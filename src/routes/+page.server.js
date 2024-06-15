@@ -96,7 +96,10 @@ export const actions = {
 				cookies.set('userId', JSON.stringify(user?.id), {
 					path: '/'
 				});
-				cookies.set('username', JSON.stringify(user?.username), {
+				// cookies.set('username', JSON.stringify(user?.username), {
+				// 	path: '/'
+				// });
+				cookies.set('isActive', JSON.stringify(user?.is_active), {
 					path: '/'
 				});
 			} catch (error) {

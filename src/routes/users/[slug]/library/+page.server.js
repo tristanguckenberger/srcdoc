@@ -3,13 +3,6 @@
 import { redirect } from '@sveltejs/kit';
 // import { playlistData } from '$lib/stores/playlistStore.js';
 
-const getCurrentUser = async (eventFetch) => {
-	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
-	const user = await userResponse.json();
-
-	return user;
-};
-
 const getAllPlaylistsByUser = async (eventFetch) => {
 	const playlistRes = await eventFetch(`/api/playlist/myLibrary`);
 	const playlists = await playlistRes.json();
@@ -27,15 +20,6 @@ export async function load({ cookies, params, fetch }) {
 		throw redirect(303, '/');
 	}
 
-	const user = await getCurrentUser(fetch);
-	if (!user || user?.status === 401) {
-		throw redirect(303, '/games');
-	}
-
-	if (user?.id.toString() !== slug.toString()) {
-		throw redirect(303, '/games');
-	}
-
 	const userPlaylists = await getAllPlaylistsByUser(fetch);
 
 	// session.set({
@@ -45,10 +29,7 @@ export async function load({ cookies, params, fetch }) {
 	// playlistData.set(userPlaylists ? [...userPlaylists].reverse() : []);
 
 	return {
-		playlists: userPlaylists ? [...userPlaylists].reverse() : [],
-		sessionData: {
-			...user
-		}
+		playlists: userPlaylists ? [...userPlaylists].reverse() : []
 	};
 }
 

@@ -12,7 +12,12 @@
 	import { enhance } from '$app/forms';
 
 	// CUSTOM STORE IMPORTS
-	import { playButton, actionMenuOpen, gameFavorites } from '$lib/stores/gamesStore.js';
+	import {
+		playButton,
+		actionMenuOpen,
+		gameFavorites,
+		currentGame
+	} from '$lib/stores/gamesStore.js';
 	import { hidePlayButtonStore } from '$lib/stores/gameControllerStore.js';
 	import {
 		fileSystemSidebarOpen,
@@ -41,6 +46,7 @@
 	} from '$lib/stores/gameSession/index.js';
 	import { autoStack, itemsInStack } from '$lib/stores/modalStackStore';
 	import { settingsStore } from '$lib/stores/settingsStore.js';
+	import { platformSession } from '$lib/stores/platformSession/index.js';
 
 	// COMPONENT IMPORTS
 	import Modal from '$lib/ui/Modal/index.svelte';
@@ -67,11 +73,9 @@
 		modalFullInfoStore
 	} from '$lib/stores/InfoStore.js';
 	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
-	import { getCurrentUser } from './api/utils/getFuncs.js';
 
 	// PROPS
-	export let sessionData; // TODO, ensure this isn't being used and remove it
-	export let data; // This is the data from the server, includes `sessionData`
+	export let data; // This is the data from the server, includes `settings` and `currentUser`
 
 	// Variables
 	let preferedThemeMode;
@@ -85,6 +89,7 @@
 	let showSettings = false;
 	let ComponentOptions = [];
 	const showBoxShadow = writable(false);
+	let sessionData;
 
 	// FUNCTIONS
 	const handleScrollBack = () => {
@@ -93,7 +98,6 @@
 			triggerNavigation.set(true);
 		}, 300);
 	};
-
 	const debouncedScrollBack = debounce(handleScrollBack, 350);
 
 	const handleScrollForward = () => {
@@ -102,15 +106,7 @@
 			triggerNavigation.set(true);
 		}, 300);
 	};
-
 	const debouncedScrollForward = debounce(handleScrollForward, 350);
-
-	// const getSettings = async () => {
-	// 	const settingsRes = await fetch(`/api/settings/byUser/get`);
-	// 	const settings = await settingsRes.json();
-
-	// 	return settings;
-	// };
 
 	onMount(async () => {
 		inject({ mode: dev ? 'development' : 'production' });
@@ -119,45 +115,33 @@
 			// preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
 			// preferedThemeMode?.addEventListener('change', updateTheme);
 			updateTheme(preferedThemeMode);
-			if (sessionData && !$session) {
-				session.set(sessionData);
-			}
 
 			// Start local storage stores
 			homePageInfoStore.useLocalStorage();
 			gamePageInfoStore.useLocalStorage();
 			editorPageInfoStore.useLocalStorage();
 
-			console.log('data::settings', data?.sessionData?.settings);
+			// session.set({ currentUser: data.currentUser, settings: data.settings });
+
+			// console.log('data::settings', data?.settings);
 			console.log('data::gamePageInfoStore', $gamePageInfoStore);
 
-			if (data?.sessionData?.settings) {
-				// settingsStore.set(data?.sessionData?.settings);
+			if (data?.settings) {
 				homePageInfoStore.set({
 					...$homePageInfoStore,
-					viewed: data?.sessionData?.settings?.hide_pop_up_info_home
+					viewed: data?.settings?.hide_pop_up_info_home
 				});
 				gamePageInfoStore.set({
 					...$gamePageInfoStore,
-					viewed: data?.sessionData?.settings?.hide_pop_up_info_games
+					viewed: data?.settings?.hide_pop_up_info_games
 				});
 				editorPageInfoStore.set({
 					...$editorPageInfoStore,
-					viewed: data?.sessionData?.settings?.hide_pop_up_info_editor
+					viewed: data?.settings?.hide_pop_up_info_editor
 				});
 
 				$modalFullInfoStore = null;
 			}
-
-			// const settingsRes = await getSettings();
-
-			// if (settingsRes) {
-			// 	settingsStore.set(settingsRes);
-			// }
-			// if ($settingsStore) {
-			// 	hidePopUpInfo = $settingsStore?.hidePopUpInfo ?? $settingsStore?.hide_pop_up_info;
-			// 	darkMode = $settingsStore?.darkMode ?? $settingsStore?.dark_mode;
-			// }
 		}
 
 		// try this in an onMount and an afterUpdate
@@ -204,9 +188,9 @@
 			sideBarState.set(false);
 		}
 
-		if (!sessionData?.username && !$session?.username && sessionData?.token) {
-			await invalidateAll();
-		}
+		// if (!sessionData?.currentUser?.username) {
+		// 	await invalidateAll();
+		// }
 
 		if (creatingNewPlaylist) {
 			$playButton = false;
@@ -229,7 +213,7 @@
 		shouldAddPadding = $addPaddingToEditorStore;
 
 		$gameFavorites?.favorites?.some((fav) => {
-			isFavorited = fav?.user_id === sessionData?.id ?? false;
+			isFavorited = fav?.user_id === $platformSession?.currentUser?.id ?? false;
 		});
 
 		deleteOrCreateFav = isFavorited ?? false;
@@ -242,15 +226,6 @@
 		// return () => {
 		// 	mainPageElement?.removeEventListener('scroll', handleScroll);
 		// };
-
-		if (!sessionData?.username) {
-			const user = await getCurrentUser();
-			session.set(...$session, user);
-			sessionData = {
-				...sessionData,
-				...user
-			};
-		}
 	});
 
 	onDestroy(() => {
@@ -367,27 +342,25 @@
 	};
 
 	// REACTIVE VARIABLES & STATEMENTS
-	// $: $openFiles?.length > 0
-	// 	? ($addPaddingToEditorStore = true)
-	// 	: ($addPaddingToEditorStore = false);
-	// $: $settingsStore?.hide_pop_up_info,
-	// 	(() => {
-	// 		// homePageInfoStore.set({ ...$homePageInfoStore, viewed: $settingsStore?.hide_pop_up_info });
-	// 		// gamePageInfoStore.set({ ...$gamePageInfoStore, viewed: $settingsStore?.hide_pop_up_info });
-	// 		// editorPageInfoStore.set({
-	// 		// 	...$editorPageInfoStore,
-	// 		// 	viewed: $settingsStore?.hide_pop_up_info
-	// 		// });
-	// 	})();
+	// $: data?.currentUser && data?.settings,
+	// 	session.set({ currentUser: { ...data.currentUser }, settings: { ...data.settings } });
+	// $: console.log('data::', data);
+	// $: console.log('$session::', $session);
+	// $: $platformSession?.currentUser && $platformSession?.settings, (sessionData = $platformSession);
+
+	$: data?.currentUser && data?.settings,
+		platformSession.set({ currentUser: data.currentUser, settings: data.settings, ready: true });
+
+	// $: console.log('$platformSession::', $platformSession);
+
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isVerifyPage = splitPath[splitPath?.length - 1] === 'verify';
 	$: isHomePage = $page?.route?.id === '/';
 	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
-	$: sessionData = data?.sessionData ?? $session;
-	$: modalIsOpen = $modalOpenState;
+	// $: playPauseLabel = $triggerCompile ? 'pause' : 'play';
+	// $: modalIsOpen = $modalOpenState;
 	$: isPlayPage =
 		$page?.route?.id === '/games/[slug]/play' ||
 		$page?.route?.id === '/games/playlist/[playlistId]/[gameSlug]/play';
@@ -407,23 +380,29 @@
 		splitPath[splitPath?.length - 1] === 'favorites' && splitPath[1] === 'games';
 	$: (() => {
 		$gameFavorites?.favorites?.some((fav) => {
-			isFavorited = fav?.user_id === sessionData?.id ?? false;
+			isFavorited = fav?.user_id === $platformSession?.currentUser?.id ?? false;
 		});
 	})();
 	$: canShowLoader = (() => loaderCheck($navigating))();
 	$: gameSessionId = $gameSessionState?.id;
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
 	$: disableBackButton = $routeHistoryStore?.length < 2;
-	$: myProjectsLink = !$session?.id ? null : `/users/${$session?.id}/games`;
-	$: myLibraryLink = !$session?.id ? null : `/users/${$session?.id}/library`;
-	$: newPlayListLink = !$session?.id ? null : `/users/${$session?.id}/library`;
-	$: favoritesLink = !$session?.id ? null : '/games/favorites';
+	$: myProjectsLink = !$platformSession?.currentUser?.id
+		? null
+		: `/users/${$platformSession?.currentUser?.id}/games`;
+	$: myLibraryLink = !$platformSession?.currentUser?.id
+		? null
+		: `/users/${$platformSession?.currentUser?.id}/library`;
+	$: newPlayListLink = !$platformSession?.currentUser?.id
+		? null
+		: `/users/${$platformSession?.currentUser?.id}/library`;
+	$: favoritesLink = !$platformSession?.currentUser?.id ? null : '/games/favorites';
 	$: (() => {
 		return (ComponentOptions = [
 			{
 				name: 'Settings',
 				props: {
-					userId: $session?.id,
+					userId: $platformSession?.currentUser?.id,
 					userSettings: data?.userSettings ?? data?.user_settings
 				},
 				component: Settings
@@ -450,10 +429,7 @@
 		class:gameProfile={(isProfilePage || playInRoute) && !engineInRoute}
 		bind:clientWidth={$appClientWidth}
 	>
-		<NavigationBar {data} {sessionData} />
-		<!-- {#if modalIsOpen}
-			<Modal />
-		{/if} -->
+		<NavigationBar {data} {$platformSession} />
 		<div
 			class="page-container"
 			class:addPaddingToEditorStore={shouldAddPadding}
@@ -503,7 +479,7 @@
 							href={favoritesLink}
 							class:active={isUserFavoritesBrowsePage}
 							class="sidebar-item"
-							class:muted={!$session?.id}
+							class:muted={!$platformSession?.currentUser?.id}
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -520,9 +496,9 @@
 						<a
 							href={newPlayListLink}
 							class="sidebar-item"
-							class:muted={!$session?.id}
+							class:muted={!$platformSession?.currentUser?.id}
 							on:click={() => {
-								if (!$session?.id) {
+								if (!$platformSession?.currentUser?.id) {
 									return;
 								}
 								creatingNewPlaylist = true;
@@ -544,7 +520,7 @@
 							href={myLibraryLink}
 							class="sidebar-item"
 							class:active={isUserLibraryPage}
-							class:muted={!$session?.id}
+							class:muted={!$platformSession?.currentUser?.id}
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -626,8 +602,8 @@
 							href={myProjectsLink}
 							class:active={isUserGamesBrowsePage}
 							class="sidebar-item"
-							class:muted={!$session?.id}
-							aria-disabled={!$session?.id}
+							class:muted={!$platformSession?.currentUser?.id}
+							aria-disabled={!$platformSession?.currentUser?.id}
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -641,7 +617,7 @@
 							>
 							<span>My Projects</span>
 						</a>
-						<div class="sidebar-action" class:muted={!$session?.id}>
+						<div class="sidebar-action" class:muted={!$platformSession?.currentUser?.id}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
@@ -661,12 +637,15 @@
 				<hr class="sidebar-divider" />
 				<div class="sidebar-section">
 					<ul>
-						{#if sessionData?.id && !sessionData?.is_active && !$session?.is_active}
-							<a href="/users/{sessionData?.id}/verify" class:active={isVerifyPage}>
+						{#if $platformSession?.currentUser?.id && !$platformSession?.currentUser?.is_active}
+							<a
+								href="/users/{$platformSession?.currentUser?.id}/verify"
+								class:active={isVerifyPage}
+							>
 								Account Verification
 							</a>
 						{/if}
-						{#if !sessionData?.username && !$session?.username}
+						{#if !$platformSession?.currentUser?.username}
 							<a href="/" class:active={isHomePage}>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -681,33 +660,23 @@
 								<span>Sign In or Register</span></a
 							>
 						{/if}
-						{#if sessionData?.username || $session?.username}
-							<!-- <ul class="profile-info" class:showSideBar={$sideBarState}>
-								{#if sessionData?.username || $session?.username}
-									<li>
-										<Button
-											link="/users/{sessionData?.id}"
-											userName={sessionData?.username ?? $session?.username}
-											userAvatar={sessionData?.profile_photo ?? $session?.profile_photo}
-											isRounded
-											action={toggleDropDown}
-											showDropDown={dropDownToggle}
-										/>
-									</li>
-								{/if}
-							</ul> -->
-							<a href="/users/{sessionData?.id}" class="sidebar-item" class:muted={!$session?.id}>
+						{#if $platformSession?.currentUser?.username}
+							<a
+								href="/users/{$platformSession?.currentUser?.id}"
+								class="sidebar-item"
+								class:muted={!$platformSession?.currentUser?.id}
+							>
 								<img
 									class="avatar"
-									src={`${sessionData?.profile_photo ?? $session?.profile_photo}` ??
+									src={`${$platformSession?.currentUser?.profile_photo}` ??
 										'https://picsum.photos/50'}
 									alt="user avatar"
 								/>
-								<span>{sessionData?.username ?? $session?.username}</span>
+								<span>{$platformSession?.currentUser?.username}</span>
 							</a>
 							<button
 								class="sidebar-action settings-button"
-								class:muted={!$session?.id}
+								class:muted={!$platformSession?.currentUser?.id}
 								on:click={toggleSettingsDrawer}
 							>
 								<svg
@@ -731,7 +700,8 @@
 									use:enhance={() => {
 										return async ({ result }) => {
 											if (result.status === 200) {
-												session.set(null);
+												platformSession.set(null);
+												// sessionData = null;
 												invalidateAll();
 											}
 										};
@@ -889,8 +859,8 @@
 
 {#if showSettings}
 	<Settings
-		userId={$session?.id}
-		userSettings={data?.userSettings ?? data?.user_settings}
+		userId={$platformSession?.currentUser?.id}
+		userSettings={$platformSession?.settings}
 		action={() => (showSettings = !showSettings)}
 	/>
 {/if}
@@ -950,11 +920,6 @@
 	@media (min-width: 498px) {
 		main.editor {
 			height: calc(100% - 56.5px) !important;
-			/* padding-top: 0 !important; */
-		}
-		main.editor.hideUtilBar {
-			height: calc(100% - 10px) !important;
-			top: -45px;
 		}
 	}
 	main.showSideBar {
@@ -966,21 +931,11 @@
 	:global(.main.showSideBar) {
 		width: calc(100% - 230px);
 	}
-	ul ul {
-		flex-grow: 1;
-	}
-
 	ul ul li {
 		justify-content: flex-start;
 		display: flex;
 		flex-direction: row;
 		gap: 10px;
-	}
-	.profile-info {
-		justify-content: flex-end;
-		/* position: absolute;
-		top: 10px;
-		left: 70px; */
 	}
 	.isProfilePage {
 		height: calc(100% - 0px);
@@ -1078,10 +1033,6 @@
 		}
 		.sidebar-action ul a.active {
 			background-color: var(--home-gradient-color-1) !important;
-		}
-		.profile-info.showSideBar {
-			position: absolute;
-			right: 0;
 		}
 	}
 	.sidebar.showSideBar {
@@ -1327,11 +1278,6 @@
 	}
 	main.showLoading.showSideBar :global(.loader) {
 		right: 230px;
-	}
-	@media (min-width: 498px) {
-		.engineInRoute :global(#split-3) {
-			/* height: 100% !important; */
-		}
 	}
 	.sidebar-item.muted span {
 		opacity: 0.3;

@@ -2,7 +2,7 @@
 	// @ts-nocheck
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import { page } from '$app/stores';
-	import { session } from '$lib/stores/sessionStore';
+	import { platformSession } from '$lib/stores/platformSession';
 	import ToolTip from '$lib/ui/ToolTip/index.svelte';
 
 	export let label;
@@ -110,7 +110,6 @@
 			class:authBtn
 			class:isHomePage
 			class:showSideBarToggle
-			class:follow={label === 'Follow'}
 			class:isIcon
 			class:userName
 			class:showDropDown
@@ -120,7 +119,7 @@
 			class:isDoneButton={label === 'Done'}
 			class:verifyMe={label === 'Verify Me'}
 			class={additionalClasses}
-			class:muted={label === 'New Project' && !$session?.id}
+			class:muted={label === 'New Project' && !$platformSession?.currentUser?.id}
 			{style}
 		>
 			{#if label === 'open'}

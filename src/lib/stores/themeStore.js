@@ -110,7 +110,7 @@ const fontTheme = readable([
 // const baseTheme = readable(['--color-accent: #1c6ef3;']);
 
 // Initial theme config from current state
-export const themeKeyStore = writable('light');
+export const themeKeyStore = writable('dark');
 
 export const themeDataStore = derived(
 	[themeKeyStore, baseTheme, lightTheme, darkTheme, gridWidth, fontTheme],

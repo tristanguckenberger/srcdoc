@@ -60,10 +60,12 @@
 
 		if (browser) {
 			// Check if our local info stores for the homePage has been viewed already
-			if (!$homePageInfoStore?.viewed) {
-				// if this isnt viewed, we wanna display the info modal overlay
-				$modalFullInfoStore = $homePageInfoStore?.info;
-			}
+			setTimeout(() => {
+				if (!$homePageInfoStore?.viewed) {
+					// if this isnt viewed, we wanna display the info modal overlay
+					$modalFullInfoStore = $homePageInfoStore?.info;
+				}
+			}, 500);
 		}
 
 		deduplicateGames();
