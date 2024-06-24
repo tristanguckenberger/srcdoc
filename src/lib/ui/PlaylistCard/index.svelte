@@ -3,7 +3,8 @@
 	import { afterUpdate, onDestroy, getContext, tick } from 'svelte';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { themeDataStore } from '$lib/stores/themeStore';
-	import { session } from '$lib/stores/sessionStore.js';
+	// import { session } from '$lib/stores/sessionStore.js';
+	import { platformSession } from '$lib/stores/platformSession';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore.js';
 	import { playButton } from '$lib/stores/gamesStore.js';
 
@@ -49,7 +50,7 @@
 	// REACTIVE VARIABLES & STATEMENTS
 	$: cardLink = `/games/${id}/play`;
 	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: user = $session;
+	$: user = $platformSession?.currentUser;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
 	$: showHover = true;
 	$: showMoreInfo = playlistWidth < 498 || (showHover && playlistWidth > 498);

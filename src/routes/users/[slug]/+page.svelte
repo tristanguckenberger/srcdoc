@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import { browser } from '$app/environment';
+	import { getContext, onDestroy, onMount, setContext } from 'svelte';
 	import { themeDataStore } from '$lib/stores/themeStore.js';
 	import Button from '$lib/ui/Button/index.svelte';
 	import { sideBarState } from '$lib/stores/layoutStore.js';
@@ -11,9 +11,10 @@
 	import EditUserDetails from '$lib/ui/Modal/components/EditUserDetails.svelte';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
-	import { afterUpdate, onMount } from 'svelte';
-	import { invalidateAll, invalidate } from '$app/navigation';
+	import { afterUpdate } from 'svelte';
 	import FollowButton from '$lib/ui/FollowButton/index.svelte';
+	import { platformSession } from '$lib/stores/platformSession';
+	import { writable } from 'svelte/store';
 
 	export let data;
 
@@ -21,20 +22,36 @@
 	let reactiveData = {};
 	let ComponentOptions = [];
 	let updating = false;
-	let followers;
-	let following;
+	// let followers;
+	// let following;
 	let currentUser;
 
+	setContext('followDataStore', {
+		followers: writable([]),
+		following: writable([]),
+		user: writable({})
+	});
+	const { followers, following, user } = getContext('followDataStore');
+
 	onMount(async () => {
-		followers = data?.followers;
-		following = data?.following;
+		$followers = data?.followers;
+		$following = data?.following;
+		$user = data?.user;
 		currentUser = data?.currentUser;
 	});
 
-	afterUpdate(async () => {
-		followers = data?.followers;
-		following = data?.following;
+	afterUpdate(() => {
+		$followers = data?.followers;
+		$following = data?.following;
+		$user = data?.user;
 		currentUser = data?.currentUser;
+	});
+
+	onDestroy(() => {
+		$followers = [];
+		$following = [];
+		$user = {};
+		currentUser = {};
 	});
 
 	$: (() => {
@@ -56,14 +73,11 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: loadedHeader = data?.header ?? 'https://picsum.photos/2000/300';
 	$: loadedProfilePhoto = data?.profile_photo ?? 'https://picsum.photos/2000/300';
-	$: currentUserIsFollowingProfileUser = followers?.some(
-		(follower) => follower?.id?.toString() === currentUser?.toString()
+	$: currentUserIsProfileUser =
+		$platformSession?.currentUser?.id?.toString() === userId?.toString();
+	$: currentUserIsFollowingProfileUser = $followers?.some(
+		(followerUser) => followerUser?.id?.toString() === $platformSession?.currentUser?.id?.toString()
 	);
-	$: currentUserIsProfileUser = currentUser === userId;
-	$: {
-		console.log('currentUserIsFollowingProfileUser::', currentUserIsFollowingProfileUser);
-		console.log('currentUserIsProfileUser::', currentUserIsProfileUser);
-	}
 </script>
 
 <svelte:head>
@@ -148,7 +162,12 @@
 								style="background-color: #6495ED; margin-top: 60px;"
 							/>
 						</form> -->
-						<FollowButton {currentUserIsFollowingProfileUser} {userId} />
+						<FollowButton
+							{currentUserIsFollowingProfileUser}
+							{userId}
+							following={followers}
+							isUserProfile={true}
+						/>
 					{/if}
 				</div>
 			</div>

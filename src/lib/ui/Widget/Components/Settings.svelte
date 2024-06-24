@@ -26,11 +26,14 @@
 	import TabComponentPicker from '$lib/ui/TabComponentPicker/index.svelte';
 	import EditUserDetails from '$lib/ui/Modal/components/EditUserDetails.svelte';
 	import GeneralTab from '$lib/ui/SettingsTabs/GeneralTab.svelte';
-	import { session } from '$lib/stores/sessionStore';
+	import { platformSession } from '$lib/stores/platformSession';
+	import Follows from '$lib/ui/Follows/index.svelte';
 
 	export let userId;
 	export let userSettings;
 	export let action;
+	export let followers;
+	export let following;
 
 	let hidePopUpInfoHome = false;
 	let hidePopUpInfoGames = false;
@@ -49,8 +52,8 @@
 	setContext('settingsTabs', {
 		tabs: [
 			// { name: 'Account', component: AccountTab },
-			{ name: 'General', component: GeneralTab }
-			// { name: 'Editor', component: EditorTab }
+			{ name: 'General', component: GeneralTab },
+			{ name: 'Followers/Following', component: Follows }
 			// { name: 'Privacy & Security', component: PrivacyAndSecurityTab },
 			// { name: 'Notifications', component: NotificationsTab },
 			// { name: 'Activity & Data', component: ActivityAndDataTab }
@@ -60,75 +63,77 @@
 
 	const { tabs, currentTab } = getContext('settingsTabs');
 
-	onMount(async () => {
-		if (browser && userId) {
-			const settingsRes = await getSettings();
+	onMount(() => {
+		const init = async () => {
+			if (browser && userId) {
+				const settingsRes = await getSettings();
 
-			if (settingsRes) {
-				settingsStore.set(settingsRes);
+				if (settingsRes) {
+					settingsStore.set(settingsRes);
+				}
+				if ($settingsStore) {
+					hidePopUpInfoHome = $settingsStore?.hide_pop_up_info_home;
+					hidePopUpInfoGames = $settingsStore?.hide_pop_up_info_games;
+					hidePopUpInfoEditor = $settingsStore?.hide_pop_up_info_editor;
+				}
 			}
-			if ($settingsStore) {
-				hidePopUpInfoHome = $settingsStore?.hide_pop_up_info_home;
-				hidePopUpInfoGames = $settingsStore?.hide_pop_up_info_games;
-				hidePopUpInfoEditor = $settingsStore?.hide_pop_up_info_editor;
-			}
-		}
+		};
+		init();
 	});
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
-
-	$: console.log('Session::', $session);
 </script>
+
+Settings
 
 <div class="settings-container" class:sideBarOpen={$sideBarState} style={themeString}>
 	<h1>Settings</h1>
 	<button class="close" on:click={action}>Close</button>
 	<TabComponentPicker />
-	<form
-		class="settingsForm"
-		method="POST"
-		action="/?/updateSettings"
-		enctype="multipart/form-data"
-		use:enhance={async ({ formElement, formData, action, cancel, submitter }) => {
-			formData.set('hidePopUpInfoHome', hidePopUpInfoHome);
-			formData.set('hidePopUpInfoGames', hidePopUpInfoGames);
-			formData.set('hidePopUpInfoEditor', hidePopUpInfoEditor);
-			formData.set('darkMode', darkMode);
 
-			updating = true;
+	<svelte:component this={tabs[$currentTab]?.component}>
+		<div slot="tab_form_elements">
+			<CustomInput inputCapture={'darkMode'} inputValue={true} hidden />
+			{#if $currentTab === 0}
+				<form
+					class="settingsForm"
+					method="POST"
+					action="/?/updateSettings"
+					enctype="multipart/form-data"
+					use:enhance={async ({ formElement, formData, action, cancel, submitter }) => {
+						formData.set('hidePopUpInfoHome', hidePopUpInfoHome);
+						formData.set('hidePopUpInfoGames', hidePopUpInfoGames);
+						formData.set('hidePopUpInfoEditor', hidePopUpInfoEditor);
+						formData.set('darkMode', darkMode);
 
-			return async ({ update, result }) => {
-				await update();
-				setTimeout(() => {
-					updating = false;
-				}, 500);
+						updating = true;
 
-				if (result?.status === 200) {
-					console.log(result?.data?.body?.result);
-					await tick();
-					homePageInfoStore.set({
-						...$homePageInfoStore,
-						viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_home)
-					});
-					gamePageInfoStore.set({
-						...$gamePageInfoStore,
-						viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_games)
-					});
-					editorPageInfoStore.set({
-						...$editorPageInfoStore,
-						viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_editor)
-					});
-					await invalidateAll();
-				}
-			};
-		}}
-	>
-		<svelte:component this={tabs[$currentTab]?.component}>
-			<div slot="tab_form_elements">
-				<!-- {#await hidePopUpInfoHome !== null && hidePopUpInfoGames !== null && hidePopUpInfoEditor !== null} -->
+						return async ({ update, result }) => {
+							await update();
+							setTimeout(() => {
+								updating = false;
+							}, 500);
 
-				<CustomInput inputCapture={'darkMode'} inputValue={true} hidden />
-				{#if $currentTab === 0}
+							if (result?.status === 200) {
+								console.log(result?.data?.body?.result);
+								await tick();
+								homePageInfoStore.set({
+									...$homePageInfoStore,
+									viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_home)
+								});
+								gamePageInfoStore.set({
+									...$gamePageInfoStore,
+									viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_games)
+								});
+								editorPageInfoStore.set({
+									...$editorPageInfoStore,
+									viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_editor)
+								});
+								await invalidateAll();
+							}
+						};
+					}}
+				>
 					<CustomInput inputCapture={'hidePopUpInfoHome'} inputValue={hidePopUpInfoHome} hidden />
 					<ToggleSwitch
 						bind:value={hidePopUpInfoHome}
@@ -151,27 +156,26 @@
 						label="Disable Editor Tutorial Pop-up"
 						design="slider"
 					/>
-
-					<!-- {:else if $currentTab === 1}
-					<ToggleSwitch bind:value={hidePopUpInfo} label="Editor" design="slider" /> -->
-					<!-- {:else if $currentTab === 2} -->
-					<!-- <ToggleSwitch bind:value={hidePopUpInfo} label="Privacy & Security" design="slider" />
-				{:else if $currentTab === 3}
-					<ToggleSwitch bind:value={hidePopUpInfo} label="Notifications" design="slider" />
-				{:else if $currentTab === 4}
-					<ToggleSwitch bind:value={hidePopUpInfo} label="Activity & Data" design="slider" /> -->
-				{/if}
-				<!-- {/await} -->
-			</div>
-		</svelte:component>
-
-		<Button
-			bind:creating={updating}
-			label="Update Details"
-			isRounded
-			style="background-color: #6495ED; margin-top: 60px;"
-		/>
-	</form>
+					<Button
+						bind:creating={updating}
+						label="Update Details"
+						isRounded
+						style="background-color: #6495ED; margin-top: 60px;"
+					/>
+				</form>
+			{:else if $currentTab === 1}
+				<!-- <Follows userId={$platformSession?.currentUser?.id} /> -->
+				<!--
+                    <ToggleSwitch bind:value={hidePopUpInfo} label="Editor" design="slider" /> -->
+				<!-- {:else if $currentTab === 2} -->
+				<!-- <ToggleSwitch bind:value={hidePopUpInfo} label="Privacy & Security" design="slider" />
+                {:else if $currentTab === 3}
+                    <ToggleSwitch bind:value={hidePopUpInfo} label="Notifications" design="slider" />
+                {:else if $currentTab === 4}
+                    <ToggleSwitch bind:value={hidePopUpInfo} label="Activity & Data" design="slider" /> -->
+			{/if}
+		</div>
+	</svelte:component>
 </div>
 
 <style>

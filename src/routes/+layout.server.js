@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { getSettings, getCurrentUser } from './api/utils/getFuncs.js';
+import { getSettings, getCurrentUser, getFollowers, getFollowing } from './api/utils/getFuncs.js';
 
 export async function load({ fetch, cookies }) {
 	const token = cookies?.get('token');
@@ -15,15 +15,21 @@ export async function load({ fetch, cookies }) {
 			path: '/'
 		});
 		// }
+		const followers = await getFollowers(fetch, currentUser?.id);
+		const following = await getFollowing(fetch, currentUser?.id);
 
 		return {
 			settings,
-			currentUser
+			currentUser,
+			followers,
+			following
 		};
 	}
 
 	return {
 		settings: null,
-		currentUser: null
+		currentUser: null,
+		followers: null,
+		following: null
 	};
 }

@@ -496,8 +496,8 @@
 	}
 	#loading {
 		display: inline-block;
-		width: 2vmin;
-		height: 2vmin;
+		width: 10px;
+		height: 10px;
 		border: 3px solid rgba(255, 255, 255, 0.3);
 		border-radius: 50%;
 		border-top-color: #fff;
