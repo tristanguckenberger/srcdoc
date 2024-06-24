@@ -2,14 +2,11 @@
 	// @ts-nocheck
 	import { onMount, setContext, getContext } from 'svelte';
 	import { platformSession } from '$lib/stores/platformSession';
-	import FollowButton from '$lib/ui/FollowButton/index.svelte';
 	import UserList from '$lib/ui/UserList/index.svelte';
 	import { writable } from 'svelte/store';
 
 	export let userId;
 
-	// let followers = [];
-	// let following = [];
 	let userList = [];
 	let showFollowers = true;
 
@@ -67,51 +64,55 @@
 
 <slot name="header" />
 <nav class="userListControl">
-	<button on:click|preventDefault={() => toggleFollowsType(true)}>Followers</button>
-	<button on:click|preventDefault={() => toggleFollowsType(false)}>Following</button>
+	<button
+		class="swapBtn"
+		class:active={showFollowers}
+		on:click|preventDefault={() => toggleFollowsType(true)}>Followers</button
+	>
+	<button
+		class="swapBtn"
+		class:active={!showFollowers}
+		on:click|preventDefault={() => toggleFollowsType(false)}>Following</button
+	>
 </nav>
-<UserList {currentUserIsFollowingProfileUser} {userList} />
+
+{#if showFollowers}
+	<div class="slidingContainer">
+		<UserList {currentUserIsFollowingProfileUser} {userList} />
+	</div>
+{:else}
+	<div class="slidingContainer">
+		<UserList {currentUserIsFollowingProfileUser} {userList} />
+	</div>
+{/if}
 
 <style>
 	.userListControl {
 		display: flex;
 		justify-content: center;
 		gap: 10px;
+		padding: 0 20px;
+		align-self: center;
 	}
-	.title {
-		color: var(--color-primary);
-		font-family: 'Source Sans 3', sans-serif;
-		font-weight: 600;
-	}
-	.userListContainer {
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		background-color: var(--menu-bg);
+	.slidingContainer {
 		width: 100%;
-		padding: 10px;
 	}
-	.userListItem {
-		display: flex;
-		gap: 10px;
-		padding: 10px 20px;
-		align-items: center;
-		border-radius: 6px;
-	}
-	.userListItem p {
+	h3 {
 		color: var(--color-primary);
+	}
+	button.swapBtn {
+		background-color: unset;
+		color: var(--color-primary);
+		border: none;
+		/* border-radius: 6px; */
+		padding: 10px;
+		cursor: pointer;
 		font-family: 'Source Sans 3', sans-serif;
-		font-size: 3vmin;
+		font-size: 1.5vmin;
+		border-bottom: 2px solid transparent;
 	}
-	@media (max-width: 420px) {
-		.userListItem p {
-			font-size: 5vmin;
-		}
-	}
-	.avatar {
-		border-radius: 50%;
-		max-height: 10vmin;
-		height: 10vmin;
-		width: 10vmin;
+	button.swapBtn.active {
+		color: var(--color-accent);
+		border-bottom: 2px solid var(--color-accent);
 	}
 </style>

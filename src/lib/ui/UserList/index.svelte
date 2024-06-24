@@ -1,11 +1,11 @@
 <script>
 	import UserListCard from './UserListCard.svelte';
 	import FollowButton from '$lib/ui/FollowButton/index.svelte';
-	import { getContext } from 'svelte';
+	// import { getContext } from 'svelte';
 
 	export let userList;
 
-	const { following } = getContext('followDataStore');
+	// const { following } = getContext('followDataStore');
 </script>
 
 <div class="playlist-container">

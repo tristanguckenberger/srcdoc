@@ -1,29 +1,4 @@
 // @ts-nocheck
-// import { gameData } from '$lib/mockData/gameData.js';
-
-// async function fetchData(eventFetch, endpoint) {
-// 	try {
-// 		const response = await eventFetch(endpoint);
-// 		if (!response.ok) throw new Error('Failed to fetch data');
-// 		return await response.json();
-// 	} catch (error) {
-// 		console.error(error);
-// 		return null; // Return null to handle errors gracefully in the load function
-// 	}
-// }
-
-// const getCurrentUser = async (eventFetch) => {
-// 	let user;
-// 	try {
-// 		const userResponse = await eventFetch(`/api/users/getCurrentUser`);
-// 		user = await userResponse.json();
-// 	} catch (error) {
-// 		console.log('getCurrentUser::error::', error);
-// 	}
-
-// 	return user;
-// };
-
 async function getUser(fetch, id) {
 	if (!id) return null;
 	const user = await fetchData(fetch, `${process.env.SERVER_URL}/api/users/${id}`);

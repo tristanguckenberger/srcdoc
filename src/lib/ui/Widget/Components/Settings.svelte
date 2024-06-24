@@ -224,7 +224,7 @@ Settings
 		right: 20px;
 		border: none;
 		font-size: 1.5vmin;
-		font-family: 'Source Sans 3';
+		font-family: 'Source Sans 3', sans-serif;
 		font-weight: 650;
 		color: var(--vibrant-blue);
 		z-index: 10000;
