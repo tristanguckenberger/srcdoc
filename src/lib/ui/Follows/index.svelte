@@ -92,7 +92,7 @@
 		justify-content: center;
 		gap: 10px;
 		padding: 0 20px;
-		align-self: center;
+		/* align-self: center; */
 	}
 	.slidingContainer {
 		width: 100%;
