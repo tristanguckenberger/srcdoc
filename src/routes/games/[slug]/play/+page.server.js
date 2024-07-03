@@ -180,6 +180,15 @@ export const actions = {
 				project: project
 			}
 		};
+	},
+	getAllReviewsForGame: async ({ params, setHeaders }) => {
+		const { slug } = params;
+		const reviews = await fetchData(fetch, `${process.env.SERVER_URL}/api/reviews/games/${slug}`);
+
+		setHeaders({
+			'cache-control': 'no-store, max-age=0'
+		});
+		return reviews;
 	}
 	// search: async ({ fetch, request }) => {
 	// 	const formData = await request.formData();

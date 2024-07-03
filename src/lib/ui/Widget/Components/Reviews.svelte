@@ -1,10 +1,21 @@
 <script>
 	// @ts-nocheck
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 
-	export let gameData;
+	export let reviews;
+	let reviewData = [];
+
+	$: console.log('reviewData::', reviewData);
+	$: console.log('reviews::', reviews);
+	$: slug = $page.params.slug;
+	$: console.log('slug::', slug);
+
 	onMount(() => {
-		// console.log('gameData::', gameData);
+		const init = async () => {
+			reviewData = await (await fetch(`/api/reviews/getAllForGame/${slug}`)).json();
+		};
+		init();
 	});
 </script>
 
