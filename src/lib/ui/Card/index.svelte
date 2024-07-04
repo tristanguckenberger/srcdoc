@@ -9,6 +9,7 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { browser } from '$app/environment';
 	import { screenshot } from '$lib/stores/gamesStore';
+	import { platformSession } from '$lib/stores/platformSession';
 
 	export let game;
 	export let id;
@@ -47,17 +48,16 @@
 	});
 
 	afterUpdate(() => {
-		$favoritesStore?.some((fav) => {
-			if (fav?.user_id === $session?.id && fav?.game_id === id) {
-				isFavorited = true;
-			} else {
-				isFavorited = false;
-			}
-		});
-
 		if (cardImage) {
 			imageLoaded = true;
 		}
+
+		isFavorited = $favoritesStore?.some((fav) => {
+			return (
+				fav?.user_id?.toString() === $platformSession?.currentUser?.id?.toString() &&
+				fav?.game_id?.toString() === id?.toString()
+			);
+		});
 	});
 
 	onDestroy(() => {
@@ -76,15 +76,6 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: gameUserID = game?.userId ?? game?.user_id;
 	$: user = $session;
-	$: (() => {
-		$favoritesStore?.some((fav) => {
-			if (fav?.user_id === $session?.id && fav?.game_id === id) {
-				isFavorited = true;
-			} else {
-				isFavorited = false;
-			}
-		});
-	})();
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
 </script>
 

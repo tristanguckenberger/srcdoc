@@ -342,6 +342,7 @@
 				<Slider
 					rawGamesData={allGamesData}
 					{gamesAvailable}
+					currentGameExport={data?.currentGame}
 					bind:favoritesObj={favoriteData}
 					bind:navActionHeight
 				/>

@@ -101,7 +101,7 @@
 		bind:creating={updating}
 		label={currentUserIsFollowingProfileUser ? 'Unfollow' : 'Follow'}
 		isRounded
-		style="background-color: #6495ED; margin-top: 60px;"
+		style="background-color: #6495ED;"
 	/>
 </form>
 

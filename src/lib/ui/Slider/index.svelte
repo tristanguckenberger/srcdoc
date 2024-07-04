@@ -25,6 +25,7 @@
 	import { preloadItemsInRange } from '$lib/utils/preloadItemsInRange';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 	import { session } from '$lib/stores/sessionStore';
+	import { platformSession } from '$lib/stores/platformSession';
 
 	// Component Library Imports
 	import ToolTip from '$lib/ui/ToolTip/index.svelte';
@@ -35,6 +36,7 @@
 	export let rawGamesData = [];
 	export let currentIndex = 0;
 	export let favoritesObj = {};
+	export let currentGameExport = {};
 
 	let emblaApi;
 	let options = { axis: 'y', duration: 25, inViewThreshold: 0.7 };
@@ -184,12 +186,22 @@
 		}
 
 		// Check and set if the current game is favorited
-		favoritesObj?.favorites?.some((fav) => {
-			if (fav?.user_id === $session?.id && fav?.game_id === $currentGameStore?.id) {
-				isFavorited = true;
-			} else {
-				isFavorited = false;
-			}
+		// favoritesObj?.favorites?.some((fav) => {
+		// 	if (
+		// 		fav?.user_id === $platformSession?.currentUser?.id &&
+		// 		fav?.game_id === $currentGameStore?.id
+		// 	) {
+		// 		isFavorited = true;
+		// 	} else {
+		// 		isFavorited = false;
+		// 	}
+		// });
+
+		isFavorited = favoritesObj?.favorites?.some((fav) => {
+			return (
+				fav?.user_id?.toString() === $platformSession?.currentUser?.id?.toString() &&
+				fav?.game_id?.toString() === currentGameExport?.id?.toString()
+			);
 		});
 
 		if (
@@ -253,7 +265,7 @@
 	};
 
 	$: currentIndex = rawGamesData?.findIndex((game) => game?.id === currentGame?.id);
-	$: $currentGameStore = currentGame;
+	$: $currentGameStore = currentGameExport;
 	$: hideActionNav = !$actionMenuOpen;
 	$: favoritesCount = favoritesObj?.count;
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
@@ -261,10 +273,21 @@
 	$: visibleThumbnails = showSlides;
 	$: isPlaylistSlider = $page?.route?.id === '/games/playlist/[playlistId]/[gameSlug]/play';
 	$: playlistId = $page?.params?.playlistId;
-	$: console.log('isPlaylistSlider::', isPlaylistSlider);
+	// $: isFavorited = favoritesObj?.favorites?.some((fav) => {
+	// 	return (
+	// 		fav?.user_id?.toString() === $platformSession?.currentUser?.id?.toString() &&
+	// 		fav?.game_id?.toString() === currentGameExport?.id?.toString()
+	// 	);
+	// });
+
+	$: console.log('isFavorited::', isFavorited);
+
+	let load = false;
 </script>
 
 <svelte:window on:keyup={debouncedKeyUp} />
+
+<!-- {#if load} -->
 {#await gamesAvailable}
 	<p>Loading...</p>
 {:then}
@@ -287,7 +310,7 @@
 							</div>
 						</div>
 
-						{#if $session?.id === game?.user_id}
+						{#if $platformSession?.currentUser?.id === game?.user_id}
 							<button
 								class="settings-action"
 								class:drawerOpen={$drawerOpen}
@@ -324,8 +347,7 @@
 								{#if !$drawerOpen}
 									<ul class="action-menu" class:fade={true}>
 										<div class="sub-action-menu">
-											{#if $session?.id === game?.user_id}
-												<!-- Open In Engine -->
+											{#if $platformSession?.currentUser?.id === game?.user_id}
 												<a
 													class="action-button button"
 													href={`/games/${$currentGameStore?.id}/engine`}
@@ -352,14 +374,14 @@
 													{/if}
 												</a>
 											{/if}
-											<!-- Open Reviews -->
+
 											<button
 												class="action-button button"
 												on:click={() => {
 													$playButton = false;
-													// if (browser) {
+
 													$selectedOption = 2;
-													// }
+
 													$playButton = false;
 													$drawerOpen = true;
 												}}
@@ -384,14 +406,14 @@
 													<ToolTip text="View Reviews" position="left" />
 												{/if}
 											</button>
-											<!-- open leaderboards -->
+
 											<button
 												class="action-button button"
 												on:click={() => {
 													$playButton = false;
-													// if (browser) {
+
 													$selectedOption = 4;
-													// }
+
 													$playButton = false;
 													$drawerOpen = true;
 												}}
@@ -420,7 +442,7 @@
 													<ToolTip text="View Leaderboards" position="left" />
 												{/if}
 											</button>
-											<!-- open comments -->
+
 											<button
 												class="action-button button"
 												on:click={() => {
@@ -456,33 +478,13 @@
 													<ToolTip text="View Comments" position="left" />
 												{/if}
 											</button>
-											<!-- <button
-												class="action-button button"
-												on:click={() => {
-													$playButton = false;
-													browser && selectedOption.set(5);
-													$playButton = false;
-													$drawerOpen = true;
-												}}
-											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													width="32"
-													height="32"
-													fill="#ffffff"
-													viewBox="0 0 256 256"
-													><path
-														d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"
-													/></svg
-												>
-											</button> -->
-											<!-- Favorite -->
 											<form
 												class="gameDetails new-project-form modal"
 												method="POST"
-												action="/games/?/{isFavorited ? 'deleteFavorite' : 'createFavorite'}"
+												action={`/games/?/${isFavorited ? 'deleteFavorite' : 'createFavorite'}`}
 												use:enhance={({ formElement, formData, action, cancel, redirect }) => {
-													return async ({ result }) => {
+													return async ({ result, update }) => {
+														await update();
 														if (result.status === 200) {
 															gameFavorites.set(result?.data?.body?.favorites);
 															gameFavoriteCount.set(result?.data?.body?.favorites?.length);
@@ -494,7 +496,7 @@
 												<input type="hidden" name="gameId" value={$currentGameStore?.id} />
 												<button
 													class="action-button button favorites"
-													class:muted={$session?.id !== game?.user_id}
+													class:muted={$platformSession?.currentUser?.id !== game?.user_id}
 													on:click={() => {}}
 												>
 													<svg
@@ -515,21 +517,15 @@
 													<span class="favorite">{$gameFavoriteCount ?? 0}</span>
 												</button>
 											</form>
+											<!-- <h1 class="highlight">{$gameFavoriteCount}</h1> -->
 
-											<!-- Add game to playlist, create new playlist with game -->
-											<!-- <div class="expand-container-toggle">
-												<button on:click={handleExpandMore}>
-													<span class="elip">...</span>
-												</button>
-											</div>
-											{#if hideActionNav} -->
 											<form class="gameDetails new-project-form modal" method="POST">
 												<input type="hidden" name="gameId" value={$currentGameStore?.id} />
 												<button
 													class="action-button button add-to-playlist"
-													class:muted={$session?.id !== game?.user_id}
+													class:muted={$platformSession?.currentUser?.id !== game?.user_id}
 													on:click|preventDefault={() => {
-														if ($session?.id !== game?.user_id) {
+														if ($platformSession?.currentUser?.id !== game?.user_id) {
 															return;
 														}
 														$playButton = false;
@@ -576,7 +572,14 @@
 	<p>Failed to load games</p>
 {/await}
 
+<!-- {:else}
+	Howdy
+{/if} -->
+
 <style>
+	.highlight {
+		color: var(--color-primary);
+	}
 	.nav-action {
 		position: absolute;
 		width: 100%;

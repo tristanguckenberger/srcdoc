@@ -41,12 +41,13 @@
 			}
 		});
 		const games = await gamesRes.json();
+		const publishedGames = games?.filter((game) => game?.published);
 
-		if (games?.length > limit) {
+		if (publishedGames?.length > limit) {
 			showViewMore = true;
 		}
 
-		items = [...games.slice(0, limit)];
+		items = [...publishedGames.slice(0, limit)];
 	};
 
 	const getMyFavorites = async () => {
@@ -57,11 +58,13 @@
 			}
 		});
 		const games = await gamesRes.json();
-		if (games?.length > limit) {
+		const publishedGames = games?.filter((game) => game?.published);
+
+		if (publishedGames?.length > limit) {
 			showViewMore = true;
 		}
 
-		items = [...games?.slice(0, limit)];
+		items = [...publishedGames?.slice(0, limit)];
 	};
 
 	onMount(() => {

@@ -44,7 +44,7 @@
 		height: 100%;
 		width: calc(100% - 20px);
 		margin-left: 10px;
-		background-color: var(--color-secondary);
+		/* background-color: var(--color-secondary);
 		background: var(--home-gradient-color-2);
 		background: linear-gradient(
 			270deg,
@@ -61,7 +61,7 @@
 			var(--home-gradient-color-1) 0%,
 			var(--home-gradient-color-2) 100%
 		);
-		border-radius: 8px;
+		border-radius: 8px; */
 	}
 	#editor-layout.sideBarOpen {
 		width: calc(100% - 250px);

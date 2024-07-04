@@ -26,6 +26,18 @@ const getUser = async (/** @type {String} */ id) => {
 	}
 };
 
+const getAllPlaylistsByUser = async (eventFetch, userId) => {
+	const playlistRes = await eventFetch(`/api/playlist/AllByUser/${userId}`);
+	const playlists = await playlistRes.json();
+	return playlists;
+};
+
+const getUserActivities = async (eventFetch, userId) => {
+	const activityRes = await eventFetch(`/api/activity/${userId}`);
+	const activities = await activityRes.json();
+	return activities;
+};
+
 export async function load({ params, setHeaders, fetch, cookies }) {
 	const { slug } = params;
 	const user = await getUser(slug);
@@ -39,6 +51,9 @@ export async function load({ params, setHeaders, fetch, cookies }) {
 
 	const followers = await getFollowers(fetch, user?.id);
 	const following = await getFollowing(fetch, user?.id);
+	const userPlaylists = await getAllPlaylistsByUser(fetch, user?.id);
+	const publicPlaylists = userPlaylists?.filter((playlist) => playlist.is_public);
+	const activities = await getUserActivities(fetch, user?.id);
 	const currentUser = cookies.get('userId');
 
 	setHeaders({
@@ -47,9 +62,11 @@ export async function load({ params, setHeaders, fetch, cookies }) {
 
 	return {
 		...user,
+		activities,
 		followers,
 		following,
-		currentUser
+		currentUser,
+		userPlaylists: publicPlaylists ? [...publicPlaylists].reverse() : []
 	};
 }
 export const actions = {
