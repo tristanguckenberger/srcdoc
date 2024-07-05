@@ -51,13 +51,14 @@
 	};
 
 	const getMyFavorites = async () => {
-		const gamesRes = await fetch(`/api/favorites/getAllFavoritesByUser`, {
+		const gamesRes = await fetch(`/api/favorites/byUser/${userId}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
 			}
 		});
 		const games = await gamesRes.json();
+		console.log('fav_games::', games);
 		const publishedGames = games?.filter((game) => game?.published);
 
 		if (publishedGames?.length > limit) {
