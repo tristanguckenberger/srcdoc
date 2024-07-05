@@ -80,13 +80,14 @@
 
 	afterUpdate(() => {
 		// if items is empty, fetch the categories
-		if (items?.length === 0 && type === 'categories') {
-			getAllCategories();
-		} else if (items?.length === 0 && type === 'projects') {
-			getMyProjects();
-		} else if (items?.length === 0 && type === 'favorites') {
-			getMyFavorites();
-		}
+		// // only try once
+		// if (items?.length === 0 && type === 'categories') {
+		// 	getAllCategories();
+		// } else if (items?.length === 0 && type === 'projects') {
+		// 	getMyProjects();
+		// } else if (items?.length === 0 && type === 'favorites') {
+		// 	getMyFavorites();
+		// }
 	});
 </script>
 
