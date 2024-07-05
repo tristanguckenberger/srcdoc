@@ -427,5 +427,61 @@ export const actions = {
 		return {
 			result
 		};
+	},
+	addReview: async ({ cookies, request }) => {
+		const token = cookies.get('token');
+		// token;
+
+		console.log('token::', token);
+		const formData = await request.formData();
+
+		const gameId = formData?.get('gameId');
+		const rating = formData?.get('rating-selection');
+		const difficulty = formData?.get('difficulty');
+		const recommended = formData?.get('recommended');
+		const title = formData?.get('reviewTitle');
+		const body = formData?.get('reviewBody');
+		const tagString = formData?.get('tags');
+		const tags = tagString.split(' ');
+
+		const requestHeaders = new Headers();
+		requestHeaders.append('Content-Type', 'application/json');
+		requestHeaders.append('Authorization', `Bearer ${token}`);
+		const requestInit = {
+			method: 'POST',
+			headers: requestHeaders,
+			mode: 'cors',
+			body: JSON.stringify({
+				title,
+				body,
+				rating,
+				difficulty,
+				recommended,
+				tags
+			})
+		};
+
+		const authResponse = await fetch(
+			`${process.env.SERVER_URL}/api/reviews/create/${gameId}`,
+			requestInit
+		);
+
+		if (!authResponse.ok) {
+			return {
+				status: 401,
+				body: {
+					message: 'Failed to add review'
+				}
+			};
+		}
+
+		const newReview = await authResponse.json();
+
+		return {
+			status: 200,
+			body: {
+				newReview
+			}
+		};
 	}
 };
