@@ -33,7 +33,7 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
-<div id="editor-layout" class:sideBarOpen={isSideBarOpen}>
+<div id="editor-layout" class:sideBarOpen={$sideBarState}>
 	<slot />
 </div>
 
@@ -42,8 +42,8 @@
 		display: flex;
 		flex-direction: column;
 		height: 100%;
-		width: calc(100% - 20px);
-		margin-left: 10px;
+		width: calc(100%);
+		/* margin-left: 10px; */
 		/* background-color: var(--color-secondary);
 		background: var(--home-gradient-color-2);
 		background: linear-gradient(
@@ -64,7 +64,7 @@
 		border-radius: 8px; */
 	}
 	#editor-layout.sideBarOpen {
-		width: calc(100% - 250px);
-		margin-left: 10px;
+		/* width: calc(100% - 250px); */
+		/* margin-left: 10px; */
 	}
 </style>

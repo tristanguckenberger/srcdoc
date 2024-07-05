@@ -59,7 +59,7 @@
 		width: calc(100% - 230px);
 	}
 	.main {
-		margin: 10px;
+		margin: 20px;
 		height: calc(100% - 20px);
 		width: calc(100% - 0px);
 		display: flex;
@@ -75,7 +75,7 @@
 		/* grid-template-rows: minmax(242px, 367px); */
 		margin: 0;
 		height: fit-content;
-		width: calc(100% - 40px);
+		width: calc(100% - 20px);
 	}
 	.noSideBar {
 		align-items: center;
