@@ -24,35 +24,16 @@ const getCurrentUser = async (eventFetch) => {
 	return user;
 };
 
-async function getUser(fetch, id) {
-	if (!id) return null;
-	const user = await fetchData(fetch, `${process.env.SERVER_URL}/api/users/${id}`);
-	if (!user) return { status: 401, body: { message: 'No User found with id provided' } };
-	return user;
-}
-
 async function getAllCommentsForAGame(fetch, slug) {
 	const commentsRaw = await fetchData(fetch, `${process.env.SERVER_URL}/api/comments/game/${slug}`);
 	if (!commentsRaw) return [];
 
-	const comments = await Promise.all(
-		commentsRaw.map(async (comment) => {
-			const user = await getUser(fetch, comment?.user_id);
-			return {
-				...comment,
-				userName: user?.username,
-				userAvatar: user?.profile_photo
-			};
-		})
-	);
-
-	return comments;
+	return commentsRaw;
 }
 
 export async function load({ params, fetch }) {
 	const { slug } = params;
 	let user = null;
-	let userGames = [];
 
 	const [allGames, userData, game, favorites] = await Promise.all([
 		fetchData(fetch, `/api/games/getAllGames`),
@@ -72,7 +53,6 @@ export async function load({ params, fetch }) {
 	if (userData?.id) {
 		user = userData;
 	}
-	userGames = user?.id ? await fetchData(fetch, `/api/games/getAllGamesByUser/${user?.id}`) : [];
 
 	// Enhance game object with files and comments if available
 	if (game) {
@@ -94,7 +74,6 @@ export async function load({ params, fetch }) {
 		...game,
 		user,
 		allGames: games,
-		userGames: userGames?.reverse(),
 		topGame,
 		currentGame: { ...game },
 		bottomGame,

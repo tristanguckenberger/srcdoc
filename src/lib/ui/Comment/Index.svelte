@@ -201,6 +201,7 @@
 {#if parentCommentId === null}
 	<AddCommentForm {gameId} {comments} {parentCommentId} />
 {/if}
+
 <ul
 	class="comment-tree"
 	class:isRoot={parentCommentId === null}
@@ -236,8 +237,8 @@
 							>
 								<Button
 									link="/users/{comment?.user_id}"
-									userName={`@${comment?.userName}`}
-									userAvatar={comment?.userAvatar}
+									userName={`@${comment?.username}`}
+									userAvatar={comment?.profile_photo}
 									style={'padding: 0 10px; background-color: transparent !important; width: fit-content !important;'}
 								/>
 								<div
@@ -284,8 +285,8 @@
 							<div class="comment-container">
 								<Button
 									link="/users/{comment?.user_id}"
-									userName={`@${comment?.userName}`}
-									userAvatar={comment?.userAvatar}
+									userName={`@${comment?.username}`}
+									userAvatar={comment?.profile_photo}
 									style={'padding: 0 10px; background-color: transparent !important; width: fit-content !important;'}
 								/>
 								<div class="comment parent-no-children row">
@@ -319,8 +320,8 @@
 						<div class="comment-container">
 							<Button
 								link="/users/{comment?.user_id}"
-								userName={`@${comment?.userName}`}
-								userAvatar={comment?.userAvatar}
+								userName={`@${comment?.username}`}
+								userAvatar={comment?.profile_photo}
 								style={'padding: 0 10px; background-color: transparent !important; width: fit-content !important;'}
 							/>
 							<div class="comment child row">

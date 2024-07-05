@@ -219,7 +219,7 @@
 	$: play = $playButton;
 	$: {
 		if (!$gamesData || $gamesData?.length < 1) {
-			newGamesData = data?.userGames ?? data?.baseGames;
+			newGamesData = data?.baseGames;
 			gamesData.set(newGamesData);
 		}
 	}

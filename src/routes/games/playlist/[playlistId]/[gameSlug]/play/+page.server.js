@@ -1,27 +1,10 @@
 // @ts-nocheck
-async function getUser(fetch, id) {
-	if (!id) return null;
-	const user = await fetchData(fetch, `${process.env.SERVER_URL}/api/users/${id}`);
-	if (!user) return { status: 401, body: { message: 'No User found with id provided' } };
-	return user;
-}
 
 async function getAllCommentsForAGame(fetch, slug) {
 	const commentsRaw = await fetchData(fetch, `${process.env.SERVER_URL}/api/comments/game/${slug}`);
 	if (!commentsRaw) return [];
 
-	const comments = await Promise.all(
-		commentsRaw.map(async (comment) => {
-			const user = await getUser(fetch, comment?.user_id);
-			return {
-				...comment,
-				userName: user?.username,
-				userAvatar: user?.profile_photo
-			};
-		})
-	);
-
-	return comments;
+	return commentsRaw;
 }
 
 async function fetchData(eventFetch, endpoint) {
@@ -56,24 +39,14 @@ export async function load({ params, fetch, setHeaders }) {
 
 	const { games = [] } = allGames;
 
-	// if (userData && userData?.status === 401) {
-	// 	user = null;
-	// }
-
-	// Assuming user is already sanitized before being sent to the client
-	// if (userData?.id) {
-	// 	user = userData;
-	// }
-	// userGames = user?.id ? await fetchData(fetch, `/api/games/getAllGamesByUser/${user?.id}`) : [];
-
-	// // Enhance game object with files and comments if available
+	// Enhance game object with files and comments if available
 	if (game) {
 		const filesResponse = await fetchData(fetch, `/api/games/getSingleGame/${gameSlug}/files`);
 		game.files = filesResponse ?? [];
 		game.comments = (await getAllCommentsForAGame(fetch, gameSlug)) ?? [];
 	}
 
-	// // Calculate top and bottom games
+	// Calculate top and bottom games
 	const currentIndex = games?.findIndex((g) => g.id.toString() === gameSlug.toString());
 	const topGame = currentIndex > 0 ? games[currentIndex - 1] : games[games.length - 1];
 	const bottomGame = currentIndex < games.length - 1 ? games[currentIndex + 1] : games[0];
@@ -86,7 +59,6 @@ export async function load({ params, fetch, setHeaders }) {
 		...game,
 		user,
 		allGames: games,
-		// userGames: userGames?.reverse(),
 		topGame,
 		currentGame: { ...game },
 		bottomGame,
