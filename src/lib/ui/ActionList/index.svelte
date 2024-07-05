@@ -6,7 +6,7 @@
 	of the list * @prop {String} link - The link to the full list grid */
 	import { actionListHoverStore } from '$lib/stores/themeStore';
 	import { afterUpdate, onMount } from 'svelte';
-	import { session } from '$lib/stores/sessionStore.js';
+	import { platformSession } from '$lib/stores/platformSession';
 	import ActionListCard from '$lib/ui/ActionListCard/index.svelte';
 
 	export let type = '';
@@ -41,12 +41,12 @@
 			on:mouseleave={(e) => handleHover(e, 6)}
 			on:mouseover|preventDefault={(e) => handleHover(e, 0)}
 		>
-			{#if $session?.id}
+			{#if $platformSession?.currentUser?.id}
 				<ActionListCard
 					id={0}
 					title={'My Library'}
 					subtitle={'Open your library'}
-					cardLink={`/users/${$session?.id}/library`}
+					cardLink={`/users/${$platformSession?.currentUser?.id}/library`}
 					{isMobile}
 				>
 					<svg
