@@ -6,16 +6,12 @@
 	import CustomInput from '$lib/ui/Input/CustomInput.svelte';
 	import ToggleSwitch from '$lib/ui/ToggleSwitch/index.svelte';
 
-	export let reviews = [];
 	let reviewData = [];
 	let newReviewTextArea;
 	let updating = false;
 	let recommended = false;
 
-	$: console.log('reviewData::', reviewData);
-	$: console.log('reviews::', reviews);
 	$: slug = $page.params.slug;
-	$: console.log('slug::', slug);
 
 	onMount(() => {
 		const init = async () => {
