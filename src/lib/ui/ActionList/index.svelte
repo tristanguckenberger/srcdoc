@@ -14,7 +14,7 @@
 	export let subtitle = '';
 	export let link = '';
 
-	const colorMap = ['#523b3b', '#4f3b52', '#3b3e52', '#3b5242', '#524f3b', '#52483b'];
+	const colorMap = ['#523b3b', '#4f3b52', '#3b3e52', '#3b5242', '#524f3b', '#52483b', '#43484cb3'];
 	let highlightedColor = null;
 	let componentWidth;
 
@@ -38,7 +38,7 @@
 		<!-- My Library or Auth -->
 		<div
 			class="list-item color-1"
-			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseleave={(e) => handleHover(e, 6)}
 			on:mouseover|preventDefault={(e) => handleHover(e, 0)}
 		>
 			{#if $session?.id}
@@ -87,7 +87,7 @@
 		<!-- Quick Play Card -->
 		<div
 			class="list-item color-2"
-			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseleave={(e) => handleHover(e, 6)}
 			on:mouseover|preventDefault={(e) => handleHover(e, 1)}
 		>
 			<ActionListCard
@@ -114,7 +114,7 @@
 		<!-- Trending -->
 		<div
 			class="list-item color-3"
-			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseleave={(e) => handleHover(e, 6)}
 			on:mouseover|preventDefault={(e) => handleHover(e, 2)}
 		>
 			<ActionListCard
@@ -141,7 +141,7 @@
 		<!-- Top Played -->
 		<div
 			class="list-item color-4"
-			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseleave={(e) => handleHover(e, 6)}
 			on:mouseover|preventDefault={(e) => handleHover(e, 3)}
 		>
 			<ActionListCard
@@ -168,7 +168,7 @@
 		<!-- Top Rated -->
 		<div
 			class="list-item color-5"
-			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseleave={(e) => handleHover(e, 6)}
 			on:mouseover|preventDefault={(e) => handleHover(e, 4)}
 		>
 			<ActionListCard
@@ -195,7 +195,7 @@
 		<!-- Recently Added -->
 		<div
 			class="list-item color-6"
-			on:mouseleave={(e) => handleHover(e, null)}
+			on:mouseleave={(e) => handleHover(e, 6)}
 			on:mouseover|preventDefault={(e) => handleHover(e, 5)}
 		>
 			<ActionListCard
