@@ -242,6 +242,7 @@
 		width: 100%;
 		display: flex;
 		gap: 10px;
+		flex-direction: row-reverse;
 	}
 	.user-info-container {
 		height: 100%;
