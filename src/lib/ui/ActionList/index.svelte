@@ -28,6 +28,12 @@
 			return;
 		}
 		highlightedColor = colorMap[index];
+
+		if (index === 6) {
+			setTimeout(() => {
+				highlightedColor = null;
+			}, 2000);
+		}
 	}
 </script>
 
