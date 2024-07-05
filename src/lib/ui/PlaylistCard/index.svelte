@@ -127,7 +127,7 @@
 				<h4>{playlist?.name ?? playlist?.title}</h4>
 				<p class="card-text">{playlist?.description}</p>
 			</a>
-			<!-- <div class="more-actions" class:show={showMoreInfo} on:click={handleToggleMoreActions}>
+			<div class="more-actions" class:show={showMoreInfo} on:click={handleToggleMoreActions}>
 				...
 
 				{#if showMoreActions}
@@ -181,7 +181,7 @@
 							>{/if}
 					</div>
 				{/if}
-			</div> -->
+			</div>
 		</div>
 	</div>
 {/await}
