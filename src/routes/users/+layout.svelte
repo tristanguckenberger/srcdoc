@@ -64,7 +64,11 @@
 		border-radius: 8px; */
 	}
 	#editor-layout.sideBarOpen {
-		/* width: calc(100% - 250px); */
-		/* margin-left: 10px; */
+		width: calc(100% - 250px);
+		margin-left: 10px;
+	}
+	#editor-layout {
+		width: calc(100% - 20px);
+		margin-left: 10px;
 	}
 </style>

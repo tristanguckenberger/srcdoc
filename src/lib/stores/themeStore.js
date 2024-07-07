@@ -140,11 +140,8 @@ export const actionListHoverStore = writable(null);
 
 export const tweenedHex = (hexadecimalString, options) => {
 	const decimalToHex = (decimal) => Math.round(decimal).toString(16).padStart(2, '0');
-
 	const getColor = (hex, index) => parseInt(hex.slice(index, index + 2), 16);
-
 	const getRGBs = (hex) => [getColor(hex, 1), getColor(hex, 3), getColor(hex, 5)];
-
 	const scaledValue = (start, delta, t) => start + delta * t;
 
 	function rgbInterpolate(fromColor, toColor) {

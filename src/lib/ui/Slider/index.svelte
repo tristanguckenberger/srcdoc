@@ -496,7 +496,7 @@
 												<input type="hidden" name="gameId" value={$currentGameStore?.id} />
 												<button
 													class="action-button button favorites"
-													class:muted={$platformSession?.currentUser?.id !== game?.user_id}
+													class:muted={!$platformSession?.currentUser?.id}
 													on:click={() => {}}
 												>
 													<svg
@@ -523,9 +523,9 @@
 												<input type="hidden" name="gameId" value={$currentGameStore?.id} />
 												<button
 													class="action-button button add-to-playlist"
-													class:muted={$platformSession?.currentUser?.id !== game?.user_id}
+													class:muted={!$platformSession?.currentUser?.id}
 													on:click|preventDefault={() => {
-														if ($platformSession?.currentUser?.id !== game?.user_id) {
+														if (!$platformSession?.currentUser?.id) {
 															return;
 														}
 														$playButton = false;

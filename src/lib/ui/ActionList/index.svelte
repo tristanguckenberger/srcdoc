@@ -14,7 +14,7 @@
 	export let subtitle = '';
 	export let link = '';
 
-	const colorMap = ['#523b3b', '#4f3b52', '#3b3e52', '#3b5242', '#524f3b', '#52483b', '#43484cb3'];
+	const colorMap = ['#523b3b', '#4f3b52', '#3b3e52', '#3b5242', '#524f3b', '#52483b', '#282a2d'];
 	let highlightedColor = null;
 	let componentWidth;
 

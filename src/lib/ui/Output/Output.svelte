@@ -14,23 +14,31 @@
 	import { editorOutContainerWidth, editorOutContainerHeight } from '$lib/stores/layoutStore';
 	import { gameControllerStore } from '$lib/stores/gameControllerStore';
 	import { browser } from '$app/environment';
+	import { page } from '$app/stores';
+	import { debounce } from 'lodash-es';
 
 	import * as htmlToImage from 'html-to-image';
+	import { writable } from 'svelte/store';
 	import {
-		gameSession,
-		gameSessionState,
-		gameSessionScore
+		gameSession
+		// gameSessionState,
+		// gameSessionScore
 	} from '$lib/stores/gameSession/index.js';
 
 	export let relaxed = false;
 	export let play = false;
 	export let srcdocBuilt;
 
+	// const gameSession = writable({});
+	const gameSessionState = writable(null);
+	const gameSessionScore = writable(0);
+
 	let id = 0;
 	let iframe;
 	let srcdoc;
 	let rootFileId;
 	let thumbnail;
+	let temporarySessionState = null;
 
 	$: {
 		(async () => {
@@ -68,7 +76,7 @@
 					$gameControllerStore
 				);
 			setTimeout(() => {
-				triggerCompile.set(false);
+				$triggerCompile = false;
 			}, 400);
 		}
 	}
@@ -106,8 +114,18 @@
 		const addActivityData = await addActivityJSON.json();
 	};
 
-	afterUpdate(async () => {
+	const debouncedAfterUpdate = debounce(async () => {
+		$autoCompile = false;
+		// $triggerCompile = false;
+		// triggerUpdate = false;
+		// play = false;
+		console.log('rootFileId::', rootFileId);
+		console.log('$autoCompile::', $autoCompile);
+		console.log('$triggerCompile::', $triggerCompile);
+		console.log('triggerUpdate::', triggerUpdate);
+		console.log('play::', play);
 		if ((rootFileId && ($triggerCompile || $autoCompile || triggerUpdate)) || play) {
+			console.log('After update triggered');
 			srcdoc =
 				$src_build ||
 				buildDynamicSrcDoc(
@@ -127,9 +145,46 @@
 				triggerCompile.set(false);
 				triggerUpdate = false;
 				play = false;
-			}, 400);
+				console.log('Compile and update flags reset');
+			}, 800);
 		}
-	});
+	}, 400);
+
+	afterUpdate(debouncedAfterUpdate);
+
+	const gameInit = async () => {
+		try {
+			console.log('Initializing game session...');
+			const response = await fetch(`/api/games/sessions/createGameSession/${$page.params.slug}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				mode: 'cors'
+			});
+
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const jsonBody = await response.json();
+			console.log('Game session response:', jsonBody);
+
+			if (jsonBody?.game_session_id) {
+				$gameSessionState = { id: jsonBody?.game_session_id }; // Use temporary variable
+				console.log('Temporary session state set:', $gameSessionState);
+				// gameSession?.setInitialState({ currentGame: jsonBody?.game_id });
+
+				await addGameSessionActivity($gameSessionState?.id, 'Start'); // Use temporary variable for activity
+				// $gameSessionState = temporarySessionState; // Finally set the store
+				console.log('Game session state set:', $gameSessionState);
+			} else {
+				throw new Error('Invalid response body');
+			}
+		} catch (error) {
+			console.error('Failed to initialize game session:', error);
+		}
+	};
 
 	async function receiveMessage(e) {
 		console.log(`Received message from ${e.origin}:`, e.data);
@@ -137,38 +192,52 @@
 		if (
 			e.origin === 'http://localhost:5173' ||
 			e.origin === 'http://127.0.0.1:5173' ||
-			e.origin === 'https://playengine.srcdoc.io' ||
+			e.origin === 'https://playengine.xyz' ||
 			e.origin === 'null'
 		) {
+			console.log('output::', e.data.event);
 			switch (e.data.event) {
 				case 'start-game':
-					try {
-						await tick();
-						if ($gameSessionState?.id) {
-							await addGameSessionActivity($gameSessionState?.id, 'Start');
-						}
-					} catch (error) {
-						console.log('error::', error);
-					}
+					console.log('Starting game...');
+					await gameInit();
+					console.log('Game started');
 					break;
 				case 'update-score':
-					// Get score to add
 					const score = e?.data?.value;
+					console.log('Updating score:', score);
+					$gameSessionScore = score;
+					break;
+				case 'stop-game':
+					console.log('Stopping game...');
+					await tick();
+					if ($gameSessionState?.id) {
+						await addGameSessionActivity($gameSessionState?.id, 'Stop');
+						console.log('Game session activity stop added');
+						await fetch(`/api/games/sessions/updateGameSession/${$gameSessionState?.id}`, {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify({
+								sessionTotalScore: $gameSessionScore
+							})
+						});
 
-					// if we have a session and a score, update the session with the summation of the user's existing score and the added score
-					if (score) {
-						await tick();
-						gameSessionScore.set(score);
+						$triggerCompile = true;
+						triggerUpdate = true;
+
+						setTimeout(() => {
+							// $gameSessionState = null;
+							$triggerCompile = false;
+						}, 500);
 					}
 
 					break;
-				case 'gamepause':
-					// gameControllerStore.set('paused');
-					break;
 				case 'gameresume':
-					// gameControllerStore.set('running');
+					console.log('Resuming game...');
 					break;
 				default:
+					console.log('Unknown event:', e.data.event);
 					break;
 			}
 		}
@@ -176,6 +245,7 @@
 
 	onMount(() => {
 		if (browser) window.addEventListener('message', receiveMessage);
+		$autoCompile = false;
 	});
 
 	onDestroy(() => {

@@ -99,7 +99,6 @@
 		}, 300);
 	};
 	const debouncedScrollBack = debounce(handleScrollBack, 350);
-
 	const handleScrollForward = () => {
 		$emblaInstance?.scrollPrev();
 		setTimeout(() => {
@@ -107,7 +106,6 @@
 		}, 300);
 	};
 	const debouncedScrollForward = debounce(handleScrollForward, 350);
-
 	onMount(async () => {
 		inject({ mode: dev ? 'development' : 'production' });
 
@@ -152,22 +150,21 @@
 		// 	preferedThemeMode?.removeListener('change', updateTheme);
 		// };
 	});
-
 	beforeNavigate(async (nav) => {
 		if (gameSessionId) {
 			try {
 				await addGameSessionActivity(gameSessionId, 'Stop');
-				await fetch(`/api/games/sessions/updateGameSession/${gameSessionId}`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({
-						sessionTotalScore: $gameSessionScore
-					})
-				}).then(async (res) => {
-					$gameSessionScore = 0;
-				});
+				// await fetch(`/api/games/sessions/updateGameSession/${gameSessionId}`, {
+				// 	method: 'POST',
+				// 	headers: {
+				// 		'Content-Type': 'application/json'
+				// 	},
+				// 	body: JSON.stringify({
+				// 		sessionTotalScore: $gameSessionScore
+				// 	})
+				// }).then(async (res) => {
+				// 	$gameSessionScore = 0;
+				// });
 			} catch (error) {
 				console.log('error::', error);
 			}
@@ -182,7 +179,6 @@
 			sideBarState.set(false);
 		}
 	});
-
 	afterNavigate(async (nav) => {
 		if (!isPlayPage && isMobile) {
 			sideBarState.set(false);
@@ -200,7 +196,6 @@
 			creatingNewPlaylist = false;
 		}
 	});
-
 	afterUpdate(async () => {
 		// await tick();
 		if ($openFiles?.length > 0) {
@@ -227,11 +222,9 @@
 		// 	mainPageElement?.removeEventListener('scroll', handleScroll);
 		// };
 	});
-
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
-
 	// const handleScroll = (e) => {
 	// 	if (e.target.scrollTop > 0) {
 	// 		$showBoxShadow = true;
@@ -239,7 +232,6 @@
 	// 		$showBoxShadow = false;
 	// 	}
 	// };
-
 	const loaderCheck = (navigation) => {
 		let canLoad = false;
 
@@ -267,11 +259,9 @@
 	const updateTheme = (e) => {
 		themeKeyStore.set('dark');
 	};
-
 	const toggleDropDown = () => {
 		dropDownToggle = !dropDownToggle;
 	};
-
 	const toggleSideBar = () => {
 		if (playInRoute) {
 			$sideBarState = !$sideBarState;
@@ -305,7 +295,6 @@
 		const addActivityJSON = await addActivity;
 		const addActivityData = await addActivityJSON.json();
 	};
-
 	const playToggle = async () => {
 		const gameSessionId = $gameSessionState?.id;
 
@@ -332,7 +321,6 @@
 			}
 		}
 	};
-
 	const toggleSettingsDrawer = () => {
 		// $drawerOpen = !$drawerOpen;
 		console.log('toggleSettingsDrawer');
@@ -342,25 +330,14 @@
 	};
 
 	// REACTIVE VARIABLES & STATEMENTS
-	// $: data?.currentUser && data?.settings,
-	// 	session.set({ currentUser: { ...data.currentUser }, settings: { ...data.settings } });
-	// $: console.log('data::', data);
-	// $: console.log('$session::', $session);
-	// $: $platformSession?.currentUser && $platformSession?.settings, (sessionData = $platformSession);
-
 	$: data?.currentUser && data?.settings,
 		platformSession.set({ currentUser: data.currentUser, settings: data.settings, ready: true });
-
-	// $: console.log('$platformSession::', $platformSession);
-
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isVerifyPage = splitPath[splitPath?.length - 1] === 'verify';
 	$: isHomePage = $page?.route?.id === '/';
 	$: themeString = $themeDataStore?.theme?.join(' ');
-	// $: playPauseLabel = $triggerCompile ? 'pause' : 'play';
-	// $: modalIsOpen = $modalOpenState;
 	$: isPlayPage =
 		$page?.route?.id === '/games/[slug]/play' ||
 		$page?.route?.id === '/games/playlist/[playlistId]/[gameSlug]/play';
@@ -1198,7 +1175,7 @@
 	}
 	.page-container.engineInRoute main.editor {
 		padding-top: 0 !important;
-		height: unset !important;
+		height: calc(100%) !important;
 	}
 
 	@media (min-width: 498px) {

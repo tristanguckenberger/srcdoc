@@ -5,6 +5,7 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import { icons } from '$lib/stores/themeStore.js';
 	import { writable } from 'svelte/store';
+	import { connectWebSocket } from '$lib/stores/websocketStore.js';
 	import { enhance } from '$app/forms';
 
 	let boundInputHeight = writable(0);
@@ -18,7 +19,10 @@
 	use:enhance={() => {
 		creating = true;
 
-		return async ({ update }) => {
+		return async ({ update, result }) => {
+			console.log('login::result::', result?.data);
+			connectWebSocket(result?.data?.body?.user?.id);
+
 			await update();
 			setTimeout(() => {
 				creating = false;

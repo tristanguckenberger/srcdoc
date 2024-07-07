@@ -4,6 +4,7 @@
 // import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 import { getCurrentUser } from './api/utils/getFuncs.js';
+// import { connectWebSocket } from '$lib/stores/websocketStore.js';
 // import { json } from '@sveltejs/kit';
 
 const getAllUsers = async () => {
@@ -32,7 +33,7 @@ const getAllUsers = async () => {
 	return users;
 };
 
-export async function load({ cookies, fetch }) {
+export async function load({ cookies /**fetch*/ }) {
 	const token = cookies?.get('token');
 
 	const users = await getAllUsers();
@@ -44,13 +45,13 @@ export async function load({ cookies, fetch }) {
 		};
 	}
 
-	const user = await getCurrentUser(fetch);
+	// const user = await getCurrentUser(fetch);
 
-	if (user?.is_active) {
-		throw redirect(307, `/games`);
-	} else {
-		throw redirect(303, `/users/${user?.id}/verify`);
-	}
+	// if (user?.is_active) {
+	// 	throw redirect(307, `/games`);
+	// } else {
+	// 	throw redirect(303, `/users/${user?.id}/verify`);
+	// }
 }
 
 export const actions = {
@@ -92,7 +93,8 @@ export const actions = {
 					path: '/'
 				});
 				user = await getCurrentUser(fetch);
-				console.log('user::', user);
+				// connectWebSocket(user?.id);
+
 				cookies.set('userId', JSON.stringify(user?.id), {
 					path: '/'
 				});
@@ -112,7 +114,7 @@ export const actions = {
 				// });
 
 				if (user?.is_active) {
-					throw redirect(303, `/games`);
+					// throw redirect(303, `/games`);
 				}
 			}
 
@@ -120,7 +122,7 @@ export const actions = {
 				status: 200,
 				body: {
 					message: 'login_success',
-					user: { token, ...user, password: '' }
+					user: { ...user, password: '' }
 				}
 			};
 		}

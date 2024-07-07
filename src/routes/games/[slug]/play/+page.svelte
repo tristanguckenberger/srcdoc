@@ -172,29 +172,26 @@
 	});
 
 	afterNavigate(async (nav) => {
-		try {
-			const startGameSession = fetch(
-				`/api/games/sessions/createGameSession/${data?.id ?? $page.params.slug}`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					mode: 'cors'
-				}
-			);
-
-			let startGameSessionData = await startGameSession;
-			const jsonBody = await startGameSessionData.json();
-
-			if (jsonBody?.game_session_id) {
-				gameSessionState.set({ id: jsonBody?.game_session_id });
-
-				gameSession.setInitialState({ currentGame: jsonBody?.game_id });
-			}
-		} catch (error) {
-			console.log('error::', error);
-		}
+		// try {
+		// 	const startGameSession = fetch(
+		// 		`/api/games/sessions/createGameSession/${data?.id ?? $page.params.slug}`,
+		// 		{
+		// 			method: 'POST',
+		// 			headers: {
+		// 				'Content-Type': 'application/json'
+		// 			},
+		// 			mode: 'cors'
+		// 		}
+		// 	);
+		// 	let startGameSessionData = await startGameSession;
+		// 	const jsonBody = await startGameSessionData.json();
+		// 	if (jsonBody?.game_session_id) {
+		// 		gameSessionState.set({ id: jsonBody?.game_session_id });
+		// 		gameSession.setInitialState({ currentGame: jsonBody?.game_id });
+		// 	}
+		// } catch (error) {
+		// 	console.log('error::', error);
+		// }
 	});
 
 	let newGamesData = [];

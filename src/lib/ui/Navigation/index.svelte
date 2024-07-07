@@ -5,7 +5,7 @@
 	import { inject } from '@vercel/analytics';
 
 	// SVELTE IMPORTS
-	import { onMount, tick } from 'svelte';
+	import { afterUpdate, onMount, tick } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
@@ -22,6 +22,7 @@
 	} from '$lib/stores/filesStore';
 	import { sideBarState, appClientWidth } from '$lib/stores/layoutStore.js';
 	import { session } from '$lib/stores/sessionStore.js';
+	import { platformSession } from '$lib/stores/platformSession';
 	import { themeKeyStore } from '$lib/stores/themeStore';
 	import { routeHistoryStore } from '$lib/stores/routeStore';
 	import { itemsInStack } from '$lib/stores/modalStackStore';
@@ -29,12 +30,14 @@
 	// COMPONENT IMPORTS
 	import Button from '$lib/ui/Button/index.svelte';
 	import SearchBar from '$lib/ui/NavWidgets/SearchBar.svelte';
+	import Notifications from '$lib/ui/Notifications/index.svelte';
 
 	// ASSET IMPORTS
-	import { invalidateAll } from '$app/navigation';
+	import { afterNavigate, invalidateAll } from '$app/navigation';
 	import { writable } from 'svelte/store';
 	import { copyData } from '$lib/platformCopy/copyData.js';
 	import { editorPageInfoStore, modalFullInfoStore } from '$lib/stores/InfoStore.js';
+	import { notifications, showNotifications } from '$lib/stores/notificationStore';
 
 	// Props
 	export let data;
@@ -46,6 +49,8 @@
 	let isFavorited = false;
 	// let mainPageElement;
 	let mainElement;
+	let hasNewNotifications = false;
+	// let showNotifications = false;
 	const showBoxShadow = writable(false);
 
 	// FUNCTIONS
@@ -56,18 +61,25 @@
 			preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
 			preferedThemeMode?.addEventListener('change', updateTheme);
 			updateTheme(preferedThemeMode);
-			// if (sessionData && !$session) {
-			// 	session.set(sessionData);
-			// }
 		}
+	});
 
-		// try this in an onMount and an afterUpdate
-		// mainPageElement = mainElement?.querySelector('.main');
+	afterUpdate(() => {
+		const tickThenCheckForNotifications = async () => {
+			await tick();
+			// Check for new notifications
+			console.log('notifications::', $notifications);
+			hasNewNotifications =
+				$notifications?.length > 0 && $notifications?.some((notification) => notification?.id);
+		};
 
-		// if we have the main page element, we can add the event listeners for scrolling
-		// return () => {
-		// 	preferedThemeMode?.removeListener('change', updateTheme);
-		// };
+		tickThenCheckForNotifications();
+	});
+
+	afterNavigate(() => {
+		// Reset the notifications
+		$showNotifications = false;
+		notifications.set([]);
 	});
 
 	const toggleFileSystemSidebar = () => {
@@ -163,13 +175,36 @@
 		}
 	};
 
+	const toggleShowNotifications = () => {
+		if ($showNotifications) {
+			updateNotifications().then(() => {
+				$notifications = [];
+				showNotifications.set(false);
+			});
+		} else {
+			$showNotifications = !$showNotifications;
+		}
+	};
+
+	const updateNotifications = async () => {
+		const response = await fetch(`/api/notifications/update`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				ids: $notifications.map((notification) => notification.id)
+			})
+		});
+		console.log('response::', await response.json());
+	};
+
 	// REACTIVE VARIABLES & STATEMENTS
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isHomePage = $page?.route?.id === '/';
 	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
-	// $: sessionData = data?.sessionData ?? $session;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
 	$: isMobile = $appClientWidth < 768;
 	$: isProfilePage =
@@ -189,6 +224,7 @@
 	})();
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
 	$: disableBackButton = $routeHistoryStore?.length < 2;
+	$: console.log('hasNewNotifications::', hasNewNotifications);
 	/**
 	 * We have to reference the store to trigger the reactive statement
 	 */
@@ -245,6 +281,26 @@
 					<div class="search">
 						<SearchBar />
 					</div>
+					<div>
+						<button class={`notifications-button`} type="button" on:click={toggleShowNotifications}>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="20"
+								height="20"
+								fill="#ffffff"
+								viewBox="0 0 256 256"
+								><path
+									d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"
+								/></svg
+							>
+							<div class="notification-alert" class:hasNewNotifications />
+						</button>
+					</div>
+					{#if $showNotifications}
+						<div class="notifications-container">
+							<Notifications />
+						</div>
+					{/if}
 				</li>
 			{/if}
 			{#if engineInRoute}
@@ -267,48 +323,6 @@
 				</li>
 			{/if}
 		</ul>
-		<!-- {#if !isMobile && engineInRoute}
-			<ul class="profile-info" class:showSideBar={$sideBarState}>
-				{#if sessionData?.username || $session?.username}
-					<li>
-						<Button
-							link="/users/{sessionData?.id}"
-							userName={sessionData?.username ?? $session?.username}
-							userAvatar={sessionData?.profile_photo ?? $session?.profile_photo}
-							isRounded
-							action={toggleDropDown}
-							showDropDown={dropDownToggle}
-						/>
-					</li>
-				{/if}
-				<div class="more-container" class:dropDownToggle>
-					<div class="more" class:dropDownToggle class:isBrowsePage>
-						<ul>
-							<li>
-								<Button label="Home" link="/games" />
-							</li>
-							<li>
-								<form
-									class="logout-form"
-									action="/?/logout"
-									method="POST"
-									use:enhance={() => {
-										return async ({ result }) => {
-											if (result.status === 200) {
-												session.set(null);
-												invalidateAll();
-											}
-										};
-									}}
-								>
-									<Button label="Logout" />
-								</form>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</ul>
-		{/if} -->
 	</ul>
 </nav>
 
@@ -531,14 +545,14 @@
 	.top-nav-action-bar {
 		display: flex;
 		align-items: center;
-		width: 100%;
+		width: calc(100% - 45.5px);
 		position: fixed;
 		left: 56.5px;
 		top: 10px;
 	}
 	.top-nav-action-bar.showSideBar {
 		left: 240px;
-		width: calc(100% - 183.5px);
+		width: calc(100% - 229px);
 	}
 	nav.isHomePage .top-nav-action-bar {
 		top: unset;
@@ -572,5 +586,35 @@
 		background: transparent;
 		top: unset;
 		bottom: 0;
+	}
+	.notifications-container {
+		position: absolute;
+		top: 50px;
+		right: 10px;
+	}
+	.notifications-button {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 0.25em;
+		background-color: var(--home-gradient-color-1);
+		border: none;
+		height: 36px;
+		width: 36px;
+		cursor: pointer;
+	}
+	.notification-alert {
+		position: absolute;
+		top: 6px;
+		right: 6px;
+		width: 10px;
+		height: 10px;
+		background-color: transparent;
+		border-radius: 50%;
+	}
+	.notification-alert.hasNewNotifications {
+		position: absolute;
+		background-color: red;
 	}
 </style>
