@@ -82,11 +82,6 @@
 			observer.disconnect();
 		}
 	});
-
-	$: hasNewNotifications = $fetchedNotifications?.some((notification) => !notification?.read);
-	$: hasNotifications =
-		$fetchedNotifications?.length > 0 &&
-		$fetchedNotifications?.some((notification) => notification?.id);
 </script>
 
 <div class="notifications">

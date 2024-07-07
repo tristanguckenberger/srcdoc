@@ -271,9 +271,11 @@
 					</div>
 				{/each}
 			{/if}
-			<div id="end-of-list" style="height: 20px;">
-				{loading || offset >= totalActivities ? 'Loading more...' : 'End of list!'}
-			</div>
+			{#if $activities?.length > 0}
+				<div id="end-of-list" style="height: 20px;">
+					{loading || offset <= totalActivities ? 'Loading more...' : 'End of list!'}
+				</div>
+			{/if}
 		</div>
 	</div>
 
