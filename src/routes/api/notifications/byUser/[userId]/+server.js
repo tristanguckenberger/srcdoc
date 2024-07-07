@@ -1,8 +1,11 @@
 import { json } from '@sveltejs/kit';
 
-export async function GET({ setHeaders, params, cookies }) {
+export async function GET({ setHeaders, params, cookies, url }) {
 	const { userId } = params;
 	const token = cookies.get('token') ?? localStorage?.getItem('token');
+
+	const limit = url.searchParams.get('limit') ?? 50;
+	const offset = url.searchParams.get('offset') ?? 0;
 
 	const userReqHeaders = new Headers();
 	userReqHeaders.append('Content-Type', 'application/json');
@@ -13,18 +16,18 @@ export async function GET({ setHeaders, params, cookies }) {
 	};
 
 	const userResponse = await fetch(
-		`${process.env.SERVER_URL}/api/notifications/users/${userId}`,
+		`${process.env.SERVER_URL}/api/notifications/users/${userId}?limit=${limit}&offset=${offset}`,
 		userReqInit
 	);
 
 	if (!userResponse.ok) {
-		return json([]);
+		return json({ notifications: [], total: 0 });
 	}
 
-	const games = await userResponse.json();
+	const { notifications, total } = await userResponse.json();
 
 	setHeaders({
 		'cache-control': 'max-age=60'
 	});
-	return json(games);
+	return json({ notifications, total });
 }

@@ -1,42 +1,99 @@
 <script>
 	// @ts-nocheck
 	import { notifications } from '$lib/stores/notificationStore.js';
-	import { onDestroy, onMount } from 'svelte';
+	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { platformSession } from '$lib/stores/platformSession';
+	import { writable } from 'svelte/store';
 
-	const getNotifications = async () => {
-		const response = await fetch(`/api/notifications/byUser/${$platformSession?.currentUser?.id}`);
+	// let fetchedNotifications = [];
+	let fetchedNotifications = writable([]);
+	let totalNotifications = 0;
+	let limit = 10;
+	let offset = 0;
+	let loading = false;
+	let observer;
+
+	const getNotifications = async (limit, offset) => {
+		const response = await fetch(
+			`/api/notifications/byUser/${$platformSession?.currentUser?.id}?limit=${limit}&offset=${offset}`
+		);
 		const data = await response.json();
 		return data;
 	};
 
-	let fetchedNotifications = [];
+	const loadMoreNotifications = async () => {
+		if (loading || offset >= totalNotifications) return;
+		loading = true;
+		const { notifications: newNotifications, total } = await getNotifications(limit, offset);
+		fetchedNotifications.update((current) => [...current, ...newNotifications]);
+		offset += limit;
+		totalNotifications = parseInt(total);
+		loading = false;
+	};
 
-	onMount(() => {
-		const init = async () => {
-			fetchedNotifications = await getNotifications();
-		};
-		init();
+	const observe = (entries) => {
+		const entry = entries[0];
+		if (entry.isIntersecting) {
+			loadMoreNotifications();
+		}
+	};
+
+	const setupObserver = () => {
+		observer = new IntersectionObserver(observe, {
+			root: null,
+			rootMargin: '0px',
+			threshold: 0.1
+		});
+
+		const endOfListElement = document.querySelector('#end-of-list');
+		if (endOfListElement) {
+			observer.observe(endOfListElement);
+		} else {
+			console.error('#end-of-list element not found during setup');
+		}
+	};
+
+	const reobserveEndOfList = () => {
+		const endOfListElement = document.querySelector('#end-of-list');
+		if (endOfListElement) {
+			observer.unobserve(endOfListElement); // Stop observing the current end-of-list
+			observer.observe(endOfListElement); // Re-observe the new end-of-list
+		} else {
+			console.error('#end-of-list element not found during reobserve');
+		}
+	};
+
+	onMount(async () => {
+		const initialData = await getNotifications(limit, offset);
+		totalNotifications = parseInt(initialData.total);
+		fetchedNotifications.set(initialData.notifications);
+		offset += limit;
+		if (initialData.notifications.length > 0) {
+			setupObserver();
+		}
 	});
 
-	$: fetchedNotifications = [
-		...fetchedNotifications,
-		$notifications?.map((notification) => ({ ...notification, new: true }))
-	];
-	$: hasNewNotifications = fetchedNotifications?.some((notification) => notification?.new);
-	$: hasNotifications =
-		fetchedNotifications?.length > 0 &&
-		fetchedNotifications?.some((notification) => notification?.id);
+	afterUpdate(() => {
+		reobserveEndOfList();
+	});
 
-	$: console.log(fetchedNotifications);
 	onDestroy(() => {
-		fetchedNotifications = [];
+		if (observer) {
+			observer.disconnect();
+		}
 	});
+
+	$: hasNewNotifications = $fetchedNotifications?.some((notification) => !notification?.read);
+	$: hasNotifications =
+		$fetchedNotifications?.length > 0 &&
+		$fetchedNotifications?.some((notification) => notification?.id);
 </script>
 
 <div class="notifications">
-	{#if hasNotifications}
-		{#each fetchedNotifications as notification (notification.id)}
+	{#if $fetchedNotifications?.length === 0}
+		<div class="notification">No notifications yet</div>
+	{:else}
+		{#each $fetchedNotifications as notification (notification.id)}
 			{#if notification?.id}
 				<div class="notification">
 					<div class="notification-details">
@@ -110,8 +167,12 @@
 				</div>
 			{/if}
 		{/each}
-	{:else}
-		<div class="notification">Nothing here yet...</div>
+	{/if}
+	{#if $fetchedNotifications?.length > 0}
+		<div id="end-of-list" style="height: 20px;">
+			{loading || offset <= totalNotifications ? 'Loading more...' : 'All caught up!'}
+		</div>
+		<br />
 	{/if}
 </div>
 
@@ -258,5 +319,11 @@
 		border-top-left-radius: 0;
 		/* padding: 0 10px 10px 10px; */
 		box-shadow: inset 0px 0px 20px 16px rgba(0, 0, 0, 0.2);
+	}
+	#end-of-list {
+		color: var(--color-primary);
+		font-family: 'Source Sans 3', sans-serif;
+		font-size: 1rem;
+		text-align: center;
 	}
 </style>
