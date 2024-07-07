@@ -1,8 +1,10 @@
 // @ts-nocheck
 import { json } from '@sveltejs/kit';
 
-export async function GET({ params }) {
+export async function GET({ params, url }) {
 	const { userId } = params;
+	const limit = url.searchParams.get('limit') || 50;
+	const offset = url.searchParams.get('offset') || 0;
 
 	const requestHeaders = new Headers();
 	const requestInit = {
@@ -11,10 +13,9 @@ export async function GET({ params }) {
 	};
 
 	const response = await fetch(
-		`${process.env.SERVER_URL}/api/userActivities/users/${userId}/activities`,
+		`${process.env.SERVER_URL}/api/userActivities/users/${userId}/activities?limit=${limit}&offset=${offset}`,
 		requestInit
 	);
 	const result = await response.json();
-	console.log('result::', result);
 	return json(result);
 }

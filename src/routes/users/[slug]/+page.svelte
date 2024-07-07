@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import { getContext, onDestroy, onMount, setContext } from 'svelte';
+	import { getContext, onDestroy, onMount, setContext, tick } from 'svelte';
 	import { themeDataStore } from '$lib/stores/themeStore.js';
 	import Button from '$lib/ui/Button/index.svelte';
 	import { sideBarState } from '$lib/stores/layoutStore.js';
@@ -27,6 +27,13 @@
 	let updating = false;
 	let currentUser;
 
+	let activities = writable(data.activities);
+	let totalActivities = data.total;
+	let limit = 50;
+	let offset = data.activities.length;
+	let loading = false;
+	let observer;
+
 	setContext('followDataStore', {
 		followers: writable([]),
 		following: writable([]),
@@ -44,6 +51,8 @@
 		$following = data?.following;
 		$user = data?.user;
 		currentUser = data?.currentUser;
+
+		setupObserver();
 	});
 
 	afterUpdate(() => {
@@ -51,6 +60,7 @@
 		$following = data?.following;
 		$user = data?.user;
 		currentUser = data?.currentUser;
+		reobserveEndOfList();
 	});
 
 	onDestroy(() => {
@@ -58,7 +68,53 @@
 		$following = [];
 		$user = {};
 		currentUser = {};
+		if (observer) {
+			observer.disconnect();
+		}
 	});
+
+	const setupObserver = () => {
+		observer = new IntersectionObserver(observe, {
+			root: null,
+			rootMargin: '0px',
+			threshold: 0.1 // Adjust threshold value here if needed
+		});
+
+		const endOfListElement = document.querySelector('#end-of-list');
+		if (endOfListElement) {
+			observer.observe(endOfListElement);
+		} else {
+			console.error('#end-of-list element not found during setup');
+		}
+	};
+
+	const loadMoreActivities = async () => {
+		if (loading || offset >= totalActivities) return;
+		loading = true;
+		const response = await fetch(`/api/activity/${data.id}?limit=${limit}&offset=${offset}`);
+		const result = await response.json();
+		activities.update((current) => [...current, ...result.activities]);
+		offset += limit;
+		loading = false;
+	};
+
+	const observe = (entries, observer) => {
+		for (const entry of entries) {
+			if (entry.isIntersecting) {
+				loadMoreActivities();
+			}
+		}
+	};
+
+	const reobserveEndOfList = () => {
+		const endOfListElement = document.querySelector('#end-of-list');
+		if (endOfListElement) {
+			observer.unobserve(endOfListElement); // Stop observing the current end-of-list
+			observer.observe(endOfListElement); // Re-observe the new end-of-list
+		} else {
+			console.error('#end-of-list element not found during reobserve');
+		}
+	};
 
 	$: (() => {
 		return (ComponentOptions = [
@@ -84,14 +140,6 @@
 	$: currentUserIsFollowingProfileUser = $followers?.some(
 		(followerUser) => followerUser?.id?.toString() === $platformSession?.currentUser?.id?.toString()
 	);
-	$: console.log('data.activities', data?.activities);
-	$: {
-		// log $followers count
-		console.log('followers count', $followers?.length);
-
-		// log $following count
-		console.log('following count', $following?.length);
-	}
 	$: followerCount = $followers?.length ?? 0;
 	$: followingCount = $following?.length ?? 0;
 </script>
@@ -173,10 +221,10 @@
 
 		<!-- <form action=""></form> -->
 		<div class="user-activity">
-			{#if data?.activities.length === 0}
+			{#if $activities.length === 0}
 				<p>No activity yet</p>
 			{:else}
-				{#each data?.activities as activity}
+				{#each $activities as activity}
 					<div class="activity">
 						<div class="activity-details">
 							<p class="timestamp">{new Date(activity.timestamp).toLocaleString()}</p>
@@ -184,7 +232,6 @@
 								<img src={activity.profile_photo} alt="User profile photo" class="profile-photo" />
 								<p class="primary-text">{activity.primary_text}</p>
 							</div>
-
 							{#if activity.target_type === 'game' || activity.target_type === 'game_session'}
 								<a href="/games/{activity?.target_id}/play" class="activity-link">
 									<div class="game-details">
@@ -224,8 +271,12 @@
 					</div>
 				{/each}
 			{/if}
+			<div id="end-of-list" style="height: 20px;">
+				{loading || offset >= totalActivities ? 'Loading more...' : 'End of list!'}
+			</div>
 		</div>
 	</div>
+
 	<div class="user-content-container">
 		<HorizontalList
 			title="Favorites"
@@ -613,6 +664,12 @@
 		color: var(--folder-button-color);
 		margin-block-start: 0.5vmax;
 		margin-block-end: 0.5vmax;
+		text-align: center;
+	}
+	#end-of-list {
+		color: var(--color-primary);
+		font-family: 'Source Sans 3', sans-serif;
+		font-size: 1rem;
 		text-align: center;
 	}
 </style>

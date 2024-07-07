@@ -5,7 +5,7 @@ import { getFollowers, getFollowing } from '../../api/utils/getFuncs.js';
 const getUser = async (/** @type {String} */ id) => {
 	if (id) {
 		const userReqHeaders = new Headers();
-		userReqHeaders?.append(`content-type`, `application/json`);
+		userReqHeaders?.append('content-type', 'application/json');
 		const userReqInit = {
 			method: 'GET',
 			headers: userReqHeaders
@@ -32,10 +32,10 @@ const getAllPlaylistsByUser = async (eventFetch, userId) => {
 	return playlists;
 };
 
-const getUserActivities = async (eventFetch, userId) => {
-	const activityRes = await eventFetch(`/api/activity/${userId}`);
-	const activities = await activityRes.json();
-	return activities;
+const getUserActivities = async (eventFetch, userId, limit, offset) => {
+	const activityRes = await eventFetch(`/api/activity/${userId}?limit=${limit}&offset=${offset}`);
+	const { activities, total } = await activityRes.json();
+	return { activities, total };
 };
 
 export async function load({ params, setHeaders, fetch, cookies }) {
@@ -53,7 +53,7 @@ export async function load({ params, setHeaders, fetch, cookies }) {
 	const following = await getFollowing(fetch, user?.id);
 	const userPlaylists = await getAllPlaylistsByUser(fetch, user?.id);
 	const publicPlaylists = userPlaylists?.filter((playlist) => playlist.is_public);
-	const activities = await getUserActivities(fetch, user?.id);
+	const { activities, total } = await getUserActivities(fetch, user?.id, 50, 0); // Initial load with limit and offset
 	const currentUser = cookies.get('userId');
 
 	setHeaders({
@@ -63,6 +63,7 @@ export async function load({ params, setHeaders, fetch, cookies }) {
 	return {
 		...user,
 		activities,
+		total,
 		followers,
 		following,
 		currentUser,
