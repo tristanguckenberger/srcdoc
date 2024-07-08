@@ -401,6 +401,16 @@
 		});
 	}
 	$: inactiveUser = $platformSession?.currentUser?.id && !$platformSession?.currentUser?.is_active;
+	$: console.log('$platformSession::', $platformSession);
+	$: if (!$platformSession?.currentUser?.profile_photo) {
+		$platformSession = {
+			...$platformSession,
+			currentUser: {
+				...$platformSession?.currentUser,
+				profile_photo: $userPfpStore
+			}
+		};
+	}
 
 	/**
 	 * We have to reference the store to trigger the reactive statement

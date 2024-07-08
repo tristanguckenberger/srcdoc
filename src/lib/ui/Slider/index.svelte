@@ -273,14 +273,6 @@
 	$: visibleThumbnails = showSlides;
 	$: isPlaylistSlider = $page?.route?.id === '/games/playlist/[playlistId]/[gameSlug]/play';
 	$: playlistId = $page?.params?.playlistId;
-	// $: isFavorited = favoritesObj?.favorites?.some((fav) => {
-	// 	return (
-	// 		fav?.user_id?.toString() === $platformSession?.currentUser?.id?.toString() &&
-	// 		fav?.game_id?.toString() === currentGameExport?.id?.toString()
-	// 	);
-	// });
-
-	$: console.log('isFavorited::', isFavorited);
 
 	let load = false;
 </script>

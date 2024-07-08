@@ -5,7 +5,6 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import { icons } from '$lib/stores/themeStore.js';
 	import { browser } from '$app/environment';
-	import { session } from '$lib/stores/sessionStore.js';
 	import { goto } from '$app/navigation';
 	import { userStore } from '$lib/stores/authStore.js';
 	import { onMount, setContext, getContext, afterUpdate } from 'svelte';
@@ -26,6 +25,7 @@
 	import MockPlay from '$lib/ui/MockPlay/index.svelte';
 	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
 	import ForgotPasswordRequest from '$lib/ui/Form/ForgotPasswordRequest.svelte';
+	import { platformSession } from '$lib/stores/platformSession/index.js';
 
 	export let form;
 	export let data;
@@ -43,10 +43,10 @@
 	let selected = authFlowOptions[0];
 
 	onMount(async () => {
-		$session?.username && browser && goto('/games');
+		$platformSession?.currentUser?.id && browser && goto('/games');
 
 		// Gets a list of users for checking if a username is taken during registration
-		if (!$session?.username) {
+		if (!$platformSession?.currentUser?.username) {
 			const userData = data?.sessionData?.username
 				? data?.sessionData
 				: {
@@ -83,9 +83,9 @@
 	};
 	let formSwitchText = 'Already have an account?';
 
-	$: browser && form, session.set({ ...form?.body?.user });
+	// $: browser && form, session.set({ ...form?.body?.user });
 	$: data?.users?.length && userStore.set(data?.users);
-	$: $session?.username && browser && goto('/games');
+	$: $platformSession?.currentUser?.username && browser && goto('/games');
 	$: if (selected === authFlowOptions[0]) {
 		formSwitchText = 'Already have an account?';
 	} else if (selected === authFlowOptions[1]) {

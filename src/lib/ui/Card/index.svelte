@@ -75,7 +75,7 @@
 	$: cardLink = `/games/${id}/play`;
 	$: themeString = $themeDataStore?.theme?.join(' ');
 	$: gameUserID = game?.userId ?? game?.user_id;
-	$: user = $session;
+	$: user = $platformSession?.currentUser;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
 </script>
 
@@ -135,12 +135,8 @@
 						<button
 							class="action-button button favorites"
 							on:click={() => {
-								// $actionMenuOpen = !actionOpen;
 								setTimeout(() => {
-									// $playButton = !play;
-									// setTimeout(() => {
 									$screenshot = true;
-									// }, 200);
 								}, 200);
 							}}
 						>

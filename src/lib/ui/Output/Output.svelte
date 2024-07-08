@@ -1,6 +1,5 @@
 <script>
 	// @ts-nocheck
-
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 	import { src_build, currentGame, screenshot } from '$lib/stores/gamesStore';
@@ -16,14 +15,11 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import { debounce } from 'lodash-es';
+	import { playButton } from '$lib/stores/gamesStore';
 
 	import * as htmlToImage from 'html-to-image';
 	import { writable } from 'svelte/store';
-	import {
-		gameSession
-		// gameSessionState,
-		// gameSessionScore
-	} from '$lib/stores/gameSession/index.js';
+	import { gameSession } from '$lib/stores/gameSession/index.js';
 
 	export let relaxed = false;
 	export let play = false;
@@ -39,6 +35,7 @@
 	let rootFileId;
 	let thumbnail;
 	let temporarySessionState = null;
+	let stopPropagation = false;
 
 	$: {
 		(async () => {
@@ -116,14 +113,6 @@
 
 	const debouncedAfterUpdate = debounce(async () => {
 		$autoCompile = false;
-		// $triggerCompile = false;
-		// triggerUpdate = false;
-		// play = false;
-		console.log('rootFileId::', rootFileId);
-		console.log('$autoCompile::', $autoCompile);
-		console.log('$triggerCompile::', $triggerCompile);
-		console.log('triggerUpdate::', triggerUpdate);
-		console.log('play::', play);
 		if ((rootFileId && ($triggerCompile || $autoCompile || triggerUpdate)) || play) {
 			console.log('After update triggered');
 			srcdoc =
@@ -154,7 +143,6 @@
 
 	const gameInit = async () => {
 		try {
-			console.log('Initializing game session...');
 			const response = await fetch(`/api/games/sessions/createGameSession/${$page.params.slug}`, {
 				method: 'POST',
 				headers: {
@@ -168,16 +156,10 @@
 			}
 
 			const jsonBody = await response.json();
-			console.log('Game session response:', jsonBody);
 
 			if (jsonBody?.game_session_id) {
 				$gameSessionState = { id: jsonBody?.game_session_id }; // Use temporary variable
-				console.log('Temporary session state set:', $gameSessionState);
-				// gameSession?.setInitialState({ currentGame: jsonBody?.game_id });
-
-				await addGameSessionActivity($gameSessionState?.id, 'Start'); // Use temporary variable for activity
-				// $gameSessionState = temporarySessionState; // Finally set the store
-				console.log('Game session state set:', $gameSessionState);
+				await addGameSessionActivity($gameSessionState?.id, 'Start');
 			} else {
 				throw new Error('Invalid response body');
 			}
@@ -210,9 +192,10 @@
 				case 'stop-game':
 					console.log('Stopping game...');
 					await tick();
-					if ($gameSessionState?.id) {
+					if ($gameSessionState?.id && !stopPropagation) {
+						stopPropagation = true;
 						await addGameSessionActivity($gameSessionState?.id, 'Stop');
-						console.log('Game session activity stop added');
+						console.log('::::::::::::Game session activity stop added::::::::::::');
 						await fetch(`/api/games/sessions/updateGameSession/${$gameSessionState?.id}`, {
 							method: 'POST',
 							headers: {
@@ -221,13 +204,19 @@
 							body: JSON.stringify({
 								sessionTotalScore: $gameSessionScore
 							})
+						}).then((response) => {
+							if (response.ok) {
+								console.log('Game session ended');
+								$playButton = false;
+							} else {
+								console.error('Failed to update game session');
+							}
 						});
 
 						$triggerCompile = true;
 						triggerUpdate = true;
 
 						setTimeout(() => {
-							// $gameSessionState = null;
 							$triggerCompile = false;
 						}, 500);
 					}
@@ -250,6 +239,7 @@
 
 	onDestroy(() => {
 		if (browser) window.removeEventListener('message', receiveMessage);
+		stopPropagation = false;
 	});
 
 	let clientWidth = 0;
