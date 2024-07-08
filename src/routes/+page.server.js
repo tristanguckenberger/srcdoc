@@ -27,7 +27,7 @@ const getAllUsers = async () => {
 		}
 		users = await usersResponse.json();
 	} catch (error) {
-		console.log('usersResponse::error::', error);
+		console.error('usersResponse::error::', error);
 	}
 
 	return users;
@@ -35,23 +35,23 @@ const getAllUsers = async () => {
 
 export async function load({ cookies /**fetch*/ }) {
 	const token = cookies?.get('token');
+	const isActive = cookies?.get('isActive');
+	const userId = cookies?.get('userId');
 
-	const users = await getAllUsers();
 	// users?.length && userStore.set(users);
 
 	if (!token) {
+		const users = await getAllUsers();
 		return {
 			users: users
 		};
 	}
 
-	// const user = await getCurrentUser(fetch);
-
-	// if (user?.is_active) {
-	// 	throw redirect(307, `/games`);
-	// } else {
-	// 	throw redirect(303, `/users/${user?.id}/verify`);
-	// }
+	if (isActive) {
+		throw redirect(307, `/games`);
+	} else {
+		throw redirect(303, `/users/${userId}/verify`);
+	}
 }
 
 export const actions = {
@@ -84,45 +84,39 @@ export const actions = {
 
 		const resAuth = await authResponse.json();
 		const token = resAuth?.token;
+		const user = resAuth?.user;
+		const settings = resAuth?.settings;
 
 		if (token) {
-			let user;
-
 			try {
-				await cookies.set('token', token, {
+				cookies.set('token', token, {
 					path: '/'
 				});
-				user = await getCurrentUser(fetch);
-				// connectWebSocket(user?.id);
-
 				cookies.set('userId', JSON.stringify(user?.id), {
 					path: '/'
 				});
-				// cookies.set('username', JSON.stringify(user?.username), {
-				// 	path: '/'
-				// });
+				cookies.set('username', JSON.stringify(user?.username), {
+					path: '/'
+				});
 				cookies.set('isActive', JSON.stringify(user?.is_active), {
 					path: '/'
 				});
+				cookies.set('verificationToken', JSON.stringify(user?.verification_token), {
+					path: '/'
+				});
+				cookies.set('resetPasswordToken', JSON.stringify(user?.reset_password_token), {
+					path: '/'
+				});
 			} catch (error) {
-				console.log('cookieError::', error);
-			}
-
-			if (user) {
-				// session.set({
-				// 	...user
-				// });
-
-				if (user?.is_active) {
-					// throw redirect(303, `/games`);
-				}
+				console.error('cookieError::', error);
 			}
 
 			return {
 				status: 200,
 				body: {
 					message: 'login_success',
-					user: { ...user, password: '' }
+					user: { ...user, password: '' },
+					settings
 				}
 			};
 		}
@@ -155,38 +149,36 @@ export const actions = {
 			};
 		}
 
-		const token = (await authResponse.json()).token;
-		if (token) {
-			let user;
+		const resAuth = await authResponse.json();
+		const token = resAuth?.token;
+		const user = resAuth?.user;
+		const settings = resAuth?.settings;
 
+		if (token) {
 			try {
-				await cookies.set('token', token, {
+				cookies.set('token', token, {
 					path: '/'
 				});
-				user = await getCurrentUser(fetch);
-				console.log('user::', user);
 				cookies.set('userId', JSON.stringify(user?.id), {
 					path: '/'
 				});
 				cookies.set('username', JSON.stringify(user?.username), {
 					path: '/'
 				});
+				cookies.set('isActive', JSON.stringify(user?.is_active), {
+					path: '/'
+				});
 			} catch (error) {
-				console.log('cookieError::', error);
+				console.error('cookieError::', error);
 			}
-
-			// if (user) {
-			// 	session.set({
-			// 		...user
-			// 	});
-			// }
 
 			return {
 				status: 200,
 				redirect: '/games',
 				body: {
 					message: 'registration_success',
-					user: { ...user, password: '' }
+					user: { ...user, password: '' },
+					settings
 				}
 			};
 		}
@@ -309,8 +301,6 @@ export const actions = {
 
 		const result = await response.json();
 
-		console.log('result::', result);
-
 		return {
 			status: 200,
 			body: {
@@ -336,8 +326,6 @@ export const actions = {
 
 		const response = await fetch(`${process.env.SERVER_URL}/api/auth/forgot-password`, requestInit);
 		const { message } = await response.json();
-
-		console.log('message::', message);
 
 		return {
 			status: 200,
@@ -368,11 +356,7 @@ export const actions = {
 			requestInit
 		);
 
-		// console.log('response::', response);
-
 		const { message } = await response.json();
-
-		// console.log('result::', result);
 
 		return {
 			status: 200,
@@ -486,6 +470,28 @@ export const actions = {
 			requestInit
 		);
 
+		const result = await response.json();
+
+		return {
+			status: 200,
+			body: {
+				result
+			}
+		};
+	},
+	resendVerificationEmail: async ({ request, fetch }) => {
+		const formData = await request.formData();
+		const userId = formData?.get('userId');
+		const requestHeaders = new Headers();
+		const requestInit = {
+			method: 'GET',
+			headers: requestHeaders
+		};
+
+		const response = await fetch(
+			`${process.env.SERVER_URL}/api/auth/resend-verification-email/${userId}`,
+			requestInit
+		);
 		const result = await response.json();
 
 		return {

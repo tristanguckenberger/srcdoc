@@ -7,6 +7,8 @@
 	import { writable } from 'svelte/store';
 	import { connectWebSocket } from '$lib/stores/websocketStore.js';
 	import { enhance } from '$app/forms';
+	import { platformSession } from '$lib/stores/platformSession';
+	import { browser } from '$app/environment';
 
 	let boundInputHeight = writable(0);
 	let creating = false;
@@ -20,8 +22,19 @@
 		creating = true;
 
 		return async ({ update, result }) => {
-			console.log('login::result::', result?.data);
-			connectWebSocket(result?.data?.body?.user?.id);
+			if (browser) {
+				platformSession?.set({
+					currentUser: result?.data?.body?.user,
+					settings: result?.data?.body?.settings,
+					ready: true
+				});
+			}
+
+			try {
+				connectWebSocket(result?.data?.body?.user?.id);
+			} catch (error) {
+				console.error(error);
+			}
 
 			await update();
 			setTimeout(() => {

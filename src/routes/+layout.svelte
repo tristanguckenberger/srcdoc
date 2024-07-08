@@ -62,7 +62,7 @@
 
 	// ASSET IMPORTS
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
-	import { afterNavigate, beforeNavigate, invalidateAll } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
 	import { searchResultsStore } from '$lib/stores/search/searchStore';
 	import { writable } from 'svelte/store';
 	import { copyData } from '$lib/platformCopy/copyData.js';
@@ -70,7 +70,11 @@
 		editorPageInfoStore,
 		gamePageInfoStore,
 		homePageInfoStore,
-		modalFullInfoStore
+		modalFullInfoStore,
+		userPfpStore,
+		userBioStore,
+		userIdStore,
+		userUsernameStore
 	} from '$lib/stores/InfoStore.js';
 	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
 
@@ -118,27 +122,38 @@
 			homePageInfoStore.useLocalStorage();
 			gamePageInfoStore.useLocalStorage();
 			editorPageInfoStore.useLocalStorage();
+			userPfpStore.useLocalStorage();
+			userBioStore.useLocalStorage();
+			userIdStore.useLocalStorage();
+			userUsernameStore.useLocalStorage();
 
-			// session.set({ currentUser: data.currentUser, settings: data.settings });
-
-			// console.log('data::settings', data?.settings);
-			console.log('data::gamePageInfoStore', $gamePageInfoStore);
-
-			if (data?.settings) {
+			if ($platformSession?.settings) {
 				homePageInfoStore.set({
 					...$homePageInfoStore,
-					viewed: data?.settings?.hide_pop_up_info_home
+					viewed: $platformSession?.settings?.hide_pop_up_info_home
 				});
 				gamePageInfoStore.set({
 					...$gamePageInfoStore,
-					viewed: data?.settings?.hide_pop_up_info_games
+					viewed: $platformSession?.settings?.hide_pop_up_info_games
 				});
 				editorPageInfoStore.set({
 					...$editorPageInfoStore,
-					viewed: data?.settings?.hide_pop_up_info_editor
+					viewed: $platformSession?.settings?.hide_pop_up_info_editor
 				});
-
 				$modalFullInfoStore = null;
+			}
+
+			if ($platformSession?.currentUser?.profile_photo) {
+				userPfpStore.set($platformSession?.currentUser?.profile_photo);
+			}
+			if ($platformSession?.currentUser?.bio) {
+				userBioStore.set($platformSession?.currentUser?.bio);
+			}
+			if ($platformSession?.currentUser?.id) {
+				userIdStore.set($platformSession?.currentUser?.id);
+			}
+			if ($platformSession?.currentUser?.username) {
+				userUsernameStore.set($platformSession?.currentUser?.username);
 			}
 		}
 
@@ -166,7 +181,7 @@
 				// 	$gameSessionScore = 0;
 				// });
 			} catch (error) {
-				console.log('error::', error);
+				console.error('error::', error);
 			}
 		}
 
@@ -184,10 +199,6 @@
 			sideBarState.set(false);
 		}
 
-		// if (!sessionData?.currentUser?.username) {
-		// 	await invalidateAll();
-		// }
-
 		if (creatingNewPlaylist) {
 			$playButton = false;
 			browser && selectedOption.set(0);
@@ -197,14 +208,13 @@
 		}
 	});
 	afterUpdate(async () => {
-		// await tick();
+		await tick();
 		if ($openFiles?.length > 0) {
 			$addPaddingToEditorStore = true;
 		} else {
 			$addPaddingToEditorStore = false;
 		}
 
-		// await tick();
 		shouldAddPadding = $addPaddingToEditorStore;
 
 		$gameFavorites?.favorites?.some((fav) => {
@@ -213,25 +223,19 @@
 
 		deleteOrCreateFav = isFavorited ?? false;
 
-		// if (mainPageElement) {
-		// 	mainPageElement?.removeEventListener('scroll', handleScroll);
-		// 	mainPageElement.addEventListener('scroll', handleScroll);
-		// }
-
-		// return () => {
-		// 	mainPageElement?.removeEventListener('scroll', handleScroll);
-		// };
+		if ($platformSession?.currentUser?.profile_photo && !$userPfpStore) {
+			userPfpStore.set($platformSession?.currentUser?.profile_photo);
+		}
+		if ($platformSession?.currentUser?.bio && !$userBioStore) {
+			userBioStore.set($platformSession?.currentUser?.bio);
+		}
+		if ($platformSession?.currentUser?.id && !$userIdStore) {
+			userIdStore.set($platformSession?.currentUser?.id);
+		}
 	});
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
-	// const handleScroll = (e) => {
-	// 	if (e.target.scrollTop > 0) {
-	// 		$showBoxShadow = true;
-	// 	} else {
-	// 		$showBoxShadow = false;
-	// 	}
-	// };
 	const loaderCheck = (navigation) => {
 		let canLoad = false;
 
@@ -322,16 +326,12 @@
 		}
 	};
 	const toggleSettingsDrawer = () => {
-		// $drawerOpen = !$drawerOpen;
-		console.log('toggleSettingsDrawer');
 		$selectedOption = 0;
 		showSettings = !showSettings;
 		$drawerOpen = !drawerOpen;
 	};
 
 	// REACTIVE VARIABLES & STATEMENTS
-	$: data?.currentUser && data?.settings,
-		platformSession.set({ currentUser: data.currentUser, settings: data.settings, ready: true });
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = splitPath.some((path) => path === 'engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
@@ -386,6 +386,22 @@
 			}
 		]);
 	})();
+	$: if (browser && !$platformSession?.currentUser) {
+		platformSession.set({
+			...$platformSession,
+			currentUser: {
+				...$platformSession?.currentUser,
+				profile_photo: $userPfpStore,
+				bio: $userBioStore,
+				id: data?.userId ?? $userIdStore,
+				username: data?.username ?? $userUsernameStore,
+				is_active: data?.isActive
+			},
+			ready: true
+		});
+	}
+	$: inactiveUser = $platformSession?.currentUser?.id && !$platformSession?.currentUser?.is_active;
+
 	/**
 	 * We have to reference the store to trigger the reactive statement
 	 */
@@ -614,7 +630,7 @@
 				<hr class="sidebar-divider" />
 				<div class="sidebar-section">
 					<ul>
-						{#if $platformSession?.currentUser?.id && !$platformSession?.currentUser?.is_active}
+						{#if inactiveUser}
 							<a
 								href="/users/{$platformSession?.currentUser?.id}/verify"
 								class:active={isVerifyPage}
@@ -675,12 +691,13 @@
 									action="/?/logout"
 									method="POST"
 									use:enhance={() => {
-										return async ({ result }) => {
-											if (result.status === 200) {
-												platformSession.set(null);
-												// sessionData = null;
-												invalidateAll();
-											}
+										return async ({ result, update }) => {
+											await update();
+											platformSession.set(null);
+											userBioStore.set(null);
+											userIdStore.set(null);
+											userPfpStore.set(null);
+											await goto('/');
 										};
 									}}
 								>

@@ -8,9 +8,10 @@
 	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { writable } from 'svelte/store';
-	import { onMount, setContext } from 'svelte';
+	import { setContext } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { platformSession } from '$lib/stores/platformSession/index.js';
+	import AccountVerificationNotice from '$lib/ui/AccountVerificationNotice/index.svelte';
 
 	export let data;
 
@@ -19,10 +20,6 @@
 	setContext('playlistContext', {
 		mousedOverItemId: writable(null),
 		showPlayButtonStore: writable(false)
-	});
-
-	onMount(() => {
-		// invalidateAll();
 	});
 
 	$: (() => {
@@ -44,6 +41,9 @@
 <div class="playlist-drawer-container">
 	{#if data}
 		<div class="playlists-container" class:sideBarOpen={$sideBarState}>
+			{#if !$platformSession?.currentUser?.is_active}
+				<AccountVerificationNotice />
+			{/if}
 			{#if $platformSession?.currentUser?.id}
 				<HorizontalList
 					title="Favorites"
@@ -89,12 +89,6 @@
 	.playlists-container {
 		display: flex;
 		flex-direction: column;
-		/* gap: 10px; */
-	}
-	.title {
-		color: var(--color-primary);
-		margin-inline-start: 20px;
-		font-family: var(--header-font), sans-serif;
 	}
 	.playlists-container.sideBarOpen {
 		width: calc(100%);

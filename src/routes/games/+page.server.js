@@ -1,18 +1,5 @@
 // @ts-nocheck
-// import { gamesData } from '$lib/stores/gamesStore.js';
 import { redirect } from '@sveltejs/kit';
-
-const getCurrentUser = async (eventFetch) => {
-	let user;
-	try {
-		const userResponse = await eventFetch(`/api/users/getCurrentUser`);
-		user = await userResponse.json();
-	} catch (error) {
-		console.log('getCurrentUser::error::', error);
-	}
-
-	return user;
-};
 
 async function fetchData(eventFetch, endpoint) {
 	try {
@@ -31,36 +18,17 @@ const getAllFavoritesSingleGame = async (slug, eventFetch) => {
 		const favoritesRes = await eventFetch(`/api/favorites/${slug}/getAllFavoritesSingleGame`);
 		favorites = await favoritesRes.json();
 	} catch (error) {
-		console.log('favoritesRes::error::', error);
+		console.error('favoritesRes::error::', error);
 	}
 
 	return favorites;
 };
 export async function load({ fetch, setHeaders }) {
-	let user = null;
-	const [allGames, userData] = await Promise.all([
-		fetchData(fetch, `/api/games/getAllGames/0`),
-		getCurrentUser(fetch)
-	]);
+	const [allGames] = await Promise.all([fetchData(fetch, `/api/games/getAllGames/0`)]);
 
 	let { games = [], nextCursor = 0 } = allGames;
 
-	if (userData && userData?.status === 401) {
-		user = null;
-	}
-
-	// Assuming user is already sanitized before being sent to the client
-	if (userData?.id) {
-		user = userData;
-		// session.user = user;
-
-		if (!user?.is_active) {
-			throw redirect(303, `/users/${user?.id}/verify`);
-		}
-	}
-
 	const publishedGames = games?.filter((game) => game.published);
-	// gamesData.set([...publishedGames]);
 
 	if (publishedGames.length > 0 && nextCursor === 0) {
 		nextCursor = publishedGames[publishedGames?.length - 1].id;
@@ -72,8 +40,7 @@ export async function load({ fetch, setHeaders }) {
 
 	return {
 		games: [...publishedGames],
-		nextCursor: nextCursor,
-		user
+		nextCursor: nextCursor
 	};
 }
 
@@ -430,11 +397,7 @@ export const actions = {
 	},
 	addReview: async ({ cookies, request }) => {
 		const token = cookies.get('token');
-		// token;
-
-		console.log('token::', token);
 		const formData = await request.formData();
-
 		const gameId = formData?.get('gameId');
 		const rating = formData?.get('rating-selection');
 		const difficulty = formData?.get('difficulty');

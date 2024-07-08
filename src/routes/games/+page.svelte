@@ -7,7 +7,6 @@
 
 	// Stores
 	import { gridWidth, appClientWidth, sideBarState } from '$lib/stores/layoutStore.js';
-	import { session } from '$lib/stores/sessionStore.js';
 	import { firstRun } from '$lib/stores/filesStore.js';
 	import { gamesData } from '$lib/stores/gamesStore.js';
 	import { fetchData } from '$lib/utils/fetchData.js';
@@ -21,6 +20,7 @@
 	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
 	import ActionList from '$lib/ui/ActionList/index.svelte';
 	import { browser } from '$app/environment';
+	import { platformSession } from '$lib/stores/platformSession/index.js';
 
 	// data is a prop passed from the server's load function
 	export let data;
@@ -33,7 +33,6 @@
 
 		if (target >= threshold) {
 			await runFetch();
-			// console.log('threshold met... fetching more games...');
 		}
 	};
 	const runFetch = async () => {
@@ -42,8 +41,6 @@
 		fetchMoreGames = [...fetchMoreGames, ...(newGames?.games ?? null)];
 	};
 	onMount(async () => {
-		// firstRun.set(true);
-
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
 		}
@@ -76,11 +73,6 @@
 			window.removeEventListener('scroll', handleScroll);
 		};
 	});
-	afterUpdate(async () => {
-		if (data?.user?.id) {
-			session.set(data?.user);
-		}
-	});
 
 	onDestroy(() => {
 		gamesList = [];
@@ -107,7 +99,7 @@
 	$: isMobile = $appClientWidth < 768;
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
-	$: currentUserId = data?.sessionData?.id;
+	$: currentUserId = $platformSession?.currentUser?.id;
 	$: isProfilePage =
 		splitPath[splitPath?.length - 1] === 'users' ||
 		(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main');

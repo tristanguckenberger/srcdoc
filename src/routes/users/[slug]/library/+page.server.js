@@ -1,7 +1,5 @@
 // @ts-nocheck
-// import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
-// import { playlistData } from '$lib/stores/playlistStore.js';
 
 const getAllPlaylistsByUser = async (eventFetch) => {
 	const playlistRes = await eventFetch(`/api/playlist/myLibrary`);
@@ -20,16 +18,18 @@ export async function load({ cookies, params, fetch }) {
 		throw redirect(303, '/');
 	}
 
-	const userPlaylists = await getAllPlaylistsByUser(fetch);
+	const isActive = cookies?.get('isActive');
 
-	// session.set({
-	// 	...user
-	// });
+	if (JSON.parse(isActive)) {
+		const userPlaylists = await getAllPlaylistsByUser(fetch);
 
-	// playlistData.set(userPlaylists ? [...userPlaylists].reverse() : []);
+		return {
+			playlists: userPlaylists ? [...userPlaylists].reverse() : []
+		};
+	}
 
 	return {
-		playlists: userPlaylists ? [...userPlaylists].reverse() : []
+		playlists: []
 	};
 }
 

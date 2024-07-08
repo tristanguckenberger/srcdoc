@@ -1,5 +1,4 @@
 // @ts-nocheck
-// import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
 
 const getCurrentUser = async (eventFetch) => {
@@ -8,7 +7,7 @@ const getCurrentUser = async (eventFetch) => {
 		const userResponse = await eventFetch(`/api/users/getCurrentUser`);
 		user = await userResponse.json();
 	} catch (error) {
-		console.log('getCurrentUser::error::', error);
+		console.error('getCurrentUser::error::', error);
 	}
 
 	return user;
@@ -70,13 +69,14 @@ export const actions = {
 			};
 		}
 
-		const user = await getCurrentUser(cookies);
+		cookies.set('isActive', true, {
+			path: '/'
+		});
 
 		return {
 			status: 200,
 			body: {
-				message: 'verification_success',
-				user: { token, ...user, password: '' }
+				message: 'verification_success'
 			}
 		};
 	},

@@ -6,6 +6,7 @@
 	of the list * @prop {String} link - The link to the full list grid */
 	import { afterUpdate, onMount } from 'svelte';
 	import HorizontalListCard from '$lib/ui/HorizontalListCard/index.svelte';
+	import { platformSession } from '$lib/stores/platformSession';
 
 	export let items = [];
 	export let type = '';
@@ -34,6 +35,9 @@
 	};
 
 	const getMyProjects = async () => {
+		if ($platformSession?.currentUser?.id === userId && !$platformSession?.currentUser?.is_active) {
+			return;
+		}
 		const gamesRes = await fetch(`/api/games/getAllGamesByUser/${userId}`, {
 			method: 'GET',
 			headers: {
@@ -51,6 +55,9 @@
 	};
 
 	const getMyFavorites = async () => {
+		if ($platformSession?.currentUser?.id === userId && !$platformSession?.currentUser?.is_active) {
+			return;
+		}
 		const gamesRes = await fetch(`/api/favorites/byUser/${userId}`, {
 			method: 'GET',
 			headers: {
@@ -58,7 +65,6 @@
 			}
 		});
 		const games = await gamesRes.json();
-		console.log('fav_games::', games);
 		const publishedGames = games?.filter((game) => game?.published);
 
 		if (publishedGames?.length > limit) {
@@ -78,18 +84,6 @@
 			getMyFavorites();
 		}
 	});
-
-	afterUpdate(() => {
-		// if items is empty, fetch the categories
-		// // only try once
-		// if (items?.length === 0 && type === 'categories') {
-		// 	getAllCategories();
-		// } else if (items?.length === 0 && type === 'projects') {
-		// 	getMyProjects();
-		// } else if (items?.length === 0 && type === 'favorites') {
-		// 	getMyFavorites();
-		// }
-	});
 </script>
 
 <div class="horizontal-list">
@@ -104,17 +98,21 @@
 	</div>
 
 	<div class="list-container">
-		{#each items as item}
-			<div class="list-item">
-				<HorizontalListCard
-					id={item?.id}
-					title={item?.name ?? item?.title}
-					subtitle={item?.description}
-					thumbnail={item?.thumbnail}
-					cardLink={type === 'categories' ? `/playlists/${item?.id}` : `/games/${item?.id}/play`}
-				/>
-			</div>
-		{/each}
+		{#if items.length === 0}
+			<h4>No items found</h4>
+		{:else}
+			{#each items as item}
+				<div class="list-item">
+					<HorizontalListCard
+						id={item?.id}
+						title={item?.name ?? item?.title}
+						subtitle={item?.description}
+						thumbnail={item?.thumbnail}
+						cardLink={type === 'categories' ? `/playlists/${item?.id}` : `/games/${item?.id}/play`}
+					/>
+				</div>
+			{/each}
+		{/if}
 	</div>
 </div>
 

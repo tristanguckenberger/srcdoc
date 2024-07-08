@@ -46,4 +46,9 @@ export const libraryPageInfoStore = createWritableStore('libraryPageInfoStore', 
 	viewed: false
 });
 
+export const userPfpStore = createWritableStore('userPfpStore', null);
+export const userBioStore = createWritableStore('userBioStore', null);
+export const userIdStore = createWritableStore('userIdStore', null);
+export const userUsernameStore = createWritableStore('userUsernameStore', null);
+
 export const modalFullInfoStore = writable(null);
