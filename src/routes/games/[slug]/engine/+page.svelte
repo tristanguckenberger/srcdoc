@@ -180,6 +180,9 @@
 							showToolTip = false;
 						}}
 						on:focus={() => {}}
+						on:click={() => {
+							showToolTip = false;
+						}}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"

@@ -153,6 +153,9 @@
 					on:mouseleave={() => {
 						showToolTip = false;
 					}}
+					on:click={() => {
+						showToolTip = false;
+					}}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -224,6 +227,9 @@
 					on:mouseleave={() => {
 						showToolTip = false;
 					}}
+					on:click={() => {
+						showToolTip = false;
+					}}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -246,6 +252,9 @@
 						showToolTip = true;
 					}}
 					on:mouseleave={() => {
+						showToolTip = false;
+					}}
+					on:click={() => {
 						showToolTip = false;
 					}}
 				>

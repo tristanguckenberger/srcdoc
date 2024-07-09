@@ -349,6 +349,9 @@
 													on:mouseleave={() => {
 														showToolTip = false;
 													}}
+													on:click={() => {
+														showToolTip = false;
+													}}
 												>
 													<svg
 														class="action-button-icon"
@@ -370,6 +373,7 @@
 											<button
 												class="action-button button"
 												on:click={() => {
+													showReviewsToolTip = false;
 													$playButton = false;
 
 													$selectedOption = 2;
@@ -402,6 +406,7 @@
 											<button
 												class="action-button button"
 												on:click={() => {
+													showLeaderToolTip = false;
 													$playButton = false;
 
 													$selectedOption = 4;
@@ -438,6 +443,7 @@
 											<button
 												class="action-button button"
 												on:click={() => {
+													showCommentsToolTip = false;
 													$playButton = false;
 													if (browser) {
 														$selectedOption = 0;
@@ -520,6 +526,7 @@
 														if (!$platformSession?.currentUser?.id) {
 															return;
 														}
+														showAddToPlaylistToolTip = false;
 														$playButton = false;
 														if (browser) {
 															$selectedOption = 6;
