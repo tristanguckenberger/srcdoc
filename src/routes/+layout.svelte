@@ -843,14 +843,14 @@
 	{#if $itemsInStack?.length > 0}
 		<ModalStack />
 	{/if}
-	{#if $modalFullInfoStore}
+	<!-- {#if $modalFullInfoStore}
 		<Modal
 			store={$modalFullInfoStore?.store}
 			title={$modalFullInfoStore?.title}
 			description={$modalFullInfoStore?.description}
 			slides={$modalFullInfoStore?.slides}
 		/>
-	{/if}
+	{/if} -->
 </div>
 
 {#if $searchResultsStore?.length > 0}
