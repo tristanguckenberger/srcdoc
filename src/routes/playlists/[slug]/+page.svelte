@@ -234,11 +234,8 @@
 					class:muted={!$session?.id}
 					disabled={!$session?.id}
 					class="btn btn-secondary"
-					on:click|preventDefault={!playlist?.isSaved
-						? handleAddToLibrary
-						: () => {
-								// console.log('already saved to library');
-						  }}>Add to Library</button
+					on:click|preventDefault={!playlist?.isSaved ? handleAddToLibrary : () => {}}
+					>Add to Library</button
 				>
 			{:else if isOwner && isSaved}
 				<button
@@ -250,7 +247,6 @@
 						const deltePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/delete`);
 						if (deltePlaylistRes.ok) {
 							await tick();
-							// invalidateAll();
 							goto('/games');
 						}
 					}}>Delete</button
@@ -286,21 +282,15 @@
 								on:mouseout={(e) => handleMouseOut(e, game)}
 								role="button"
 								tabindex="0"
-								on:focus={() => {
-									// console.log('focused::id::', game?.id);
-								}}
-								on:blur={() => {
-									// console.log('blurred::id::', game?.id);
-								}}
+								on:focus={() => {}}
+								on:blur={() => {}}
 							>
 								<a href={`/games/playlist/${playlist?.id}/${game?.id}/play`}>
 									<svg
 										on:mouseover={(e) => handleMouseOver(e, game)}
 										role="button"
 										tabindex="0"
-										on:focus={() => {
-											// console.log('focused::id::', game?.id);
-										}}
+										on:focus={() => {}}
 										class="action-button-icon"
 										width="37"
 										height="44"
@@ -333,12 +323,8 @@
 						tabindex={i}
 						on:mouseover={(e) => handleMouseOver(e, game)}
 						on:mouseout={handleMouseOut}
-						on:blur={() => {
-							// console.log('blurred::id::', game?.id);
-						}}
-						on:focus={() => {
-							// console.log('focused::id::', game?.id);
-						}}
+						on:blur={() => {}}
+						on:focus={() => {}}
 					>
 						<GameCard
 							{game}

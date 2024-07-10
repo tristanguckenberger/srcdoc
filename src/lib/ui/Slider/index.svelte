@@ -169,7 +169,6 @@
 	});
 
 	afterUpdate(async () => {
-		console.log('isPlaylistSlider::', isPlaylistSlider);
 		// Update favorites store and count
 		gameFavoriteCount.set(favoritesCount);
 		gameFavorites.set(favorites);
@@ -281,7 +280,6 @@
 	$: isPlaylistSlider = $page?.route?.id === '/games/playlist/[playlistId]/[gameSlug]/play';
 	$: playlistId = $page?.params?.playlistId;
 
-	$: console.log('$platformSession::', $platformSession);
 	let load = false;
 </script>
 

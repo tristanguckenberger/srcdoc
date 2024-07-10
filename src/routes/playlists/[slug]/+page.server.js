@@ -1,7 +1,5 @@
 // @ts-nocheck
-// import { session } from '$lib/stores/sessionStore.js';
 import { redirect } from '@sveltejs/kit';
-// import { playlistData } from '$lib/stores/playlistStore.js';
 
 const getCurrentUser = async (eventFetch) => {
 	const userResponse = await eventFetch(`/api/users/getCurrentUser`);
@@ -27,18 +25,7 @@ export async function load({ params, fetch }) {
 		return redirect(303, '/games');
 	}
 
-	// const token = cookies?.get('token');
-	// if (!token) {
-	// 	throw redirect(303, '/');
-	// }
-
 	const user = await getCurrentUser(fetch);
-	// if (!user || user?.status === 401) {
-	// 	throw redirect(303, '/games');
-	// }
-
-	// need to check if the user has saved this playlist
-
 	const playlist = await getSinglePlaylist(fetch, slug);
 
 	const playlistMap = Object.keys(playlist).reduce((acc, key) => {
@@ -48,7 +35,6 @@ export async function load({ params, fetch }) {
 	}, {});
 
 	if (!playlist) {
-		console.log('no playlist found');
 		throw redirect(303, '/games');
 	}
 
@@ -61,12 +47,6 @@ export async function load({ params, fetch }) {
 	}
 
 	const playlistGames = await getAllGamesForPlaylist(fetch, slug);
-
-	// if (user) {
-	// 	session.set({
-	// 		...user
-	// 	});
-	// }
 
 	return {
 		playlist: { ...playlistMap },

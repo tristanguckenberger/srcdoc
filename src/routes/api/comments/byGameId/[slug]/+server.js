@@ -4,11 +4,6 @@ import { json } from '@sveltejs/kit';
 export async function GET({ setHeaders, params }) {
 	const { slug } = params;
 
-	console.log('slug::', slug);
-
-	// const limit = url.searchParams.get('limit') ?? 50;
-	// const offset = url.searchParams.get('offset') ?? 0;
-
 	const commentReqHeaders = new Headers();
 	const userReqInit = {
 		method: 'GET',

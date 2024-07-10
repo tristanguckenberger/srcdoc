@@ -68,7 +68,6 @@
 		const tickThenCheckForNotifications = async () => {
 			await tick();
 			// Check for new notifications
-			console.log('notifications::', $notifications);
 			hasNewNotifications =
 				$notifications?.length > 0 && $notifications?.some((notification) => notification?.id);
 		};
@@ -196,7 +195,6 @@
 				ids: $notifications.map((notification) => notification.id)
 			})
 		});
-		console.log('response::', await response.json());
 	};
 
 	// REACTIVE VARIABLES & STATEMENTS
@@ -224,7 +222,6 @@
 	})();
 	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
 	$: disableBackButton = $routeHistoryStore?.length < 2;
-	$: console.log('hasNewNotifications::', hasNewNotifications);
 	/**
 	 * We have to reference the store to trigger the reactive statement
 	 */

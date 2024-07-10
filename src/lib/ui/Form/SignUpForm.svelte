@@ -12,6 +12,7 @@
 	import { platformSession } from '$lib/stores/platformSession';
 	import { connectWebSocket } from '$lib/stores/websocketStore.js';
 	import { browser } from '$app/environment';
+	import { itemsInStack, stackStyles, stackTimeout } from '$lib/stores/modalStackStore';
 
 	let boundInputHeight = writable(0);
 	let creating = false;
@@ -25,24 +26,59 @@
 		creating = true;
 
 		return async ({ update, result }) => {
-			if (browser) {
-				platformSession?.set({
-					currentUser: result?.data?.body?.user,
-					settings: result?.data?.body?.settings,
-					ready: true
-				});
-			}
+			if (
+				result?.data?.status === 400 ||
+				result?.data?.status === 401 ||
+				result?.data?.status === 500
+			) {
+				$stackStyles = `top: 4rem; right: 0;`;
+				$itemsInStack = [
+					...$itemsInStack,
+					{
+						title: 'Registration Error',
+						message: result?.data?.body?.message,
+						useTimeout: true,
+						type: 'error'
+					}
+				];
 
-			try {
-				connectWebSocket(result?.data?.body?.user?.id);
-			} catch (error) {
-				console.error(error);
-			}
-
-			await update();
-			setTimeout(() => {
 				creating = false;
-			}, 500);
+				return;
+			} else {
+				$stackTimeout = 4000;
+				$stackStyles = `top: 4rem; right: 0;`;
+				$itemsInStack = [
+					...$itemsInStack,
+					{
+						title: 'Registration Success',
+						message:
+							'You have successfully registered. Please check your email to verify your account.',
+						useTimeout: true,
+						type: 'success'
+					}
+				];
+
+				setTimeout(async () => {
+					if (browser) {
+						platformSession?.set({
+							currentUser: result?.data?.body?.user,
+							settings: result?.data?.body?.settings,
+							ready: true
+						});
+					}
+
+					try {
+						connectWebSocket(result?.data?.body?.user?.id);
+					} catch (error) {
+						console.error(error);
+					}
+
+					await update();
+					setTimeout(() => {
+						creating = false;
+					}, 500);
+				}, 2500);
+			}
 		};
 	}}
 >

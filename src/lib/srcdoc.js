@@ -300,7 +300,6 @@ const generateSrcDoc = (files, clientDimensions) => {
  *
  */
 const buildDynamicSrcDoc = (files, rootId, clientDimensions) => {
-	// console.log('HIT::buildDynamicSrcDoc::');
 	if (!files || files.length === 0) {
 		return {
 			errorMessage: 'No files provided!'

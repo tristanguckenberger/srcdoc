@@ -48,19 +48,24 @@
 	}
 
 	function drop(e, file) {
-		e.preventDefault();
-		if (draggedItem === null) return;
+		try {
+			e.preventDefault();
+			if (draggedItem === null) return;
 
-		const draggedIndex = $openFiles.findIndex((f) => f.id === draggedItem.id);
-		const targetIndex = $openFiles.findIndex((f) => f.id === file.id);
+			const draggedIndex = $openFiles?.findIndex((f) => f?.id === draggedItem?.id);
+			const targetIndex = $openFiles?.findIndex((f) => f?.id === file?.id);
 
-		const newOpenFiles = [...$openFiles];
-		[newOpenFiles[draggedIndex], newOpenFiles[targetIndex]] = [
-			newOpenFiles[targetIndex],
-			newOpenFiles[draggedIndex]
-		];
+			if (draggedIndex === targetIndex) return;
+			const newOpenFiles = [...$openFiles];
+			[newOpenFiles[draggedIndex], newOpenFiles[targetIndex]] = [
+				newOpenFiles[targetIndex],
+				newOpenFiles[draggedIndex]
+			];
 
-		$openFiles = newOpenFiles;
+			$openFiles = newOpenFiles;
+		} catch (error) {
+			console.log('error::', error);
+		}
 	}
 
 	$: themeString = $themeDataStore?.theme?.join(' ');
@@ -68,8 +73,8 @@
 
 <div class="tab-container" style={`${themeString}`}>
 	{#each $openFiles as file}
-		<div on:drop={(e) => drop(e, file)}>
-			<Tab {file} {closeTab} {dragStart} {dragOver} {dragEnd} />
+		<div>
+			<Tab {file} {closeTab} />
 		</div>
 	{/each}
 </div>

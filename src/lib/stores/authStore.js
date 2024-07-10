@@ -19,6 +19,7 @@ export const registerRequestEmail = writable(null);
 export const registerRequestPassword = writable(null);
 export const registerRequestPasswordConfirm = writable(null);
 export const userStore = writable(null); // Stores all users
+export const authWidthStore = writable(null);
 
 export const registerRequest = derived(
 	[

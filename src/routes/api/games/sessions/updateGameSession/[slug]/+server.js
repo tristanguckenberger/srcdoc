@@ -11,8 +11,6 @@ export async function POST({ request, cookies, params }) {
 	//get the body of the request
 	const body = await request.json();
 
-	console.log('request::', body);
-
 	const requestInit = {
 		method: 'PUT',
 		headers: requestHeaders,

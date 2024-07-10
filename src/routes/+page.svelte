@@ -7,7 +7,7 @@
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { userStore } from '$lib/stores/authStore.js';
-	import { onMount, setContext, getContext, afterUpdate } from 'svelte';
+	import { onMount, setContext, getContext, afterUpdate, onDestroy } from 'svelte';
 	import playbg from '$lib/assets/playbg.svg';
 	import bg from '$lib/assets/bg.svg';
 	import Frame from '$lib/assets/Frame.svg';
@@ -26,6 +26,8 @@
 	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
 	import ForgotPasswordRequest from '$lib/ui/Form/ForgotPasswordRequest.svelte';
 	import { platformSession } from '$lib/stores/platformSession/index.js';
+	import { authWidthStore } from '$lib/stores/authStore.js';
+	import { stackTimeout } from '$lib/stores/modalStackStore.js';
 
 	export let form;
 	export let data;
@@ -134,6 +136,12 @@
 				previousShowAuthVal = true;
 			}, 1000);
 		}
+	});
+	$: $authWidthStore = centerRightWidth + rightWidth;
+
+	onDestroy(() => {
+		$authWidthStore = null;
+		$stackTimeout = 4000;
 	});
 </script>
 

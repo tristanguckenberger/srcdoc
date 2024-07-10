@@ -2,10 +2,12 @@
 	// @ts-nocheck
 	import Card from '$lib/ui/Card/index.svelte';
 	import { gridWidth } from '$lib/stores/layoutStore.js';
-	import { afterUpdate, onMount } from 'svelte';
+	import { afterUpdate, onMount, tick } from 'svelte';
 	import { sideBarState, sideBarWidth, appClientWidth } from '$lib/stores/layoutStore.js';
 	import { page } from '$app/stores';
 	import { gamesData } from '$lib/stores/gamesStore.js';
+	import AccountVerificationNotice from '$lib/ui/AccountVerificationNotice/index.svelte';
+	import { platformSession } from '$lib/stores/platformSession/index.js';
 
 	export let data;
 
@@ -22,13 +24,7 @@
 			gamesData.set([...data?.games]);
 		}
 	});
-
-	afterUpdate(() => {
-		if (data?.user?.id) {
-			session.set(data?.user);
-		}
-	});
-
+	$: isMobile = $appClientWidth < 768;
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
 </script>
 
@@ -41,46 +37,77 @@
 	class:noSideBar={!engineInRoute}
 	class:expandSideNav={$sideBarState}
 >
-	<div class="main grid" bind:clientWidth={$gridWidth}>
+	{#if !data?.isActive && $platformSession?.currentUser?.id}
+		<AccountVerificationNotice />
+	{/if}
+	<div
+		class="main grid"
+		bind:clientWidth={$gridWidth}
+		class:isMobile
+		class:showSideBar={$sideBarState}
+	>
 		{#each data?.games as game, i (`game_${game?.id}_${i}`)}
 			<Card id={game?.id} {game} thumbnail={game?.thumbnail} />
 		{/each}
 	</div>
 </div>
 
-<style>
+<style scoped>
+	:global(#editor-layout) {
+		margin-bottom: 10px;
+		padding-bottom: 0 !important;
+	}
+	:global(#editor-layout) div.main.grid {
+		width: 100% !important;
+	}
 	.game-page-container {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
 		width: 100%;
+		overflow: hidden;
+		border-radius: 8px;
 	}
 	.game-page-container.expandSideNav {
 		/* width: calc(100% - 230px); */
 	}
 	.main {
-		margin: 20px;
+		margin: 10px;
 		height: calc(100% - 20px);
-		width: calc(100% - 0px);
+		width: 100%;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		justify-content: space-evenly;
+		justify-content: space-between;
+		overflow-y: scroll !important;
 	}
 	.main.grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-		gap: 10px;
-		/* max-width: 1400px; */
-		/* grid-template-rows: minmax(242px, 367px); */
+		gap: 20px;
 		margin: 0;
 		height: fit-content;
-		width: calc(100%);
+		/* padding: 10px 20px 20px 20px; */
+	}
+	:global(#editor-layout) div.main.grid.isMobile {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		margin-block-end: 0;
+		margin-block-start: 0;
+		font-family: 'Inter', sans-serif;
+		font-size: calc(1rem - 25%);
+		padding: 0px 10px 20px 10px;
+		width: calc(100% - 20px) !important;
+		height: 100% !important;
+		margin: 0 !important;
 	}
 	.noSideBar {
 		align-items: center;
 	}
-
+	.main.showSideBar {
+		width: calc(100% - 230px) !important;
+	}
 	@media (max-width: 498px) {
 		.main.grid {
 			width: calc(100% - 0px);

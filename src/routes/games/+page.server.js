@@ -156,12 +156,9 @@ export const actions = {
 	},
 	addNewComment: async ({ cookies, request }) => {
 		const token = cookies.get('token');
-
 		const formData = await request.formData();
 		const gameId = formData?.get('gameId');
 		const commentText = formData?.get('comment');
-
-		console.log('formData', formData);
 
 		const requestHeaders = new Headers();
 		requestHeaders.append('Content-Type', 'application/json');

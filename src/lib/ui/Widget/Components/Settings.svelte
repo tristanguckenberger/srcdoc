@@ -115,7 +115,6 @@ Settings
 							}, 500);
 
 							if (result?.status === 200) {
-								console.log(result?.data?.body?.result);
 								await tick();
 								homePageInfoStore.set({
 									...$homePageInfoStore,

@@ -72,9 +72,7 @@
 		class="playlist game-card"
 		class:showHover
 		style={`${themeString}`}
-		on:focus={() => {
-			// console.log('focused');
-		}}
+		on:focus={() => {}}
 		on:dragstart={(e) => dragStart(e, game)}
 		on:dragover={(e) => dragOver(e, game)}
 		on:dragend={dragEnd}

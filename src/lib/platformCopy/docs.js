@@ -453,7 +453,6 @@ async function updateSnakePosition() {
     if (head.x === food.x && head.y === food.y) {
         placeFood();
         renderFood();
-        console.log("length::", snake?.length);
         const snakeLength = snake?.length;
         if (snakeLength !== score) {
             score = snakeLength;

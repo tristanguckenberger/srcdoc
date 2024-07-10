@@ -3,12 +3,7 @@
 	import { themeDataStore } from '$lib/stores/themeStore';
 
 	const { tabs, currentTab } = getContext('settingsTabs');
-	$: console.log($currentTab);
-	$: {
-		console.log($currentTab);
-		console.log('tabs:::', tabs);
-		console.log();
-	}
+
 	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 

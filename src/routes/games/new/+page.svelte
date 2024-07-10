@@ -3,10 +3,11 @@
 	import Card from '$lib/ui/Card/index.svelte';
 	import { gridWidth, appClientWidth, sideBarState } from '$lib/stores/layoutStore.js';
 	import { onMount, afterUpdate } from 'svelte';
-	import { session } from '$lib/stores/sessionStore.js';
 	import { firstRun } from '$lib/stores/filesStore.js';
 	import { page } from '$app/stores';
 	import { gamesData } from '$lib/stores/gamesStore.js';
+	import { platformSession } from '$lib/stores/platformSession/index.js';
+	import AccountVerificationNotice from '$lib/ui/AccountVerificationNotice/index.svelte';
 
 	export let data;
 
@@ -19,12 +20,6 @@
 
 		if (data?.games) {
 			gamesData.set([...data?.games]);
-		}
-	});
-
-	afterUpdate(() => {
-		if (data?.user?.id) {
-			session.set(data?.user);
 		}
 	});
 
@@ -52,6 +47,9 @@
 	class:isBrowsePage
 	class:isUserGamesBrowsePage
 >
+	{#if !data?.isActive && $platformSession?.currentUser?.id}
+		<AccountVerificationNotice />
+	{/if}
 	<div
 		class="main grid"
 		bind:clientWidth={$gridWidth}
@@ -65,11 +63,16 @@
 </div>
 
 <style>
+	:global(#editor-layout) {
+		margin-bottom: 10px;
+	}
 	.page-container {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
 		width: 100%;
+		overflow: hidden;
+		border-radius: 8px;
 	}
 	.main {
 		margin: 10px;

@@ -41,8 +41,6 @@
 					break;
 			}
 		})();
-
-	$: console.log('inputCapture::inputText', inputCapture);
 </script>
 
 <div class="input-container modal">

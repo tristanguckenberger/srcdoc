@@ -46,7 +46,6 @@
 							}, 500);
 
 							if (result) {
-								console.log('result::', result);
 								message = result?.data?.body?.message;
 								setTimeout(() => {
 									redirect(303, '/');

@@ -407,12 +407,10 @@
 				},
 				ready: true
 			});
-		} else {
-			console.log('$platformSession?.currentUser', $platformSession?.currentUser);
 		}
 	}
 	$: inactiveUser = $platformSession?.currentUser?.id && !$platformSession?.currentUser?.is_active;
-	$: console.log('$platformSession::', $platformSession);
+
 	$: if (!$platformSession?.currentUser?.profile_photo) {
 		$platformSession = {
 			...$platformSession,
@@ -772,9 +770,7 @@
 						role="button"
 						tabindex="0"
 						on:click={debouncedScrollBack}
-						on:keypress={() => {
-							// console.log('key pressed');
-						}}
+						on:keypress={() => {}}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -792,9 +788,7 @@
 						role="button"
 						tabindex="0"
 						on:click={debouncedScrollForward}
-						on:keypress={() => {
-							// console.log('key pressed');
-						}}
+						on:keypress={() => {}}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"

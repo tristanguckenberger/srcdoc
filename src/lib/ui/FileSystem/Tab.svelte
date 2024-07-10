@@ -33,11 +33,7 @@
 		canSave = false;
 	}
 
-	// $: $addPaddingToEditorStore = tick.then(() => isFocused || isSoftSelected);
-
-	afterUpdate(async () => {
-		// await tick();
-		// console.log();
+	afterUpdate(() => {
 		$addPaddingToEditorStore =
 			file?.id.toString() === $focusedFileId.toString() || file?.id === $softSelectedFileId;
 	});

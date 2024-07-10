@@ -67,7 +67,8 @@
 		gap: 20px;
 		margin: 0;
 		height: fit-content;
-		padding: 10px 20px 20px 20px;
+		padding-top: 10px;
+		border-radius: 8px;
 	}
 	:global(#editor-layout) div.main.grid.isMobile {
 		white-space: nowrap;

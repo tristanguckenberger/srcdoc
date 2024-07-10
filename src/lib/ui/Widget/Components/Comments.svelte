@@ -15,15 +15,12 @@
 	const slug = $page.params.slug;
 
 	onMount(async () => {
-		console.log('slug::', slug);
 		if (slug) {
 			const commentResponse = await fetch(`/api/comments/byGameId/${slug}`);
-			console.log('comments::', comments);
 
 			const commentData = await commentResponse.json();
 			comments = commentData?.comments ?? [];
 		}
-		console.log('comments::', comments);
 	});
 </script>
 

@@ -34,7 +34,6 @@
 		duration: 1000
 	});
 	$: isGamesPage = $page?.route?.id === '/games';
-	$: console.log('isGamesPage::', isGamesPage);
 
 	let preferedThemeMode;
 	let shouldAddPadding = false;
@@ -52,15 +51,11 @@
 	});
 
 	afterUpdate(async () => {
-		// await tick();
 		$openFiles?.length > 0 ? ($addPaddingToEditorStore = true) : ($addPaddingToEditorStore = false);
-		// await tick();
 		shouldAddPadding = $addPaddingToEditorStore;
 
 		if ($actionListHoverStore) {
-			tweenedColor.setAndExecuteAction($actionListHoverStore, () => {
-				console.log('Interpolation Ended!');
-			});
+			tweenedColor.setAndExecuteAction($actionListHoverStore);
 		}
 	});
 

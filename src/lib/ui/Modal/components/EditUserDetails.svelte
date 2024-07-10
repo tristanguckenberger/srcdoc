@@ -53,7 +53,7 @@
 		<CustomInput inputCapture={'id'} inputText={id} hidden />
 	</div>
 	<div class="file-input-container">
-		<label class="input-label" for="profilePhoto">Profile Photo</label>
+		<label for="profilePhoto">Profile Photo</label>
 		<div class="avatar">
 			<input
 				type="file"
@@ -81,12 +81,14 @@
 			/>
 		</div>
 	</div>
-	<CustomInput inputCapture={'username'} inputText={username}>
-		<span slot="label" class="input-label modal">Username</span>
-	</CustomInput>
-	<CustomInput inputCapture={'bio'} inputText={bio}>
-		<span slot="label" class="input-label modal">Bio</span>
-	</CustomInput>
+	<div>
+		<label for="username">Username</label>
+		<CustomInput inputCapture={'username'} inputText={username} />
+	</div>
+	<div>
+		<label for="bio">Bio</label>
+		<CustomInput inputCapture={'bio'} inputText={bio} />
+	</div>
 
 	<Button label="Update User Details" isRounded />
 </form>
@@ -100,7 +102,11 @@
 		gap: 30px;
 		max-height: 50vh;
 	}
-
+	label {
+		font-family: 'Source Sans 3', sans-serif;
+		font-size: 1rem;
+		color: var(--color-primary);
+	}
 	form.gameDetails :global(button) {
 		background-color: var(--button-highlight);
 		color: var(--color-primary) !important;
@@ -134,11 +140,9 @@
 		object-fit: cover;
 	}
 	.input-label {
-		font-weight: 500;
+		font-family: 'Source Sans 3', sans-serif;
 		font-size: 1rem;
-		font-family: var(--header-font), sans-serif;
 		color: var(--color-primary);
-		align-self: flex-start;
 	}
 	#profilePhoto {
 		position: absolute;

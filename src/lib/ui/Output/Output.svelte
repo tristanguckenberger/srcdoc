@@ -114,7 +114,6 @@
 	const debouncedAfterUpdate = debounce(async () => {
 		$autoCompile = false;
 		if ((rootFileId && ($triggerCompile || $autoCompile || triggerUpdate)) || play) {
-			console.log('After update triggered');
 			srcdoc =
 				$src_build ||
 				buildDynamicSrcDoc(
@@ -134,7 +133,6 @@
 				triggerCompile.set(false);
 				triggerUpdate = false;
 				play = false;
-				console.log('Compile and update flags reset');
 			}, 800);
 		}
 	}, 400);
@@ -169,33 +167,28 @@
 	};
 
 	async function receiveMessage(e) {
-		console.log(`Received message from ${e.origin}:`, e.data);
-
 		if (
 			e.origin === 'http://localhost:5173' ||
 			e.origin === 'http://127.0.0.1:5173' ||
 			e.origin === 'https://playengine.xyz' ||
 			e.origin === 'null'
 		) {
-			console.log('output::', e.data.event);
 			switch (e.data.event) {
 				case 'start-game':
-					console.log('Starting game...');
 					await gameInit();
-					console.log('Game started');
+
 					break;
 				case 'update-score':
 					const score = e?.data?.value;
-					console.log('Updating score:', score);
+
 					$gameSessionScore = score;
 					break;
 				case 'stop-game':
-					console.log('Stopping game...');
 					await tick();
 					if ($gameSessionState?.id && !stopPropagation) {
 						stopPropagation = true;
 						await addGameSessionActivity($gameSessionState?.id, 'Stop');
-						console.log('::::::::::::Game session activity stop added::::::::::::');
+
 						await fetch(`/api/games/sessions/updateGameSession/${$gameSessionState?.id}`, {
 							method: 'POST',
 							headers: {
@@ -206,7 +199,6 @@
 							})
 						}).then((response) => {
 							if (response.ok) {
-								console.log('Game session ended');
 								$playButton = false;
 							} else {
 								console.error('Failed to update game session');
@@ -223,10 +215,8 @@
 
 					break;
 				case 'gameresume':
-					console.log('Resuming game...');
 					break;
 				default:
-					console.log('Unknown event:', e.data.event);
 					break;
 			}
 		}

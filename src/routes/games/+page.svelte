@@ -19,6 +19,7 @@
 	import Card from '$lib/ui/Card/index.svelte';
 	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
 	import ActionList from '$lib/ui/ActionList/index.svelte';
+	import AccountVerificationNotice from '$lib/ui/AccountVerificationNotice/index.svelte';
 	import { browser } from '$app/environment';
 	import { platformSession } from '$lib/stores/platformSession/index.js';
 	import {
@@ -160,6 +161,9 @@
 	class:isBrowsePage
 	class:isUserGamesBrowsePage
 >
+	{#if !data?.isActive && $platformSession?.currentUser?.id}
+		<AccountVerificationNotice />
+	{/if}
 	<ActionList />
 	<HorizontalList title="Categories" subtitle="Browse by Category" type={'categories'} />
 	<h3 class="grid-header">{'All Games'}</h3>
@@ -214,6 +218,7 @@
 		width: 100%;
 		overflow-y: scroll !important;
 		overflow-x: hidden;
+		border-radius: 8px;
 	}
 	.main {
 		margin: 10px;
@@ -231,6 +236,7 @@
 		margin: 0;
 		height: fit-content;
 		padding: 10px 20px 20px 20px;
+		border-radius: 8px;
 	}
 	:global(#editor-layout) div.main.grid.isMobile {
 		white-space: nowrap;

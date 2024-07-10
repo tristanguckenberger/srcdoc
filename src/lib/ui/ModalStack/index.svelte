@@ -1,6 +1,8 @@
 <script>
-	import { itemsInStack } from '$lib/stores/modalStackStore';
+	import { itemsInStack, stackStyles, stackTimeout } from '$lib/stores/modalStackStore';
+	import { page } from '$app/stores';
 	import ModalCard from '$lib/ui/ModalCard/index.svelte';
+	import { authWidthStore } from '$lib/stores/authStore';
 
 	$: {
 		if ($itemsInStack.length >= 5) {
@@ -21,15 +23,19 @@
 						console.log('Removing item from stack', _);
 						return i !== index;
 					});
-				}, 4000);
+					$stackStyles = '';
+				}, $stackTimeout);
 			}
 		});
 	}
+	$: authFormWidth = $authWidthStore ? `width: ${$authWidthStore}px;` : '';
 </script>
 
-<div class="stack-container">
+<div class="stack-container" style={`${authFormWidth}${$stackStyles}`}>
 	{#each $itemsInStack as item, index (index)}
-		<ModalCard {index} title={item.title} message={item.message} />
+		<div class:authStatus={(item?.type === 'error' || item?.type === 'success') && $authWidthStore}>
+			<ModalCard {index} title={item.title} message={item.message} />
+		</div>
 	{/each}
 </div>
 
@@ -42,5 +48,8 @@
 		z-index: 1000;
 		bottom: 10px;
 		right: 10px;
+	}
+	div.authStatus {
+		position: absolute;
 	}
 </style>

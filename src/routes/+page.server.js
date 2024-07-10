@@ -74,11 +74,11 @@ export const actions = {
 
 		const authResponse = await fetch(`${process.env.SERVER_URL}/api/auth/login`, requestInit);
 		if (!authResponse.ok) {
+			const res = await authResponse.json();
+
 			return {
 				status: 401,
-				body: {
-					message: 'Authentication failed'
-				}
+				body: res
 			};
 		}
 
@@ -141,10 +141,12 @@ export const actions = {
 
 		const authResponse = await fetch(`${process.env.SERVER_URL}/api/auth/register`, requestInit);
 		if (!authResponse.ok) {
+			const { message } = await authResponse.json();
+
 			return {
 				status: 401,
 				body: {
-					message: 'Registration failed'
+					message
 				}
 			};
 		}

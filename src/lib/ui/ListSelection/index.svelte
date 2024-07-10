@@ -117,9 +117,7 @@
 		style={`${themeString}`}
 		on:mouseenter={() => (showMoreInfo = true)}
 		on:mouseleave={() => (showMoreInfo = false)}
-		on:focus={() => {
-			// console.log('focused');
-		}}
+		on:focus={() => {}}
 		on:click={() => handleSelectionToggle(id)}
 		aria-roledescription="playlist"
 		role="button"

@@ -15,8 +15,6 @@
 	export let id;
 	export let thumbnail;
 
-	$: console.log('card::game::', game);
-
 	// STORES
 	const favoritesStore = writable([]);
 
@@ -81,7 +79,6 @@
 	// REACTIVE VARIABLES & STATEMENTS
 	$: cardLink = `/games/${id}/play`;
 	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: console.log('game::', game);
 	$: gameUserID = game?.user_id;
 	$: user = $platformSession?.currentUser;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
@@ -94,9 +91,7 @@
 		class="game"
 		style={`${themeString}`}
 		on:mouseover={() => (showMoreInfo = !showMoreInfo)}
-		on:focus={() => {
-			// console.log('focused');
-		}}
+		on:focus={() => {}}
 		aria-roledescription="game"
 		role="button"
 		tabindex="0"

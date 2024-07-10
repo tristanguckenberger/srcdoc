@@ -8,7 +8,6 @@ export async function POST({ cookies, request }) {
 	userReqHeaders.append('Content-Type', 'application/json');
 	userReqHeaders.append('Authorization', `Bearer ${token}`);
 
-	// console.log('request::', request?.body);
 	const data = await request.json();
 	const userReqInit = {
 		method: 'PUT',

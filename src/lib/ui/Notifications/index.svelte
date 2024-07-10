@@ -65,8 +65,8 @@
 
 	onMount(async () => {
 		const initialData = await getNotifications(limit, offset);
-		totalNotifications = parseInt(initialData.total);
-		fetchedNotifications.set(initialData.notifications);
+		totalNotifications = parseInt(initialData?.total);
+		fetchedNotifications.set(initialData?.notifications);
 		offset += limit;
 		if (initialData.notifications.length > 0) {
 			setupObserver();

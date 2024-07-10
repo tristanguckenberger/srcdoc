@@ -14,21 +14,11 @@ export async function load({ setHeaders, params, fetch }) {
 	const { slug } = params;
 	const limit = 5;
 
-	console.log('data::slug::', slug);
-	console.log('data::limit::', limit);
-
 	const [gameRange] = await Promise.all([
 		fetchData(fetch, `/api/games/slider?limit=${limit || 5}&currentGame=${slug}`)
 	]);
 
 	const { games = [], total = 0 } = gameRange;
-
-	// Enhance game object with files and comments if available
-	// if (game) {
-	// const filesResponse = await fetchData(fetch, `/api/games/getSingleGame/${slug}/files`);
-	// game.files = filesResponse ?? [];
-	// game.comments = (await getAllCommentsForAGame(fetch, slug)) ?? [];
-	// }
 
 	// Calculate top and bottom games
 	const currentIndex = games?.findIndex((g) => g.id.toString() === slug.toString());

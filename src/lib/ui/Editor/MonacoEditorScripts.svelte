@@ -163,7 +163,7 @@
 			});
 			models = Monaco.editor.getModels();
 		} catch (error) {
-			console.log('error', error);
+			console.error('error', error);
 		}
 	});
 

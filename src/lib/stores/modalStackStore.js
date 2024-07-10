@@ -3,6 +3,10 @@ import { writable, derived } from 'svelte/store';
 
 export const itemsInStack = writable([]);
 
+export const stackStyles = writable('');
+
+export const stackTimeout = writable(4000);
+
 // TODO: Create a derived store that automatically removes the oldest item from the stack when it reaches a certain length or when a certain amount of time has passed
 export const autoStack = derived(itemsInStack, ($itemsInStack) => {
 	if ($itemsInStack.length > 5) {

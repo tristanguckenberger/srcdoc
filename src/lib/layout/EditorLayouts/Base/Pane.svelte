@@ -66,7 +66,6 @@
 					if (splitClientWidth <= 45) {
 						splitModel.style.transform = 'rotate(90deg)';
 					} else {
-						// console.log('splitClientWidth::', splitClientWidth);
 						splitModel.style.transform = 'rotate(0deg)';
 					}
 				}
@@ -253,9 +252,7 @@
 		class="slot-control-bar"
 		role="button"
 		tabindex="0"
-		on:keyup={(e) => {
-			// console.log(e.key);
-		}}
+		on:keyup={(e) => {}}
 		on:dblclick={(e) => {
 			maximize(e, !value);
 		}}

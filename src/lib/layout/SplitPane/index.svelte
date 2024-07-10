@@ -126,8 +126,6 @@
 
 			if (!paneIDs || paneIDs?.length === 0) return;
 
-			// console.log('paneIDs::', paneIDs);
-
 			// Init a new split instance
 			splitInstance = Split(paneIDs, {
 				direction: vertical ? 'vertical' : 'horizontal',
@@ -190,25 +188,13 @@
 		setTimeout(() => reloadSplit(), 50);
 	}
 
-	// $: if (splitInstance && splitInstance?.getSizes()?.length > 2 && !$editorSplit) {
-	// 	editorSplit.set(splitInstance);
-	// 	console.log('splitInstance::', splitInstance);
-	// }
-
-	// $: console.log('splitParent::', splitParent);
-
 	$: if (
 		splitInstance &&
 		splitParent === 'split-input-output' &&
 		splitInstance?.getSizes()?.length >= 2
 	) {
-		// console.log('splitInstance::', splitInstance);
 		editorSplit.set(splitInstance);
 	}
-
-	// $: if (splitInstance && splitInstance?.getSizes()?.length < 2 && !$splitInstanceStore) {
-	// 	splitInstanceStore.set(splitInstance);
-	// }
 
 	$: isSideBarOpen = $fileSystemSidebarOpen;
 </script>

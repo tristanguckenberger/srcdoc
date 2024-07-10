@@ -57,27 +57,6 @@
 
 	$: canNavigateNext = selectedOption < docs.length - 1;
 	$: canNavigatePrevious = selectedOption > 0;
-	// $: docs?.[selectedOption]?.htmlCode?.forEach(async (element) => {
-	// 	if (contentGen) {
-	// 		console.log('contentGen::', contentGen);
-	// 		// console.log(contentGen.innerHTML.getElementById(element.location));
-	// 		try {
-	// 			console.log('htmlCode::element::', element.location);
-	// 			let targetCollection = await contentGen.getElementsByClassName(element.location);
-	// 			console.log('htmlCode::targetCollection::');
-	// 			// targetCollection[0].innerHTML = element.code;
-	// 			// let targetArray = Array.from(targetCollection);
-
-	// 			// console.log('htmlCode::targetArray::', targetArray);
-	// 			// contentGen.innerHTML.getElementsByTagName(element.location)[0].innerHTML = element.code;
-	// 			// contentGen.getElementById(element.location).innerHTML = element.code;
-	// 		} catch (error) {
-	// 			console.log('htmlCode::error::', error);
-	// 		}
-	// 	}
-
-	// 	// console.log('htmlCode::selectedOption::', docs?.[selectedOption]);
-	// });
 </script>
 
 <div class="documentation-container">

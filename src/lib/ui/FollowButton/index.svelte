@@ -74,7 +74,6 @@
 		return async ({ update, result, action }) => {
 			await update();
 			if (result?.status === 200) {
-				console.log(action?.search);
 				if (action?.search?.includes('unfollowUser')) {
 					// if the user is unfollowing the profile user, remove the profile user from the array $following
 					$following = $following?.filter((followee) => followee.id !== userId);

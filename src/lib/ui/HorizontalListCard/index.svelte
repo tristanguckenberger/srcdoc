@@ -51,9 +51,7 @@
 		class="playlist"
 		class:showHover
 		style={`${themeString}`}
-		on:focus={() => {
-			// console.log('focused');
-		}}
+		on:focus={() => {}}
 		aria-roledescription="playlist"
 		role="button"
 		tabindex="0"

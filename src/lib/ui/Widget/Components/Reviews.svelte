@@ -103,8 +103,6 @@
 	const toggleNewReviewForm = () => {
 		showNewReviewForm = !showNewReviewForm;
 	};
-
-	// $: console.log('difficultyOptions::selectedOption', difficultyOptions[selectedOption]?.title);
 </script>
 
 <div class="form-container" class:showNewReviewForm>

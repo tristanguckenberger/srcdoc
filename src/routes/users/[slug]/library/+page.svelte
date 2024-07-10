@@ -89,6 +89,10 @@
 	.playlists-container {
 		display: flex;
 		flex-direction: column;
+		width: calc(100%);
+		border-top-right-radius: 8px;
+		border-top-left-radius: 8px;
+		overflow: hidden;
 	}
 	.playlists-container.sideBarOpen {
 		width: calc(100%);
@@ -131,5 +135,30 @@
 		font-weight: 450;
 		color: var(--folder-button-color);
 		width: 200px;
+	}
+	:global(#editor-layout) {
+		padding-bottom: 0;
+		margin-bottom: 10px;
+		border-radius: 8px;
+		background-color: var(--color-secondary);
+		background: var(--home-gradient-color-2);
+		background: linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		background: -moz-linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		background: -webkit-linear-gradient(
+			270deg,
+			var(--theme-or-highlight) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		border-radius: 8px;
+		transition: background 0.09s linear(0.07 -1.12%, 1 100%);
+		padding-bottom: 10px;
 	}
 </style>

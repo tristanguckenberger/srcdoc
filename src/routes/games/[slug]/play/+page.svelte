@@ -100,11 +100,7 @@
 			sideBarState.set(false);
 		}
 		allGamesData = data?.allGames ?? [];
-		// gamesData.set([...$gamesData, ...allGamesData]);
 	});
-
-	// $: console.log('data::$gamesData::', $gamesData);
-	// $: console.log('data::', data);
 
 	function centerTarget(arr, target) {
 		const targetIndex = arr.findIndex((item) => item.id === target);
@@ -133,7 +129,6 @@
 	}
 
 	onDestroy(() => {
-		// gamesData.set([]);
 		fileStoreFiles.set(null);
 		focusedFileId.set(null);
 		focusedFolderId.set(null);
@@ -245,16 +240,12 @@
 				name: 'AddToPlaylist',
 				props: {
 					gameId: data?.id
-					// action: `/games/?/${isInPlaylist ? 'removeFromPlaylist' : 'addToPlaylist'}`
 				},
 				component: AddToPlaylist
 			}
 		]);
 	})();
 	$: favorites = data?.currentGame?.favorites;
-
-	$: console.log('favorites::', favorites);
-
 	$: gamesAvailableIds = gamesAvailable.map((game) => game.id);
 </script>
 
