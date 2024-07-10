@@ -179,7 +179,7 @@
 		border-radius: 6px;
 		margin: 0;
 		padding: 10px;
-		background: #32323229;
+		background: #2f3134;
 		transition: background 0.2s linear(0.07 -1.12%, 1 100%);
 		height: fit-content;
 	}
