@@ -15,6 +15,8 @@
 	export let id;
 	export let thumbnail;
 
+	$: console.log('card::game::', game);
+
 	// STORES
 	const favoritesStore = writable([]);
 
@@ -34,12 +36,17 @@
 	};
 
 	onMount(async () => {
-		if (browser && id) {
+		if (browser && id && !game?.favorites) {
 			const favoritesRes = await getAllFavoritesSingleGame(id, fetch);
 
 			if (favoritesRes) {
 				favoritesStore.set(favoritesRes);
 			}
+		}
+
+		if (game?.favorites) {
+			favorites = game?.favorites;
+			favoritesStore.set(favorites);
 		}
 	});
 
