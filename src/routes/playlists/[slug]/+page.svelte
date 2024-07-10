@@ -211,6 +211,14 @@
 	$: isSaved = Boolean(playlist?.isSaved);
 </script>
 
+<svelte:head>
+	<script
+		async
+		src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9366274571597084"
+		crossorigin="anonymous"
+	></script>
+</svelte:head>
+
 <div class="playlist-page-container" class:showSideBar={$sideBarState}>
 	<div class="playlist-header">
 		<div class="playlist-header-title">
