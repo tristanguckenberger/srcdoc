@@ -10,13 +10,15 @@
 
 <div class="playlist-container">
 	{#each userList as user}
-		<div class="single-playlist-container">
-			<UserListCard {user} thumbnail={user?.profile_photo}>
-				<div slot="followsButton">
-					<FollowButton userId={user?.id} />
-				</div>
-			</UserListCard>
-		</div>
+		{#if user?.id}
+			<div class="single-playlist-container">
+				<UserListCard {user} thumbnail={user?.profile_photo}>
+					<div slot="followsButton">
+						<FollowButton userId={user?.id} />
+					</div>
+				</UserListCard>
+			</div>
+		{/if}
 	{/each}
 </div>
 

@@ -541,6 +541,7 @@
 		height: 20px;
 		border-radius: 50%;
 		object-fit: cover;
+		border: 2px solid #a69160;
 	}
 
 	.activity-details {

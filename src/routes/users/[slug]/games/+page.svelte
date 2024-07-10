@@ -56,7 +56,7 @@
 		width: 100%;
 	}
 	.game-page-container.expandSideNav {
-		width: calc(100% - 230px);
+		/* width: calc(100% - 230px); */
 	}
 	.main {
 		margin: 20px;
@@ -75,7 +75,7 @@
 		/* grid-template-rows: minmax(242px, 367px); */
 		margin: 0;
 		height: fit-content;
-		width: calc(100% - 20px);
+		width: calc(100%);
 	}
 	.noSideBar {
 		align-items: center;
