@@ -713,11 +713,13 @@
 									method="POST"
 									use:enhance={() => {
 										return async ({ result, update }) => {
-											await update();
 											platformSession.set(null);
 											userBioStore.set(null);
 											userIdStore.set(null);
+											userUsernameStore.set(null);
 											userPfpStore.set(null);
+
+											await update();
 											await goto('/');
 										};
 									}}
