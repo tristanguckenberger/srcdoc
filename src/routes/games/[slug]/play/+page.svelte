@@ -250,7 +250,11 @@
 </script>
 
 <svelte:head>
-	<meta name="google-adsense-account" content="ca-pub-9366274571597084" />
+	<script
+		async
+		src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9366274571597084"
+		crossorigin="anonymous"
+	></script>
 </svelte:head>
 
 <div
