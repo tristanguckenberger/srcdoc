@@ -5,7 +5,6 @@
 	import { platformSession } from '$lib/stores/platformSession';
 	import { writable } from 'svelte/store';
 
-	// let fetchedNotifications = [];
 	let fetchedNotifications = writable([]);
 	let totalNotifications = 0;
 	let limit = 10;
@@ -47,7 +46,7 @@
 
 		const endOfListElement = document.querySelector('#end-of-list');
 		if (endOfListElement) {
-			observer.observe(endOfListElement);
+			observer?.observe(endOfListElement);
 		} else {
 			console.error('#end-of-list element not found during setup');
 		}
@@ -56,8 +55,8 @@
 	const reobserveEndOfList = () => {
 		const endOfListElement = document.querySelector('#end-of-list');
 		if (endOfListElement) {
-			observer.unobserve(endOfListElement); // Stop observing the current end-of-list
-			observer.observe(endOfListElement); // Re-observe the new end-of-list
+			observer?.unobserve(endOfListElement); // Stop observing the current end-of-list
+			observer?.observe(endOfListElement); // Re-observe the new end-of-list
 		} else {
 			console.error('#end-of-list element not found during reobserve');
 		}
@@ -79,7 +78,7 @@
 
 	onDestroy(() => {
 		if (observer) {
-			observer.disconnect();
+			observer?.disconnect();
 		}
 	});
 </script>
@@ -96,7 +95,7 @@
 						<div class="activity-header">
 							<img
 								src={notification.sender_profile_photo}
-								alt="User profile photo"
+								alt="User avatar"
 								class="profile-photo"
 							/>
 							<p class="primary-text">
