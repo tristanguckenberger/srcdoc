@@ -14,6 +14,7 @@
 	export let inputText;
 	export let inputValue;
 	export let hidden = false;
+	export let placeholder = '';
 
 	$: checked = inputValue ? 'true' : 'false';
 
@@ -109,9 +110,10 @@
 					blurAction();
 				}}
 			/>
-		{:else if inputCapture === 'description'}
+		{:else if inputCapture === 'description' || inputCapture === 'reviewBody'}
 			<textarea
 				class="description-input"
+				{placeholder}
 				name={inputCapture}
 				bind:value={inputText}
 				on:blur={() => {
@@ -135,6 +137,7 @@
 				class:hideMe={hidden}
 				type="text"
 				{hidden}
+				{placeholder}
 				name={inputCapture}
 				bind:value={inputText}
 				on:blur={() => {
