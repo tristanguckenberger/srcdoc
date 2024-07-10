@@ -6,12 +6,12 @@
 	import { enhance } from '$app/forms';
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import Button from '$lib/ui/Button/index.svelte';
-	import { session } from '$lib/stores/sessionStore.js';
 	import { browser } from '$app/environment';
 	import { tick } from 'svelte';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore.js';
 	import { playButton } from '$lib/stores/gamesStore.js';
 	import { page } from '$app/stores';
+	import { platformSession } from '$lib/stores/platformSession';
 
 	export let game;
 	export let id;
@@ -59,7 +59,7 @@
 	$: isPlaylistSlider = $page?.route?.id == '/playlists/[slug]';
 	$: cardLink = isPlaylistSlider ? `/games/playlist/${playlistId}/${id}/play` : `/games/${id}/play`;
 	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: user = $session;
+	$: user = $platformSession?.currentUser;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
 	$: showHover = $mousedOverItemId?.toString() === id?.toString();
 	$: showMoreInfo = showHover;
@@ -114,9 +114,9 @@
 					>
 						{#if isOwner}<button
 								class="more-action-button"
-								class:muted={!$session?.id}
+								class:muted={!$platformSession?.currentUser?.id}
 								on:click={async () => {
-									if (!$session?.id) return;
+									if (!$platformSession?.currentUser?.id) return;
 									goto(`/games/${game?.id}/play`).then(() => {
 										$selectedOption = 3;
 										$playButton = false;
@@ -137,9 +137,9 @@
 
 							<button
 								class="more-action-button"
-								class:muted={!$session?.id}
+								class:muted={!$platformSession?.currentUser?.id}
 								on:click|preventDefault={async () => {
-									if (!$session?.id) return;
+									if (!$platformSession?.currentUser?.id) return;
 									const deltePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/removeGame`, {
 										method: 'POST',
 										headers: {

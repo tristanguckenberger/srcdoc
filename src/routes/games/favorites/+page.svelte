@@ -25,10 +25,6 @@
 	$: isMobile = $appClientWidth < 768;
 </script>
 
-<svelte:head>
-	<meta name="google-adsense-account" content="ca-pub-9366274571597084" />
-</svelte:head>
-
 <div
 	class="game-page-container"
 	class:noSideBar={!engineInRoute}

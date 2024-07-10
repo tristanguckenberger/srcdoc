@@ -144,9 +144,6 @@
 	$: followingCount = $following?.length ?? 0;
 </script>
 
-<svelte:head>
-	<meta name="google-adsense-account" content="ca-pub-9366274571597084" />
-</svelte:head>
 <div class="user-layout-container">
 	{#if !data?.isActive && $platformSession?.currentUser?.id}
 		<AccountVerificationNotice />

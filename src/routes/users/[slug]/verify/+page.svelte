@@ -33,10 +33,6 @@
 	$: quickHide && setTimeout(() => (quickHide = false), 1000);
 </script>
 
-<svelte:head>
-	<meta name="google-adsense-account" content="ca-pub-9366274571597084" />
-</svelte:head>
-
 <div class="main" style="--svg-bg: url('{Frame}');">
 	<div class="auth-container">
 		<div class="authentication" class:quickHide>

@@ -37,10 +37,6 @@
 		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
 </script>
 
-<svelte:head>
-	<meta name="google-adsense-account" content="ca-pub-9366274571597084" />
-</svelte:head>
-
 <div
 	class="page-container"
 	class:noSideBar={!engineInRoute}

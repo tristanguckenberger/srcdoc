@@ -132,10 +132,6 @@
 	let areaHeight = 0;
 </script>
 
-<svelte:head>
-	<meta name="google-adsense-account" content="ca-pub-9366274571597084" />
-</svelte:head>
-
 <div class="main" class:isSideBarOpen class:isFileSystemSideBarOpen>
 	<SplitPane
 		panes={['#split-file-explorer', '#split-input-output']}
