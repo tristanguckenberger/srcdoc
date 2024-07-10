@@ -26,9 +26,6 @@ const getAllGamesForPlaylist = async (eventFetch, playlistId) => {
 
 export async function load({ params, fetch, setHeaders }) {
 	const { playlistId, gameSlug } = params;
-	let user = null;
-	// let userGames = [];
-
 	// ------------------ Get Playlist Data TODO ------------------
 	// TODO: Only get All Playlist games, not all Games for this route
 	const [allGames, game, favorites] = await Promise.all([
@@ -57,10 +54,9 @@ export async function load({ params, fetch, setHeaders }) {
 
 	return {
 		...game,
-		user,
 		allGames: games,
 		topGame,
-		currentGame: { ...game },
+		currentGame: game,
 		bottomGame,
 		comments: game?.comments ?? [],
 		favorites: favorites ? { count: favorites.length, favorites } : { count: 0, favorites: [] },

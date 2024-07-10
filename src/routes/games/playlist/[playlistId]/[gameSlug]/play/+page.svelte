@@ -94,56 +94,14 @@
 		}
 	);
 
-	/**
-	 * Add game session activity
-	 * @param {string} gameSessionId
-	 * @param {string} action - start, stop, resume, pause
-	 * @returns {Promise<void>}
-	 */
-	const addGameSessionActivity = async (gameSessionId, action) => {
-		const addActivity = fetch(
-			`/api/games/sessions/${gameSessionId}/activities/createNewGameSessionActivity`,
-			{
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				mode: 'cors',
-				body: JSON.stringify({
-					action
-				})
-			}
-		);
-
-		const addActivityJSON = await addActivity;
-		const addActivityData = await addActivityJSON.json();
-	};
-
 	onMount(async () => {
 		firstRun.set(true);
-
-		modalFullInfoStore.set(null);
 
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
 		}
 
-		if (browser) {
-			// Check if our local info stores for the homePage has been viewed already
-			await tick();
-			setTimeout(() => {
-				if (!$gamePageInfoStore?.viewed) {
-					// if this isnt viewed, we wanna display the info modal overlay
-					$modalFullInfoStore = $gamePageInfoStore?.info;
-				}
-			}, 500);
-		}
-	});
-
-	afterUpdate(() => {
-		if (data?.user?.id) {
-			session.set(data?.user);
-		}
+		currentGame.set(data?.currentGame);
 	});
 
 	onDestroy(() => {
@@ -164,39 +122,6 @@
 		topGame.set(null);
 		bottomGame.set(null);
 		currentGame.set(null);
-	});
-
-	beforeNavigate((nav) => {
-		// Trigger end game session activity
-		if (gameSessionId) {
-			addGameSessionActivity(gameSessionId, 'Stop');
-		}
-	});
-
-	afterNavigate(async (nav) => {
-		try {
-			const startGameSession = fetch(
-				`/api/games/sessions/createGameSession/${data?.id ?? $page.params.slug}`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					mode: 'cors'
-				}
-			);
-
-			let startGameSessionData = await startGameSession;
-			const jsonBody = await startGameSessionData.json();
-
-			if (jsonBody?.game_session_id) {
-				gameSessionState.set({ id: jsonBody?.game_session_id });
-
-				gameSession.setInitialState({ currentGame: jsonBody?.game_id });
-			}
-		} catch (error) {
-			console.log('error::', error);
-		}
 	});
 
 	let newGamesData = [];
@@ -265,6 +190,8 @@
 				gamesAvailable = [$currentGame ?? data?.currentGame];
 			}
 		})();
+
+	$: currentGame.set(data?.currentGame);
 	$: src_build.set($srcbuild);
 	$: (() => {
 		return (ComponentOptions = [
