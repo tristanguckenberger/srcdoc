@@ -1,7 +1,14 @@
 // @ts-nocheck
 export async function GET({ fetch, url }) {
-	const response = await fetch('/api/games/sitemapData');
-	const games = await response.json();
+	const gameRes = await fetch('/api/games/sitemapData');
+	const games = await gameRes.json();
+
+	const playlistRes = await fetch('/api/playlist/sitemapData');
+	const playlists = await playlistRes.json();
+
+	const userRes = await fetch('/api/users/sitemapData');
+	const users = await userRes.json();
+
 	const xml = `
     <?xml version="1.0" encoding="UTF-8" ?>
 		<urlset
@@ -36,16 +43,38 @@ export async function GET({ fetch, url }) {
                 <lastmod>2024-07-10</lastmod>
             </url>
         
-      ${games
-				.map((game) => {
-					const formattedDate = game?.updated_at?.split('T')[0];
-					return `
+        ${games
+					.map((game) => {
+						const formattedDate = game?.updated_at?.split('T')[0];
+						return `
         <url>
           <loc>${url.origin}/games/${game.id}/play</loc>
           <lastmod>${formattedDate}</lastmod>
         </url>`;
-				})
-				.join('')}
+					})
+					.join('')}
+
+        ${playlists
+					.map((playlist) => {
+						const formattedDate = playlist?.updated_at?.split('T')[0];
+						return `
+        <url>
+          <loc>${url.origin}/playlists/${playlist.id}</loc>
+          <lastmod>${formattedDate}</lastmod>
+        </url>`;
+					})
+					.join('')}
+
+        ${users
+					.map((user) => {
+						const formattedDate = user?.updated_date?.split('T')[0];
+						return `
+        <url>
+          <loc>${url.origin}/users/${user.id}</loc>
+          <lastmod>${formattedDate}</lastmod>
+        </url>`;
+					})
+					.join('')}
 
       </urlset>`.trim();
 
