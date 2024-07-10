@@ -2,7 +2,7 @@
 	// @ts-nocheck
 
 	// Svelte imports
-	import { onMount, afterUpdate, tick, onDestroy } from 'svelte';
+	import { onMount, afterUpdate, onDestroy, tick } from 'svelte';
 	import { page } from '$app/stores';
 
 	// Stores
@@ -21,80 +21,118 @@
 	import ActionList from '$lib/ui/ActionList/index.svelte';
 	import { browser } from '$app/environment';
 	import { platformSession } from '$lib/stores/platformSession/index.js';
+	import {
+		userPfpStore,
+		userBioStore,
+		userIdStore,
+		userUsernameStore
+	} from '$lib/stores/InfoStore.js';
+	import { writable } from 'svelte/store';
 
 	// data is a prop passed from the server's load function
 	export let data;
 	let gamesList = [];
+	let updating = false;
+	let games = writable([]);
+	let totalGames = parseInt(data?.total, 10);
+	let limit = 10;
+	let offset = data.games.length;
+	let loading = false;
+	let observer;
+	let initialized = false;
+	let EOL;
 
-	const handleScroll = async (e) => {
-		scrolling = true;
-		const threshold = scrollableElement.scrollHeight - (scrollableElement.scrollTop + 100);
-		const target = scrollableElement?.clientHeight + 400;
+	const setupObserver = () => {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
+		observer = new IntersectionObserver(observe, {
+			root: null,
+			rootMargin: '0px',
+			threshold: 0.1 // Adjust threshold value here if needed
+		});
 
-		if (target >= threshold) {
-			await runFetch();
+		if (EOL) {
+			try {
+				observer.observe(EOL);
+			} catch (error) {
+				console.log('setupObserver::error::observing::end-of-list::', error);
+			}
+		} else {
+			console.error('setupObserver::#end-of-list element not found during setup');
 		}
 	};
-	const runFetch = async () => {
-		const newGames = await fetchData(fetch, `/api/games/getAllGames/${nextCursor}`);
-		nextCursor = newGames?.nextCursor;
-		fetchMoreGames = [...fetchMoreGames, ...(newGames?.games ?? null)];
+
+	const loadMoreGames = async () => {
+		if (loading || offset >= totalGames) {
+			return;
+		}
+		loading = true;
+		try {
+			const response = await fetch(`/api/games/paginated?limit=${limit}&offset=${offset}`);
+			const result = await response.json();
+			games.update((current) => [...current, ...result.games]);
+			offset += limit;
+		} catch (error) {
+			console.error('loadMoreGames::error loading more games', error);
+		} finally {
+			loading = false;
+		}
 	};
+
+	const observe = (entries, observer) => {
+		for (const entry of entries) {
+			if (entry.isIntersecting) {
+				loadMoreGames();
+			}
+		}
+	};
+
+	const reobserveEndOfList = () => {
+		if (EOL) {
+			observer.unobserve(EOL); // Stop observing the current end-of-list
+			observer.observe(EOL); // Re-observe the new end-of-list
+		} else {
+			console.error('reobserveEndOfList::#end-of-list element not found during reobserve');
+		}
+	};
+
 	onMount(async () => {
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
 		}
 
-		if (data?.games) {
-			gamesData.set([...data?.games]);
+		if (!$userUsernameStore || !$userIdStore) {
+			userIdStore.set(data?.userId);
+			userUsernameStore.set(data?.username);
 		}
 
-		window.addEventListener('scroll', handleScroll);
+		games.set(data.games);
 
-		if ([...parsedGamesDataSet].length === 0) {
-			await runFetch();
+		if ($games?.length > 0 && EOL) {
+			setupObserver();
 		}
+	});
 
-		if (browser) {
-			// Check if our local info stores for the homePage has been viewed already
-			setTimeout(() => {
-				if (!$homePageInfoStore?.viewed) {
-					// if this isnt viewed, we wanna display the info modal overlay
-					$modalFullInfoStore = $homePageInfoStore?.info;
-				}
-			}, 500);
+	afterUpdate(async () => {
+		await tick();
+		if (initialized) {
+			reobserveEndOfList();
+		} else {
+			if ($games?.length > 0 && EOL) {
+				setupObserver();
+			}
 		}
-
-		deduplicateGames();
-
-		// Initial fetch with no cursor
-		return () => {
-			// Cleanup the event listener when the component is destroyed
-			window.removeEventListener('scroll', handleScroll);
-		};
 	});
 
 	onDestroy(() => {
 		gamesList = [];
+
+		if (observer) {
+			observer.disconnect();
+		}
 	});
-
-	// Deduplicate games by id
-	function deduplicateGames() {
-		const uniqueGames = new Map();
-
-		copiedParsedGamesDataSet.forEach((game) => {
-			uniqueGames.set(game.id, game);
-		});
-
-		gamesList = Array.from(uniqueGames.values());
-	}
-
-	const debouncedHandleScroll = debounce(handleScroll, 50);
-	let dataGames = [];
-	let fetchMoreGames = [];
-	let nextCursor = 0;
-	let scrolling = false;
-	let scrollableElement;
 
 	$: isMobile = $appClientWidth < 768;
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
@@ -108,14 +146,8 @@
 		(splitPath[1] === 'users' && !isProfilePage && !splitPath.some((path) => path === 'users'));
 	$: isUserGamesBrowsePage =
 		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
-	$: dataGames = [...dataGames, ...data?.games, ...fetchMoreGames];
-	$: gamesSet = new Set(dataGames.map((game) => game));
-	$: gamesData.set([...gamesSet].filter((game) => game?.id));
-	$: parsedGamesData = [...$gamesData];
-	$: parsedGamesDataSet = new Set(parsedGamesData.map((game) => game));
-	$: copiedParsedGamesDataSet = [...parsedGamesDataSet].filter((game) => {
-		return game?.published;
-	});
+
+	$: hasGames = $games?.length > 0;
 </script>
 
 <svelte:head>
@@ -137,16 +169,20 @@
 		bind:clientWidth={$gridWidth}
 		class:isMobile
 		class:showSideBar={$sideBarState}
-		on:scroll={debouncedHandleScroll}
-		on:scrollend={() => (scrolling = false)}
-		bind:this={scrollableElement}
 	>
-		{#if gamesList?.length > 0}
-			{#each gamesList as game, i (`game_${game?.id}_${i}`)}
+		{#if $games?.length === 0}
+			<p>No games found</p>
+		{:else}
+			{#each $games as game, i (`game_${game?.id}_${i}`)}
 				<Card id={game?.id} {game} thumbnail={game?.thumbnail} />
 			{/each}
 		{/if}
 	</div>
+	{#if hasGames}
+		<div id="end-of-list" style="height: 20px;" bind:this={EOL}>
+			{loading || offset < totalGames ? 'Loading more...' : 'End of list!'}
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -214,5 +250,12 @@
 	}
 	.main.showSideBar {
 		width: calc(100% - 230px) !important;
+	}
+	#end-of-list {
+		color: var(--color-primary);
+		font-family: 'Source Sans 3', sans-serif;
+		font-size: 1rem;
+		text-align: center;
+		padding-bottom: 50px;
 	}
 </style>

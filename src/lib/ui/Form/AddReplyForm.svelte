@@ -6,6 +6,7 @@
 	import { onMount, tick } from 'svelte';
 	import CustomInput from '$lib/ui/Input/CustomInput.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
+	import { platformSession } from '$lib/stores/platformSession';
 
 	export let comment;
 	export let userId;
@@ -94,7 +95,7 @@
 	<CustomInput inputCapture={'gameId'} inputText={comment?.game_id ?? comment?.gameId} hidden />
 	<CustomInput inputCapture={'parentCommentId'} inputText={comment?.id} hidden />
 	<div class="comment-action-container">
-		<Button label="Done" />
+		<Button label="Done" disabled={!$platformSession?.currentUser?.id} />
 		<button
 			class="isCancelButton"
 			formaction=""

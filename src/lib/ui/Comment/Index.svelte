@@ -12,6 +12,7 @@
 		commentStoreComments,
 		editComment as submitEdit
 	} from '$lib/stores/commentStore.js';
+	import { platformSession } from '$lib/stores/platformSession';
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import CustomInput from '$lib/ui/Input/CustomInput.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
@@ -219,7 +220,7 @@
 					style={`--multiplyer: ${calculateGradientDirctionAndPosition(270 * (i + 1))}rad;`}
 				>
 					{#if comment.type === 'parent'}
-						{#if isEditing && editingId === comment.id}
+						{#if isEditing && editingId === comment.id && comment.user_id === $platformSession?.currentUser?.id}
 							<div
 								class="comment parent row"
 								class:expanded={$commentSystemExpanderStore[comment.id]}
@@ -249,12 +250,15 @@
 										<span class="commentText">{comment.comment_text}</span>
 									</p>
 									<div class="actions">
+										{#if comment.user_id === $platformSession?.currentUser?.id}
+											<Button
+												action={() => startEditingComment(comment)}
+												label={'Edit'}
+												additionalClasses={'existing-comment-action edit'}
+											/>
+										{/if}
 										<Button
-											action={() => startEditingComment(comment)}
-											label={'Edit'}
-											additionalClasses={'existing-comment-action edit'}
-										/>
-										<Button
+											disabled={!$platformSession?.currentUser?.id}
 											action={() => startCreatingComment(comment)}
 											label={'Reply'}
 											additionalClasses={'existing-comment-action reply'}
@@ -294,12 +298,16 @@
 										{comment?.comment_text}
 									</p>
 									<div class="actions">
+										{#if comment?.user_id === $platformSession?.currentUser?.id}
+											<Button
+												disabled={comment?.user_id !== $platformSession?.currentUser?.id}
+												action={() => startEditingComment(comment)}
+												label={'Edit'}
+												additionalClasses={'existing-comment-action edit'}
+											/>
+										{/if}
 										<Button
-											action={() => startEditingComment(comment)}
-											label={'Edit'}
-											additionalClasses={'existing-comment-action edit'}
-										/>
-										<Button
+											disabled={comment?.user_id !== $platformSession?.currentUser?.id}
 											action={() => startCreatingComment(comment)}
 											label={'Reply'}
 											additionalClasses={'existing-comment-action reply'}
@@ -329,12 +337,16 @@
 									{comment?.comment_text}
 								</p>
 								<div class="actions">
+									{#if comment?.user_id === $platformSession?.currentUser?.id}
+										<Button
+											disabled={comment?.user_id !== $platformSession?.currentUser?.id}
+											action={() => startEditingComment(comment)}
+											label={'Edit'}
+											additionalClasses={'existing-comment-action edit'}
+										/>
+									{/if}
 									<Button
-										action={() => startEditingComment(comment)}
-										label={'Edit'}
-										additionalClasses={'existing-comment-action edit'}
-									/>
-									<Button
+										disabled={!$platformSession?.currentUser?.id}
 										action={() => startCreatingComment(comment)}
 										label={'Reply'}
 										additionalClasses={'existing-comment-action reply'}

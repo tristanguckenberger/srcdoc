@@ -17,6 +17,7 @@
 	export let style;
 	export let formaction;
 	export let creating;
+	export let disabled;
 
 	let profileControl = false;
 	let showToolTip = false;
@@ -101,12 +102,14 @@
 		</a>
 	{:else}
 		<button
+			{disabled}
 			{formaction}
 			class:isRounded={isRounded || userName}
 			typeof={type}
 			on:click={() => {
 				action?.();
 			}}
+			class:disabled
 			class:authBtn
 			class:isHomePage
 			class:showSideBarToggle
@@ -523,5 +526,11 @@
 		to {
 			-webkit-transform: rotate(360deg);
 		}
+	}
+	button.disabled {
+		cursor: not-allowed;
+	}
+	button.disabled svg {
+		fill: var(--color-primary-muted);
 	}
 </style>

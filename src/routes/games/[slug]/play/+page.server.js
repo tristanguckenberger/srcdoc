@@ -1,6 +1,4 @@
 // @ts-nocheck
-import { gameData } from '$lib/mockData/gameData.js';
-
 async function fetchData(eventFetch, endpoint) {
 	try {
 		const response = await eventFetch(endpoint);
@@ -12,74 +10,47 @@ async function fetchData(eventFetch, endpoint) {
 	}
 }
 
-const getCurrentUser = async (eventFetch) => {
-	let user;
-	try {
-		const userResponse = await eventFetch(`/api/users/getCurrentUser`);
-		user = await userResponse.json();
-	} catch (error) {
-		console.log('getCurrentUser::error::', error);
-	}
-
-	return user;
-};
-
-async function getAllCommentsForAGame(fetch, slug) {
-	const commentsRaw = await fetchData(fetch, `${process.env.SERVER_URL}/api/comments/game/${slug}`);
-	if (!commentsRaw) return [];
-
-	return commentsRaw;
-}
-
-export async function load({ params, fetch }) {
+export async function load({ setHeaders, params, fetch }) {
 	const { slug } = params;
-	let user = null;
+	const limit = 5;
 
-	const [allGames, userData, game, favorites] = await Promise.all([
-		fetchData(fetch, `/api/games/getAllGames`),
-		getCurrentUser(fetch),
-		fetchData(fetch, `/api/games/getSingleGame/${slug}`) ||
-			gameData.find((g) => g.id.toString() === slug.toString()),
-		fetchData(fetch, `/api/favorites/${slug}/getAllFavoritesSingleGame`)
+	console.log('data::slug::', slug);
+	console.log('data::limit::', limit);
+
+	const [gameRange] = await Promise.all([
+		fetchData(fetch, `/api/games/slider?limit=${limit || 5}&currentGame=${slug}`)
 	]);
 
-	const { games = [] } = allGames;
-
-	if (userData && userData?.status === 401) {
-		user = null;
-	}
-
-	// Assuming user is already sanitized before being sent to the client
-	if (userData?.id) {
-		user = userData;
-	}
+	const { games = [], total = 0 } = gameRange;
 
 	// Enhance game object with files and comments if available
-	if (game) {
-		const filesResponse = await fetchData(fetch, `/api/games/getSingleGame/${slug}/files`);
-		game.files = filesResponse ?? [];
-		game.comments = (await getAllCommentsForAGame(fetch, slug)) ?? [];
-	}
+	// if (game) {
+	// const filesResponse = await fetchData(fetch, `/api/games/getSingleGame/${slug}/files`);
+	// game.files = filesResponse ?? [];
+	// game.comments = (await getAllCommentsForAGame(fetch, slug)) ?? [];
+	// }
 
 	// Calculate top and bottom games
 	const currentIndex = games?.findIndex((g) => g.id.toString() === slug.toString());
 	const topGame = currentIndex > 0 ? games[currentIndex - 1] : games[games.length - 1];
 	const bottomGame = currentIndex < games.length - 1 ? games[currentIndex + 1] : games[0];
 
-	// setHeaders({
-	// 	'cache-control': 'max-age=604800'
-	// });
+	setHeaders({
+		'cache-control': 'max-age=604800'
+	});
+
+	const game = games.find((g) => g.id.toString() === slug.toString());
+
+	const allGamesIds = games.map((g) => g.id);
 
 	return {
 		...game,
-		user,
 		allGames: games,
+		total: parseInt(total, 10),
 		topGame,
 		currentGame: { ...game },
 		bottomGame,
-		comments: game?.comments ?? [],
-		favorites: favorites ? { count: favorites.length, favorites } : { count: 0, favorites: [] },
-		thumbnail: game?.thumbnail ?? ''
+		allGamesIds
 	};
 }
 

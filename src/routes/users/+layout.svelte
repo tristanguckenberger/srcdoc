@@ -29,7 +29,6 @@
 	});
 
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
-
 	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 

@@ -33,6 +33,8 @@
 	const tweenedColor = tweenedHex(color, {
 		duration: 1000
 	});
+	$: isGamesPage = $page?.route?.id === '/games';
+	$: console.log('isGamesPage::', isGamesPage);
 
 	let preferedThemeMode;
 	let shouldAddPadding = false;
@@ -79,6 +81,7 @@
 	class:playInRoute
 	class:addPaddingToEditorStore={shouldAddPadding}
 	class:noOpenTabs={$openFiles?.length === 0}
+	class:isGamesPage
 	style="--sidebar-width: {isSideBarOpen
 		? $fileSystemSidebarWidth + 15
 		: 0}px; {themeString} --theme-or-highlight: {$tweenedColor};"
@@ -237,5 +240,8 @@
 	#editor-layout.engineInRoute.showSideBar {
 		width: calc(100% - 230px);
 		margin-left: 0;
+	}
+	#editor-layout.isGamesPage {
+		margin-bottom: 10px;
 	}
 </style>

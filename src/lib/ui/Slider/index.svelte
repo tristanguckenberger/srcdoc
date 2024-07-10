@@ -20,7 +20,13 @@
 		allowNavigationStore
 	} from '$lib/stores/gameControllerStore';
 	import { actionMenuOpen, currentGame as currentGameStore } from '$lib/stores/gamesStore';
-	import { playButton, gameFavoriteCount, gameFavorites } from '$lib/stores/gamesStore.js';
+	import {
+		playButton,
+		gameFavoriteCount,
+		gameFavorites,
+		limit,
+		offset
+	} from '$lib/stores/gamesStore.js';
 	import { emblaInstance, triggerNavigation } from '$lib/stores/sliderStore';
 	import { preloadItemsInRange } from '$lib/utils/preloadItemsInRange';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
@@ -35,7 +41,7 @@
 	export let gamesAvailable = [];
 	export let rawGamesData = [];
 	export let currentIndex = 0;
-	export let favoritesObj = {};
+	export let favorites = [];
 	export let currentGameExport = {};
 
 	let emblaApi;
@@ -106,6 +112,7 @@
 
 	const performNavigation = async () => {
 		const nextGame = gamesAvailable[emblaApi?.selectedScrollSnap()];
+
 		if (nextGame?.id !== currentGame?.id && $lockGameStateStore === false) {
 			lockGameStateStore.set(true);
 			currentGame = nextGame;
@@ -165,7 +172,7 @@
 		console.log('isPlaylistSlider::', isPlaylistSlider);
 		// Update favorites store and count
 		gameFavoriteCount.set(favoritesCount);
-		gameFavorites.set(favoritesObj);
+		gameFavorites.set(favorites);
 
 		// Check if the selected slide is not 1 for more than 1 second
 		if ((await emblaApi?.selectedScrollSnap()) !== 1) {
@@ -197,7 +204,7 @@
 		// 	}
 		// });
 
-		isFavorited = favoritesObj?.favorites?.some((fav) => {
+		isFavorited = favorites?.some((fav) => {
 			return (
 				fav?.user_id?.toString() === $platformSession?.currentUser?.id?.toString() &&
 				fav?.game_id?.toString() === currentGameExport?.id?.toString()
@@ -267,13 +274,14 @@
 	$: currentIndex = rawGamesData?.findIndex((game) => game?.id === currentGame?.id);
 	$: $currentGameStore = currentGameExport;
 	$: hideActionNav = !$actionMenuOpen;
-	$: favoritesCount = favoritesObj?.count;
+	$: favoritesCount = favorites?.length;
 	$: slidesSettled = !pointerDown && emblaApi?.slidesInView()?.length === 1;
 	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
 	$: visibleThumbnails = showSlides;
 	$: isPlaylistSlider = $page?.route?.id === '/games/playlist/[playlistId]/[gameSlug]/play';
 	$: playlistId = $page?.params?.playlistId;
 
+	$: console.log('$platformSession::', $platformSession);
 	let load = false;
 </script>
 
@@ -302,7 +310,7 @@
 							</div>
 						</div>
 
-						{#if $platformSession?.currentUser?.id === game?.user_id}
+						{#if $platformSession?.currentUser?.id?.toString() === game?.user_id?.toString()}
 							<button
 								class="settings-action"
 								class:drawerOpen={$drawerOpen}
@@ -339,7 +347,7 @@
 								{#if !$drawerOpen}
 									<ul class="action-menu" class:fade={true}>
 										<div class="sub-action-menu">
-											{#if $platformSession?.currentUser?.id === game?.user_id}
+											{#if $platformSession?.currentUser?.id?.toString() === game?.user_id?.toString()}
 												<a
 													class="action-button button"
 													href={`/games/${$currentGameStore?.id}/engine`}

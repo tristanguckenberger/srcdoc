@@ -38,6 +38,8 @@ export const screenshot = writable(false);
 export const gameCommentCount = writable(0);
 export const gameFavoriteCount = writable(0);
 export const gameFavorites = writable([]);
+export const limit = writable(6);
+export const offset = writable(0);
 
 export const gameCarousel = derived(
 	[currentGame, topGame, bottomGame],

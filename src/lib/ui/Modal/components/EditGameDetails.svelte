@@ -68,7 +68,7 @@
 	}}
 >
 	<div class="file-input-container">
-		<label class="input-label" for="thumbnail">Playlist Thumbnail</label>
+		<label class="input-label" for="thumbnail">Game Thumbnail</label>
 		<div class="avatar">
 			<input
 				type="file"
@@ -76,7 +76,7 @@
 				id="thumbnail"
 				accept="image/*"
 				on:change={handleFileChange}
-				alt="Playlist Thumbnail Selection"
+				alt="Game Thumbnail Selection"
 			/>
 			<svg
 				class="image-selection-icon"
@@ -91,7 +91,7 @@
 			>
 			<img
 				src={thumbnailPreview ?? 'https://picsum.photos/50'}
-				alt="Playlist Thumbnail Preview"
+				alt="Game Thumbnail Preview"
 				class="photo-preview"
 			/>
 		</div>

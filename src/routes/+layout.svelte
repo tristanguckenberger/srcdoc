@@ -143,16 +143,16 @@
 				$modalFullInfoStore = null;
 			}
 
-			if ($platformSession?.currentUser?.profile_photo) {
+			if ($platformSession?.currentUser?.profile_photo && !$userPfpStore) {
 				userPfpStore.set($platformSession?.currentUser?.profile_photo);
 			}
-			if ($platformSession?.currentUser?.bio) {
+			if ($platformSession?.currentUser?.bio && !$userBioStore) {
 				userBioStore.set($platformSession?.currentUser?.bio);
 			}
-			if ($platformSession?.currentUser?.id) {
+			if ($platformSession?.currentUser?.id && !$userIdStore) {
 				userIdStore.set($platformSession?.currentUser?.id);
 			}
-			if ($platformSession?.currentUser?.username) {
+			if ($platformSession?.currentUser?.username && !$userUsernameStore) {
 				userUsernameStore.set($platformSession?.currentUser?.username);
 			}
 		}
@@ -386,19 +386,30 @@
 			}
 		]);
 	})();
-	$: if (browser && !$platformSession?.currentUser) {
-		platformSession.set({
-			...$platformSession,
-			currentUser: {
-				...$platformSession?.currentUser,
-				profile_photo: $userPfpStore,
-				bio: $userBioStore,
-				id: data?.userId ?? $userIdStore,
-				username: data?.username ?? $userUsernameStore,
-				is_active: data?.isActive
-			},
-			ready: true
-		});
+
+	$: {
+		if (
+			browser &&
+			(!$platformSession?.currentUser?.id ||
+				!$platformSession?.currentUser?.username ||
+				!$platformSession?.currentUser?.profile_photo ||
+				!$platformSession?.currentUser?.bio)
+		) {
+			platformSession.set({
+				...$platformSession,
+				currentUser: {
+					...$platformSession?.currentUser,
+					profile_photo: $userPfpStore,
+					bio: $userBioStore,
+					id: data?.userId ?? $userIdStore,
+					username: data?.username ?? $userUsernameStore,
+					is_active: data?.isActive
+				},
+				ready: true
+			});
+		} else {
+			console.log('$platformSession?.currentUser', $platformSession?.currentUser);
+		}
 	}
 	$: inactiveUser = $platformSession?.currentUser?.id && !$platformSession?.currentUser?.is_active;
 	$: console.log('$platformSession::', $platformSession);

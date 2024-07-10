@@ -74,7 +74,8 @@
 	// REACTIVE VARIABLES & STATEMENTS
 	$: cardLink = `/games/${id}/play`;
 	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: gameUserID = game?.userId ?? game?.user_id;
+	$: console.log('game::', game);
+	$: gameUserID = game?.user_id;
 	$: user = $platformSession?.currentUser;
 	$: loadedThumbnail = thumbnail ?? 'https://picsum.photos/300/300';
 </script>
@@ -159,7 +160,7 @@
 						</button>
 					</form>
 				</div>
-				{#if user?.id?.toString() === gameUserID?.toString()}
+				{#if $platformSession?.currentUser?.id?.toString() === game?.user_id?.toString()}
 					<Button link={`/games/${id}/engine`} label={'Edit in Engine'} />
 				{/if}
 			</div>

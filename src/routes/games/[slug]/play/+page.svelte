@@ -3,7 +3,6 @@
 	import Output from '$lib/ui/Output/Output.svelte';
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
 	import { getRootFileId } from '$lib/utils/getter.js';
-	import { session } from '$lib/stores/sessionStore.js';
 	import { tick } from 'svelte';
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
@@ -94,57 +93,47 @@
 		}
 	);
 
-	/**
-	 * Add game session activity
-	 * @param {string} gameSessionId
-	 * @param {string} action - start, stop, resume, pause
-	 * @returns {Promise<void>}
-	 */
-	const addGameSessionActivity = async (gameSessionId, action) => {
-		const addActivity = fetch(
-			`/api/games/sessions/${gameSessionId}/activities/createNewGameSessionActivity`,
-			{
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				mode: 'cors',
-				body: JSON.stringify({
-					action
-				})
-			}
-		);
-
-		const addActivityJSON = await addActivity;
-		const addActivityData = await addActivityJSON.json();
-	};
-
 	onMount(async () => {
 		firstRun.set(true);
-
-		modalFullInfoStore.set(null);
 
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
 		}
-
-		if (browser) {
-			// Check if our local info stores for the homePage has been viewed already
-			await tick();
-			if (!$gamePageInfoStore?.viewed) {
-				// if this isnt viewed, we wanna display the info modal overlay
-				$modalFullInfoStore = $gamePageInfoStore?.info;
-			}
-		}
+		allGamesData = data?.allGames ?? [];
+		// gamesData.set([...$gamesData, ...allGamesData]);
 	});
 
-	afterUpdate(() => {
-		if (data?.user?.id) {
-			session.set(data?.user);
+	// $: console.log('data::$gamesData::', $gamesData);
+	// $: console.log('data::', data);
+
+	function centerTarget(arr, target) {
+		const targetIndex = arr.findIndex((item) => item.id === target);
+
+		if (targetIndex === -1) {
+			throw new Error('Target not found in the array');
 		}
-	});
+
+		const result = [];
+		const len = arr.length;
+
+		// Add elements before the target
+		for (let i = 0; i < 2; i++) {
+			result.push(arr[(targetIndex - 2 + i + len) % len]);
+		}
+
+		// Add the target element
+		result.push(arr[targetIndex]);
+
+		// Add elements after the target
+		for (let i = 1; i <= 2; i++) {
+			result.push(arr[(targetIndex + i) % len]);
+		}
+
+		return result;
+	}
 
 	onDestroy(() => {
+		// gamesData.set([]);
 		fileStoreFiles.set(null);
 		focusedFileId.set(null);
 		focusedFolderId.set(null);
@@ -164,42 +153,10 @@
 		currentGame.set(null);
 	});
 
-	beforeNavigate((nav) => {
-		// Trigger end game session activity
-		if (gameSessionId) {
-			addGameSessionActivity(gameSessionId, 'Stop');
-		}
-	});
-
-	let newGamesData = [];
-	let gameSessionId;
-
-	// Reactive function to set gameSessionId
-	$: {
-		if (gameSessionId) {
-			gameSessionState.set({ id: gameSessionId });
-		} else {
-			gameSessionState.set(null);
-		}
-	}
-
-	// Reactive function to set gameSession
-	$: {
-		if (data?.id) {
-			gameSession.setInitialState({ currentGame: data?.currentGame });
-		}
-	}
-
 	$: play = $playButton;
-	$: {
-		if (!$gamesData || $gamesData?.length < 1) {
-			newGamesData = data?.baseGames;
-			gamesData.set(newGamesData);
-		}
-	}
 	$: data,
 		(() => {
-			if (data) baseDataStore.set(data);
+			if (data?.currentGame) baseDataStore.set(data?.currentGame);
 			fileStoreFiles.set($derivedFileSystemData);
 		})();
 	$: data,
@@ -294,9 +251,11 @@
 			}
 		]);
 	})();
-	$: data?.comments, (reactiveData = data ?? {});
-	$: data?.favorites, (favoriteData = data?.favorites ?? {});
-	$: allGamesData = data?.allGames ?? [];
+	$: favorites = data?.currentGame?.favorites;
+
+	$: console.log('favorites::', favorites);
+
+	$: gamesAvailableIds = gamesAvailable.map((game) => game.id);
 </script>
 
 <svelte:head>
@@ -317,7 +276,7 @@
 					rawGamesData={allGamesData}
 					{gamesAvailable}
 					currentGameExport={data?.currentGame}
-					bind:favoritesObj={favoriteData}
+					bind:favorites
 					bind:navActionHeight
 				/>
 			{/if}

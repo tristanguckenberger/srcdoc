@@ -23,24 +23,18 @@ const getAllFavoritesSingleGame = async (slug, eventFetch) => {
 
 	return favorites;
 };
-export async function load({ fetch, setHeaders }) {
-	const [allGames] = await Promise.all([fetchData(fetch, `/api/games/getAllGames/0`)]);
+export async function load({ fetch }) {
+	const allGames = await fetchData(fetch, `/api/games/paginated?limit=10&offset=0`);
+	let { games = [], total } = allGames;
 
-	let { games = [], nextCursor = 0 } = allGames;
-
-	const publishedGames = games?.filter((game) => game.published);
-
-	if (publishedGames.length > 0 && nextCursor === 0) {
-		nextCursor = publishedGames[publishedGames?.length - 1].id;
-	}
-
-	setHeaders({
-		'cache-control': 'max-age=60'
-	});
+	// setHeaders({
+	// 	'cache-control': 'max-age=60'
+	// });
 
 	return {
-		games: [...publishedGames],
-		nextCursor: nextCursor
+		games,
+		gamesIds: games.map((game) => game.id),
+		total
 	};
 }
 
@@ -166,6 +160,8 @@ export const actions = {
 		const formData = await request.formData();
 		const gameId = formData?.get('gameId');
 		const commentText = formData?.get('comment');
+
+		console.log('formData', formData);
 
 		const requestHeaders = new Headers();
 		requestHeaders.append('Content-Type', 'application/json');

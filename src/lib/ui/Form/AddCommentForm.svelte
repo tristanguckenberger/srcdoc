@@ -8,6 +8,7 @@
 	import { commentSystemExpanderStore, commentStoreComments } from '$lib/stores/commentStore.js';
 	import CustomInput from '$lib/ui/Input/CustomInput.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
+	import { platformSession } from '$lib/stores/platformSession';
 
 	export let gameId;
 	export let userId;
@@ -89,12 +90,11 @@
 	method="POST"
 	action="/games/?/addNewComment"
 	use:enhance={({ formElement, formData, action, cancel, redirect }) => {
-		return async ({ result }) => {
+		formData.set('comment', inputText);
+		formData.set('gameId', gameId);
+		return async ({ result, update }) => {
 			if (result.status === 200) {
-				await tick();
-				inputText = '';
-				commentText.set(inputText);
-				await invalidateAll();
+				await update();
 			} else {
 				await applyAction(result);
 			}
@@ -124,10 +124,9 @@
 		on:focus={async () => (showNewCommentActions = true) && (await tick())}
 		on:input={() => autoResize(`text-area-root`)}
 	/>
-	<CustomInput inputCapture={'gameId'} inputText={gameId} hidden />
 	{#if showNewCommentActions}
 		<div class="comment-action-container">
-			<Button label="Done" />
+			<Button label="Done" disabled={!$platformSession?.currentUser?.id} />
 			<button
 				class="isCancelButton"
 				formaction=""
