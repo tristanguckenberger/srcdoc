@@ -101,12 +101,6 @@ export const actions = {
 				cookies.set('isActive', JSON.stringify(user?.is_active), {
 					path: '/'
 				});
-				cookies.set('verificationToken', JSON.stringify(user?.verification_token), {
-					path: '/'
-				});
-				cookies.set('resetPasswordToken', JSON.stringify(user?.reset_password_token), {
-					path: '/'
-				});
 			} catch (error) {
 				console.error('cookieError::', error);
 			}
@@ -115,7 +109,7 @@ export const actions = {
 				status: 200,
 				body: {
 					message: 'login_success',
-					user: { ...user, password: '' },
+					user: { ...user, password: '', verification_token: '', reset_password_token: '' },
 					settings
 				}
 			};
