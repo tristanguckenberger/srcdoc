@@ -6,6 +6,26 @@ if [ ! -f package.json ]; then
     exit 1
 fi
 
+# Navigate to the parent directory
+cd ..
+
+# Check if srcdoc_server directory exists
+if [ ! -d "srcdoc_server" ]; then
+    echo "srcdoc_server directory not found. Cloning from GitHub..."
+    git clone https://github.com/tristanguckenberger/srcdoc_server.git
+else
+    echo "srcdoc_server directory already exists."
+fi
+
+# Change to the srcdoc_server directory
+cd srcdoc_server
+
+# Ensure the script is run from the project root
+if [ ! -f package.json ]; then
+    echo "Error: package.json not found in srcdoc_server. Please run this script from the correct directory."
+    exit 1
+fi
+
 
 # Prompt the user for input
 read -p "Enter the database user: " DB_USER
@@ -49,4 +69,4 @@ EOL
 
 echo "Server setup complete. Starting the server..."
 
-npm run start
+npm run start && cd ../srcdoc
