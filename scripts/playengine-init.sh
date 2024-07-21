@@ -12,4 +12,4 @@ echo 'Running server setup...'
 
 # 3. Setup and run the client
 echo 'Running client setup...'
-./setup-client.sh
+./scripts/setup-client.sh

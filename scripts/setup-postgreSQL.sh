@@ -46,19 +46,19 @@ role_exists() {
 if ! role_exists; then
     echo "Creating PostgreSQL role: $DB_USER"
     createuser -s "$DB_USER"
-    psql -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
+    psql -c "ALTER USER '$DB_USER' WITH PASSWORD '$DB_PASSWORD';"
 else
     echo "Role $DB_USER already exists."
 fi
 
 # Set PostgreSQL password for the user
-psql -U postgres -c "ALTER USER postgres PASSWORD '$DB_PASSWORD';"
+# psql -c "ALTER USER '$DB_USER' WITH PASSWORD '$DB_PASSWORD';"
 
 # Create the database
-createdb -U postgres $DB_NAME
+createdb -h localhost -U "$DB_USER" "$DB_NAME"
 
 # Create the tables
-psql -U postgres -d $DB_NAME -c "
+psql -U "$DB_USER" -d "$DB_NAME" -c "
 -- Table Definition ----------------------------------------------
 
 CREATE TABLE users (
@@ -79,10 +79,6 @@ CREATE TABLE users (
     reset_password_expires timestamp without time zone
 );
 
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX users_pkey ON users(id int4_ops);
-CREATE UNIQUE INDEX users_username_key ON users(username text_ops);
 
 
 CREATE TABLE games (
@@ -99,7 +95,6 @@ CREATE TABLE games (
 
 -- Indices -------------------------------------------------------
 
-CREATE UNIQUE INDEX games_pkey ON games(id int4_ops);
 CREATE INDEX tsv_idx ON games USING GIN (tsv tsvector_ops);
 CREATE INDEX idx_files_user_id ON games(user_id int4_ops);
 CREATE INDEX idx_games_user_id ON games(user_id int4_ops);
@@ -114,10 +109,6 @@ CREATE TABLE issues (
     issue_text text
 );
 
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX issues_pkey ON issues(id int4_ops);
-
 -- Table Definition ----------------------------------------------
 
 CREATE TABLE libraries (
@@ -125,11 +116,6 @@ CREATE TABLE libraries (
     name character varying(255) NOT NULL UNIQUE,
     url text NOT NULL
 );
-
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX libraries_name_key ON libraries(name text_ops);
-CREATE UNIQUE INDEX libraries_pkey ON libraries(id int4_ops);
 
 
 -- Table Definition ----------------------------------------------
@@ -146,10 +132,6 @@ CREATE TABLE notifications (
     read boolean DEFAULT false
 );
 
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX notifications_pkey ON notifications(id int4_ops);
-
 
 CREATE TABLE playlist (
     id SERIAL PRIMARY KEY,
@@ -165,8 +147,6 @@ CREATE TABLE playlist (
 );
 
 -- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX playlist_pkey ON playlist(id int4_ops);
 CREATE INDEX idx_playlist_owner_id ON playlist(owner_id int4_ops);
 CREATE INDEX idx_playlist_is_public ON playlist(is_public bool_ops);
 CREATE INDEX idx_playlist_is_category ON playlist(is_category bool_ops);
@@ -182,10 +162,6 @@ CREATE TABLE playlist_session (
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX playlist_session_pkey ON playlist_session(session_id int4_ops);
-
 
 -- Table Definition ----------------------------------------------
 
@@ -196,10 +172,6 @@ CREATE TABLE playlist_user_activity (
     created_at timestamp without time zone DEFAULT now(),
     updated_at timestamp without time zone DEFAULT now()
 );
-
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX playlist_user_activity_pkey ON playlist_user_activity(playlist_user_activity_id int4_ops);
 
 
 -- Table Definition ----------------------------------------------
@@ -218,10 +190,12 @@ CREATE TABLE reviews (
     CONSTRAINT reviews_user_id_game_id_key UNIQUE (user_id, game_id)
 );
 
--- Indices -------------------------------------------------------
+-- Table Definition ----------------------------------------------
 
-CREATE UNIQUE INDEX reviews_pkey ON reviews(id int4_ops);
-CREATE UNIQUE INDEX reviews_user_id_game_id_key ON reviews(user_id int4_ops,game_id int4_ops);
+CREATE TABLE tags (
+    id SERIAL PRIMARY KEY,
+    name text NOT NULL UNIQUE
+);
 
 
 
@@ -234,13 +208,6 @@ CREATE TABLE review_tags (
     timestamp timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT tags_review_id_tag_id_key UNIQUE (review_id, tag_id)
 );
-
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX review_tags_pkey ON review_tags(id int4_ops);
-CREATE UNIQUE INDEX tags_review_id_tag_id_key ON review_tags(review_id int4_ops,tag_id int4_ops);
-
-
 
 
 
@@ -257,7 +224,6 @@ CREATE TABLE activity (
 
 -- Indices -------------------------------------------------------
 
-CREATE UNIQUE INDEX activity_pkey ON activity(id int4_ops);
 CREATE INDEX idx_activity_user_id ON activity(user_id int4_ops);
 CREATE INDEX idx_activity_target_id ON activity(target_id int4_ops);
 CREATE INDEX idx_activity_timestamp ON activity(timestamp timestamp_ops);
@@ -275,10 +241,6 @@ CREATE TABLE comments (
     updated_at timestamp without time zone
 );
 
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX comments_pkey ON comments(id int4_ops);
-
 
 -- Table Definition ----------------------------------------------
 
@@ -288,10 +250,6 @@ CREATE TABLE dynamic_item (
     content jsonb,
     created_at timestamp without time zone
 );
-
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX dynamic_item_pkey ON dynamic_item(item_id int4_ops);
 
 
 -- Table Definition ----------------------------------------------
@@ -303,10 +261,6 @@ CREATE TABLE dynamic_item_priority (
     CONSTRAINT dynamic_item_priority_pkey PRIMARY KEY (item_id, user_id)
 );
 
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX dynamic_item_priority_pkey ON dynamic_item_priority(item_id int4_ops,user_id int4_ops);
-
 
 -- Table Definition ----------------------------------------------
 
@@ -317,11 +271,6 @@ CREATE TABLE dynamic_user_feed (
     CONSTRAINT dynamic_user_feed_pkey PRIMARY KEY (user_id, item_id)
 );
 
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX dynamic_user_feed_pkey ON dynamic_user_feed(user_id int4_ops,item_id int4_ops);
-
-
 -- Table Definition ----------------------------------------------
 
 CREATE TABLE favorites (
@@ -331,11 +280,6 @@ CREATE TABLE favorites (
     timestamp timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT favorites_user_id_game_id_key UNIQUE (user_id, game_id)
 );
-
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX favorites_pkey ON favorites(id int4_ops);
-CREATE UNIQUE INDEX favorites_user_id_game_id_key ON favorites(user_id int4_ops,game_id int4_ops);
 
 
 -- Table Definition ----------------------------------------------
@@ -353,7 +297,6 @@ CREATE TABLE files (
 
 -- Indices -------------------------------------------------------
 
-CREATE UNIQUE INDEX files_pkey ON files(id int4_ops);
 CREATE INDEX idx_files_game_id ON files(game_id int4_ops);
 CREATE INDEX idx_files_parent_file_id ON files(parent_file_id int4_ops);
 
@@ -367,9 +310,6 @@ CREATE TABLE follows (
     timestamp timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX follows_pkey ON follows(follow_id int4_ops);
 
 
 -- Table Definition ----------------------------------------------
@@ -379,10 +319,6 @@ CREATE TABLE game_libraries (
     libraryid integer REFERENCES libraries(id),
     CONSTRAINT game_libraries_pkey PRIMARY KEY (gameid, libraryid)
 );
-
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX game_libraries_pkey ON game_libraries(gameid int4_ops,libraryid int4_ops);
 
 
 -- Table Definition ----------------------------------------------
@@ -398,7 +334,6 @@ CREATE TABLE game_playlist (
 
 -- Indices -------------------------------------------------------
 
-CREATE UNIQUE INDEX game_playlist_pkey ON game_playlist(id int4_ops);
 CREATE INDEX idx_game_playlist_game_id ON game_playlist(game_id int4_ops);
 CREATE INDEX idx_game_playlist_playlist_id ON game_playlist(playlist_id int4_ops);
 
@@ -417,7 +352,6 @@ CREATE TABLE game_session (
 
 -- Indices -------------------------------------------------------
 
-CREATE UNIQUE INDEX game_session_pkey ON game_session(game_session_id int4_ops);
 CREATE INDEX idx_game_session_game_id ON game_session(game_id int4_ops);
 CREATE INDEX idx_game_session_user_id ON game_session(user_id int4_ops);
 
@@ -430,9 +364,6 @@ CREATE TABLE game_tags (
     CONSTRAINT game_tags_pkey PRIMARY KEY (game_id, tag_id)
 );
 
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX game_tags_pkey ON game_tags(game_id int4_ops,tag_id int4_ops);
 
 
 -- Table Definition ----------------------------------------------
@@ -440,14 +371,13 @@ CREATE UNIQUE INDEX game_tags_pkey ON game_tags(game_id int4_ops,tag_id int4_ops
 CREATE TABLE game_user_activity (
     game_user_activity_id SERIAL PRIMARY KEY,
     game_session_id integer NOT NULL REFERENCES game_session(game_session_id),
-    action game_action NOT NULL,
+    action character varying(50) NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Indices -------------------------------------------------------
 
-CREATE UNIQUE INDEX game_user_activity_pkey ON game_user_activity(game_user_activity_id int4_ops);
 CREATE INDEX idx_game_user_activity_game_session_id ON game_user_activity(game_session_id int4_ops);
 
 -- Table Definition ----------------------------------------------
@@ -461,7 +391,6 @@ CREATE TABLE user_activity_feed (
 
 -- Indices -------------------------------------------------------
 
-CREATE UNIQUE INDEX user_activity_feed_pkey ON user_activity_feed(id int4_ops);
 CREATE INDEX idx_user_activity_feed_activity_id ON user_activity_feed(activity_id int4_ops);
 CREATE INDEX idx_user_activity_feed_user_id ON user_activity_feed(user_id int4_ops);
 
@@ -474,9 +403,6 @@ CREATE TABLE user_personas (
     last_updated timestamp without time zone
 );
 
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX user_personas_pkey ON user_personas(user_id int4_ops);
 
 
 -- Table Definition ----------------------------------------------
@@ -491,7 +417,6 @@ CREATE TABLE user_playlist (
 
 -- Indices -------------------------------------------------------
 
-CREATE UNIQUE INDEX user_playlist_pkey ON user_playlist(id int4_ops);
 CREATE INDEX idx_user_playlist_user_id ON user_playlist(user_id int4_ops);
 CREATE INDEX idx_user_playlist_playlist_id ON user_playlist(playlist_id int4_ops);
 
@@ -508,11 +433,6 @@ CREATE TABLE user_review_approval (
     CONSTRAINT users_review_id_user_id_key UNIQUE (user_id, review_id)
 );
 
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX user_review_approval_pkey ON user_review_approval(id int4_ops);
-CREATE UNIQUE INDEX users_review_id_user_id_key ON user_review_approval(user_id int4_ops,review_id int4_ops);
-
 
 
 -- Table Definition ----------------------------------------------
@@ -528,17 +448,9 @@ CREATE TABLE user_settings (
     hide_pop_up_info_games boolean DEFAULT false,
     hide_pop_up_info_editor boolean DEFAULT false
 );
-
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX user_settings_pkey ON user_settings(id int4_ops);
-
-
--- Triggers and other such content
-
--- User triggers --
-
--- Create trigger to automatically update 'updated_date'
+"
+# Create the trigger functions
+psql -U "$DB_USER" -d "$DB_NAME" -c '
 CREATE OR REPLACE FUNCTION set_initial_updated_date()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -551,7 +463,7 @@ CREATE TRIGGER set_initial_updated_date_trigger
 BEFORE INSERT ON users
 FOR EACH ROW EXECUTE FUNCTION set_initial_updated_date();
 
--- Create or replace function to update 'updated_date'
+-- Create or replace function to update
 CREATE OR REPLACE FUNCTION update_updated_date()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -566,7 +478,7 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_date();
 
 -- game triggers
 
--- Create or replace function to update 'updated_date'
+-- Create or replace function to update
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -575,7 +487,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger to automatically update 'updated_date'
+-- Create trigger to automatically update
 CREATE TRIGGER update_updated_at_trigger
 BEFORE UPDATE ON games
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -602,12 +514,12 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS tsv TSVECTOR;
 ALTER TABLE comments ADD COLUMN IF NOT EXISTS tsv TSVECTOR;
 
 UPDATE games
-SET tsv = to_tsvector('english', title || ' ' || description || ' ');
+SET tsv = to_tsvector('\''english'\'', title || '\'' '\'' || description || '\'' '\'');
 
 -- For games
 CREATE OR REPLACE FUNCTION games_tsv_trigger() RETURNS trigger AS $$
 BEGIN
-  NEW.tsv := to_tsvector('english', coalesce(NEW.title,'') || ' ' || coalesce(NEW.description,''));
+  NEW.tsv := to_tsvector('\''english'\'', coalesce(NEW.title,'\'''\'') || '\'' '\'' || coalesce(NEW.description,'\'''\''));
   RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
@@ -615,7 +527,7 @@ $$ LANGUAGE plpgsql;
 -- For playlist
 CREATE OR REPLACE FUNCTION playlist_tsv_trigger() RETURNS trigger AS $$
 BEGIN
-  NEW.tsv := to_tsvector('english', coalesce(NEW.name,'') || ' ' || coalesce(NEW.description,''));
+  NEW.tsv := to_tsvector('\''english'\'', coalesce(NEW.name,'\'''\'') || '\'' '\'' || coalesce(NEW.description,'\'''\''));
   RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
@@ -623,7 +535,7 @@ $$ LANGUAGE plpgsql;
 -- For users
 CREATE OR REPLACE FUNCTION users_tsv_trigger() RETURNS trigger AS $$
 BEGIN
-  NEW.tsv := to_tsvector('english', coalesce(NEW.username,'') || ' ' || coalesce(NEW.bio,''));
+  NEW.tsv := to_tsvector('\''english'\'', coalesce(NEW.username,'\'''\'') || '\'' '\'' || coalesce(NEW.bio,'\'''\''));
   RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
@@ -631,7 +543,7 @@ $$ LANGUAGE plpgsql;
 -- For comments
 CREATE OR REPLACE FUNCTION comments_tsv_trigger() RETURNS trigger AS $$
 BEGIN
-  NEW.tsv := to_tsvector('english', NEW.comment_text);
+  NEW.tsv := to_tsvector('\''english'\'', NEW.comment_text);
   RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
@@ -652,16 +564,15 @@ FOR EACH ROW EXECUTE FUNCTION users_tsv_trigger();
 CREATE TRIGGER tsvupdate_comments BEFORE INSERT OR UPDATE ON comments
 FOR EACH ROW EXECUTE FUNCTION comments_tsv_trigger();
 
-CREATE INDEX tsv_idx ON games USING GIN (tsv);
 CREATE INDEX tsv_idx ON playlist USING GIN (tsv);
 CREATE INDEX tsv_idx ON users USING GIN (tsv);
 CREATE INDEX tsv_idx ON comments USING GIN (tsv);
 
 
 UPDATE users
-SET tsv = to_tsvector('english', username || ' ' || bio || ' ');
+SET tsv = to_tsvector('\''english'\'', username || '\'' '\'' || bio || '\'' '\'');
 UPDATE comments
-SET tsv = to_tsvector('english', comment_text || ' ');
+SET tsv = to_tsvector('\''english'\'', comment_text || '\'' '\'');
 
 CREATE INDEX idx_games_user_id ON games(user_id);
 
@@ -737,9 +648,9 @@ EXECUTE FUNCTION clear_expired_reset_tokens();
 CREATE OR REPLACE FUNCTION clear_expired_reset_tokens()
 RETURNS TRIGGER AS $$
 BEGIN
-  RAISE NOTICE 'Trigger fired for user ID: %', NEW.id;
+  RAISE NOTICE "Trigger fired for user ID: %", NEW.id;
   IF NEW.reset_password_expires IS NOT NULL AND NEW.reset_password_expires < NOW() THEN
-    RAISE NOTICE 'Clearing reset token and expiration for user ID: %', NEW.id;
+    RAISE NOTICE "Clearing reset token and expiration for user ID: %", NEW.id;
     NEW.reset_password_token := NULL;
     NEW.reset_password_expires := NULL;
   END IF;
@@ -763,7 +674,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger to automatically update 'updated_at'
+-- Create trigger to automatically update
 CREATE TRIGGER update_comments_updated_at_trigger
 BEFORE UPDATE ON comments
 FOR EACH ROW EXECUTE FUNCTION update_comments_updated_at();
@@ -811,6 +722,6 @@ CREATE TRIGGER after_activity_insert
 AFTER INSERT ON activity
 FOR EACH ROW
 EXECUTE FUNCTION insert_user_activity_feed();
-"
+'
 
 echo "Database and table setup complete."

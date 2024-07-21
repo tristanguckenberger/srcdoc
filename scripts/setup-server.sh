@@ -69,4 +69,4 @@ EOL
 
 echo "Server setup complete. Starting the server..."
 
-npm run start && cd ../srcdoc
+npm run start && cd ..
