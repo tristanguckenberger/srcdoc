@@ -30,6 +30,42 @@ cd srcdoc
 ./scripts/setup-postgreSQL.sh 
 ```
 
+4. Now run the servers setup script. You'll need the db info you just set. This will clone the server repo into the parent folder you created in the first step and then install node modules for you.
+```
+./scripts/setup-server.sh
+```
+Note: You will need to open config/db.js and ssl on line 12 to false, so this:
+```
+  ssl: {
+    rejectUnauthorized: false,
+    require: true,
+  },
+```
+
+becomes this:
+```
+  ssl: false,
+```
+
+5. You can start the server with the following command from the servers root \(but wait until after running the client setup script \):
+```
+npm run start
+```
+
+6. Now run the client setup script
+```
+./scripts/setup-client.sh
+```
+Note: This attempts to install the latest version of node using nvm. If this part fails no biggie, just make sure you have the latest version of node before running:
+```
+npm install
+```
+
+7. You can start the client with this command:
+```
+npm run dev
+```
+
 # Contributing
 - Contributions should be made to new "\[feat, fix\]::\[feature or fix\]_name_here" branches with Pull Requests on branch, "main"
 
