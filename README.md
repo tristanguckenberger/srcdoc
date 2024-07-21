@@ -11,27 +11,41 @@
 
 🛠 What's Next: Think multiplayer support, live code pairing, game controller integration, and even no-code options for the aspiring developer in all of us. Plus, a mobile app to keep the community thriving on the go.
 
+# Setup
+Note: the setup scripts provided are for macs, if you are using another OS, you will need to update the scripts accordingly or setup manually.
+
+1. On your computer create a folder and call it whatever you like
+```
+mkdir playengine
+```
+2. Clone the srcdoc project into that folder
+```
+git clone https://github.com/tristanguckenberger/srcdoc.git
+```
+3. Go into the srcdoc folder and run the following commands to
+setup postgresql. This will install postgresql if you dont already have it and will create a fresh db for your local project with tables and all.
+```
+cd srcdoc
+
+./scripts/setup-postgreSQL.sh 
+```
+
+# Contributing
+- Contributions should be made to new "\[feat, fix\]::\[feature or fix\]_name_here" branches with Pull Requests on branch, "main"
+
 # Play Engine Road Map
 ## MVP Beta
 
 ### Todo
-- Simplified Review System
 - User Points System
-- Activity Feeds
 - Direct Messaging
 - Feedback & Voting System
-- Friend System
-- Notifications
-- Simplified Game Profile & Management
-- Hosting Setup
-    - Register “play” subdomain for srcdoc.io, setup hosting for play.srcdoc.io
-    - Determine hosting architecture (vercel sveltekit, heroku server + database, at home, etc.)
+- Mobile responsiveness overhaul
 
 ## MVP Alpha
 
 ### Todo
 - Handle Tech Debt
-- Robust Authentication with redis
 - Robust EngineAPI w/ localStorage integration
 - Simplified CommunityAPI
 - Robust Game Profile & Management
