@@ -53,7 +53,7 @@ export async function load({ params, setHeaders, fetch, cookies }) {
 	const following = await getFollowing(fetch, user?.id);
 	const userPlaylists = await getAllPlaylistsByUser(fetch, user?.id);
 	const publicPlaylists = userPlaylists?.filter((playlist) => playlist.is_public);
-	const { activities, total } = await getUserActivities(fetch, user?.id, 50, 0); // Initial load with limit and offset
+	const { activities, total } = await getUserActivities(fetch, user?.id, 20, 0); // Initial load with limit and offset
 	const currentUser = cookies.get('userId');
 
 	setHeaders({

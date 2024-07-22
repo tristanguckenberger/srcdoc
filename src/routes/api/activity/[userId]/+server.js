@@ -3,7 +3,7 @@ import { json } from '@sveltejs/kit';
 
 export async function GET({ params, url }) {
 	const { userId } = params;
-	const limit = url.searchParams.get('limit') || 50;
+	const limit = url.searchParams.get('limit') || 20;
 	const offset = url.searchParams.get('offset') || 0;
 
 	const requestHeaders = new Headers();

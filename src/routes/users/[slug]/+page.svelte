@@ -29,7 +29,7 @@
 
 	let activities = writable(data.activities);
 	let totalActivities = data.total;
-	let limit = 50;
+	let limit = 20;
 	let offset = data.activities.length;
 	let loading = false;
 	let observer;
