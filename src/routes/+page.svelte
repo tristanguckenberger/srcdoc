@@ -876,7 +876,7 @@
 	.form-action.under {
 		padding: 0 10px;
 	}
-	:global(form) {
+	:global(.authentication .flexed-form form) {
 		height: fit-content !important;
 		padding-bottom: 10px;
 	}

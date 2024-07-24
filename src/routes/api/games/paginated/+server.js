@@ -1,10 +1,16 @@
 import { json } from '@sveltejs/kit';
 
-export async function GET({ setHeaders, url }) {
+export async function GET({ setHeaders, url, cookies }) {
 	const limit = url.searchParams.get('limit') ?? 50;
 	const offset = url.searchParams.get('offset') ?? 0;
-
+	const token = cookies.get('token');
 	const gpReqHeaders = new Headers();
+
+	if (token) {
+		gpReqHeaders.append('Authorization', `Bearer ${token}`);
+	} else {
+		gpReqHeaders.append('Authorization', 'bypassable');
+	}
 	const gpReqInit = {
 		method: 'GET',
 		headers: gpReqHeaders
