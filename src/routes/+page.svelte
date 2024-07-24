@@ -37,6 +37,8 @@
 	let lockedWidth = 0;
 	let lockedRightWidth = 0;
 	let previousShowAuthVal = false;
+	let pageWidth = 0;
+	let isMobile = false;
 	const authFlowOptions = [
 		{ option: 'register', component: SignUpForm },
 		{ option: 'login', component: SignInForm },
@@ -95,6 +97,7 @@
 	}
 	$: formSwitchAction = selected === authFlowOptions[0] ? 'Sign In' : 'Sign Up';
 	$: quickHide && setTimeout(() => (quickHide = false), 1000);
+	$: isMobile = pageWidth <= 768;
 
 	let centerLeftWidth;
 	let centerRightWidth;
@@ -145,7 +148,7 @@
 	});
 </script>
 
-<div class="main" style="--svg-bg: url('{Frame}');" class:sideBarOpen={$sideBarState}>
+<div class="main" style="--svg-bg: url('{Frame}');" class:sideBarOpen={$sideBarState} bind:clientWidth={pageWidth}>
 	<div
 		class="left"
 		class:fullWidth={!$showAuth}
@@ -258,7 +261,7 @@
 			out:slide={{ delay: 0, duration: 250, easing: quintOut, axis: 'x' }}
 			bind:clientWidth={rightWidth}
 		>
-			<div in:fade={{ delay: 750, duration: 600 }} out:fade={{ duration: 10 }}>
+			<div class:hide={isMobile} in:fade={{ delay: 750, duration: 600 }} out:fade={{ duration: 10 }}>
 				<Logo xDistance={$xDistanceStore} />
 			</div>
 			<button
@@ -279,7 +282,7 @@
 						<div class="flexed-form" class:sideBarOpen={$sideBarState}>
 							<svelte:component this={selected.component} />
 							{#if selected === authFlowOptions[1]}
-								<div class="form-action">
+								<div class="form-action under">
 									<span>Forgot Password?</span>
 									<Button
 										action={() => {
@@ -291,7 +294,7 @@
 								</div>
 							{/if}
 							{#if selected !== authFlowOptions[2]}
-								<div class="form-action">
+								<div class="form-action under">
 									<span>{formSwitchText}</span>
 									<Button
 										action={toggleAuthForm}
@@ -560,7 +563,7 @@
 		.flexed-form {
 			width: 80%;
 			padding: 0;
-			top: 100px;
+			/* top: 100px; */
 			/* height: 100%;
 			display: flex;
 			flex-direction: column;
@@ -703,6 +706,8 @@
 			z-index: 1000;
 			top: 0;
 			left: 0;
+			overflow-y: scroll;
+			overflow-x: hidden;
 		}
 		.right div.close {
 			display: block;
@@ -864,5 +869,15 @@
 	.engineSection h1 {
 		width: 80%;
 		margin-block-start: 0;
+	}
+	div.hide {
+		display: none;
+	}
+	.form-action.under {
+		padding: 0 10px;
+	}
+	:global(form) {
+		height: fit-content !important;
+		padding-bottom: 10px;
 	}
 </style>
