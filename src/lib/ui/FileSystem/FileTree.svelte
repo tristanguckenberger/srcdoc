@@ -303,7 +303,7 @@
 		if (file.name === 'assets') {
 			const fileInput = document.createElement('input');
 			fileInput.type = 'file';
-			fileInput.accept = 'image/*';
+			fileInput.accept = 'audio/*,.ogg,.wav,image/*';
 			fileInput.multiple = true;
 			fileInput.bind = { this: fileInput };
 			fileInput.style.display = 'none';
@@ -311,9 +311,25 @@
 				if (!event.target.files) return;
 
 				const parsedFiles = await parseFilesData([...event.target.files]);
-				parsedFiles.forEach((fileData) => {
+				parsedFiles.forEach(async (fileData) => {
 					const dataString = JSON.stringify(fileData?.content);
-					createFile(fileData.name, file, files, dataString);
+					const newUpload = createFile(fileData.name, file, files, dataString);
+
+					const returnedContent = await fetch(`/api/createFile`, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({ ...newUpload, gameId })
+					})
+						.then((res) => res.json())
+						.then((res) => {
+							if (res?.success) {
+								return res?.data;
+							} else {
+								console.error(res?.error);
+							}
+						});
 				});
 			});
 

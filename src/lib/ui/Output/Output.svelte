@@ -176,11 +176,9 @@
 			switch (e.data.event) {
 				case 'start-game':
 					await gameInit();
-
 					break;
 				case 'update-score':
 					const score = e?.data?.value;
-
 					$gameSessionScore = score;
 					break;
 				case 'stop-game':

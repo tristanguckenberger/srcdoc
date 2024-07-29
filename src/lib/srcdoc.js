@@ -180,7 +180,13 @@ const generateSrcDoc = (files, clientDimensions) => {
 	const assetLookupString = () => {
 		const assetLookup = {};
 		files?.forEach((file) => {
-			if (file?.type === 'image' || file?.type === 'audio' || file?.type === 'png') {
+			if (
+				file?.type === 'image' ||
+				file?.type === 'audio' ||
+				file?.type === 'ogg' ||
+				file?.type === 'wav' ||
+				file?.type === 'png'
+			) {
 				assetLookup[`${file.name}.${file.type}`] = file?.content;
 			}
 		});
