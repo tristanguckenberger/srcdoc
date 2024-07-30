@@ -1,7 +1,7 @@
 <script>
 	// @ts-nocheck
 	import { enhance, applyAction } from '$app/forms';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, tick } from 'svelte';
 	import { modalProps, modalState, modalOpenState } from '$lib/stores/layoutStore.js';
 	import CustomInput from '$lib/ui/Input/CustomInput.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
@@ -14,6 +14,7 @@
 	export let bio = $modalProps?.bio;
 
 	let profilePhotoPreview = profile_photo; // Assuming 'profile_photo' is the current photo URL
+	let fileObj;
 
 	function handleFileChange(event) {
 		if (profilePhotoPreview && profilePhotoPreview.startsWith('blob:')) {
@@ -24,6 +25,9 @@
 
 		if (file) {
 			profilePhotoPreview = URL.createObjectURL(file);
+			fileObj = file;
+			console.log('file::', file);
+
 		}
 	}
 
@@ -40,7 +44,9 @@
 	action={`/users/${id}/?/updateUserDetails`}
 	enctype="multipart/form-data"
 	use:enhance={({ formElement, formData, action, cancel, redirect }) => {
-		return async ({ result }) => {
+		formData.set('profilePhoto', fileObj);
+		return async ({ result, update }) => {
+			await update();
 			if (result.status === 200) {
 				modalOpenState.set(false);
 				drawerOpen.set(false);

@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { redirect } from '@sveltejs/kit';
 import { getFollowers, getFollowing } from '../../api/utils/getFuncs.js';
+import { put } from '@vercel/blob';
 
 const getUser = async (/** @type {String} */ id) => {
 	if (id) {
@@ -106,19 +107,41 @@ export const actions = {
 			}
 		};
 	},
-	updateUserDetails: async ({ cookies, request, params }) => {
+	updateUserDetails: async ({ cookies, request, params, fetch }) => {
 		const token = cookies.get('token');
 		const { slug } = params;
 
 		const formData = await request.formData();
+		const profilePhoto = formData.get('profilePhoto');
+		const username = formData.get('username');
+		const bio = formData.get('bio');
+		let profilePhotoURL;
+
+		if (profilePhoto) {
+			try {
+				const { url } = await put(profilePhoto.name, profilePhoto, { access: 'public' });
+				profilePhotoURL = url;
+			} catch (error) {
+				console.log('error uploading photo::', error);
+			}
+		} else {
+			console.log('No profilePhoto provided::');
+		}
+
 		const requestHeaders = new Headers();
 		requestHeaders.append('Authorization', `Bearer ${token}`);
+		requestHeaders.append('Content-Type', 'application/json');
+		const body = JSON.stringify({
+			username,
+			bio,
+			profilePhoto: profilePhotoURL
+		});
 
 		const requestInit = {
 			method: 'PUT',
 			mode: 'cors',
 			headers: requestHeaders,
-			body: formData
+			body
 		};
 
 		const response = await fetch(`${process.env.SERVER_URL}/api/users/update/${slug}`, requestInit);

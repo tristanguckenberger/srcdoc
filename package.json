@@ -40,6 +40,7 @@
 	"dependencies": {
 		"@sveltejs/vite-plugin-svelte": "^3.1.1",
 		"@vercel/analytics": "^1.1.2",
+		"@vercel/blob": "^0.23.4",
 		"dotenv": "^16.3.1",
 		"embla-carousel-svelte": "^8.0.0-rc17",
 		"embla-carousel-wheel-gestures": "^8.0.0-rc05",
