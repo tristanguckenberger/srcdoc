@@ -31,6 +31,7 @@
 			}, 500);
 
 			if (result) {
+				console.log('result::', result?.data?.body);
 				message = result?.data?.body?.message;
 			}
 		};

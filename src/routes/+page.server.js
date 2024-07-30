@@ -321,13 +321,11 @@ export const actions = {
 		};
 
 		const response = await fetch(`${process.env.SERVER_URL}/api/auth/forgot-password`, requestInit);
-		const { message } = await response.json();
+		const body = await response.json();
 
 		return {
 			status: 200,
-			body: {
-				message
-			}
+			body
 		};
 	},
 	resetPassword: async ({ request }) => {

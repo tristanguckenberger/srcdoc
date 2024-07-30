@@ -8,8 +8,9 @@ const verifyToken = async (eventFetch, token) => {
 		);
 		tokenVerified = await verificationRes.json();
 	} catch (error) {
+		console.log('error::', error);
 		console.error('error::', error);
-		throw redirect(303, `/`);
+		// throw redirect(303, `/`);
 	}
 
 	return tokenVerified;
@@ -19,8 +20,11 @@ export async function load({ params, fetch }) {
 	const { token } = params;
 
 	if (!token) {
+		console.log('No token...');
 		throw redirect(303, `/`);
 	}
+
+	console.log('token::', token);
 
 	const didVerify = await verifyToken(fetch, token);
 
