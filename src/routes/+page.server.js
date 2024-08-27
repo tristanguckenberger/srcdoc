@@ -101,6 +101,9 @@ export const actions = {
 				cookies.set('isActive', JSON.stringify(user?.is_active), {
 					path: '/'
 				});
+				cookies.set('profile_photo', user?.profile_photo, {
+					path: '/'
+				});
 			} catch (error) {
 				console.error('cookieError::', error);
 			}

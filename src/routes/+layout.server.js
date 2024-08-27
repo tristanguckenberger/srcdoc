@@ -6,6 +6,7 @@ export async function load({ fetch, cookies }) {
 	const userId = cookies?.get('userId');
 	const isActive = cookies?.get('isActive');
 	const username = cookies?.get('username');
+	const profile_photo = cookies?.get('profile_photo');
 
 	if (token) {
 		const followers = await getFollowers(fetch, userId);
@@ -16,7 +17,8 @@ export async function load({ fetch, cookies }) {
 			following,
 			isActive: JSON.parse(isActive),
 			username: JSON.parse(username),
-			userId
+			userId,
+			profile_photo
 		};
 	}
 
@@ -25,6 +27,7 @@ export async function load({ fetch, cookies }) {
 		following: null,
 		isActive: false,
 		username: null,
-		userId: null
+		userId: null,
+		profile_photo: null
 	};
 }

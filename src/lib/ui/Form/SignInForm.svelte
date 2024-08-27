@@ -55,11 +55,11 @@
 				setTimeout(async () => {
 					if (browser) {
 						platformSession?.set({
-							currentUser: result?.data?.body?.user,
-							settings: result?.data?.body?.settings,
-							ready: true
-						});
-					}
+								currentUser: {...result?.data?.body?.user},
+								settings: result?.data?.body?.settings,
+								ready: false
+							});
+						}
 					try {
 						connectWebSocket(result?.data?.body?.user?.id);
 					} catch (error) {

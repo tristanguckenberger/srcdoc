@@ -113,7 +113,7 @@
 	onMount(async () => {
 		inject({ mode: dev ? 'development' : 'production' });
 
-		if (browser) {
+		// if (browser) {
 			// preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
 			// preferedThemeMode?.addEventListener('change', updateTheme);
 			updateTheme(preferedThemeMode);
@@ -143,19 +143,23 @@
 				$modalFullInfoStore = null;
 			}
 
-			if ($platformSession?.currentUser?.profile_photo && !$userPfpStore) {
-				userPfpStore.set($platformSession?.currentUser?.profile_photo);
+			if (!$platformSession?.ready) {
+				if ($platformSession?.currentUser?.profile_photo) {
+					userPfpStore.set($platformSession?.currentUser?.profile_photo);
+				}
+				if ($platformSession?.currentUser?.bio) {
+					userBioStore.set($platformSession?.currentUser?.bio);
+				}
+				if ($platformSession?.currentUser?.id) {
+					userIdStore.set($platformSession?.currentUser?.id);
+				}
+				if ($platformSession?.currentUser?.username) {
+					userUsernameStore.set($platformSession?.currentUser?.username);
+				}
+
+				$platformSession.ready = true;
 			}
-			if ($platformSession?.currentUser?.bio && !$userBioStore) {
-				userBioStore.set($platformSession?.currentUser?.bio);
-			}
-			if ($platformSession?.currentUser?.id && !$userIdStore) {
-				userIdStore.set($platformSession?.currentUser?.id);
-			}
-			if ($platformSession?.currentUser?.username && !$userUsernameStore) {
-				userUsernameStore.set($platformSession?.currentUser?.username);
-			}
-		}
+		// }
 
 		// try this in an onMount and an afterUpdate
 		mainPageElement = mainElement?.querySelector('.main');
@@ -223,16 +227,24 @@
 
 		deleteOrCreateFav = isFavorited ?? false;
 
-		if ($platformSession?.currentUser?.profile_photo && !$userPfpStore) {
-			userPfpStore.set($platformSession?.currentUser?.profile_photo);
-		}
-		if ($platformSession?.currentUser?.bio && !$userBioStore) {
-			userBioStore.set($platformSession?.currentUser?.bio);
-		}
-		if ($platformSession?.currentUser?.id && !$userIdStore) {
-			userIdStore.set($platformSession?.currentUser?.id);
+		if (!$platformSession?.ready) {
+			if ($platformSession?.currentUser?.profile_photo) {
+				userPfpStore.set($platformSession?.currentUser?.profile_photo);
+			}
+			if ($platformSession?.currentUser?.bio) {
+				userBioStore.set($platformSession?.currentUser?.bio);
+			}
+			if ($platformSession?.currentUser?.id) {
+				userIdStore.set($platformSession?.currentUser?.id);
+			}
+			if ($platformSession?.currentUser?.username) {
+				userUsernameStore.set($platformSession?.currentUser?.username);
+			}
+
+			$platformSession.ready = true;
 		}
 	});
+
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
@@ -388,6 +400,12 @@
 	})();
 
 	$: {
+		if (data?.profile_photo) {
+			$userPfpStore = data?.profile_photo;
+		}
+	}
+
+	$: {
 		if (
 			browser &&
 			(!$platformSession?.currentUser?.id ||
@@ -399,7 +417,7 @@
 				...$platformSession,
 				currentUser: {
 					...$platformSession?.currentUser,
-					profile_photo: $userPfpStore,
+					profile_photo: data?.profile_photo ?? $userPfpStore,
 					bio: $userBioStore,
 					id: data?.userId ?? $userIdStore,
 					username: data?.username ?? $userUsernameStore,
