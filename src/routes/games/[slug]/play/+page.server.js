@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { put } from '@vercel/blob';
+
 async function fetchData(eventFetch, endpoint) {
 	try {
 		const response = await eventFetch(endpoint);
@@ -80,19 +82,42 @@ export const actions = {
 			}
 		};
 	}, //,
-	updateDetails: async ({ cookies, request, params, setHeaders }) => {
+	updateDetails: async ({ cookies, request, params, fetch }) => {
 		const token = cookies.get('token');
 		const { slug } = params;
 		const formData = await request.formData();
+		const thumbnail = formData.get('thumbnail');
+		const published = formData.get('published');
+		const title = formData.get('title');
+		const description = formData.get('description');
+		const gameId = formData.get('gameId');
+		let thumbnailURL;
+
+		if (thumbnail) {
+			try {
+				const { url } = await put(thumbnail.name, thumbnail, { access: 'public' });
+				thumbnailURL = url;
+			} catch (error) {
+				console.log('error uploading photo::', error);
+			}
+		}
 
 		const requestHeaders = new Headers();
 		requestHeaders.append('Authorization', `Bearer ${token}`);
+		requestHeaders.append('Content-Type', 'application/json');
+		const body = JSON.stringify({
+			published,
+			title,
+			description,
+			gameId,
+			thumbnail: thumbnailURL
+		});
 
 		const requestInit = {
 			method: 'PUT',
 			mode: 'cors',
 			headers: requestHeaders,
-			body: formData
+			body
 		};
 
 		const authResponse = await fetch(
@@ -102,18 +127,18 @@ export const actions = {
 
 		if (!authResponse.ok) {
 			return {
-				status: 401,
+				status: authResponse.status,
 				body: {
-					message: 'Failed to update project'
+					message: 'Failed to update project details'
 				}
 			};
 		}
 
 		const project = await authResponse.json();
 
-		setHeaders({
-			'cache-control': 'no-store, max-age=0'
-		});
+		// setHeaders({
+		// 	'cache-control': 'no-store, max-age=0'
+		// });
 
 		return {
 			body: {
