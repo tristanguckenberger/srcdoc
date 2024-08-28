@@ -243,6 +243,9 @@
 		#editor-layout {
 			height: unset !important;
 		}
+		#editor-layout.playInRoute {
+			border-radius: 0 !important;
+		}
 		#editor-layout.engineInRoute {
 			height: calc(100% - 76.5px) !important;
 			margin-left: 10px !important;

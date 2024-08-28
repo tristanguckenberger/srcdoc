@@ -40,12 +40,17 @@
 
 	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
 	$: verifyInRoute = $page?.route?.id?.split('/').some((path) => path === 'verify');
+	$: libraryInRoute = $page?.route?.id?.split('/').some((path) => path === 'library');
+	$: splitPath = $page?.route?.id?.split('/') ?? [];
+	$: userProfilePageInRoute = splitPath[splitPath?.length - 1] === '[slug]' && splitPath[splitPath?.length - 2] === 'users';
 	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
 <div
 	id="editor-layout"
 	class:verifyInRoute
+	class:libraryInRoute
+	class:userProfilePageInRoute
 	class:sideBarOpen={$sideBarState}
 	style="{themeString} --theme-or-highlight: {$tweenedColor};"
 >
@@ -84,6 +89,15 @@
 			width: 100% !important;
 			height: 100% !important;
 			margin: 0 !important;
+		}
+		#editor-layout.libraryInRoute {
+    		height: calc(100% + -20px);
+    		margin-left: 10px;
+		}
+		#editor-layout.userProfilePageInRoute {
+			height: calc(100% - 30px);
+			margin-left: 10px;
+			margin-top: 10px;
 		}
 	}
 
