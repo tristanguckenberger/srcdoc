@@ -28,6 +28,7 @@
 	import GeneralTab from '$lib/ui/SettingsTabs/GeneralTab.svelte';
 	import { platformSession } from '$lib/stores/platformSession';
 	import Follows from '$lib/ui/Follows/index.svelte';
+	import ColorPicker from '$lib/ui/ColorPicker/index.svelte';
 
 	export let userId;
 	export let userSettings;
@@ -35,12 +36,13 @@
 	export let followers;
 	export let following;
 
-	let hidePopUpInfoHome = false;
-	let hidePopUpInfoGames = false;
-	let hidePopUpInfoEditor = false;
+	let hidePopUpInfoHome = true;
+	let hidePopUpInfoGames = true;
+	let hidePopUpInfoEditor = true;
 	let darkMode = true;
 	let updating = false;
 	let themeString = '';
+	let userAccentColor;
 
 	const getSettings = async () => {
 		const settingsRes = await fetch(`/api/settings/byUser/get`);
@@ -75,6 +77,7 @@
 					hidePopUpInfoHome = $settingsStore?.hide_pop_up_info_home;
 					hidePopUpInfoGames = $settingsStore?.hide_pop_up_info_games;
 					hidePopUpInfoEditor = $settingsStore?.hide_pop_up_info_editor;
+					userAccentColor = $settingsStore?.user_accent_color;
 				}
 			}
 		};
@@ -105,6 +108,7 @@ Settings
 						formData.set('hidePopUpInfoGames', hidePopUpInfoGames);
 						formData.set('hidePopUpInfoEditor', hidePopUpInfoEditor);
 						formData.set('darkMode', darkMode);
+						formData.set('userAccentColor', userAccentColor);
 
 						updating = true;
 
@@ -116,34 +120,36 @@ Settings
 
 							if (result?.status === 200) {
 								await tick();
-								homePageInfoStore.set({
-									...$homePageInfoStore,
-									viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_home)
-								});
-								gamePageInfoStore.set({
-									...$gamePageInfoStore,
-									viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_games)
-								});
-								editorPageInfoStore.set({
-									...$editorPageInfoStore,
-									viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_editor)
-								});
+								// homePageInfoStore.set({
+								// 	...$homePageInfoStore,
+								// 	viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_home)
+								// });
+								// gamePageInfoStore.set({
+								// 	...$gamePageInfoStore,
+								// 	viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_games)
+								// });
+								// editorPageInfoStore.set({
+								// 	...$editorPageInfoStore,
+								// 	viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_editor)
+								// });
 								await invalidateAll();
 							}
 						};
 					}}
 				>
-					<CustomInput inputCapture={'hidePopUpInfoHome'} inputValue={hidePopUpInfoHome} hidden />
+					<!-- <CustomInput inputCapture={'hidePopUpInfoHome'} inputValue={hidePopUpInfoHome} hidden />
 					<ToggleSwitch
 						bind:value={hidePopUpInfoHome}
 						label="Disable Home Tutorial Pop-up"
 						design="slider"
+						hidden
 					/>
 					<CustomInput inputCapture={'hidePopUpInfoGames'} inputValue={hidePopUpInfoGames} hidden />
 					<ToggleSwitch
 						bind:value={hidePopUpInfoGames}
 						label="Disable Game Tutorial Pop-up"
 						design="slider"
+						hidden
 					/>
 					<CustomInput
 						inputCapture={'hidePopUpInfoEditor'}
@@ -154,7 +160,9 @@ Settings
 						bind:value={hidePopUpInfoEditor}
 						label="Disable Editor Tutorial Pop-up"
 						design="slider"
-					/>
+						hidden
+					/> -->
+					<ColorPicker bind:color={userAccentColor} />
 					<Button
 						bind:creating={updating}
 						label="Update Details"

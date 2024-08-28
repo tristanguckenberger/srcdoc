@@ -277,6 +277,7 @@ export const actions = {
 		const hide_pop_up_info_home = formData?.get('hidePopUpInfoHome');
 		const hide_pop_up_info_games = formData?.get('hidePopUpInfoGames');
 		const hide_pop_up_info_editor = formData?.get('hidePopUpInfoEditor');
+		const user_accent_color = formData?.get('userAccentColor');
 		// const dark_mode = formData?.get('darkMode');
 		const requestHeaders = new Headers();
 
@@ -292,6 +293,7 @@ export const actions = {
 				hide_pop_up_info_home: hide_pop_up_info_home,
 				hide_pop_up_info_games: hide_pop_up_info_games,
 				hide_pop_up_info_editor: hide_pop_up_info_editor,
+				user_accent_color,
 				dark_mode: true
 			})
 		};

@@ -109,6 +109,12 @@
 			triggerNavigation.set(true);
 		}, 300);
 	};
+	const getSettings = async () => {
+		const settingsRes = await fetch(`/api/settings/byUser/get`);
+		const settings = await settingsRes.json();
+
+		return settings;
+	};
 	const debouncedScrollForward = debounce(handleScrollForward, 350);
 	onMount(async () => {
 		inject({ mode: dev ? 'development' : 'production' });
@@ -142,6 +148,17 @@
 				});
 				$modalFullInfoStore = null;
 			}
+			const userId = data?.userId ?? $userIdStore;
+			const init = async () => {
+				if (browser && userId && !$settingsStore) {
+					const settingsRes = await getSettings();
+
+					if (settingsRes) {
+						settingsStore.set(settingsRes);
+					}
+				}
+			};
+			
 
 			if (!$platformSession?.ready) {
 				if ($platformSession?.currentUser?.profile_photo) {
@@ -168,6 +185,7 @@
 		// return () => {
 		// 	preferedThemeMode?.removeListener('change', updateTheme);
 		// };
+		init();
 	});
 	beforeNavigate(async (nav) => {
 		if (gameSessionId) {

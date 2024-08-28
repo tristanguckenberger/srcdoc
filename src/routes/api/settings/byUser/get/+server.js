@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { json } from '@sveltejs/kit';
 
-export async function GET({ cookies }) {
+export async function GET({ cookies, setHeaders }) {
 	const token = cookies?.get('token');
 	const requestHeaders = new Headers();
 
@@ -32,5 +32,9 @@ export async function GET({ cookies }) {
 	} catch (error) {
 		console.log('gameResponse::error::', error);
 	}
+	setHeaders({
+		'cache-control': 'max-age=60'
+	});
+
 	return json(settings);
 }
