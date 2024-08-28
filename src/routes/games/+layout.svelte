@@ -239,4 +239,13 @@
 	#editor-layout.isGamesPage {
 		margin-bottom: 10px;
 	}
+	@media (max-width: 498px) {
+		#editor-layout {
+			height: unset !important;
+		}
+		#editor-layout.engineInRoute {
+			height: calc(100% - 76.5px) !important;
+			margin-left: 10px !important;
+		}
+	}
 </style>
