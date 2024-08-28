@@ -33,7 +33,7 @@
 	$: quickHide && setTimeout(() => (quickHide = false), 1000);
 </script>
 
-<div class="main" style="--svg-bg: url('{Frame}');">
+<div class="main verify" style="--svg-bg: url('{Frame}');">
 	<div class="auth-container">
 		<div class="authentication" class:quickHide>
 			<div class="form-container" class:isSignIn={true} class:showSideBar={$sideBarState}>
@@ -91,19 +91,6 @@
 		position: relative;
 		bottom: 7vh;
 	}
-	.hero {
-		width: 400px;
-		position: relative;
-		bottom: 6vh;
-		left: 0px;
-		z-index: 1;
-	}
-	.hero svg {
-		width: 100%;
-		height: 100%;
-		left: 7.335px;
-		position: relative;
-	}
 	.form-container {
 		display: flex;
 		width: fit-content;
@@ -122,19 +109,6 @@
 		font-size: 1.5rem;
 		color: #2e324c;
 		margin-block-start: 1.5rem;
-	}
-	.form-action {
-		display: flex;
-		padding: 10px;
-		align-items: center;
-		gap: 0px;
-	}
-
-	.form-action span {
-		font-family: 'Nunito', sans-serif;
-		font-weight: 600;
-		font-size: 0.9rem;
-		color: #ffffff;
 	}
 	.auth-container {
 		flex-grow: 1;
@@ -167,19 +141,11 @@
 			transform: rotate(0deg);
 		}
 	}
-	.gPath {
-		transition: animation 0.5s linear;
-		animation: clockwise 10s infinite linear;
-		transform-origin: 2746.21px 607.41px;
-	}
-	/* .gPath:hover {
-		animation: counter-clockwise 10s infinite linear;
-	} */
 	.flexed-form {
 		width: calc(100% - 20px);
 		height: calc(100% - 20px);
 		border-radius: 55px;
-		background-color: #2e324c;
+		/* background-color: #2e324c; */
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
@@ -212,14 +178,11 @@
 		border-top-right-radius: 55px; */
 
 		height: calc(100%);
-		width: calc(100%);
+		width: calc(100%) !important;
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
-	}
-	.main.sideBarOpen {
-		width: calc(100% - 230px);
 	}
 	:global(#split-output) {
 		height: 100%;
@@ -257,27 +220,6 @@
 		height: 112%;
 		background-color: #2e324c;
 	}
-	.hero {
-		width: 39%;
-		height: 25%;
-		position: absolute;
-		top: 0;
-		/* left: 20px; */
-		z-index: 1;
-		display: none;
-	}
-	.hero svg {
-		width: 100%;
-		height: 100%;
-		/* left: 7.335px; */
-		position: relative;
-	}
-
-	:global(.showSideBar) .hero,
-	:global(.showSideBar) .auth-container {
-		/* right: 115px; */
-		/* left: unset; */
-	}
 	.form-container {
 		display: flex;
 		width: 100%;
@@ -288,27 +230,12 @@
 		padding: 8px;
 		transition: all 0.5s linear; */
 	}
-	.form-container {
-		/* width: 613px; */
-	}
 	:global(form h1) {
 		font-family: 'Rubik', sans-serif;
 		font-weight: 500;
 		font-size: 1.5rem;
 		color: #2e324c;
 		margin-block-start: 1.5rem;
-	}
-	.form-action {
-		display: flex;
-		padding: 10px;
-		align-items: center;
-		gap: 0px;
-	}
-	.form-action span {
-		font-family: 'Nunito', sans-serif;
-		font-weight: 600;
-		font-size: 0.9rem;
-		color: #ffffff;
 	}
 	.auth-container {
 		flex-grow: 1;
@@ -341,15 +268,6 @@
 			transform: rotate(0deg);
 		}
 	}
-	.gPath {
-		transition: animation 0.5s linear;
-		animation: clockwise 10s infinite linear;
-		transform-origin: 2746.21px 607.41px;
-		x: 10%;
-	}
-	/* .gPath:hover {
-		animation: counter-clockwise 10s infinite linear;
-	} */
 	.flexed-form {
 		width: 100%;
 		height: 100%;
@@ -357,34 +275,14 @@
 		flex-direction: column;
 		gap: 20px;
 		/* padding: 10% 40%; */
+		align-items: center;
 		top: 350px;
 		position: relative;
-	}
-	.flexed-form.sideBarOpen {
-		/* padding: 10% 40%; */
 	}
 	.authentication {
 		/* transition: opacity 5ms linear; */
 		max-height: 716.08px;
 		width: 100%;
-	}
-	.authentication.quickHide {
-		/* opacity: 0; */
-	}
-	.horizontal-slider {
-		height: 100%;
-		width: 100%;
-		background: red;
-		z-index: 10000;
-		position: relative;
-		display: flex;
-	}
-	.slide {
-		width: 100%;
-		height: 100%;
-		overflow-x: scroll;
-		scroll-snap-align: center;
-		position: absolute;
 	}
 	@media (max-width: 768px) {
 		.form-container {
@@ -411,6 +309,7 @@
 		height: 100%;
 		display: flex;
 		justify-content: center;
+		background-color: var(--color-secondary);
 	}
 
 	.form-container.showSideBar {
@@ -421,15 +320,6 @@
 		.auth-container {
 			top: unset;
 			bottom: unset;
-		}
-		.hero {
-			width: 78%;
-			height: 30%;
-			position: absolute;
-			top: 0;
-			left: 53px;
-			z-index: 1;
-			display: none;
 		}
 		.authentication {
 			max-height: unset !important;
@@ -456,4 +346,14 @@
 			flex-direction: column !important;
 		}
 	}
+	:global(#editor-layout.verifyInRoute) {
+		width: 100% !important;
+		margin-left: 0 !important;
+
+	}
+	:global(#editor-layout.verifyInRoute) div.main.verify { 
+		width: 100% !important;
+
+	}
+
 </style>

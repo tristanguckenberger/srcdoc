@@ -2,10 +2,12 @@
 	// @ts-nocheck
 	import VerificationCodeInput from '../Input/VerificationCodeInput.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
+	import { writable } from 'svelte/store';
 	import { icons } from '$lib/stores/themeStore.js';
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 
+	let boundInputHeight = writable(0);
 	let updating = false;
 </script>
 
@@ -26,19 +28,21 @@
 			}
 		};
 	}}
->
-	<VerificationCodeInput>
-		<span slot="label" class="input-label">Verfication Code</span>
-		<div slot="icon" class="input-icon">
-			{@html $icons.password}
-		</div>
-	</VerificationCodeInput>
-	<Button bind:creating={updating} label="Verify Me" isRounded />
+>	<div bind:clientHeight={$boundInputHeight}>
+		<VerificationCodeInput>
+			<span slot="label" class="input-label">Verfication Token</span>
+			<!-- <div slot="icon" class="input-icon">
+				{@html $icons.password}
+			</div> -->
+		</VerificationCodeInput>
+	</div>
+	<Button bind:creating={updating} label="Continue" style="border-radius: 6px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; height: {$boundInputHeight -
+			24.5}px; max-height: unset;" />
 </form>
 
 <style>
 	form {
-		width: 100%;
+		width: 50vmax;
 		height: 100%;
 		display: flex;
 		flex-direction: column;

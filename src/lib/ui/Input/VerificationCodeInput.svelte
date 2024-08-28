@@ -3,12 +3,15 @@
 	import { verifactionRequestCode } from '$lib/stores/authStore';
 
 	let inputText = '';
+	let labelFocused = false;
 	$: verifactionRequestCode.set(inputText);
 	export let blurAction = () => {};
 </script>
 
 <div class="input-container">
-	<slot name="label" />
+	<div class="label-container" class:labelFocused={labelFocused || inputText !== ''}>
+		<slot name="label" />
+	</div>
 	<div class="row">
 		<slot name="icon" />
 		<input
@@ -18,6 +21,8 @@
 			on:blur={() => {
 				blurAction();
 			}}
+			on:focusin={() => (labelFocused = true)}
+			on:focusout={() => (labelFocused = false)}
 		/>
 	</div>
 </div>
@@ -32,24 +37,29 @@
 		flex-direction: row;
 		gap: 10px;
 		border-radius: 4px;
-		background-color: var(--input-bg);
+		border: 2px solid var(--vibrant-blue);
 		padding: 1px;
 		margin-top: 4px;
 	}
 	:global(.input-label) {
-		font-weight: 500;
-		font-size: 1rem;
-		font-family: var(--header-font), sans-serif;
-		color: var(--color-primary);
+		font-weight: 200 !important;
+		font-size: 1rem !important;
+		font-family: var(--header-font), sans-serif !important;
+		color: var(--vibrant-blue) !important;
+		margin-left: 10px !important;
+		padding: 0 2px !important;
+		position: relative !important;
+		top: 15px !important;
+		background: transparent !important;
 	}
 	input {
 		border: none;
 		font-size: 1rem;
 		background-color: transparent;
 		flex-grow: 1;
-		padding: 5px;
+		padding: 15px;
 		font-family: var(--paragraph-font), sans-serif;
-		color: var(--darker-bg);
+		color: var(--color-primary);
 	}
 	input:focus:not(.focus-visible) {
 		outline: none;
@@ -66,5 +76,13 @@
 		width: 24px;
 		height: 24px;
 		fill: #dedbd7;
+	}
+	div.label-container {
+		position: relative;
+		top: 15px !important;
+		transition: top 0.3s cubic-bezier(1, 0.01, 0, 0.99);
+	}
+	div.label-container.labelFocused {
+		top: -11px !important;
 	}
 </style>
