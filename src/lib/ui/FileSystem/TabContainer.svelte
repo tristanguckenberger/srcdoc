@@ -16,7 +16,7 @@
 	let draggedItem = null;
 
 	async function closeTab(id) {
-		await tick();
+		// await tick();
 		try {
 			const tabIndex = $openFiles?.findIndex((file) => file?.id?.toString() === id?.toString());
 			if ($focusedFileId?.toString() === id?.toString()) {

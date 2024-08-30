@@ -43,7 +43,7 @@
 	});
 
 	async function handleClose(file) {
-		await tick();
+		// await tick();
 		if (
 			$filesToUpdate?.some((fileToUpdate) => fileToUpdate?.id?.toString() === file?.id?.toString())
 		) {
@@ -66,11 +66,11 @@
 		const paneID = `#split-${file?.name}-${file?.type}-${file?.id}`;
 
 		if ($softSelectedFileId?.toString() === file?.id?.toString()) {
-			softSelectedFileId.set(null);
+			$softSelectedFileId = null;
 		}
 
 		if ($focusedFileId?.toString() === file?.id?.toString()) {
-			focusedFileId.set(null);
+			$focusedFileId = null;
 		}
 
 		const paneCopy = [...$codePanes2];

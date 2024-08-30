@@ -51,51 +51,49 @@
 
 	$: codeType = type;
 
-	$: if ($focusedFileId && $previouslyFocusedFileId && $codePanes2?.length) {
-		$derivedCodeData,
-			(() => {
-				try {
-					const fileIsInCodePanes2 = $codePanes2.some(
-						(pane) => pane?.fileId?.toString() === $focusedFileId?.toString()
-					);
-					const previouslyFocusedFileIsInCodePanes2 = $codePanes2.some(
-						(pane) => pane?.fileId?.toString() === $previouslyFocusedFileId?.toString()
-					);
+	$: $derivedCodeData,
+		(() => {
+			try {
+				const fileIsInCodePanes2 = $codePanes2.some(
+					(pane) => pane?.fileId?.toString() === $focusedFileId?.toString()
+				);
+				const previouslyFocusedFileIsInCodePanes2 = $codePanes2.some(
+					(pane) => pane?.fileId?.toString() === $previouslyFocusedFileId?.toString()
+				);
 
-					if (!$derivedCodeData?.fileId) {
-						return;
-					}
-					const derivedCodeDataId = `#split-${$derivedCodeData?.fileName}-${$derivedCodeData?.type}-${$derivedCodeData?.fileId}`;
-					const idStringSplit = id.split('-');
-					const codePaneFile = {
-						paneID: derivedCodeDataId,
-						label: $derivedCodeData?.fileName,
-						...$derivedCodeData
-					};
-
-					if ($codePanes2?.length < 2) {
-						if (derivedCodeDataId?.toString() !== id?.toString()) {
-							// code = $derivedCodeData?.source;
-							// type = $derivedCodeData?.type;
-							// id = derivedCodeDataId;
-							$codePanes2 = [codePaneFile];
-						}
-					} else if (!fileIsInCodePanes2 && previouslyFocusedFileIsInCodePanes2) {
-						if (
-							$previouslyFocusedFileId?.toString() ===
-							idStringSplit[idStringSplit?.length - 1]?.toString()
-						) {
-							const oldPaneIndex = $codePanes2.findIndex(
-								(pane) => pane?.fileId?.toString() === $previouslyFocusedFileId?.toString()
-							);
-							$codePanes2[oldPaneIndex] = codePaneFile;
-						}
-					}
-				} catch (error) {
-					console.log('error::', error);
+				if (!$derivedCodeData?.fileId) {
+					return;
 				}
-			})();
-	}
+				const derivedCodeDataId = `#split-${$derivedCodeData?.fileName}-${$derivedCodeData?.type}-${$derivedCodeData?.fileId}`;
+				const idStringSplit = id.split('-');
+				const codePaneFile = {
+					paneID: derivedCodeDataId,
+					label: $derivedCodeData?.fileName,
+					...$derivedCodeData
+				};
+
+				if ($codePanes2?.length < 2) {
+					if (derivedCodeDataId?.toString() !== id?.toString()) {
+						// code = $derivedCodeData?.source;
+						// type = $derivedCodeData?.type;
+						// id = derivedCodeDataId;
+						$codePanes2 = [codePaneFile];
+					}
+				} else if (!fileIsInCodePanes2 && previouslyFocusedFileIsInCodePanes2) {
+					if (
+						$previouslyFocusedFileId?.toString() ===
+						idStringSplit[idStringSplit?.length - 1]?.toString()
+					) {
+						const oldPaneIndex = $codePanes2.findIndex(
+							(pane) => pane?.fileId?.toString() === $previouslyFocusedFileId?.toString()
+						);
+						$codePanes2[oldPaneIndex] = codePaneFile;
+					}
+				}
+			} catch (error) {
+				console.log('error::', error);
+			}
+		})();
 
 	let options;
 
