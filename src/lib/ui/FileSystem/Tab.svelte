@@ -215,7 +215,11 @@
 		padding: 0;
 		margin: 0;
 		opacity: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 		z-index: 30 !important;
+		font-family: 'Nunito';
 	}
 
 	.tab:hover > .tab-close {

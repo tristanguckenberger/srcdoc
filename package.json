@@ -47,7 +47,7 @@
 		"html-to-image": "^1.11.11",
 		"html2canvas": "^1.4.1",
 		"lodash-es": "^4.17.21",
-		"monaco-editor": "^0.43.0",
+		"monaco-editor": "^0.51.0",
 		"split.js": "^1.6.5",
 		"svelte-gestures": "^1.5.2",
 		"svelte-json-tree": "^1.0.0",

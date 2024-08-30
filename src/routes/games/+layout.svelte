@@ -250,5 +250,9 @@
 			height: calc(100% - 76.5px) !important;
 			margin-left: 10px !important;
 		}
+		#editor-layout.engineInRoute.addPaddingToEditorStore {
+			height: calc(100% - 0px) !important;
+			padding-top: 10px !important;
+		}
 	}
 </style>
