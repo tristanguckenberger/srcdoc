@@ -16,6 +16,9 @@
 	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
 	import { afterUpdate, tick } from 'svelte';
 
+	import { throttle, debounce } from 'lodash-es';
+	import { invalidateAll } from '$app/navigation';
+
 	export let file;
 	export let closeTab;
 	export let dragStart;
@@ -25,8 +28,8 @@
 	let canSave = false;
 	let hideAnyway = false;
 
-	$: isFocused = file?.id.toString() === $focusedFileId.toString();
-	$: isSoftSelected = file?.id === $softSelectedFileId;
+	$: isFocused = file?.id?.toString() === $focusedFileId?.toString();
+	$: isSoftSelected = file?.id?.toString() === $softSelectedFileId?.toString();
 	$: if ($filesToUpdate?.some((fileToUpdate) => fileToUpdate?.id === file?.id)) {
 		canSave = true;
 	} else {
@@ -35,21 +38,38 @@
 
 	afterUpdate(() => {
 		$addPaddingToEditorStore =
-			file?.id.toString() === $focusedFileId.toString() || file?.id === $softSelectedFileId;
+			file?.id.toString() === $focusedFileId?.toString() ||
+			file?.id?.toString() === $softSelectedFileId?.toString();
 	});
 
 	async function handleClose(file) {
 		await tick();
+		if (
+			$filesToUpdate?.some((fileToUpdate) => fileToUpdate?.id?.toString() === file?.id?.toString())
+		) {
+			const areYouSure = confirm(
+				'Closing the file without saving will undo your changes... Do you want to continue?'
+			);
+
+			if (areYouSure) {
+				// remove file from filesToUpdate
+				$filesToUpdate = $filesToUpdate?.filter((fileToUpdate) => {
+					return file?.id?.toString() !== fileToUpdate?.id?.toString();
+				});
+			} else {
+				return;
+			}
+		}
 		closeTab(file.id);
 
 		// If the file is open in a pane, close it.
 		const paneID = `#split-${file?.name}-${file?.type}-${file?.id}`;
 
-		if ($softSelectedFileId === file.id) {
+		if ($softSelectedFileId?.toString() === file?.id?.toString()) {
 			softSelectedFileId.set(null);
 		}
 
-		if ($focusedFileId === file.id) {
+		if ($focusedFileId?.toString() === file?.id?.toString()) {
 			focusedFileId.set(null);
 		}
 
@@ -63,17 +83,26 @@
 		splitInstanceStore.set(null);
 		triggerCompile.set(true);
 		$addPaddingToEditorStore = false;
+		await invalidateAll();
 	}
+
+	const tdClose = throttle(
+		debounce(async (file) => await handleClose(file), 100),
+		100
+	);
 
 	// Handle File Double Click
 	async function handleFileDBClick(file) {
 		await tick();
 		// If the file is not already open, is not a folder, AND is soft selected, then open it.
-		if (!$openFiles?.some((openFile) => openFile.id === file.id) && file.type !== 'folder') {
+		if (
+			!$openFiles?.some((openFile) => openFile?.id?.toString() === file?.id?.toString()) &&
+			file.type !== 'folder'
+		) {
 			$openFiles = [...$openFiles, file];
 		}
 
-		if ($softSelectedFileId === file.id) {
+		if ($softSelectedFileId?.toString() === file?.id?.toString()) {
 			softSelectedFileId.set(null);
 		}
 
@@ -86,49 +115,29 @@
 		}
 	}
 
-	// Handle File Single Click
 	async function HandleFileSingleClick(file) {
-		// await tick();
+		await tick();
+
+		// If the file is already focused, return early
+		if ($focusedFileId?.toString() === file?.id?.toString()) {
+			return;
+		}
+
+		// Update the focused and previously focused files
+		$previouslyFocusedFileId = $focusedFileId;
+		$focusedFileId = file?.id;
+		$focusedFolderId = null;
+
+		// Update the openFiles array if the file isn't already open
 		const isFileAlreadyOpen = $openFiles?.some(
 			(openFile) => openFile?.id?.toString() === file?.id?.toString()
 		);
 
-		// If the clicked file is already open and not soft-selected, focus it and return.
-		if (isFileAlreadyOpen && $softSelectedFileId?.toString() !== file?.id?.toString()) {
-			$previouslyFocusedFileId = $focusedFileId;
-			$focusedFileId = file?.id;
-			$focusedFolderId = null;
-			if ($autoCompile) {
-				$clearSplit = true;
-			}
-			return;
-		}
-
-		// Handle the case where a soft-selected file exists.
-		if ($softSelectedFileId && $softSelectedFileId?.toString() !== file?.id?.toString()) {
-			$openFiles = $openFiles?.filter(
-				(openFile) => openFile?.id?.toString() !== $softSelectedFileId?.toString()
-			);
-			$softSelectedFileId = file?.id;
-			$openFiles = [...$openFiles, file];
-		}
-
-		// Handle the case where the clicked file is already open but not soft-selected.
-		if (isFileAlreadyOpen && file.type !== 'folder') {
-			$openFiles = $openFiles?.filter((openFile) => openFile?.id !== file?.id);
-			$softSelectedFileId = file?.id;
-			$openFiles = [...$openFiles, file];
-		}
-
-		// Handle the case where the clicked file is neither open nor a folder.
 		if (!isFileAlreadyOpen && file?.type !== 'folder') {
-			$softSelectedFileId = file?.id;
 			$openFiles = [...$openFiles, file];
 		}
 
-		$previouslyFocusedFileId = $focusedFileId;
-		$focusedFileId = file?.id;
-		$focusedFolderId = null;
+		// Optionally trigger auto-compile if required
 		if ($autoCompile) {
 			$clearSplit = true;
 		}
@@ -137,46 +146,16 @@
 	$: themeString = $themeDataStore?.theme?.join(' ');
 </script>
 
-<div
-	style={`${themeString}`}
-	class="tab"
-	class:isFocused
-	draggable="true"
-	on:dragstart={(e) => dragStart(e, file)}
-	on:dragover={(e) => dragOver(e, file)}
-	on:dragend={dragEnd}
-	on:mouseover={() => {
-		if (canSave && !hideAnyway) {
-			hideAnyway = true;
-		}
-	}}
-	on:mouseout={() => {
-		hideAnyway = false;
-	}}
->
+<div style={` ${themeString} `} class="tab" class:isFocused>
 	<span
 		class:isSoftSelected
-		on:click={() => HandleFileSingleClick(file)}
-		on:dblclick={() => handleFileDBClick(file)}>{file.name}.{file.type}</span
+		on:dblclick={() => handleFileDBClick(file)}
+		on:click|stopPropagation={() => HandleFileSingleClick(file)}>{file.name}.{file.type}</span
 	>
-	<button
-		class="tab-close"
-		on:click={() => handleClose(file)}
-		class:canSave
-		class:showAnyway={hideAnyway}>X</button
-	>
-	<div
-		class="white-dot-container"
-		class:canSave
-		on:mouseover={() => {
-			if (canSave && !hideAnyway) {
-				hideAnyway = true;
-			}
-		}}
-		on:mouseout={() => {
-			hideAnyway = false;
-		}}
-	>
+	<div class="tab-close" on:click={() => tdClose(file)} class:canSave class:showAnyway={hideAnyway}>
+		X
+	</div>
+	<div class="white-dot-container" class:canSave>
 		<span class="white-dot" class:canSave class:hideAnyway />
 	</div>
 </div>
@@ -253,6 +232,7 @@
 	}
 	.tab span {
 		color: var(--folder-button-color);
+		font-family: 'Source Sans 3', sans-serif;
 	}
 	.tab.isFocused span {
 		color: var(--color-accent) !important;

@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { json } from '@sveltejs/kit';
+
 export async function POST({ request, cookies }) {
 	// Extract the data from the request body
 	const data = await request.json();
@@ -28,14 +30,5 @@ export async function POST({ request, cookies }) {
 
 	const result = await response.json();
 
-	// Return a response
-	return new Response(
-		JSON.stringify({
-			status: 200,
-			body: {
-				message: 'file_created',
-				result
-			}
-		})
-	);
+	return json(result);
 }

@@ -26,6 +26,7 @@
 	import { afterUpdate, onMount, tick } from 'svelte';
 	import File from './File.svelte';
 	import { setPointerControls, DEFAULT_DELAY } from 'svelte-gestures';
+	import { invalidateAll } from '$app/navigation';
 
 	export let gameId;
 	export let userId;
@@ -143,6 +144,21 @@
 		newFileParent = file;
 		// TODO: focus on the input element
 	}
+
+	function isFileObjectShape(obj) {
+		return (
+			typeof obj === 'object' &&
+			obj !== null &&
+			'content' in obj &&
+			'created_at' in obj &&
+			'game_id' in obj &&
+			'id' in obj &&
+			'name' in obj &&
+			'parent_file_id' in obj &&
+			'type' in obj &&
+			'updated_at' in obj
+		);
+	}
 	async function confirmFileCreation() {
 		const newFile = createFile(newFileName, newFileParent, files);
 		creatingFile = false;
@@ -155,15 +171,17 @@
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({ ...newFile, gameId })
-		})
-			.then((res) => res.json())
-			.then((res) => {
-				if (res?.success) {
-					return res?.data;
-				} else {
-					console.error(res?.error);
-				}
-			});
+		});
+
+		if (returnedContent.ok) {
+			const res = await returnedContent.json();
+
+			if (isFileObjectShape(res)) {
+				$initialDataStore.files = [...$initialDataStore?.files, res];
+			}
+		}
+
+		await invalidateAll();
 	}
 	function cancelFileCreation() {
 		creatingFile = false;
@@ -330,6 +348,8 @@
 								console.error(res?.error);
 							}
 						});
+
+					await invalidateAll();
 				});
 			});
 

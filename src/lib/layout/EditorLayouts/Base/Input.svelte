@@ -53,7 +53,7 @@
 					code={pane.source}
 					type={pane.type}
 					id={pane.paneID}
-					readonly={true}
+					readonly={false}
 				/>
 			</Pane>
 		{/each}

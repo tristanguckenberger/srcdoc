@@ -6,32 +6,48 @@
 		focusedFileId,
 		previouslyFocusedFileId,
 		codePanes2,
-		focusedFolderId
+		focusedFolderId,
+		filesToUpdate
 	} from '$lib/stores/filesStore.js';
 
 	import { themeDataStore } from '$lib/stores/themeStore';
+	import { tick } from 'svelte';
 
 	let draggedItem = null;
 
-	function closeTab(id) {
-		const tabIndex = $openFiles.findIndex((file) => file.id === id);
-		$openFiles = $openFiles.filter((file) => file.id !== id);
-		if ($focusedFileId === id) {
-			focusedFileId.set(null);
-		}
+	async function closeTab(id) {
+		await tick();
+		try {
+			const tabIndex = $openFiles?.findIndex((file) => file?.id?.toString() === id?.toString());
+			if ($focusedFileId?.toString() === id?.toString()) {
+				focusedFileId.set(null);
+			}
+			$openFiles = $openFiles?.filter((file) => file?.id?.toString() !== id?.toString());
 
-		// If there are still open files, focus the next one.
-		if ($openFiles?.length > 0) {
-			const nextFile = $openFiles[tabIndex] || $openFiles[tabIndex - 1];
-			previouslyFocusedFileId.set($focusedFileId);
-			focusedFileId.set(nextFile.id);
-			focusedFolderId.set(null);
-		}
+			// If there are still open files, focus the next one.
+			if ($openFiles?.length > 0) {
+				const nextFile = $openFiles?.[tabIndex] || $openFiles?.[tabIndex - 1];
+				$previouslyFocusedFileId = $focusedFileId;
 
-		if ($openFiles?.length === 0) {
-			previouslyFocusedFileId.set($focusedFileId);
-			focusedFileId.set(null);
-			$codePanes2 = [];
+				// This if block triggers the error
+				if ($focusedFileId?.toString() === id?.toString()) {
+					$focusedFileId = nextFile.id;
+				}
+				// $focusedFolderId = null;
+				// previouslyFocusedFileId.set($focusedFileId);
+				// focusedFileId.set(nextFile.id);
+				// focusedFolderId.set(null);
+			}
+
+			if ($openFiles?.length === 0) {
+				// previouslyFocusedFileId.set($focusedFileId);
+				$previouslyFocusedFileId = $focusedFileId;
+				// focusedFileId.set(null);
+				$focusedFileId = null;
+				$codePanes2 = [];
+			}
+		} catch (error) {
+			console.log('error::', error);
 		}
 	}
 
@@ -72,7 +88,7 @@
 </script>
 
 <div class="tab-container" style={`${themeString}`}>
-	{#each $openFiles as file}
+	{#each $openFiles as file (file?.id)}
 		<div>
 			<Tab {file} {closeTab} />
 		</div>

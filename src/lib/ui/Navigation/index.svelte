@@ -106,8 +106,11 @@
 	};
 
 	const handleSave = async () => {
+		await tick();
 		try {
-			const fileToUpdate = $filesToUpdate?.find((file) => file.id === $focusedFileId);
+			const fileToUpdate = $filesToUpdate?.find(
+				(file) => file?.id?.toString() === $focusedFileId?.toString()
+			);
 			const name = fileToUpdate?.name;
 			const type = fileToUpdate?.type;
 			const content = fileToUpdate?.content;
