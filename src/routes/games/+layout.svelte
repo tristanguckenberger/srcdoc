@@ -254,5 +254,8 @@
 			height: calc(100% - 0px) !important;
 			padding-top: 10px !important;
 		}
+		#editor-layout.engineInRoute.noOpenTabs {
+			margin-left: 10px !important;
+		}
 	}
 </style>

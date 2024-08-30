@@ -199,34 +199,37 @@
 				const endPosition = selection.getEndPosition();
 
 				if (selection.isEmpty()) {
+					// Hide the selections container when there's no selection
 					selectionsContainer.classList.add('hidden');
 					selectorMenu.classList.add('hidden');
 					return;
 				}
 
+				// Get the top position of the start and end lines
 				const startLineTop = editor.getTopForLineNumber(startPosition.lineNumber);
 				const endLineTop = editor.getTopForLineNumber(endPosition.lineNumber);
 
+				// Get the position of the start and end of the selection in client coordinates
 				const startCoords = editor.getScrolledVisiblePosition(startPosition);
 				const endCoords = editor.getScrolledVisiblePosition(endPosition);
 
 				if (startCoords && endCoords) {
 					const editorCoords = editorElement.getBoundingClientRect();
 
-					const leftSelectorX = editorCoords.left + startCoords.left - leftLength;
-					const leftSelectorY = editorCoords.top + startLineTop - tapsHeight;
-					const rightSelectorX = editorCoords.left + endCoords.left - leftLength;
-					const rightSelectorY = editorCoords.top + endLineTop - tapsHeight;
+					// Adjust the selectors' positions based on start and end coordinates
+					const leftSelectorX = startCoords.left + editorCoords.left;
+					const leftSelectorY = startLineTop + editorCoords.top;
+					const rightSelectorX = endCoords.left + editorCoords.left;
+					const rightSelectorY = endLineTop + editorCoords.top;
 
-					leftSelector.style.transform = `translateX(${leftSelectorX - 30}px) translateY(${
-						leftSelectorY - 8
-					}px)`;
-					rightSelector.style.transform = `translateX(${rightSelectorX - 30}px) translateY(${
-						rightSelectorY - 8
-					}px)`;
+					// Apply calculated positions
+					leftSelector.style.transform = `translateX(${leftSelectorX}px) translateY(${leftSelectorY}px)`;
+					rightSelector.style.transform = `translateX(${rightSelectorX}px) translateY(${rightSelectorY}px)`;
+
 					globalPoseMenu = leftSelectorY - 50;
 				}
 
+				// Show the selections container when there is a selection
 				selectionsContainer.classList.remove('hidden');
 			});
 		} catch (error) {
