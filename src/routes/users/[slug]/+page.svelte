@@ -3,7 +3,7 @@
 	import { getContext, onDestroy, onMount, setContext, tick } from 'svelte';
 	import { themeDataStore } from '$lib/stores/themeStore.js';
 	import Button from '$lib/ui/Button/index.svelte';
-	import { sideBarState } from '$lib/stores/layoutStore.js';
+	import { sideBarState, sideBarWidth, appClientWidth } from '$lib/stores/layoutStore.js';
 	import Drawer from '$lib/ui/Drawer/index.svelte';
 	import Widget from '$lib/ui/Widget/index.svelte';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
@@ -33,6 +33,7 @@
 	let offset = data.activities.length;
 	let loading = false;
 	let observer;
+	let toggleView = true;
 
 	setContext('followDataStore', {
 		followers: writable([]),
@@ -61,6 +62,11 @@
 		$user = data?.user;
 		currentUser = data?.currentUser;
 		reobserveEndOfList();
+		if ($appClientWidth < 768) {
+			console.log('Mobile Mode');
+
+			console.log('$appClientWidth::', $appClientWidth);
+		}
 	});
 
 	onDestroy(() => {
@@ -142,123 +148,107 @@
 	);
 	$: followerCount = $followers?.length ?? 0;
 	$: followingCount = $following?.length ?? 0;
+	$: isMobile = $appClientWidth < 768;
 </script>
 
-<svelte:head>
-
-</svelte:head>
+<svelte:head />
 
 <div class="user-layout-container">
 	{#if !data?.isActive && $platformSession?.currentUser?.id}
 		<AccountVerificationNotice />
 	{/if}
 	<div class="user-profile-container" class:showSideBar={$sideBarState} style={`${themeString}`}>
-		<div class="user-info-container">
-			<div class="user-details">
-				<div class="user-controls">
-					<div class="main-action-container">
-						<div class="user">
-							<div class="user-header-image-container">
-								<img
-									class="user-header-image avatar"
-									class:showImage={data?.profile_photo}
-									src={loadedProfilePhoto}
-									alt="User Profile Avatar"
-								/>
-								<div
-									class="user-header-placeholder avatar"
-									class:hidePlaceholder={data?.profile_photo}
-								/>
-							</div>
-							<span class="username">{data?.username ?? ''}</span>
-						</div>
-						{#if currentUserIsProfileUser}
-							<button
-								class="settings-action"
-								class:drawerOpen={$drawerOpen}
-								on:click={() => {
-									browser && selectedOption.set(0);
-									drawerOpen.set(true);
-								}}
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="36"
-									height="36"
-									fill="#ffffff"
-									viewBox="0 0 256 256"
-									class="action-button-icon"
-									><path
-										d="M216,130.16q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.6,107.6,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.29,107.29,0,0,0-26.25-10.86,8,8,0,0,0-7.06,1.48L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.6,107.6,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"
-									/></svg
-								>
-							</button>
-						{/if}
-						{#if !currentUserIsProfileUser}
-							<FollowButton
-								{currentUserIsFollowingProfileUser}
-								{userId}
-								following={followers}
-								isUserProfile={true}
-							/>
-						{/if}
-					</div>
-				</div>
-				<div class="user-text">
-					<p>
-						{data?.bio ?? ''}
-					</p>
-				</div>
-				<div class="user-stats">
-					<div class="user-stat">
-						<span class="count">{followerCount}</span>
-						<span class="label">Followers</span>
-					</div>
-					<div class="user-stat">
-						<span class="count">{followingCount}</span>
-						<span class="label">Following</span>
-					</div>
-				</div>
-			</div>
-
-			<h3 class="header-title">Latest Activity</h3>
-
-			<!-- <form action=""></form> -->
-			<div class="user-activity">
-				{#if $activities.length === 0}
-					<p>No activity yet</p>
-				{:else}
-					{#each $activities as activity}
-						<div class="activity">
-							<div class="activity-details">
-								<p class="timestamp">{new Date(activity.timestamp).toLocaleString()}</p>
-								<div class="activity-header">
+		{#if !isMobile}
+			<div class="user-info-container">
+				<div class="user-details">
+					<div class="user-controls">
+						<div class="main-action-container">
+							<div class="user">
+								<div class="user-header-image-container">
 									<img
-										src={activity.profile_photo}
-										alt="User profile photo"
-										class="profile-photo"
+										class="user-header-image avatar"
+										class:showImage={data?.profile_photo}
+										src={loadedProfilePhoto}
+										alt="User Profile Avatar"
 									/>
-									<p class="primary-text">{activity.primary_text}</p>
+									<div
+										class="user-header-placeholder avatar"
+										class:hidePlaceholder={data?.profile_photo}
+									/>
 								</div>
-								{#if activity.target_type === 'game' || activity.target_type === 'game_session'}
-									<a href="/games/{activity?.target_id}/play" class="activity-link">
-										<div class="game-details">
-											<img
-												src={activity.game_thumbnail}
-												alt="Game thumbnail"
-												class="game-thumbnail"
-											/>
-											<div class="game-info">
-												<p class="game-title">{activity.game_title}</p>
-												<p class="game-description">{activity.game_description}</p>
-											</div>
-										</div>
-									</a>
-								{/if}
-								{#if activity.target_type === 'comment'}
-									<a href="/games/{activity?.comment_game_id}/play" class="activity-link">
-										<div class="game-comment">
-											<div class="comment-game-details">
+								<span class="username">{data?.username ?? ''}</span>
+							</div>
+							{#if currentUserIsProfileUser}
+								<button
+									class="settings-action"
+									class:drawerOpen={$drawerOpen}
+									on:click={() => {
+										browser && selectedOption.set(0);
+										drawerOpen.set(true);
+									}}
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="36"
+										height="36"
+										fill="#ffffff"
+										viewBox="0 0 256 256"
+										class="action-button-icon"
+										><path
+											d="M216,130.16q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.6,107.6,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.29,107.29,0,0,0-26.25-10.86,8,8,0,0,0-7.06,1.48L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.6,107.6,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"
+										/></svg
+									>
+								</button>
+							{/if}
+							{#if !currentUserIsProfileUser}
+								<FollowButton
+									{currentUserIsFollowingProfileUser}
+									{userId}
+									following={followers}
+									isUserProfile={true}
+								/>
+							{/if}
+						</div>
+					</div>
+					<div class="user-text">
+						<p>
+							{data?.bio ?? ''}
+						</p>
+					</div>
+					<div class="user-stats">
+						<div class="user-stat">
+							<span class="count">{followerCount}</span>
+							<span class="label">Followers</span>
+						</div>
+						<div class="user-stat">
+							<span class="count">{followingCount}</span>
+							<span class="label">Following</span>
+						</div>
+					</div>
+				</div>
+
+				<h3 class="header-title">Latest Activity</h3>
+
+				<!-- <form action=""></form> -->
+				<div class="user-activity">
+					{#if $activities.length === 0}
+						<p>No activity yet</p>
+					{:else}
+						{#each $activities as activity}
+							<div class="activity">
+								<div class="activity-details">
+									<p class="timestamp">{new Date(activity.timestamp).toLocaleString()}</p>
+									<div class="activity-header">
+										<img
+											src={activity.profile_photo}
+											alt="User profile photo"
+											class="profile-photo"
+										/>
+										<p class="primary-text">{activity.primary_text}</p>
+									</div>
+									{#if activity.target_type === 'game' || activity.target_type === 'game_session'}
+										<a href="/games/{activity?.target_id}/play" class="activity-link">
+											<div class="game-details">
 												<img
 													src={activity.game_thumbnail}
 													alt="Game thumbnail"
@@ -269,49 +259,246 @@
 													<p class="game-description">{activity.game_description}</p>
 												</div>
 											</div>
-											<div class="comment-details">
-												<p class="comment-text">{activity.comment_text}</p>
+										</a>
+									{/if}
+									{#if activity.target_type === 'comment'}
+										<a href="/games/{activity?.comment_game_id}/play" class="activity-link">
+											<div class="game-comment">
+												<div class="comment-game-details">
+													<img
+														src={activity.game_thumbnail}
+														alt="Game thumbnail"
+														class="game-thumbnail"
+													/>
+													<div class="game-info">
+														<p class="game-title">{activity.game_title}</p>
+														<p class="game-description">{activity.game_description}</p>
+													</div>
+												</div>
+												<div class="comment-details">
+													<p class="comment-text">{activity.comment_text}</p>
+												</div>
 											</div>
-										</div>
-									</a>
-								{/if}
+										</a>
+									{/if}
+								</div>
 							</div>
+						{/each}
+					{/if}
+					{#if $activities?.length > 0}
+						<div id="end-of-list" style="height: 20px;">
+							{loading || offset <= totalActivities ? 'Loading more...' : 'End of list!'}
+						</div>
+					{/if}
+				</div>
+			</div>
+
+			<div class="user-content-container">
+				<HorizontalList
+					title="Favorites"
+					subtitle={currentUserIsProfileUser ? 'Your Favorites' : `${data.username}'s Favorites`}
+					type={'favorites'}
+					link={'/games/favorites'}
+					userId={data?.id}
+				/>
+				<HorizontalList
+					title="Games"
+					subtitle={currentUserIsProfileUser ? 'Your Games' : `${data?.username}'s Published Games`}
+					type={'projects'}
+					userId={data?.id}
+					link={`/users/${data?.id}/games`}
+				/>
+				<h3>Playlists</h3>
+				<h4>{currentUserIsProfileUser ? 'Your Playlists' : `${data.username}'s Playlists`}</h4>
+				<div class="playlist-container">
+					{#each data?.userPlaylists as playlist}
+						<div class="single-playlist-container">
+							<PlaylistCard id={playlist.id} {playlist} thumbnail={playlist?.thumbnail} />
 						</div>
 					{/each}
-				{/if}
-				{#if $activities?.length > 0}
-					<div id="end-of-list" style="height: 20px;">
-						{loading || offset <= totalActivities ? 'Loading more...' : 'End of list!'}
-					</div>
-				{/if}
+				</div>
 			</div>
-		</div>
+		{:else}
+			<div class="user-primary-container-mobile">
+				<!-- User Profile Head -->
+				<div class="user-details-mobile">
+					<div class="user-controls">
+						<div class="main-action-container">
+							<div class="user">
+								<div class="user-header-image-container">
+									<img
+										class="user-header-image avatar"
+										class:showImage={data?.profile_photo}
+										src={loadedProfilePhoto}
+										alt="User Profile Avatar"
+									/>
+									<div
+										class="user-header-placeholder avatar"
+										class:hidePlaceholder={data?.profile_photo}
+									/>
+								</div>
+								<span class="username">{data?.username ?? ''}</span>
+							</div>
+							{#if currentUserIsProfileUser}
+								<button
+									class="settings-action"
+									class:drawerOpen={$drawerOpen}
+									on:click={() => {
+										browser && selectedOption.set(0);
+										drawerOpen.set(true);
+									}}
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="36"
+										height="36"
+										fill="#ffffff"
+										viewBox="0 0 256 256"
+										class="action-button-icon"
+										><path
+											d="M216,130.16q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.6,107.6,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.29,107.29,0,0,0-26.25-10.86,8,8,0,0,0-7.06,1.48L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.6,107.6,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"
+										/></svg
+									>
+								</button>
+							{/if}
+							{#if !currentUserIsProfileUser}
+								<FollowButton
+									{currentUserIsFollowingProfileUser}
+									{userId}
+									following={followers}
+									isUserProfile={true}
+								/>
+							{/if}
+						</div>
+					</div>
+					<div class="user-text">
+						<p>
+							{data?.bio ?? ''}
+						</p>
+					</div>
+					<div class="user-stats">
+						<div class="user-stat">
+							<span class="count">{followerCount}</span>
+							<span class="label">Followers</span>
+						</div>
+						<div class="user-stat">
+							<span class="count">{followingCount}</span>
+							<span class="label">Following</span>
+						</div>
+					</div>
+				</div>
+				<!-- User Profile View Selectors -->
+				<ul class="view-selection">
+					<li>
+						<button class:active={toggleView} on:click|preventDefault={() => (toggleView = true)}
+							>Library</button
+						>
+					</li>
+					<li>
+						<button class:active={!toggleView} on:click|preventDefault={() => (toggleView = false)}
+							>Activity</button
+						>
+					</li>
+				</ul>
+				<!-- User Profile View -->
+				{#if toggleView}
+					<div class="user-content-container-mobile">
+						<HorizontalList
+							title="Favorites"
+							subtitle={currentUserIsProfileUser
+								? 'Your Favorites'
+								: `${data.username}'s Favorites`}
+							type={'favorites'}
+							link={'/games/favorites'}
+							userId={data?.id}
+						/>
+						<HorizontalList
+							title="Games"
+							subtitle={currentUserIsProfileUser
+								? 'Your Games'
+								: `${data?.username}'s Published Games`}
+							type={'projects'}
+							userId={data?.id}
+							link={`/users/${data?.id}/games`}
+						/>
+						<h3>Playlists</h3>
+						<h4>{currentUserIsProfileUser ? 'Your Playlists' : `${data.username}'s Playlists`}</h4>
+						<div class="playlist-container">
+							{#each data?.userPlaylists as playlist}
+								<div class="single-playlist-container">
+									<PlaylistCard id={playlist.id} {playlist} thumbnail={playlist?.thumbnail} />
+								</div>
+							{/each}
+						</div>
+					</div>
+				{:else}
+					<h3 class="header-title">Latest Activity</h3>
 
-		<div class="user-content-container">
-			<HorizontalList
-				title="Favorites"
-				subtitle={currentUserIsProfileUser ? 'Your Favorites' : `${data.username}'s Favorites`}
-				type={'favorites'}
-				link={'/games/favorites'}
-				userId={data?.id}
-			/>
-			<HorizontalList
-				title="Games"
-				subtitle={currentUserIsProfileUser ? 'Your Games' : `${data?.username}'s Published Games`}
-				type={'projects'}
-				userId={data?.id}
-				link={`/users/${data?.id}/games`}
-			/>
-			<h3>Playlists</h3>
-			<h4>{currentUserIsProfileUser ? 'Your Playlists' : `${data.username}'s Playlists`}</h4>
-			<div class="playlist-container">
-				{#each data?.userPlaylists as playlist}
-					<div class="single-playlist-container">
-						<PlaylistCard id={playlist.id} {playlist} thumbnail={playlist?.thumbnail} />
+					<!-- <form action=""></form> -->
+					<div class="user-activity">
+						{#if $activities.length === 0}
+							<p>No activity yet</p>
+						{:else}
+							{#each $activities as activity}
+								<div class="activity">
+									<div class="activity-details">
+										<p class="timestamp">{new Date(activity.timestamp).toLocaleString()}</p>
+										<div class="activity-header">
+											<img
+												src={activity.profile_photo}
+												alt="User profile photo"
+												class="profile-photo"
+											/>
+											<p class="primary-text">{activity.primary_text}</p>
+										</div>
+										{#if activity.target_type === 'game' || activity.target_type === 'game_session'}
+											<a href="/games/{activity?.target_id}/play" class="activity-link">
+												<div class="game-details">
+													<img
+														src={activity.game_thumbnail}
+														alt="Game thumbnail"
+														class="game-thumbnail"
+													/>
+													<div class="game-info">
+														<p class="game-title">{activity.game_title}</p>
+														<p class="game-description">{activity.game_description}</p>
+													</div>
+												</div>
+											</a>
+										{/if}
+										{#if activity.target_type === 'comment'}
+											<a href="/games/{activity?.comment_game_id}/play" class="activity-link">
+												<div class="game-comment">
+													<div class="comment-game-details">
+														<img
+															src={activity.game_thumbnail}
+															alt="Game thumbnail"
+															class="game-thumbnail"
+														/>
+														<div class="game-info">
+															<p class="game-title">{activity.game_title}</p>
+															<p class="game-description">{activity.game_description}</p>
+														</div>
+													</div>
+													<div class="comment-details">
+														<p class="comment-text">{activity.comment_text}</p>
+													</div>
+												</div>
+											</a>
+										{/if}
+									</div>
+								</div>
+							{/each}
+						{/if}
+						{#if $activities?.length > 0}
+							<div id="end-of-list" style="height: 20px;">
+								{loading || offset <= totalActivities ? 'Loading more...' : 'End of list!'}
+							</div>
+						{/if}
 					</div>
-				{/each}
+				{/if}
 			</div>
-		</div>
+		{/if}
 		<Drawer>
 			<div slot="drawer-component" class="drawer-component">
 				<Widget content={data} options={ComponentOptions} />
@@ -702,5 +889,55 @@
 		font-family: 'Source Sans 3', sans-serif;
 		font-size: 1rem;
 		text-align: center;
+	}
+
+	/* MOBILE STYLES */
+	.view-selection {
+		display: flex;
+		justify-content: space-evenly;
+		list-style: none;
+		padding-inline-start: 0;
+		background-color: var(--color-secondary);
+		padding: 15px 10px;
+		border-radius: 8px;
+	}
+	ul.view-selection li button {
+		background: none;
+		border: none;
+		font-family: 'Source Sans 3';
+		color: var(--color-primary);
+		font-size: 1rem;
+	}
+	ul.view-selection li button.active {
+		text-decoration: underline;
+	}
+	.user-primary-container-mobile {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		background-color: var(--color-secondary);
+		background: var(--home-gradient-color-2);
+		background: linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		background: -moz-linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		background: -webkit-linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		border-radius: 8px;
+		padding: 20px;
+	}
+	.user-content-container-mobile {
+		overflow-y: scroll;
+		padding-bottom: 180px;
 	}
 </style>
