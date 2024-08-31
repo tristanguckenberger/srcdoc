@@ -299,6 +299,9 @@
 			padding: 0;
 			width: 80%;
 		}
+		.flexed-form :global(form) {
+			width: 80%;
+		}
 	}
 
 	.authentication {
@@ -349,11 +352,8 @@
 	:global(#editor-layout.verifyInRoute) {
 		width: 100% !important;
 		margin-left: 0 !important;
-
 	}
-	:global(#editor-layout.verifyInRoute) div.main.verify { 
+	:global(#editor-layout.verifyInRoute) div.main.verify {
 		width: 100% !important;
-
 	}
-
 </style>

@@ -148,7 +148,12 @@
 	});
 </script>
 
-<div class="main" style="--svg-bg: url('{Frame}');" class:sideBarOpen={$sideBarState} bind:clientWidth={pageWidth}>
+<div
+	class="main"
+	style="--svg-bg: url('{Frame}');"
+	class:sideBarOpen={$sideBarState}
+	bind:clientWidth={pageWidth}
+>
 	<div
 		class="left"
 		class:fullWidth={!$showAuth}
@@ -261,7 +266,11 @@
 			out:slide={{ delay: 0, duration: 250, easing: quintOut, axis: 'x' }}
 			bind:clientWidth={rightWidth}
 		>
-			<div class:hide={isMobile} in:fade={{ delay: 750, duration: 600 }} out:fade={{ duration: 10 }}>
+			<div
+				class:hide={isMobile}
+				in:fade={{ delay: 750, duration: 600 }}
+				out:fade={{ duration: 10 }}
+			>
 				<Logo xDistance={$xDistanceStore} />
 			</div>
 			<button
@@ -572,7 +581,7 @@
 			padding: 90% 0 0 0; */
 		}
 		:global(.email-username) {
-			gap: 30px !important;
+			gap: 10px !important;
 			flex-direction: column !important;
 		}
 	}
