@@ -912,7 +912,7 @@
 		text-decoration: underline;
 	}
 	.user-primary-container-mobile {
-		width: 100%;
+		width: calc(100% - 40px);
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
