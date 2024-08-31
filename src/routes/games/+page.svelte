@@ -151,9 +151,7 @@
 	$: hasGames = $games?.length > 0;
 </script>
 
-<svelte:head>
-
-</svelte:head>
+<svelte:head />
 
 <div
 	class="page-container"
@@ -246,7 +244,7 @@
 		margin-block-start: 0;
 		font-family: 'Inter', sans-serif;
 		font-size: calc(1rem - 25%);
-		padding: 0px 10px 20px 10px;
+		padding: 10px 10px 20px 10px !important;
 		width: calc(100% - 20px) !important;
 		height: 100% !important;
 		margin: 0 !important;
