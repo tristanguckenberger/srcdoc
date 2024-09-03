@@ -756,7 +756,7 @@
 		height: 20px;
 		border-radius: 50%;
 		object-fit: cover;
-		border: 2px solid #a69160;
+		border: 2px solid var(--color-accent);
 	}
 
 	.activity-details {
@@ -898,6 +898,23 @@
 		list-style: none;
 		padding-inline-start: 0;
 		background-color: var(--color-secondary);
+		background-color: var(--color-secondary);
+		background: var(--home-gradient-color-2);
+		background: linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		background: -moz-linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--home-gradient-color-2) 100%
+		);
+		background: -webkit-linear-gradient(
+			270deg,
+			var(--home-gradient-color-1) 0%,
+			var(--user-accent-color) 100%
+		);
 		padding: 15px 10px;
 		border-radius: 8px;
 	}

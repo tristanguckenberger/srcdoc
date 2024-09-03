@@ -120,62 +120,61 @@
 		inject({ mode: dev ? 'development' : 'production' });
 
 		// if (browser) {
-			// preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
-			// preferedThemeMode?.addEventListener('change', updateTheme);
-			updateTheme(preferedThemeMode);
+		// preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
+		// preferedThemeMode?.addEventListener('change', updateTheme);
+		updateTheme(preferedThemeMode);
 
-			// Start local storage stores
-			homePageInfoStore.useLocalStorage();
-			gamePageInfoStore.useLocalStorage();
-			editorPageInfoStore.useLocalStorage();
-			userPfpStore.useLocalStorage();
-			userBioStore.useLocalStorage();
-			userIdStore.useLocalStorage();
-			userUsernameStore.useLocalStorage();
+		// Start local storage stores
+		homePageInfoStore.useLocalStorage();
+		gamePageInfoStore.useLocalStorage();
+		editorPageInfoStore.useLocalStorage();
+		userPfpStore.useLocalStorage();
+		userBioStore.useLocalStorage();
+		userIdStore.useLocalStorage();
+		userUsernameStore.useLocalStorage();
 
-			if ($platformSession?.settings) {
-				homePageInfoStore.set({
-					...$homePageInfoStore,
-					viewed: $platformSession?.settings?.hide_pop_up_info_home
-				});
-				gamePageInfoStore.set({
-					...$gamePageInfoStore,
-					viewed: $platformSession?.settings?.hide_pop_up_info_games
-				});
-				editorPageInfoStore.set({
-					...$editorPageInfoStore,
-					viewed: $platformSession?.settings?.hide_pop_up_info_editor
-				});
-				$modalFullInfoStore = null;
+		if ($platformSession?.settings) {
+			homePageInfoStore.set({
+				...$homePageInfoStore,
+				viewed: $platformSession?.settings?.hide_pop_up_info_home
+			});
+			gamePageInfoStore.set({
+				...$gamePageInfoStore,
+				viewed: $platformSession?.settings?.hide_pop_up_info_games
+			});
+			editorPageInfoStore.set({
+				...$editorPageInfoStore,
+				viewed: $platformSession?.settings?.hide_pop_up_info_editor
+			});
+			$modalFullInfoStore = null;
+		}
+		const userId = data?.userId ?? $userIdStore;
+		const init = async () => {
+			if (browser && userId && !$settingsStore) {
+				const settingsRes = await getSettings();
+
+				if (settingsRes) {
+					settingsStore.set(settingsRes);
+				}
 			}
-			const userId = data?.userId ?? $userIdStore;
-			const init = async () => {
-				if (browser && userId && !$settingsStore) {
-					const settingsRes = await getSettings();
+		};
 
-					if (settingsRes) {
-						settingsStore.set(settingsRes);
-					}
-				}
-			};
-			
-
-			if (!$platformSession?.ready) {
-				if ($platformSession?.currentUser?.profile_photo) {
-					userPfpStore.set($platformSession?.currentUser?.profile_photo);
-				}
-				if ($platformSession?.currentUser?.bio) {
-					userBioStore.set($platformSession?.currentUser?.bio);
-				}
-				if ($platformSession?.currentUser?.id) {
-					userIdStore.set($platformSession?.currentUser?.id);
-				}
-				if ($platformSession?.currentUser?.username) {
-					userUsernameStore.set($platformSession?.currentUser?.username);
-				}
-
-				$platformSession.ready = true;
+		if (!$platformSession?.ready) {
+			if ($platformSession?.currentUser?.profile_photo) {
+				userPfpStore.set($platformSession?.currentUser?.profile_photo);
 			}
+			if ($platformSession?.currentUser?.bio) {
+				userBioStore.set($platformSession?.currentUser?.bio);
+			}
+			if ($platformSession?.currentUser?.id) {
+				userIdStore.set($platformSession?.currentUser?.id);
+			}
+			if ($platformSession?.currentUser?.username) {
+				userUsernameStore.set($platformSession?.currentUser?.username);
+			}
+
+			$platformSession.ready = true;
+		}
 		// }
 
 		// try this in an onMount and an afterUpdate
@@ -466,7 +465,8 @@
 <div
 	class="layout-container"
 	class:isBrowsePage
-	style="--svg-bg: url('{bgFadedMono16}'); --screenHeight: {$screenHeight -
+	style="--user-accent-color: {$settingsStore?.user_accent_color ??
+		'#4ca5ff38'}; --svg-bg: url('{bgFadedMono16}'); --screenHeight: {$screenHeight -
 		15}px; height: 100%; width: 100%; {themeString}"
 >
 	<div
