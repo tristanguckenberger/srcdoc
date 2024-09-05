@@ -713,6 +713,15 @@
 	button.settings-action:hover {
 		cursor: pointer;
 	}
+	@media (max-width: 498px) {
+		button.settings-action {
+			left: 15px;
+			width: fit-content;
+		}
+		.info-container {
+			width: 60%;
+		}
+	}
 	.overlay-blur.drawerOpen {
 		filter: saturate(180%) blur(20px) brightness(0.4);
 	}
@@ -873,6 +882,10 @@
 		}
 		.play-button {
 			transform: unset !important;
+		}
+		.sub-action-menu {
+			margin-bottom: 150px;
+			gap: 35px;
 		}
 	}
 	.divider {

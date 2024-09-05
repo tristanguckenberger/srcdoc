@@ -260,6 +260,13 @@
 
 			$platformSession.ready = true;
 		}
+
+		if (!data?.hasToken) {
+			userPfpStore.set(null);
+			userBioStore.set(null);
+			userIdStore.set(null);
+			userUsernameStore.set(null);
+		}
 	});
 
 	onDestroy(() => {
@@ -1302,7 +1309,7 @@
 		.divider {
 			/* height: 100px; */
 			right: 25px;
-			bottom: 12vh;
+			bottom: 13vh;
 		}
 	}
 	.divider .slider-action svg {

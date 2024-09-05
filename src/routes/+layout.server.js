@@ -18,7 +18,8 @@ export async function load({ fetch, cookies }) {
 			isActive: JSON.parse(isActive),
 			username: JSON.parse(username),
 			userId,
-			profile_photo
+			profile_photo,
+			hasToken: true
 		};
 	}
 
@@ -28,6 +29,7 @@ export async function load({ fetch, cookies }) {
 		isActive: false,
 		username: null,
 		userId: null,
-		profile_photo: null
+		profile_photo: null,
+		hasToken: false
 	};
 }

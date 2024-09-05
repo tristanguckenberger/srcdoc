@@ -20,6 +20,11 @@ export async function GET({ cookies, setHeaders }) {
 			settingsReqInit
 		);
 		if (!settingsResponse.ok) {
+			cookies.delete('token', { path: '/' });
+			cookies.delete('isActive', { path: '/' });
+			cookies.delete('profile_photo', { path: '/' });
+			cookies.delete('userId', { path: '/' });
+			cookies.delete('username', { path: '/' });
 			return json({
 				status: 401,
 				body: {
