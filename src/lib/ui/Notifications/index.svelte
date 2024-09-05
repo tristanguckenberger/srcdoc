@@ -250,6 +250,10 @@
 		overflow: hidden;
 	}
 
+	img.profile-photo {
+		overflow: clip;
+	}
+
 	.notification-details {
 		display: flex;
 		flex-direction: column;

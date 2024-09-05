@@ -349,6 +349,10 @@
 		overflow: hidden;
 	}
 
+	img.profile-photo {
+		overflow: clip;
+	}
+
 	.review-header-left-top-right span {
 		font-size: 1rem;
 		font-family: var(--action-font) !important;

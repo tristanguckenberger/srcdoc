@@ -807,6 +807,10 @@
 		overflow: hidden;
 	}
 
+	img.profile-photo {
+		overflow: clip;
+	}
+
 	.activity-details {
 		display: flex;
 		flex-direction: column;
