@@ -18,6 +18,7 @@
 	import HorizontalList from '$lib/ui/HorizontalList/index.svelte';
 	import PlaylistCard from '$lib/ui/PlaylistCard/index.svelte';
 	import AccountVerificationNotice from '$lib/ui/AccountVerificationNotice/index.svelte';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
 	export let data;
 
@@ -165,16 +166,25 @@
 						<div class="main-action-container">
 							<div class="user">
 								<div class="user-header-image-container">
-									<img
-										class="user-header-image avatar"
-										class:showImage={data?.profile_photo}
-										src={loadedProfilePhoto}
-										alt="User Profile Avatar"
-									/>
-									<div
+									{#if data?.profile_photo}
+										<img
+											class="user-header-image avatar"
+											class:showImage={data?.profile_photo}
+											src={loadedProfilePhoto}
+											alt="User Profile Avatar"
+										/>
+									{:else}
+										<div
+											class="user-header-placeholder avatar"
+											class:hidePlaceholder={data?.profile_photo}
+										>
+											<ImagePlaceHolder />
+										</div>
+									{/if}
+									<!-- <div
 										class="user-header-placeholder avatar"
 										class:hidePlaceholder={data?.profile_photo}
-									/>
+									/> -->
 								</div>
 								<span class="username">{data?.username ?? ''}</span>
 							</div>
@@ -239,21 +249,29 @@
 								<div class="activity-details">
 									<p class="timestamp">{new Date(activity.timestamp).toLocaleString()}</p>
 									<div class="activity-header">
-										<img
-											src={activity.profile_photo}
-											alt="User profile photo"
-											class="profile-photo"
-										/>
+										{#if activity?.profile_photo}
+											<img src={activity.profile_photo} alt="User avatar" class="profile-photo" />
+										{:else}
+											<div class="profile-photo">
+												<ImagePlaceHolder />
+											</div>
+										{/if}
 										<p class="primary-text">{activity.primary_text}</p>
 									</div>
 									{#if activity.target_type === 'game' || activity.target_type === 'game_session'}
 										<a href="/games/{activity?.target_id}/play" class="activity-link">
 											<div class="game-details">
-												<img
-													src={activity.game_thumbnail}
-													alt="Game thumbnail"
-													class="game-thumbnail"
-												/>
+												{#if activity?.game_thumbnail}
+													<img
+														src={activity.game_thumbnail}
+														alt="Game thumbnail"
+														class="game-thumbnail"
+													/>
+												{:else}
+													<div class="game-thumbnail">
+														<ImagePlaceHolder />
+													</div>
+												{/if}
 												<div class="game-info">
 													<p class="game-title">{activity.game_title}</p>
 													<p class="game-description">{activity.game_description}</p>
@@ -265,11 +283,17 @@
 										<a href="/games/{activity?.comment_game_id}/play" class="activity-link">
 											<div class="game-comment">
 												<div class="comment-game-details">
-													<img
-														src={activity.game_thumbnail}
-														alt="Game thumbnail"
-														class="game-thumbnail"
-													/>
+													{#if activity?.game_thumbnail}
+														<img
+															src={activity.game_thumbnail}
+															alt="Game thumbnail"
+															class="game-thumbnail"
+														/>
+													{:else}
+														<div class="game-thumbnail">
+															<ImagePlaceHolder />
+														</div>
+													{/if}
 													<div class="game-info">
 														<p class="game-title">{activity.game_title}</p>
 														<p class="game-description">{activity.game_description}</p>
@@ -326,12 +350,18 @@
 						<div class="main-action-container">
 							<div class="user">
 								<div class="user-header-image-container">
-									<img
-										class="user-header-image avatar"
-										class:showImage={data?.profile_photo}
-										src={loadedProfilePhoto}
-										alt="User Profile Avatar"
-									/>
+									{#if data?.profile_photo}
+										<img
+											class="user-header-image avatar"
+											class:showImage={data?.profile_photo}
+											src={loadedProfilePhoto}
+											alt="User Profile Avatar"
+										/>
+									{:else}
+										<div class="user-header-image avatar">
+											<ImagePlaceHolder />
+										</div>
+									{/if}
 									<div
 										class="user-header-placeholder avatar"
 										class:hidePlaceholder={data?.profile_photo}
@@ -444,21 +474,29 @@
 									<div class="activity-details">
 										<p class="timestamp">{new Date(activity.timestamp).toLocaleString()}</p>
 										<div class="activity-header">
-											<img
-												src={activity.profile_photo}
-												alt="User profile photo"
-												class="profile-photo"
-											/>
+											{#if activity?.profile_photo}
+												<img src={activity.profile_photo} alt="User avatar" class="profile-photo" />
+											{:else}
+												<div class="profile-photo">
+													<ImagePlaceHolder />
+												</div>
+											{/if}
 											<p class="primary-text">{activity.primary_text}</p>
 										</div>
 										{#if activity.target_type === 'game' || activity.target_type === 'game_session'}
 											<a href="/games/{activity?.target_id}/play" class="activity-link">
 												<div class="game-details">
-													<img
-														src={activity.game_thumbnail}
-														alt="Game thumbnail"
-														class="game-thumbnail"
-													/>
+													{#if activity?.game_thumbnail}
+														<img
+															src={activity.game_thumbnail}
+															alt="Game thumbnail"
+															class="game-thumbnail"
+														/>
+													{:else}
+														<div class="game-thumbnail">
+															<ImagePlaceHolder />
+														</div>
+													{/if}
 													<div class="game-info">
 														<p class="game-title">{activity.game_title}</p>
 														<p class="game-description">{activity.game_description}</p>
@@ -470,11 +508,17 @@
 											<a href="/games/{activity?.comment_game_id}/play" class="activity-link">
 												<div class="game-comment">
 													<div class="comment-game-details">
-														<img
-															src={activity.game_thumbnail}
-															alt="Game thumbnail"
-															class="game-thumbnail"
-														/>
+														{#if activity?.game_thumbnail}
+															<img
+																src={activity.game_thumbnail}
+																alt="Game thumbnail"
+																class="game-thumbnail"
+															/>
+														{:else}
+															<div class="game-thumbnail">
+																<ImagePlaceHolder />
+															</div>
+														{/if}
 														<div class="game-info">
 															<p class="game-title">{activity.game_title}</p>
 															<p class="game-description">{activity.game_description}</p>
@@ -517,6 +561,7 @@
 		border-radius: 8px;
 		overflow: hidden;
 		flex-direction: column;
+		height: 100%;
 	}
 	div.user-layout-container :global(.notice-container) {
 		border-radius: 8px;
@@ -643,8 +688,10 @@
 		width: 50px;
 		height: 50px;
 		object-fit: cover;
+		/* TODO: Update border to take a users accent color */
 		border: 2px solid #a69160;
 		color: #e3f1f6;
+		overflow: hidden;
 	}
 	@media (max-width: 700px) {
 		.user-info {
@@ -757,6 +804,7 @@
 		border-radius: 50%;
 		object-fit: cover;
 		border: 2px solid var(--color-accent);
+		overflow: hidden;
 	}
 
 	.activity-details {
@@ -787,6 +835,7 @@
 		height: 50px;
 		border-radius: 6px;
 		object-fit: cover;
+		overflow: hidden;
 	}
 
 	.game-info {

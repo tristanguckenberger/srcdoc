@@ -59,6 +59,7 @@
 	import SearchResults from '$lib/ui/NavWidgets/SearchResults.svelte';
 	import Widget from '$lib/ui/Widget/index.svelte';
 	import Settings from '$lib/ui/Widget/Components/Settings.svelte';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
 	// ASSET IMPORTS
 	import bgFadedMono16 from '$lib/assets/bgFadedMono16.svg';
@@ -729,12 +730,18 @@
 								class="sidebar-item"
 								class:muted={!$platformSession?.currentUser?.id}
 							>
-								<img
-									class="avatar"
-									src={`${$platformSession?.currentUser?.profile_photo}` ??
-										'https://picsum.photos/50'}
-									alt="user avatar"
-								/>
+								{#if $userPfpStore && $userPfpStore !== 'null'}
+									<img
+										class="avatar user_{$platformSession?.currentUser?.id}"
+										src={`${$platformSession?.currentUser?.profile_photo}` ??
+											'https://picsum.photos/50'}
+										alt="user avatar"
+									/>
+								{:else}
+									<div class="avatar">
+										<ImagePlaceHolder />
+									</div>
+								{/if}
 								<span>{$platformSession?.currentUser?.username}</span>
 							</a>
 							<button
@@ -1373,8 +1380,9 @@
 		width: 23.5px;
 		height: 23.5px;
 		object-fit: cover;
-		border: 2px solid #a69160;
+		border: 2px solid var(--user-accent-color);
 		color: #e3f1f6;
+		overflow: hidden;
 	}
 	.settings-button {
 		background-color: transparent;

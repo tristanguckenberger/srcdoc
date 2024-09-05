@@ -4,6 +4,7 @@
 	import { page } from '$app/stores';
 	import { platformSession } from '$lib/stores/platformSession';
 	import ToolTip from '$lib/ui/ToolTip/index.svelte';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
 	export let label;
 	export let link;
@@ -70,11 +71,18 @@
 			{:else if label}
 				{label}
 			{:else if userName}
-				<img
-					class="avatar"
-					src={`${userAvatar}` ?? 'https://picsum.photos/50'}
-					alt="user avatar"
-				/><span>{userName}</span>
+				{#if userAvatar}
+					<img
+						class="avatar"
+						src={`${userAvatar}` ?? 'https://picsum.photos/50'}
+						alt="user avatar"
+					/>
+				{:else}
+					<div class="avatar">
+						<ImagePlaceHolder />
+					</div>
+				{/if}
+				<span>{userName}</span>
 				<!-- <div class="more-dropdown" on:click={action}>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -303,11 +311,18 @@
 				<div id="loading" />
 			{:else if userName}
 				<a href={link} class="profile-quick-control">
-					<img
-						class="avatar"
-						src={`${userAvatar}` ?? 'https://picsum.photos/50'}
-						alt="user avatar"
-					/><span>{userName}</span>
+					{#if userAvatar}
+						<img
+							class="avatar"
+							src={`${userAvatar}` ?? 'https://picsum.photos/50'}
+							alt="user avatar"
+						/>
+					{:else}
+						<div class="avatar">
+							<ImagePlaceHolder />
+						</div>
+					{/if}
+					<span>{userName}</span>
 				</a>
 			{:else if label === 'engine-edit'}
 				<svg
@@ -432,6 +447,7 @@
 		object-fit: cover;
 		border: 2px solid #a69160;
 		color: #e3f1f6;
+		overflow: hidden;
 	}
 	.profile-quick-control {
 		display: flex;

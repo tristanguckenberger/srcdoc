@@ -5,9 +5,10 @@
 	import { beforeNavigate, invalidateAll } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import { themeDataStore } from '$lib/stores/themeStore';
-	import Button from '$lib/ui/Button/index.svelte';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { browser } from '$app/environment';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
+	import Button from '$lib/ui/Button/index.svelte';
 
 	export let item;
 	export let title;
@@ -69,7 +70,9 @@
 				<div
 					class="card-thumbnail-placeholder card-thumbnail"
 					class:hidePlaceholder={thumbnail || item?.thumbnail}
-				/>
+				>
+					<ImagePlaceHolder />
+				</div>
 			{/if}
 		</a>
 		<div class="card-info">
@@ -114,6 +117,7 @@
 		background-color: var(--folder-button-color);
 		opacity: 1;
 		margin-bottom: 10px;
+		overflow: hidden;
 	}
 	.card-info {
 		color: var(--color-primary);

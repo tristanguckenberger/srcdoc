@@ -3,11 +3,12 @@
 	import { invalidateAll } from '$app/navigation';
 	import { enhance, applyAction } from '$app/forms';
 	import { drawerOpen } from '$lib/stores/drawerStore';
+	import { onDestroy } from 'svelte';
 
 	import ToggleSwitch from '$lib/ui/ToggleSwitch/index.svelte';
 	import CustomInput from '$lib/ui/Input/CustomInput.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
-	import { onDestroy } from 'svelte';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
 	export let playlistId;
 	export let name;
@@ -87,11 +88,17 @@
 					d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.71,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.43l13.63,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z"
 				/></svg
 			>
-			<img
-				src={thumbnailPreview ?? 'https://picsum.photos/50'}
-				alt="Playlist Thumbnail Preview"
-				class="photo-preview"
-			/>
+			{#if thumbnailPreview}
+				<img
+					src={thumbnailPreview ?? 'https://picsum.photos/50'}
+					alt="Playlist Thumbnail Preview"
+					class="photo-preview"
+				/>
+			{:else}
+				<div class="photo-preview">
+					<ImagePlaceHolder />
+				</div>
+			{/if}
 		</div>
 
 		<!-- {#if profilePhotoPreview} -->
@@ -151,6 +158,7 @@
 		max-width: 200px;
 		max-height: 200px;
 		object-fit: cover;
+		overflow: hidden;
 	}
 	#thumbnail {
 		position: absolute;

@@ -9,7 +9,7 @@
 	import { session } from '$lib/stores/sessionStore.js';
 	import { browser } from '$app/environment';
 	import { playlistSelectionStore } from '$lib/stores/playlistSelectionStore.js';
-	import { add } from 'lodash-es';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
 	export let playlist;
 	export let id;
@@ -135,6 +135,10 @@
 
 				<div class="card-thumbnail-placeholder" class:hidePlaceholder={imageLoaded} />
 			</div>
+		{:else}
+			<div class="card-thumbnail">
+				<ImagePlaceHolder />
+			</div>
 		{/if}
 		<div class="card-info">
 			<div>
@@ -197,6 +201,7 @@
 		transition: opacity 0.03s;
 		opacity: 0;
 		min-width: 50px;
+		overflow: hidden;
 	}
 	.card-thumbnail.showImage {
 		opacity: 1;

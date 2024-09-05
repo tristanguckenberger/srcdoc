@@ -1,5 +1,7 @@
 <script>
 	// @ts-nocheck
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
+
 	export let gameId;
 	export let listContent = [];
 
@@ -39,7 +41,13 @@
 		<li class="list-item">
 			<div class="list-item-content">
 				<h3>
-					<img src={row.profile_photo} class="avatar" alt={`${row.username}'s Avatar`} />
+					{#if row?.profile_photo}
+						<img src={row.profile_photo} class="avatar" alt={`${row.username}'s Avatar`} />
+					{:else}
+						<div class="avatar" alt={`${row.username}'s Avatar`}>
+							<ImagePlaceHolder />
+						</div>
+					{/if}
 					{i + 1}. @{row.username}
 				</h3>
 			</div>
@@ -125,6 +133,7 @@
 		object-fit: cover;
 		border: 2px solid #a69160;
 		color: #e3f1f6;
+		overflow: hidden;
 	}
 	.list-item-content.lean-right {
 		position: relative;

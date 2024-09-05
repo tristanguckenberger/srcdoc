@@ -2,6 +2,7 @@
 	// @ts-nocheck
 	import { afterUpdate, onDestroy } from 'svelte';
 	import { themeDataStore } from '$lib/stores/themeStore';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
 	export let user;
 	export let thumbnail;
@@ -56,7 +57,9 @@
 				<div
 					class="card-thumbnail-placeholder card-thumbnail"
 					class:hidePlaceholder={thumbnail || user?.profile_photo}
-				/>
+				>
+					<ImagePlaceHolder />
+				</div>
 			{/if}
 		</a>
 		<div class="card-info">
@@ -93,6 +96,7 @@
 		transition: opacity 0.03s;
 		opacity: 0;
 		min-width: 50px;
+		overflow: hidden;
 	}
 	.card-thumbnail.showImage {
 		opacity: 1;

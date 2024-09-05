@@ -6,6 +6,7 @@
 	import CustomInput from '$lib/ui/Input/CustomInput.svelte';
 	import ToggleSwitch from '$lib/ui/ToggleSwitch/index.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
 	let reviewData = [];
 	let newReviewTextArea;
@@ -205,7 +206,13 @@
 								</div>
 								|
 								<div class="review-header-left-top-right">
-									<img src={review.profile_photo} alt={review.username} />
+									{#if review?.profile_photo}
+										<img class="profile-photo" src={review.profile_photo} alt={review.username} />
+									{:else}
+										<div class="profile-photo">
+											<ImagePlaceHolder />
+										</div>
+									{/if}
 									<span>{review.username}</span>
 								</div>
 							</div>
@@ -332,13 +339,14 @@
 		margin-right: 10px;
 	}
 
-	.review-header-left-top-right img {
+	.review-header-left-top-right .profile-photo {
 		border-radius: 50%;
 		width: 23.5px;
 		height: 23.5px;
 		object-fit: cover;
 		border: 2px solid #a69160;
 		color: #e3f1f6;
+		overflow: hidden;
 	}
 
 	.review-header-left-top-right span {

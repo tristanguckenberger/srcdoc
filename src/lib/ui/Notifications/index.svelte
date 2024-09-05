@@ -4,6 +4,7 @@
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { platformSession } from '$lib/stores/platformSession';
 	import { writable } from 'svelte/store';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
 	let fetchedNotifications = writable([]);
 	let totalNotifications = 0;
@@ -93,11 +94,17 @@
 					<div class="notification-details">
 						<p class="timestamp">{new Date(notification.created_at).toLocaleString()}</p>
 						<div class="activity-header">
-							<img
-								src={notification.sender_profile_photo}
-								alt="User avatar"
-								class="profile-photo"
-							/>
+							{#if notification?.sender_profile_photo}
+								<img
+									src={notification.sender_profile_photo}
+									alt="User avatar"
+									class="profile-photo"
+								/>
+							{:else}
+								<div class="profile-photo">
+									<ImagePlaceHolder />
+								</div>
+							{/if}
 							<p class="primary-text">
 								<a href="/users/{notification.sender_id}"
 									>{notification.sender_username ?? 'A User'}</a
@@ -125,11 +132,17 @@
 						{#if notification.entity_type === 'game'}
 							<a href="/games/{notification?.entity_id}/play" class="activity-link">
 								<div class="game-details">
-									<img
-										src={notification.entity_thumbnail}
-										alt="Game thumbnail"
-										class="game-thumbnail"
-									/>
+									{#if notification?.entity_thumbnail}
+										<img
+											src={notification.entity_thumbnail}
+											alt="Game thumbnail"
+											class="game-thumbnail"
+										/>
+									{:else}
+										<div class="game-thumbnail">
+											<ImagePlaceHolder />
+										</div>
+									{/if}
 									<div class="game-info">
 										<p class="game-title">{notification.entity_title}</p>
 										<p class="game-description">{notification.entity_description}</p>
@@ -141,11 +154,17 @@
 							<a href="/games/{notification?.entity_id}/play" class="activity-link">
 								<div class="game-comment">
 									<div class="comment-game-details">
-										<img
-											src={notification.entity_thumbnail}
-											alt="Game thumbnail"
-											class="game-thumbnail"
-										/>
+										{#if notification?.entity_thumbnail}
+											<img
+												src={notification.entity_thumbnail}
+												alt="Game thumbnail"
+												class="game-thumbnail"
+											/>
+										{:else}
+											<div class="game-thumbnail">
+												<ImagePlaceHolder />
+											</div>
+										{/if}
 										<div class="game-info">
 											<p class="game-title">{notification.entity_title}</p>
 											<p class="game-description">{notification.entity_description}</p>
@@ -228,6 +247,7 @@
 		border-radius: 50%;
 		object-fit: cover;
 		border: 2px solid #a69160;
+		overflow: hidden;
 	}
 
 	.notification-details {
@@ -258,6 +278,7 @@
 		height: 50px;
 		border-radius: 6px;
 		object-fit: cover;
+		overflow: hidden;
 	}
 
 	.game-info {

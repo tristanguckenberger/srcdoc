@@ -10,6 +10,7 @@
 	import { browser } from '$app/environment';
 	import { screenshot } from '$lib/stores/gamesStore';
 	import { platformSession } from '$lib/stores/platformSession';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
 	export let game;
 	export let id;
@@ -109,7 +110,9 @@
 				<div
 					class="card-thumbnail-placeholder card-thumbnail"
 					class:hidePlaceholder={thumbnail || game?.thumbnail}
-				/>
+				>
+					<ImagePlaceHolder />
+				</div>
 			{/if}
 		</a>
 		<div class="card-info">
@@ -202,6 +205,7 @@
 		background-color: var(--folder-button-color);
 		opacity: 1;
 		margin-bottom: 10px;
+		overflow: hidden;
 	}
 	.card-info {
 		color: var(--color-primary);

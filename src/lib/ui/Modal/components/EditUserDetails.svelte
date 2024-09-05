@@ -7,6 +7,7 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { drawerOpen } from '$lib/stores/drawerStore';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
 	export let id = $modalProps?.id;
 	export let username = $modalProps?.username;
@@ -27,7 +28,6 @@
 			profilePhotoPreview = URL.createObjectURL(file);
 			fileObj = file;
 			console.log('file::', file);
-
 		}
 	}
 
@@ -80,11 +80,17 @@
 					d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.71,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.43l13.63,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z"
 				/></svg
 			>
-			<img
-				src={profilePhotoPreview ?? 'https://picsum.photos/50'}
-				alt="Profile Avatar Preview"
-				class="photo-preview"
-			/>
+			{#if profilePhotoPreview}
+				<img
+					src={profilePhotoPreview ?? 'https://picsum.photos/50'}
+					alt="Profile Avatar Preview"
+					class="photo-preview"
+				/>
+			{:else}
+				<div class="photo-preview">
+					<ImagePlaceHolder />
+				</div>
+			{/if}
 		</div>
 	</div>
 	<div>
@@ -144,6 +150,7 @@
 		max-width: 200px;
 		max-height: 200px;
 		object-fit: cover;
+		overflow: hidden;
 	}
 	.input-label {
 		font-family: 'Source Sans 3', sans-serif;

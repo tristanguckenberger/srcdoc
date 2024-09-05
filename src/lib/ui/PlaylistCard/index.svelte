@@ -7,6 +7,7 @@
 	import { platformSession } from '$lib/stores/platformSession';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore.js';
 	import { playButton } from '$lib/stores/gamesStore.js';
+	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
 	export let playlist;
 	export let id;
@@ -117,7 +118,9 @@
 				<div
 					class="card-thumbnail-placeholder card-thumbnail"
 					class:hidePlaceholder={thumbnail || playlist?.thumbnail}
-				/>
+				>
+					<ImagePlaceHolder />
+				</div>
 			{/if}
 		</a>
 		<div class="card-info">
@@ -208,13 +211,15 @@
 		transition: opacity 0.03s;
 		opacity: 0;
 		min-width: 50px;
+		overflow: hidden;
 	}
 	.card-thumbnail.showImage {
 		opacity: 1;
 	}
 	.card-thumbnail-placeholder {
-		background-color: var(--folder-button-color);
+		/* background-color: var(--folder-button-color); */
 		opacity: 1;
+		overflow: hidden;
 	}
 	.card-info {
 		color: var(--color-primary);
