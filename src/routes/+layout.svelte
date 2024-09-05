@@ -431,11 +431,10 @@
 
 	$: {
 		if (
-			browser &&
-			(!$platformSession?.currentUser?.id ||
-				!$platformSession?.currentUser?.username ||
-				!$platformSession?.currentUser?.profile_photo ||
-				!$platformSession?.currentUser?.bio)
+			!$platformSession?.currentUser?.id ||
+			!$platformSession?.currentUser?.username ||
+			!$platformSession?.currentUser?.profile_photo ||
+			!$platformSession?.currentUser?.bio
 		) {
 			platformSession.set({
 				...$platformSession,
@@ -459,6 +458,15 @@
 			currentUser: {
 				...$platformSession?.currentUser,
 				profile_photo: $userPfpStore
+			}
+		};
+	}
+	$: if (!$platformSession?.currentUser?.id) {
+		$platformSession = {
+			...$platformSession,
+			currentUser: {
+				...$platformSession?.currentUser,
+				id: data?.userId ?? $userIdStore
 			}
 		};
 	}

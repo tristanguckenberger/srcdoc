@@ -105,6 +105,34 @@
 		width: calc(100% - 230px) !important;
 	}
 	@media (max-width: 498px) {
+		:global(#editor-layout) {
+			display: flex;
+			flex-direction: column;
+			height: calc(100% + 10px);
+			width: calc(100% - 20px);
+			margin-left: 10px;
+			background-color: var(--color-secondary);
+			background: var(--home-gradient-color-2);
+			background: linear-gradient(
+				270deg,
+				var(--home-gradient-color-1) 0%,
+				var(--home-gradient-color-2) 100%
+			);
+			background: -moz-linear-gradient(
+				270deg,
+				var(--home-gradient-color-1) 0%,
+				var(--home-gradient-color-2) 100%
+			);
+			background: -webkit-linear-gradient(
+				270deg,
+				var(--theme-or-highlight) 0%,
+				var(--home-gradient-color-2) 100%
+			);
+			border-radius: 8px;
+			transition: background 0.09s linear(0.07 -1.12%, 1 100%);
+			height: unset !important;
+		}
+
 		.main.grid {
 			width: calc(100% - 0px);
 		}
