@@ -1,3 +1,5 @@
+<svelte:options runes={true} />
+
 <script>
 	// @ts-nocheck
 	// Vercel Analytics
@@ -6,7 +8,7 @@
 	import { debounce } from 'lodash-es';
 
 	// SVELTE IMPORTS
-	import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
+	import { onDestroy, tick } from 'svelte';
 	import { page, navigating } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
@@ -77,10 +79,11 @@
 		userUsernameStore
 	} from '$lib/stores/InfoStore.js';
 	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
+	import { Options } from 'svelte-preprocess/dist/types/index.js';
 
 	// PROPS
-	export let data; // This is the data from the server, includes `settings` and `currentUser`
-
+	// export let data; // This is the data from the server, includes `settings` and `currentUser`
+	let { data } = $props();
 	// Variables
 	let preferedThemeMode;
 	let dropDownToggle = false;
@@ -116,15 +119,82 @@
 		return settings;
 	};
 	const debouncedScrollForward = debounce(handleScrollForward, 350);
-	onMount(async () => {
+	// Replace with $effect
+	// onMount(async () => {
+	// 	inject({ mode: dev ? 'development' : 'production' });
+
+	// 	// if (browser) {
+	// 	// preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
+	// 	// preferedThemeMode?.addEventListener('change', updateTheme);
+	// 	updateTheme(preferedThemeMode);
+
+	// 	// Start local storage stores
+	// 	homePageInfoStore.useLocalStorage();
+	// 	gamePageInfoStore.useLocalStorage();
+	// 	editorPageInfoStore.useLocalStorage();
+	// 	userPfpStore.useLocalStorage();
+	// 	userBioStore.useLocalStorage();
+	// 	userIdStore.useLocalStorage();
+	// 	userUsernameStore.useLocalStorage();
+
+	// 	if ($platformSession?.settings) {
+	// 		homePageInfoStore.set({
+	// 			...$homePageInfoStore,
+	// 			viewed: $platformSession?.settings?.hide_pop_up_info_home
+	// 		});
+	// 		gamePageInfoStore.set({
+	// 			...$gamePageInfoStore,
+	// 			viewed: $platformSession?.settings?.hide_pop_up_info_games
+	// 		});
+	// 		editorPageInfoStore.set({
+	// 			...$editorPageInfoStore,
+	// 			viewed: $platformSession?.settings?.hide_pop_up_info_editor
+	// 		});
+	// 		$modalFullInfoStore = null;
+	// 	}
+	// 	const userId = data?.userId ?? $userIdStore;
+	// 	const init = async () => {
+	// 		if (browser && userId && !$settingsStore) {
+	// 			const settingsRes = await getSettings();
+
+	// 			if (settingsRes) {
+	// 				settingsStore.set(settingsRes);
+	// 			}
+	// 		}
+	// 	};
+
+	// 	if (!$platformSession?.ready) {
+	// 		if ($platformSession?.currentUser?.profile_photo) {
+	// 			userPfpStore.set($platformSession?.currentUser?.profile_photo);
+	// 		}
+	// 		if ($platformSession?.currentUser?.bio) {
+	// 			userBioStore.set($platformSession?.currentUser?.bio);
+	// 		}
+	// 		if ($platformSession?.currentUser?.id) {
+	// 			userIdStore.set($platformSession?.currentUser?.id);
+	// 		}
+	// 		if ($platformSession?.currentUser?.username) {
+	// 			userUsernameStore.set($platformSession?.currentUser?.username);
+	// 		}
+
+	// 		$platformSession.ready = true;
+	// 	}
+	// 	// }
+
+	// 	// try this in an onMount and an afterUpdate
+	// 	mainPageElement = mainElement?.querySelector('.main');
+
+	// 	// if we have the main page element, we can add the event listeners for scrolling
+	// 	// return () => {
+	// 	// 	preferedThemeMode?.removeListener('change', updateTheme);
+	// 	// };
+	// 	init();
+	// });
+
+	$effect(() => {
 		inject({ mode: dev ? 'development' : 'production' });
 
-		// if (browser) {
-		// preferedThemeMode = window?.matchMedia('(prefers-color-scheme: light)');
-		// preferedThemeMode?.addEventListener('change', updateTheme);
 		updateTheme(preferedThemeMode);
-
-		// Start local storage stores
 		homePageInfoStore.useLocalStorage();
 		gamePageInfoStore.useLocalStorage();
 		editorPageInfoStore.useLocalStorage();
@@ -132,7 +202,9 @@
 		userBioStore.useLocalStorage();
 		userIdStore.useLocalStorage();
 		userUsernameStore.useLocalStorage();
+	});
 
+	$effect(() => {
 		if ($platformSession?.settings) {
 			homePageInfoStore.set({
 				...$homePageInfoStore,
@@ -186,6 +258,9 @@
 		// };
 		init();
 	});
+
+
+
 	beforeNavigate(async (nav) => {
 		if (gameSessionId) {
 			try {
@@ -228,9 +303,43 @@
 			creatingNewPlaylist = false;
 		}
 	});
-	afterUpdate(async () => {
-		await tick();
-		if ($openFiles?.length > 0) {
+
+	// afterUpdate(async () => {
+	// 	await tick();
+	// 	if ($openFiles?.length > 0) {
+	// 		$addPaddingToEditorStore = true;
+	// 	} else {
+	// 		$addPaddingToEditorStore = false;
+	// 	}
+
+	// 	shouldAddPadding = $addPaddingToEditorStore;
+
+	// 	$gameFavorites?.favorites?.some((fav) => {
+	// 		isFavorited = fav?.user_id === $platformSession?.currentUser?.id ?? false;
+	// 	});
+
+	// 	deleteOrCreateFav = isFavorited ?? false;
+
+	// 	if (!$platformSession?.ready) {
+	// 		if ($platformSession?.currentUser?.profile_photo) {
+	// 			userPfpStore.set($platformSession?.currentUser?.profile_photo);
+	// 		}
+	// 		if ($platformSession?.currentUser?.bio) {
+	// 			userBioStore.set($platformSession?.currentUser?.bio);
+	// 		}
+	// 		if ($platformSession?.currentUser?.id) {
+	// 			userIdStore.set($platformSession?.currentUser?.id);
+	// 		}
+	// 		if ($platformSession?.currentUser?.username) {
+	// 			userUsernameStore.set($platformSession?.currentUser?.username);
+	// 		}
+
+	// 		$platformSession.ready = true;
+	// 	}
+	// });
+	$effect(() => {
+		tick().then(() => {
+			if ($openFiles?.length > 0) {
 			$addPaddingToEditorStore = true;
 		} else {
 			$addPaddingToEditorStore = false;
@@ -260,11 +369,14 @@
 
 			$platformSession.ready = true;
 		}
+		});
 	});
-
+	
+	// Deprecated
 	onDestroy(() => {
 		preferedThemeMode?.removeListener(updateTheme);
 	});
+
 	const loaderCheck = (navigation) => {
 		let canLoad = false;
 
@@ -361,18 +473,17 @@
 	};
 
 	// REACTIVE VARIABLES & STATEMENTS
-	$: splitPath = $page?.route?.id?.split('/') ?? [];
-	$: engineInRoute = splitPath.some((path) => path === 'engine');
-	$: playInRoute = splitPath.some((path) => path === 'play');
-	$: isVerifyPage = splitPath[splitPath?.length - 1] === 'verify';
-	$: isHomePage = $page?.route?.id === '/';
-	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: isPlayPage =
-		$page?.route?.id === '/games/[slug]/play' ||
-		$page?.route?.id === '/games/playlist/[playlistId]/[gameSlug]/play';
-	$: isAuthPage = $page?.route?.id === '/';
-	$: isMobile = $appClientWidth < 768;
-	$: play = $playButton;
+	let splitPath = $derived($page?.route?.id?.split('/') ?? []);
+	let engineInRoute = $derived(splitPath.some((path) => path === 'engine'));
+	let playInRoute = $derived(splitPath.some((path) => path === 'play'));
+	let isVerifyPage = $derived(splitPath[splitPath?.length - 1] === 'verify');
+	let isHomePage = $derived($page?.route?.id === '/');
+	let themeString = $derived($themeDataStore?.theme?.join(' '));
+	let isPlayPage = $derived($page?.route?.id === '/games/[slug]/play' ||
+		$page?.route?.id === '/games/playlist/[playlistId]/[gameSlug]/play');
+	isAuthPage = $derived($page?.route?.id === '/');
+	let isMobile = $derived($appClientWidth < 768);
+	let play = $derived($playButton);
 	$: isProfilePage =
 		splitPath[splitPath?.length - 1] === 'users' ||
 		(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main');
