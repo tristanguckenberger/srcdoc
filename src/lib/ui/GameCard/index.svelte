@@ -194,7 +194,7 @@
 		background: var(--search-result-card);
 	}
 	.card-thumbnail {
-		width: 100%;
+		width: 50px;
 		height: 100%;
 		object-fit: cover;
 		border-radius: 6px;

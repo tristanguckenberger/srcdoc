@@ -180,13 +180,12 @@
 		width: 40vw;
 		display: flex;
 		flex-direction: column;
-		background-color: #212325;
+		background-color: var(--user-accent-color);
 		border-radius: 8px;
-		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 2px 10px 2px rgb(0 0 0 / 42%);
 		height: calc(55%);
 		overflow-y: scroll;
 		overflow-x: hidden;
-		gap: 2vmax;
 	}
 	.notification {
 		color: var(--color-primary);

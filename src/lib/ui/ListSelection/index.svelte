@@ -243,6 +243,7 @@
 		gap: 5px;
 		padding: 0 0 0 10px;
 		width: 100%;
+		max-width: 80%;
 	}
 	.card-info div h4 {
 		margin-block-start: 0;
