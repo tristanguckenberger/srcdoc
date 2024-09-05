@@ -20,11 +20,21 @@ export async function GET({ cookies, setHeaders }) {
 			settingsReqInit
 		);
 		if (!settingsResponse.ok) {
-			cookies.delete('token', { path: '/' });
-			cookies.delete('isActive', { path: '/' });
-			cookies.delete('profile_photo', { path: '/' });
-			cookies.delete('userId', { path: '/' });
-			cookies.delete('username', { path: '/' });
+			console.log('settingsResponse::ERROR::', settingsResponse);
+			if (settingsResponse.statusText === 'Service Temporarily Unavailable') {
+				return json({
+					status: settingsResponse.status,
+					body: {
+						message: `You're doing that too much. Please wait a few minutes and try again.`
+					}
+				});
+			} else {
+				cookies.delete('token', { path: '/' });
+				cookies.delete('isActive', { path: '/' });
+				cookies.delete('profile_photo', { path: '/' });
+				cookies.delete('userId', { path: '/' });
+				cookies.delete('username', { path: '/' });
+			}
 			return json({
 				status: 401,
 				body: {

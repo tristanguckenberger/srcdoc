@@ -19,13 +19,20 @@ export async function GET({ cookies }) {
 
 	const userResponse = await fetch(`${process.env.SERVER_URL}/api/users/me`, userReqInit);
 	if (!userResponse.ok) {
-		cookies.delete('token', { path: '/' });
-		return json({
-			status: 401,
-			body: {
-				message: 'Authentication failed'
-			}
-		});
+		if (userResponse.status === 400 || userResponse.status === 401 || userResponse.status === 404) {
+			cookies.delete('token', { path: '/' });
+			cookies.delete('isActive', { path: '/' });
+			cookies.delete('profile_photo', { path: '/' });
+			cookies.delete('userId', { path: '/' });
+			cookies.delete('username', { path: '/' });
+
+			return json({
+				status: userResponse.status,
+				body: {
+					message: `Authentication expired. Please log in again.`
+				}
+			});
+		}
 	}
 
 	let user = await userResponse.json();
