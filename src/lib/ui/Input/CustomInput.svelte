@@ -121,6 +121,7 @@
 		{:else if inputCapture === 'query'}
 			<input
 				class:hideMe={hidden}
+				class="search-input"
 				placeholder="Find something..."
 				type="text"
 				{hidden}
@@ -209,5 +210,8 @@
 		opacity: 0;
 		height: 0px !important;
 		width: 0px !important;
+	}
+	input.search-input {
+		color: var(--color-secondary) !important;
 	}
 </style>

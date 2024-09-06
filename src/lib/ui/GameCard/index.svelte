@@ -184,7 +184,7 @@
 	.playlist {
 		display: flex;
 		flex-direction: row;
-		width: calc(100% - 20px);
+		/* width: calc(100% - 20px); */
 		height: 50px;
 		border-radius: 6px;
 		margin: 0;
