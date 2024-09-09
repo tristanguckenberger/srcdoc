@@ -769,7 +769,7 @@
 		gap: 40px;
 		align-items: center;
 		bottom: 90px;
-		right: 25px;
+		right: 22px;
 	}
 
 	/* .sub-action-menu {
