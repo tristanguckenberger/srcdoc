@@ -864,6 +864,7 @@
 			<div
 				class="play-button-container"
 				class:fade={!$hidePlayButtonStore || (!$playButton && $actionMenuOpen)}
+				class:isPauseBTN={$playButton}
 			>
 				<button
 					class="action-button play-button"
@@ -1290,6 +1291,10 @@
 			top: unset !important;
 			z-index: 0;
 			right: 26.5px;
+		}
+		.play-button-container.isPauseBTN {
+			bottom: unset !important;
+			top: 20px !important;
 		}
 		.play-button {
 			transform: unset !important;
