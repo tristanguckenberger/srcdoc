@@ -5,7 +5,8 @@
 	import Editor from '$lib/ui/Editor/index.svelte';
 	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
 	import { isVertical, editorContainerHeight, editorContainerWidth } from '$lib/stores/layoutStore';
-	import { codePanes2, openFiles, focusedFileId } from '$lib/stores/filesStore';
+	import { codePanes2, openFiles, focusedFileId, filesToUpdate } from '$lib/stores/filesStore';
+	import { afterUpdate, tick } from 'svelte';
 
 	function getFocusedFile(paneArr) {
 		return paneArr?.find((file) => {
@@ -13,43 +14,69 @@
 		});
 	}
 
-	$: $codePanes2,
-		(() => {
-			const focusedFile = getFocusedFile($codePanes2);
-			if (!focusedFile && $focusedFileId !== null) {
-				const fileIsOpen = $openFiles?.find(
-					(file) => file?.fileId?.toString() === $focusedFileId?.toString()
-				);
+	afterUpdate(async () => {
+		await tick();
 
-				if (fileIsOpen) {
-					$codePanes2 = [
-						...$codePanes2,
-						{
-							paneID: `#split-${fileIsOpen?.name}-${fileIsOpen?.type}-${fileIsOpen?.id}`,
-							source: fileIsOpen?.source,
-							type: fileIsOpen?.type
-						}
-					];
-				}
+		const focusedFile = getFocusedFile($codePanes2);
+		if (!focusedFile && $focusedFileId !== null) {
+			const fileIsOpen = $openFiles?.find(
+				(file) => file?.fileId?.toString() === $focusedFileId?.toString()
+			);
+
+			if (fileIsOpen) {
+				$codePanes2 = [
+					...$codePanes2,
+					{
+						paneID: `#split-${fileIsOpen?.name}-${fileIsOpen?.type}-${fileIsOpen?.id}`,
+						source: fileIsOpen?.source,
+						type: fileIsOpen?.type
+					}
+				];
 			}
+		}
 
-			// Handle openFiles and codePanes2 store mismatches
-			$codePanes2?.forEach((_, index) => {
-				// There should be an equal amount of indicies in
-				// codePanes2 and openFiles, so we should be able to use
-				// the index from codePanes2 to compare openFiles and
-				// codePanes2
-				const currentPane = $codePanes2[index];
-				const currentFile = $openFiles[index];
-				const mismatchFound = currentPane.source !== currentFile.content;
+		// Handle openFiles and codePanes2 store mismatches
+		$codePanes2?.forEach((_, index) => {
+			// There should be an equal amount of indicies in
+			// codePanes2 and openFiles, so we should be able to use
+			// the index from codePanes2 to compare openFiles and
+			// codePanes2
+			const currentPane = $codePanes2[index];
+			const currentFile = $openFiles[index];
+			const mismatchFound = currentPane.source !== currentFile.content;
 
-				// If we have a mismatch update the currentPane
-				// to match the currentFile (latest value)
-				if (mismatchFound) {
-					currentPane.source = currentFile.content;
-				}
+			if (mismatchFound) {
+				currentPane.source = currentFile.content;
+			}
+		});
+
+		// Check against filesToUpdate too
+		if ($filesToUpdate?.length > 0) {
+			$filesToUpdate?.forEach((_, index) => {
+				const currentFileToUpdate = $filesToUpdate[index];
+				const currentFileToUpdateId = $filesToUpdate[index].id;
+
+				// Loop over each codePane and check for a mismatch
+				$codePanes2?.forEach((_, paneIndex) => {
+					const currentPane = $codePanes2[paneIndex];
+					const currentFile = $openFiles[paneIndex];
+					const idMatchFound = currentPane.fileId === currentFileToUpdateId;
+
+					if (idMatchFound) {
+						const mismatchFound =
+							currentPane.source !== currentFileToUpdate.content ||
+							currentFile.content !== currentFileToUpdate.content;
+						if (mismatchFound) {
+							currentPane.source = currentFileToUpdate.content;
+							// currentFile.content = currentFileToUpdate.content;
+						}
+					}
+				});
 			});
-		})();
+		}
+
+		await tick();
+	});
 
 	const makePaneLabel = (pane) => {
 		return pane?.label && pane?.type ? `${pane?.label}.${pane?.type}` : '';

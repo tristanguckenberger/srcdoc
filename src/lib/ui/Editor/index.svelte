@@ -4,17 +4,15 @@
 		autoCompile,
 		initialDataStore,
 		baseDataStore,
-		openFiles
-	} from '$lib/stores/filesStore.js';
-	import MonacoEditorScripts from './MonacoEditorScripts.svelte';
-	import {
-		derivedCodeData,
+		openFiles,
 		codePanes2,
+		derivedCodeData,
 		focusedFileId,
 		previouslyFocusedFileId,
 		fileStoreFiles,
 		filesToUpdate
 	} from '$lib/stores/filesStore.js';
+	import MonacoEditorScripts from './MonacoEditorScripts.svelte';
 	import { onDestroy, onMount, tick } from 'svelte';
 
 	export let readonly = false;
@@ -33,21 +31,6 @@
 			}
 		}
 	}
-
-	// Add this in the onMount lifecycle hook or another suitable place
-	onMount(() => {
-		// Attach event listener
-		// window?.addEventListener('keydown', handleKeyDown);
-		// // Cleanup
-		// return () => {
-		// 	window.removeEventListener('keydown', handleKeyDown);
-		// };
-	});
-
-	onDestroy(() => {
-		// Cleanup
-		// window?.removeEventListener('keydown', handleKeyDown);
-	});
 
 	$: codeType = type;
 
@@ -74,9 +57,6 @@
 
 				if ($codePanes2?.length < 2) {
 					if (derivedCodeDataId?.toString() !== id?.toString()) {
-						// code = $derivedCodeData?.source;
-						// type = $derivedCodeData?.type;
-						// id = derivedCodeDataId;
 						$codePanes2 = [codePaneFile];
 					}
 				} else if (!fileIsInCodePanes2 && previouslyFocusedFileIsInCodePanes2) {
@@ -182,6 +162,7 @@
 
 <div style="height:100%;">
 	<MonacoEditorScripts
+		editorID={id}
 		IFTitle={codeType === 'js' ? 'javascript' : codeType}
 		bind:value={code}
 		{options}

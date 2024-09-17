@@ -8,16 +8,18 @@
 	import { editorStore } from '$lib/stores/editorStore';
 	import { themeKeyStore } from '$lib/stores/themeStore';
 	import { appClientWidth } from '$lib/stores/layoutStore';
+	import { codePanes2 } from '$lib/stores/filesStore';
 
 	export let IFTitle;
 	export let value;
 	export let options;
+	export let editorID;
 
 	let Monaco;
 	let container;
 	let editor = null;
 	let models = null;
-
+	let EIDARR = editorID?.split('-');
 	let selectionsContainer;
 	let rightSelector;
 	let leftSelector;
@@ -565,6 +567,21 @@
 
 	const dispatch = createEventDispatcher();
 </script>
+
+<svelte:window
+	on:resize={async () => {
+		const currentEditorValue = editor.getValue();
+		const currentFileID = EIDARR[EIDARR?.length - 1];
+		const currentFile = $codePanes2?.find(
+			(pane) => pane?.fileId?.toString() === currentFileID?.toString()
+		);
+		setTimeout(() => {
+			if (currentEditorValue !== currentFile.source) {
+				editor.setValue(currentFile.source);
+			}
+		}, 500);
+	}}
+/>
 
 <div
 	id={IFTitle}
