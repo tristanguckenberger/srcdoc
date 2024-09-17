@@ -176,8 +176,13 @@
 		if (returnedContent.ok) {
 			const res = await returnedContent.json();
 
+			console.log('new file res::', res);
+
 			if (isFileObjectShape(res)) {
+				console.log('true::response is in file object shape!::');
 				$initialDataStore.files = [...$initialDataStore?.files, res];
+			} else {
+				console.log('false::response is NOT in file object shape!::');
 			}
 		}
 
