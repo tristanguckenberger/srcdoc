@@ -100,6 +100,7 @@
 	$: $autoCompile = readonly;
 
 	$: options = {
+		allowMobileSelection: false,
 		theme: 'omni-light',
 		language: codeType,
 		fontSize: 13,

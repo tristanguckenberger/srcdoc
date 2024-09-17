@@ -24,6 +24,7 @@
 	let selectorMenu;
 	let globalPoseMenu = 0;
 	let disabledMove = false;
+	let allowMobileSelection = false;
 
 	$: if (IFTitle === 'js') {
 		IFTitle = 'javascript';
@@ -31,6 +32,7 @@
 	$: model = editor?.getModel();
 	$: uri = model?.uri;
 	$: editorId = editor?._id;
+	$: allowMobileSelection = options?.allowMobileSelection ?? false;
 
 	onMount(async () => {
 		try {
@@ -86,152 +88,154 @@
 			Monaco.editor.setModelLanguage(model || editor.getModel(), IFTitle);
 			Monaco?.editor?.setTheme(`omni-${$themeKeyStore || 'light'}`);
 
-			// Touch functionality initialization
-			if ($appClientWidth <= 498) {
-				initializeSelector();
-			}
-
-			const editorElement = container;
-			let touchTimeout;
-			let touchCount = 0;
-			let startPosition;
-			let isSelecting = false;
-
-			function getLineYCoordinate(position) {
-				const lineTop = editor.getTopForLineNumber(position.lineNumber);
-				const editorCoords = editorElement.getBoundingClientRect();
-				const lineY = window.scrollY + editorCoords.top + lineTop - tapsHeight;
-				return lineY;
-			}
-
-			function isPositionInSelection(position) {
-				const selection = editor.getSelection();
-				if (!selection || selection.isEmpty()) {
-					return false;
+			if (allowMobileSelection) {
+				// Touch functionality initialization
+				if ($appClientWidth <= 498) {
+					initializeSelector();
 				}
 
-				const startPosition = selection.getStartPosition();
-				const endPosition = selection.getEndPosition();
+				const editorElement = container;
+				let touchTimeout;
+				let touchCount = 0;
+				let startPosition;
+				let isSelecting = false;
 
-				const isInRange =
-					(position.lineNumber > startPosition.lineNumber ||
-						(position.lineNumber === startPosition.lineNumber &&
-							position.column >= startPosition.column)) &&
-					(position.lineNumber < endPosition.lineNumber ||
-						(position.lineNumber === endPosition.lineNumber &&
-							position.column <= endPosition.column));
-
-				return isInRange;
-			}
-
-			editorElement.addEventListener('touchstart', (event) => {
-				if (selectorMenu.contains(event.target) || selectionsContainer.contains(event.target)) {
-					event.stopPropagation();
-					event.preventDefault();
-				}
-				touchCount++;
-				if (touchTimeout) {
-					clearTimeout(touchTimeout);
+				function getLineYCoordinate(position) {
+					const lineTop = editor.getTopForLineNumber(position.lineNumber);
+					const editorCoords = editorElement.getBoundingClientRect();
+					const lineY = window.scrollY + editorCoords.top + lineTop - tapsHeight;
+					return lineY;
 				}
 
-				touchTimeout = setTimeout(() => {
-					isSelecting = true;
-					if (!isPositionInSelection(startPosition)) {
-						editor.setPosition(startPosition);
+				function isPositionInSelection(position) {
+					const selection = editor.getSelection();
+					if (!selection || selection.isEmpty()) {
+						return false;
 					}
-					let YValue = getLineYCoordinate(startPosition);
-					showContextMenu(event.touches[0].clientX, YValue - 50);
-				}, 1000); // 1 second long press to show context menu
-				const touch = event.touches[0];
-				const target = editor.getTargetAtClientPoint(touch.clientX, touch.clientY);
-				if (target && target.position) {
-					startPosition = target.position;
-				}
-			});
 
-			editorElement.addEventListener('touchend', () => {
-				if (touchTimeout) {
-					clearTimeout(touchTimeout);
-				}
-				if (isSelecting) {
-					isSelecting = false;
-				}
-				if (disabledMove) {
-					disabledMove = false;
-				}
-			});
+					const startPosition = selection.getStartPosition();
+					const endPosition = selection.getEndPosition();
 
-			const tapsHeight = -3;
-			const leftLength = document.querySelector('.monaco-editor .margin').offsetWidth;
+					const isInRange =
+						(position.lineNumber > startPosition.lineNumber ||
+							(position.lineNumber === startPosition.lineNumber &&
+								position.column >= startPosition.column)) &&
+						(position.lineNumber < endPosition.lineNumber ||
+							(position.lineNumber === endPosition.lineNumber &&
+								position.column <= endPosition.column));
 
-			editorElement.addEventListener('touchmove', (event) => {
-				if (touchTimeout) {
-					clearTimeout(touchTimeout);
+					return isInRange;
 				}
 
-				if (disabledMove) {
-					event.preventDefault();
-					event.stopPropagation();
-				}
+				editorElement.addEventListener('touchstart', (event) => {
+					if (selectorMenu.contains(event.target) || selectionsContainer.contains(event.target)) {
+						event.stopPropagation();
+						event.preventDefault();
+					}
+					touchCount++;
+					if (touchTimeout) {
+						clearTimeout(touchTimeout);
+					}
 
-				if (startPosition && isSelecting) {
-					event.preventDefault();
-					event.stopPropagation();
+					touchTimeout = setTimeout(() => {
+						isSelecting = true;
+						if (!isPositionInSelection(startPosition)) {
+							editor.setPosition(startPosition);
+						}
+						let YValue = getLineYCoordinate(startPosition);
+						showContextMenu(event.touches[0].clientX, YValue - 50);
+					}, 1000); // 1 second long press to show context menu
 					const touch = event.touches[0];
 					const target = editor.getTargetAtClientPoint(touch.clientX, touch.clientY);
 					if (target && target.position) {
-						editor.setSelection(
-							new Monaco.Selection(
-								startPosition.lineNumber,
-								startPosition.column,
-								target.position.lineNumber,
-								target.position.column
-							)
-						);
-						isSelecting = true;
+						startPosition = target.position;
 					}
-				}
-			});
+				});
 
-			editor.onDidChangeCursorSelection((e) => {
-				const selection = e.selection;
-				const startPosition = selection.getStartPosition();
-				const endPosition = selection.getEndPosition();
+				editorElement.addEventListener('touchend', () => {
+					if (touchTimeout) {
+						clearTimeout(touchTimeout);
+					}
+					if (isSelecting) {
+						isSelecting = false;
+					}
+					if (disabledMove) {
+						disabledMove = false;
+					}
+				});
 
-				if (selection.isEmpty()) {
-					// Hide the selections container when there's no selection
-					selectionsContainer.classList.add('hidden');
-					selectorMenu.classList.add('hidden');
-					return;
-				}
+				const tapsHeight = -3;
+				const leftLength = document.querySelector('.monaco-editor .margin').offsetWidth;
 
-				// Get the top position of the start and end lines
-				const startLineTop = editor.getTopForLineNumber(startPosition.lineNumber);
-				const endLineTop = editor.getTopForLineNumber(endPosition.lineNumber);
+				editorElement.addEventListener('touchmove', (event) => {
+					if (touchTimeout) {
+						clearTimeout(touchTimeout);
+					}
 
-				// Get the position of the start and end of the selection in client coordinates
-				const startCoords = editor.getScrolledVisiblePosition(startPosition);
-				const endCoords = editor.getScrolledVisiblePosition(endPosition);
+					if (disabledMove) {
+						event.preventDefault();
+						event.stopPropagation();
+					}
 
-				if (startCoords && endCoords) {
-					const editorCoords = editorElement.getBoundingClientRect();
+					if (startPosition && isSelecting) {
+						event.preventDefault();
+						event.stopPropagation();
+						const touch = event.touches[0];
+						const target = editor.getTargetAtClientPoint(touch.clientX, touch.clientY);
+						if (target && target.position) {
+							editor.setSelection(
+								new Monaco.Selection(
+									startPosition.lineNumber,
+									startPosition.column,
+									target.position.lineNumber,
+									target.position.column
+								)
+							);
+							isSelecting = true;
+						}
+					}
+				});
 
-					// Adjust the selectors' positions based on start and end coordinates
-					const leftSelectorX = startCoords.left + editorCoords.left;
-					const leftSelectorY = startLineTop + editorCoords.top;
-					const rightSelectorX = endCoords.left + editorCoords.left;
-					const rightSelectorY = endLineTop + editorCoords.top;
+				editor.onDidChangeCursorSelection((e) => {
+					const selection = e.selection;
+					const startPosition = selection.getStartPosition();
+					const endPosition = selection.getEndPosition();
 
-					// Apply calculated positions
-					leftSelector.style.transform = `translateX(${leftSelectorX}px) translateY(${leftSelectorY}px)`;
-					rightSelector.style.transform = `translateX(${rightSelectorX}px) translateY(${rightSelectorY}px)`;
+					if (selection.isEmpty()) {
+						// Hide the selections container when there's no selection
+						selectionsContainer.classList.add('hidden');
+						selectorMenu.classList.add('hidden');
+						return;
+					}
 
-					globalPoseMenu = leftSelectorY - 50;
-				}
+					// Get the top position of the start and end lines
+					const startLineTop = editor.getTopForLineNumber(startPosition.lineNumber);
+					const endLineTop = editor.getTopForLineNumber(endPosition.lineNumber);
 
-				// Show the selections container when there is a selection
-				selectionsContainer.classList.remove('hidden');
-			});
+					// Get the position of the start and end of the selection in client coordinates
+					const startCoords = editor.getScrolledVisiblePosition(startPosition);
+					const endCoords = editor.getScrolledVisiblePosition(endPosition);
+
+					if (startCoords && endCoords) {
+						const editorCoords = editorElement.getBoundingClientRect();
+
+						// Adjust the selectors' positions based on start and end coordinates
+						const leftSelectorX = startCoords.left + editorCoords.left;
+						const leftSelectorY = startLineTop + editorCoords.top;
+						const rightSelectorX = endCoords.left + editorCoords.left;
+						const rightSelectorY = endLineTop + editorCoords.top;
+
+						// Apply calculated positions
+						leftSelector.style.transform = `translateX(${leftSelectorX}px) translateY(${leftSelectorY}px)`;
+						rightSelector.style.transform = `translateX(${rightSelectorX}px) translateY(${rightSelectorY}px)`;
+
+						globalPoseMenu = leftSelectorY - 50;
+					}
+
+					// Show the selections container when there is a selection
+					selectionsContainer.classList.remove('hidden');
+				});
+			}
 		} catch (error) {
 			console.error('error', error);
 		}

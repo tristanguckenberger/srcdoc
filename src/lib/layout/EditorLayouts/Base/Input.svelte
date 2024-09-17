@@ -17,7 +17,9 @@
 		(() => {
 			const focusedFile = getFocusedFile($codePanes2);
 			if (!focusedFile && $focusedFileId !== null) {
-				const fileIsOpen = $openFiles?.find((file) => file?.fileId === $focusedFileId);
+				const fileIsOpen = $openFiles?.find(
+					(file) => file?.fileId?.toString() === $focusedFileId?.toString()
+				);
 
 				if (fileIsOpen) {
 					$codePanes2 = [
@@ -30,6 +32,23 @@
 					];
 				}
 			}
+
+			// Handle openFiles and codePanes2 store mismatches
+			$codePanes2?.forEach((_, index) => {
+				// There should be an equal amount of indicies in
+				// codePanes2 and openFiles, so we should be able to use
+				// the index from codePanes2 to compare openFiles and
+				// codePanes2
+				const currentPane = $codePanes2[index];
+				const currentFile = $openFiles[index];
+				const mismatchFound = currentPane.source !== currentFile.content;
+
+				// If we have a mismatch update the currentPane
+				// to match the currentFile (latest value)
+				if (mismatchFound) {
+					currentPane.source = currentFile.content;
+				}
+			});
 		})();
 
 	const makePaneLabel = (pane) => {
