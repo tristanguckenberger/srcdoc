@@ -16,11 +16,10 @@
 
 	afterUpdate(async () => {
 		await tick();
-
 		const focusedFile = getFocusedFile($codePanes2);
 		if (!focusedFile && $focusedFileId !== null) {
 			const fileIsOpen = $openFiles?.find(
-				(file) => file?.fileId?.toString() === $focusedFileId?.toString()
+				(file) => file?.id?.toString() === $focusedFileId?.toString()
 			);
 
 			if (fileIsOpen) {
@@ -33,6 +32,8 @@
 					}
 				];
 			}
+		} else if (!focusedFile && !$focusedFileId) {
+			$focusedFileId = $openFiles?.[0]?.id;
 		}
 
 		// Handle openFiles and codePanes2 store mismatches
@@ -81,6 +82,10 @@
 	const makePaneLabel = (pane) => {
 		return pane?.label && pane?.type ? `${pane?.label}.${pane?.type}` : '';
 	};
+
+	$: reactivePanes = $codePanes2;
+
+	$: value = $isVertical;
 </script>
 
 <section
@@ -88,11 +93,11 @@
 	bind:clientWidth={$editorContainerWidth}
 	bind:clientHeight={$editorContainerHeight}
 >
-	<SplitPane panes={$codePanes2} vertical={!$isVertical} splitParent={'split-input-output'}>
-		{#each $codePanes2 as pane}
+	<SplitPane panes={reactivePanes} vertical={value} splitParent={'split-input-output'}>
+		{#each reactivePanes as pane, i (i)}
 			<Pane
 				id={pane.paneID.split('#')[1]}
-				label={$codePanes2?.length > 1 ? `${pane?.label}.${pane?.type}` : makePaneLabel(pane)}
+				label={reactivePanes?.length > 1 ? `${pane?.label}.${pane?.type}` : makePaneLabel(pane)}
 			>
 				<Editor
 					slot="pane-content"

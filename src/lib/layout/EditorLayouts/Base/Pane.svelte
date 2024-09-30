@@ -27,7 +27,7 @@
 		fileSystemSidebarWidth
 	} from '$lib/stores/filesStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
-	import { afterUpdate, onDestroy, tick } from 'svelte';
+	import { afterUpdate, onDestroy, tick, onMount } from 'svelte';
 
 	/**
 	 * @type {string | string[]}
@@ -144,6 +144,11 @@
 		}
 	};
 
+	onMount(() => {
+		// $protectPaneManager = true;
+		// $clearSplit = true;
+	});
+
 	afterUpdate(() => {
 		const idInPaneManager = $paneManager.some((pane) => {
 			return pane.id === id;
@@ -231,6 +236,8 @@
 		if (idInPaneManager) {
 			$paneManager = $paneManager.filter((pane) => pane.id !== id);
 		}
+
+		$protectPaneManager = false;
 	});
 
 	// pull in the theme and join it into a string
@@ -254,6 +261,7 @@
 		tabindex="0"
 		on:keyup={(e) => {}}
 		on:dblclick={(e) => {
+			// TODO: changing $isVertical might break thi
 			maximize(e, !value);
 		}}
 	>

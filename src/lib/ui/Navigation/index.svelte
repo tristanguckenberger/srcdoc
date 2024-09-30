@@ -20,7 +20,7 @@
 		focusedFileId,
 		initialDataStore
 	} from '$lib/stores/filesStore';
-	import { sideBarState, appClientWidth } from '$lib/stores/layoutStore.js';
+	import { sideBarState, appClientWidth, isVertical } from '$lib/stores/layoutStore.js';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { platformSession } from '$lib/stores/platformSession';
 	import { themeKeyStore } from '$lib/stores/themeStore';
@@ -38,6 +38,7 @@
 	import { copyData } from '$lib/platformCopy/copyData.js';
 	import { editorPageInfoStore, modalFullInfoStore } from '$lib/stores/InfoStore.js';
 	import { notifications, showNotifications } from '$lib/stores/notificationStore';
+	import { clearSplit, resetPanes } from '$lib/stores/splitStore';
 
 	// Props
 	export let data;
@@ -170,11 +171,16 @@
 		}
 	};
 
-	const toggleEditorInfoModal = async () => {
-		if (browser) {
-			await tick();
-			$modalFullInfoStore = $editorPageInfoStore?.info;
-		}
+	const toggleEditorLayout = async () => {
+		// if (browser) {
+		// 	await tick();
+		// 	$modalFullInfoStore = $editorPageInfoStore?.info;
+		// }
+		$isVertical = !$isVertical;
+		setTimeout(() => {
+			$resetPanes = true;
+			// $clearSplit = true;
+		}, 50);
 	};
 
 	const toggleShowNotifications = () => {
@@ -341,7 +347,7 @@
 			{/if}
 			{#if engineInRoute}
 				<li class:hiddenItem={!engineInRoute}>
-					<Button action={toggleEditorInfoModal} label={'info'} link={null} />
+					<Button action={toggleEditorLayout} label={'flip-layout'} link={null} />
 				</li>
 			{/if}
 		</ul>

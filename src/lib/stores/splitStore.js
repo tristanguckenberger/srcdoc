@@ -9,6 +9,7 @@ export const editorElement = writable(null);
 export const gutterCount = writable(0);
 export const paneManager = writable([]);
 export const protectPaneManager = writable(false);
+export const resetPanes = writable(false);
 // export const paneManagerInstance = writable(null);
 export const inputOutputContainerWidth = writable(0);
 export const inputOutputContainerHeight = writable(0);

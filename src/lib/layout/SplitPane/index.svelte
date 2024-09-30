@@ -7,7 +7,8 @@
 		clearSplit,
 		splitInstanceStore,
 		editorSplit,
-		protectPaneManager
+		protectPaneManager,
+		resetPanes
 	} from '$lib/stores/splitStore';
 	import Split from 'split.js';
 	import { paneMinHeightModifier } from '$lib/stores/layoutStore';
@@ -86,6 +87,7 @@
 
 				if (paneIDs?.length >= 2) {
 					const filterSizes = $paneManager?.filter((pane) => paneIDs?.includes(`#${pane?.id}`));
+
 					return (sizeUpdate = filterSizes?.map((pane) => {
 						return vertical ? pane?.splitClientHeight : pane?.splitClientWidth;
 					}));
@@ -193,10 +195,57 @@
 		splitParent === 'split-input-output' &&
 		splitInstance?.getSizes()?.length >= 2
 	) {
-		editorSplit.set(splitInstance);
+		const sizes = splitInstance?.getSizes();
+		if (sizes?.some((size) => size === undefined || size < 30)) {
+			const baseSizes = splitInstance?.getSizes()?.map((size) => {
+				return (size = splitInstance?.getSizes()?.length > 2 ? 30 : 50);
+			});
+			splitInstance.setSizes(baseSizes);
+
+			editorSplit.set(splitInstance);
+		} else if (sizes?.some((size) => size > 100)) {
+			const baseSizes = splitInstance?.getSizes()?.map((size) => {
+				return (size = splitInstance?.getSizes()?.length > 2 ? 30 : 50);
+			});
+			splitInstance.setSizes(baseSizes);
+			editorSplit.set(splitInstance);
+			// setTimeout(() => {
+
+			// }, 50);
+		} else {
+			editorSplit.set(splitInstance);
+		}
+	} else if (splitInstance && splitParent === 'split-input-output') {
+		setTimeout(() => {
+			splitInstance.setSizes([100]);
+			editorSplit.set(splitInstance);
+		}, 50);
 	}
 
 	$: isSideBarOpen = $fileSystemSidebarOpen;
+
+	$: (async () => {
+		if ($resetPanes) {
+			if (splitInstance) {
+				// Destroy the current instance when switching direction
+				splitInstance.destroy(false, false);
+			}
+
+			// Reinitialize Split.js with the new direction (vertical or horizontal)
+			splitInstance = Split(paneIDs, {
+				direction: vertical ? 'vertical' : 'horizontal',
+				gutterSize: 10,
+				sizes: sizeUpdate ?? sizes,
+				minSize: $paneMinHeightModifier
+			});
+			await tick();
+			// Store the updated instance
+			// splitStore.set(splitInstance);
+			editorSplit.set(splitInstance);
+
+			$resetPanes = false;
+		}
+	})();
 </script>
 
 <div
@@ -220,8 +269,7 @@
 		min-height: 100%;
 	}
 	.split.vertical {
-		display: block;
-		flex-direction: unset;
+		flex-direction: column;
 	}
 
 	:global(.gutter) {
