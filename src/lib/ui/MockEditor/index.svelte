@@ -196,7 +196,7 @@
 </script>
 
 <div class="main">
-	<SplitPane
+	<!-- <SplitPane
 		panes={['#split-input-output']}
 		sizes={[50, 50]}
 		vertical={false}
@@ -215,28 +215,28 @@
 				vertical={true}
 				splitParent={'split-editor'}
 				bind:this={$editorElement}
-			>
-				<!-- Editor Content -->
-				{#if $openFiles?.length > 0}
+			> -->
+	<!-- Editor Content -->
+	<!-- {#if $openFiles?.length > 0}
 					<EditorInput />
-				{/if}
+				{/if} -->
 
-				<!-- Output Content -->
-				<section
+	<!-- Output Content -->
+	<!-- <section
 					id="split-3"
 					class:withoutPanes={$paneManager?.length <= 4}
 					bind:clientWidth={$editorOutContainerWidth}
 					bind:clientHeight={$editorOutContainerHeight}
 				>
-					<Pane id={'split-output'} label={'output'}>
-						<!-- {#if play} -->
-						<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} relaxed />
-						<!-- {/if} -->
-					</Pane>
+					<Pane id={'split-output'} label={'output'}> -->
+	<!-- {#if play} -->
+	<!-- <Output slot="pane-content" srcdocBuilt={$srcbuild} {play} relaxed /> -->
+	<!-- {/if} -->
+	<!-- </Pane>
 				</section>
 			</SplitPane>
 		</div>
-	</SplitPane>
+	</SplitPane> -->
 </div>
 
 <style>

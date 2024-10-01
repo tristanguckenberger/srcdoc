@@ -178,7 +178,7 @@
 					</div>
 					<MockSlider />
 				</section>
-				<hr class="divider" />
+				<!-- <hr class="divider" />
 				<section class="engineSection">
 					<h1>Introducing the Engine Editor</h1>
 					<p class="small">
@@ -186,7 +186,7 @@
 						live and see the changes instantly.
 					</p>
 					<MockEditor />
-				</section>
+				</section> -->
 				<hr class="divider" />
 				<section class="exploreSection">
 					<div class="textCTA">
