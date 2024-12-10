@@ -2,9 +2,7 @@
 	// @ts-nocheck
 	import ModalTimingIndicator from './ModalTimingIndicator.svelte';
 
-	export let index;
-	export let title;
-	export let message;
+	let { index, title, message } = $props();
 </script>
 
 <div class="modal-card">

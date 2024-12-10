@@ -13,14 +13,16 @@
 	import { onDestroy } from 'svelte';
 	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
-	export let gameId = $modalProps?.gameId;
-	export let title = $modalProps?.title;
-	export let description = $modalProps?.description;
-	export let thumbnail;
-	export let published = $modalProps?.published;
-	export let headerImage;
+	let {
+		gameId = $modalProps?.gameId,
+		title = $modalProps?.title,
+		description = $modalProps?.description,
+		thumbnail,
+		published = $bindable($modalProps?.published),
+		headerImage
+	} = $props();
 
-	let thumbnailPreview = thumbnail;
+	let thumbnailPreview = $state(thumbnail);
 
 	function handleFileChange(event) {
 		if (thumbnailPreview && thumbnailPreview.startsWith('blob:')) {
@@ -76,7 +78,7 @@
 				name="thumbnail"
 				id="thumbnail"
 				accept="image/*"
-				on:change={handleFileChange}
+				onchange={handleFileChange}
 				alt="Game Thumbnail Selection"
 			/>
 			<svg
@@ -110,10 +112,14 @@
 	<CustomInput inputCapture={'published'} inputValue={published} hidden />
 	<ToggleSwitch bind:value={published} label="Published" design="slider" />
 	<CustomInput inputCapture={'title'} inputText={title}>
-		<span slot="label" class="input-label modal">Title</span>
+		{#snippet label()}
+				<span  class="input-label modal">Title</span>
+			{/snippet}
 	</CustomInput>
 	<CustomInput inputCapture={'description'} inputText={description}>
-		<span slot="label" class="input-label modal">Description</span>
+		{#snippet label()}
+				<span  class="input-label modal">Description</span>
+			{/snippet}
 	</CustomInput>
 	<CustomInput inputCapture={'gameId'} inputText={gameId} hidden />
 	<Button label="Update Details" isRounded />

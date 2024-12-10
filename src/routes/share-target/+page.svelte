@@ -1,4 +1,4 @@
-<script context="module">
+<script module>
 	// @ts-nocheck
 	export async function load({ url, page }) {
 		// Extract the shared URL from the query parameters

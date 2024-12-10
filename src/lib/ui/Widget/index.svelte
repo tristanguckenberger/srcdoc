@@ -8,16 +8,22 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import { drawerOpen, selectedOption } from '$lib/stores/drawerStore';
 
-	// export let selectedOption = 0;
-	export let content;
-	export let options = [];
+	
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} content - export let selectedOption = 0;
+	 * @property {any} [options]
+	 */
 
-	$: Component = browser && options[$selectedOption]?.component;
+	/** @type {Props} */
+	let { content, options = [] } = $props();
+
+	let Component = $derived(browser && options[$selectedOption]?.component);
 </script>
 
 <div class="widget-container">
 	<div class="component-container">
-		<svelte:component this={Component} {...options[$selectedOption]?.props} />
+		<Component {...options[$selectedOption]?.props} />
 	</div>
 </div>
 

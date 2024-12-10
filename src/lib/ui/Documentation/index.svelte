@@ -34,13 +34,19 @@
 	// Data imports
 	import { docs } from '$lib/platformCopy/docs.js';
 
-	export let parentHeight = 0;
+	/**
+	 * @typedef {Object} Props
+	 * @property {number} [parentHeight]
+	 */
 
-	let docsSelection;
-	let contentGen;
+	/** @type {Props} */
+	let { parentHeight = 0 } = $props();
+
+	let docsSelection = $state();
+	let contentGen = $state();
 	let window;
-	let selectedOption = 0;
-	let contentHeight = 0;
+	let selectedOption = $state(0);
+	let contentHeight = $state(0);
 
 	async function handleDocPageChange(event) {
 		await tick();
@@ -55,8 +61,8 @@
 		docsSelection.value = selectedOption;
 	}
 
-	$: canNavigateNext = selectedOption < docs.length - 1;
-	$: canNavigatePrevious = selectedOption > 0;
+	let canNavigateNext = $derived(selectedOption < docs.length - 1);
+	let canNavigatePrevious = $derived(selectedOption > 0);
 </script>
 
 <div class="documentation-container">
@@ -64,7 +70,7 @@
 		<select
 			name="docs-selection"
 			id="docs-selection"
-			on:change={handleDocPageChange}
+			onchange={handleDocPageChange}
 			bind:this={docsSelection}
 		>
 			{#each docs as doc, i}
@@ -75,7 +81,7 @@
 			<button
 				disabled={!canNavigatePrevious}
 				class:disabled={!canNavigatePrevious}
-				on:click={() => navigate('prev')}
+				onclick={() => navigate('prev')}
 				><svg
 					xmlns="http://www.w3.org/2000/svg"
 					width="32"
@@ -90,7 +96,7 @@
 			<button
 				disabled={!canNavigateNext}
 				class:disabled={!canNavigateNext}
-				on:click={() => navigate('next')}
+				onclick={() => navigate('next')}
 				><svg
 					xmlns="http://www.w3.org/2000/svg"
 					width="32"

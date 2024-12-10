@@ -15,12 +15,18 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { playlistSelectionStore } from '$lib/stores/playlistSelectionStore';
 
-	export let gameId;
-	export let action = ''; //'?/createPlaylist';
-	export let fromLayout = false;
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} gameId
+	 * @property {string} [action] - '?/createPlaylist';
+	 * @property {boolean} [fromLayout]
+	 */
+
+	/** @type {Props} */
+	let { gameId, action = '', fromLayout = false } = $props();
 
 	let label = 'Done';
-	let allUserOwnedPlaylists = [];
+	let allUserOwnedPlaylists = $state([]);
 
 	const getAllGamesForPlaylist = async (eventFetch, playlistId) => {
 		const playlistRes = await eventFetch(`/api/playlist/${playlistId}/games`);
@@ -103,7 +109,7 @@
 	<CustomInput inputCapture={'description'} inputText={description}>
 		<span slot="label" class="input-label modal">Description</span>
 	</CustomInput> -->
-	<button on:click={() => ($drawerOpen = false)}>Done</button>
+	<button onclick={() => ($drawerOpen = false)}>Done</button>
 </div>
 
 <style>

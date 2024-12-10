@@ -3,14 +3,20 @@
 	import { text } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
 
-	export let size = 'm'; // 40: font=2.5, 60: font=3, 80: font=3.5, 100: font=4
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} [size] - 40: font=2.5, 60: font=3, 80: font=3.5, 100: font=4
+	 */
 
-	let fontSize = 3.5;
-	let logoSize = 80;
-	let textTop = 9;
-	let textLeft = -9;
-	let letterSpacing = -2;
-	let outerRingPadding = 4;
+	/** @type {Props} */
+	let { size = 'm' } = $props();
+
+	let fontSize = $state(3.5);
+	let logoSize = $state(80);
+	let textTop = $state(9);
+	let textLeft = $state(-9);
+	let letterSpacing = $state(-2);
+	let outerRingPadding = $state(4);
 
 	onMount(() => {
 		switch (size) {

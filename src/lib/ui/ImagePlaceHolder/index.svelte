@@ -3,7 +3,7 @@
 	let randIndex = Math.floor(Math.random() * colors.length);
 </script>
 
-<div class="image-placeholder" style="--random-bg-color: {colors[randIndex]};" />
+<div class="image-placeholder" style="--random-bg-color: {colors[randIndex]};"></div>
 
 <style>
 	.image-placeholder {

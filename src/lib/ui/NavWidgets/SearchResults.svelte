@@ -10,16 +10,22 @@
 	import { searchResultsStore, searchHasResultsStore } from '$lib/stores/search/searchStore';
 	// import Comments from '../Widget/Components/Comments.svelte';
 	// import CommentCard from '$lib/ui/CommentCard/index.svelte';
-	// import UserCard from '$lib/ui/UserCard/index.svelte';
+	
 
-	export let searchResults;
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} searchResults - import UserCard from '$lib/ui/UserCard/index.svelte';
+	 */
+
+	/** @type {Props} */
+	let { searchResults } = $props();
 
 	setContext('playlistContext', {
 		mousedOverItemId: writable(null),
 		showPlayButtonStore: writable(false)
 	});
 
-	$: themeString = $themeDataStore?.theme?.join(' ');
+	let themeString = $derived($themeDataStore?.theme?.join(' '));
 
 	beforeNavigate(() => {
 		searchResultsStore.set([]);

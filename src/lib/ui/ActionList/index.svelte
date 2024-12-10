@@ -1,25 +1,40 @@
 <script>
+	import { run, preventDefault } from 'svelte/legacy';
+
 	// @ts-nocheck
 	/** Horizontal List - A component to display Horizontal List of content * preferably playlists,
 	games, or users * * @prop {Array} items - An array of items to display * @prop {String} type - The type
 	of items to display * @prop {String} title - The title of the list * @prop {String} subtitle - The subtitle
 	of the list * @prop {String} link - The link to the full list grid */
 	import { actionListHoverStore } from '$lib/stores/themeStore';
-	import { afterUpdate, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { platformSession } from '$lib/stores/platformSession';
 	import ActionListCard from '$lib/ui/ActionListCard/index.svelte';
 
-	export let type = '';
-	export let title = '';
-	export let subtitle = '';
-	export let link = '';
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} [type]
+	 * @property {string} [title]
+	 * @property {string} [subtitle]
+	 * @property {string} [link]
+	 */
+
+	/** @type {Props} */
+	let {
+		type = '',
+		title = '',
+		subtitle = '',
+		link = ''
+	} = $props();
 
 	const colorMap = ['#523b3b', '#4f3b52', '#3b3e52', '#3b5242', '#524f3b', '#52483b', '#282a2d'];
-	let highlightedColor = null;
-	let componentWidth;
+	let highlightedColor = $state(null);
+	let componentWidth = $state();
 
-	$: isMobile = componentWidth < 498;
-	$: $actionListHoverStore = highlightedColor;
+	let isMobile = $derived(componentWidth < 498);
+	run(() => {
+		$actionListHoverStore = highlightedColor;
+	});
 
 	function handleHover(e, index) {
 		if (index === null) {
@@ -44,8 +59,8 @@
 		<!-- My Library or Auth -->
 		<div
 			class="list-item color-1"
-			on:mouseleave={(e) => handleHover(e, 6)}
-			on:mouseover|preventDefault={(e) => handleHover(e, 0)}
+			onmouseleave={(e) => handleHover(e, 6)}
+			onmouseover={preventDefault((e) => handleHover(e, 0))}
 		>
 			{#if $platformSession?.currentUser?.id}
 				<ActionListCard
@@ -55,7 +70,8 @@
 					cardLink={`/users/${$platformSession?.currentUser?.id}/library`}
 					{isMobile}
 				>
-					<svg
+					<!-- @migration-task: migrate this slot by hand, `leading-item` is an invalid identifier -->
+	<svg
 						slot="leading-item"
 						xmlns="http://www.w3.org/2000/svg"
 						width="22"
@@ -75,7 +91,8 @@
 					cardLink={'/'}
 					{isMobile}
 				>
-					<svg
+					<!-- @migration-task: migrate this slot by hand, `leading-item` is an invalid identifier -->
+	<svg
 						slot="leading-item"
 						xmlns="http://www.w3.org/2000/svg"
 						width="22"
@@ -93,8 +110,8 @@
 		<!-- Quick Play Card -->
 		<div
 			class="list-item color-2"
-			on:mouseleave={(e) => handleHover(e, 6)}
-			on:mouseover|preventDefault={(e) => handleHover(e, 1)}
+			onmouseleave={(e) => handleHover(e, 6)}
+			onmouseover={preventDefault((e) => handleHover(e, 1))}
 		>
 			<ActionListCard
 				id={1}
@@ -103,7 +120,8 @@
 				cardLink={'/games/quick-play'}
 				{isMobile}
 			>
-				<svg
+				<!-- @migration-task: migrate this slot by hand, `leading-item` is an invalid identifier -->
+	<svg
 					slot="leading-item"
 					xmlns="http://www.w3.org/2000/svg"
 					width="22"
@@ -120,8 +138,8 @@
 		<!-- Trending -->
 		<div
 			class="list-item color-3"
-			on:mouseleave={(e) => handleHover(e, 6)}
-			on:mouseover|preventDefault={(e) => handleHover(e, 2)}
+			onmouseleave={(e) => handleHover(e, 6)}
+			onmouseover={preventDefault((e) => handleHover(e, 2))}
 		>
 			<ActionListCard
 				id={2}
@@ -130,7 +148,8 @@
 				cardLink={'/games/trending'}
 				{isMobile}
 			>
-				<svg
+				<!-- @migration-task: migrate this slot by hand, `leading-item` is an invalid identifier -->
+	<svg
 					slot="leading-item"
 					xmlns="http://www.w3.org/2000/svg"
 					width="22"
@@ -147,8 +166,8 @@
 		<!-- Top Played -->
 		<div
 			class="list-item color-4"
-			on:mouseleave={(e) => handleHover(e, 6)}
-			on:mouseover|preventDefault={(e) => handleHover(e, 3)}
+			onmouseleave={(e) => handleHover(e, 6)}
+			onmouseover={preventDefault((e) => handleHover(e, 3))}
 		>
 			<ActionListCard
 				id={3}
@@ -157,7 +176,8 @@
 				cardLink={'/games/top-played'}
 				{isMobile}
 			>
-				<svg
+				<!-- @migration-task: migrate this slot by hand, `leading-item` is an invalid identifier -->
+	<svg
 					slot="leading-item"
 					xmlns="http://www.w3.org/2000/svg"
 					width="22"
@@ -174,8 +194,8 @@
 		<!-- Top Rated -->
 		<div
 			class="list-item color-5"
-			on:mouseleave={(e) => handleHover(e, 6)}
-			on:mouseover|preventDefault={(e) => handleHover(e, 4)}
+			onmouseleave={(e) => handleHover(e, 6)}
+			onmouseover={preventDefault((e) => handleHover(e, 4))}
 		>
 			<ActionListCard
 				id={4}
@@ -184,7 +204,8 @@
 				cardLink={'/games/top-rated'}
 				{isMobile}
 			>
-				<svg
+				<!-- @migration-task: migrate this slot by hand, `leading-item` is an invalid identifier -->
+	<svg
 					slot="leading-item"
 					xmlns="http://www.w3.org/2000/svg"
 					width="22"
@@ -201,8 +222,8 @@
 		<!-- Recently Added -->
 		<div
 			class="list-item color-6"
-			on:mouseleave={(e) => handleHover(e, 6)}
-			on:mouseover|preventDefault={(e) => handleHover(e, 5)}
+			onmouseleave={(e) => handleHover(e, 6)}
+			onmouseover={preventDefault((e) => handleHover(e, 5))}
 		>
 			<ActionListCard
 				id={5}
@@ -211,7 +232,8 @@
 				cardLink={'/games/new'}
 				{isMobile}
 			>
-				<svg
+				<!-- @migration-task: migrate this slot by hand, `leading-item` is an invalid identifier -->
+	<svg
 					slot="leading-item"
 					xmlns="http://www.w3.org/2000/svg"
 					width="22"

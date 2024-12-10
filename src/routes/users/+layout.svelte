@@ -9,12 +9,19 @@
 		actionListHoverStore,
 		tweenedHex
 	} from '$lib/stores/themeStore';
-	import { onMount, onDestroy, afterUpdate } from 'svelte';
+	import { onMount, onDestroy, } from 'svelte';
 	import { browser } from '$app/environment';
 	import { sideBarState } from '$lib/stores/layoutStore';
+	/**
+	 * @typedef {Object} Props
+	 * @property {import('svelte').Snippet} [children]
+	 */
+
+	/** @type {Props} */
+	let { children } = $props();
 
 	let preferedThemeMode;
-	$: isSideBarOpen = $fileSystemSidebarOpen || $sideBarState;
+	let isSideBarOpen = $derived($fileSystemSidebarOpen || $sideBarState);
 
 	const updateTheme = (e) => {
 		// themeKeyStore.set(e.matches ? 'light' : 'dark');
@@ -38,13 +45,13 @@
 		preferedThemeMode?.removeListener(updateTheme);
 	});
 
-	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
-	$: verifyInRoute = $page?.route?.id?.split('/').some((path) => path === 'verify');
-	$: libraryInRoute = $page?.route?.id?.split('/').some((path) => path === 'library');
-	$: splitPath = $page?.route?.id?.split('/') ?? [];
-	$: userProfilePageInRoute =
-		splitPath[splitPath?.length - 1] === '[slug]' && splitPath[splitPath?.length - 2] === 'users';
-	$: themeString = $themeDataStore?.theme?.join(' ');
+	let engineInRoute = $derived($page?.route?.id?.split('/').some((path) => path === 'engine'));
+	let verifyInRoute = $derived($page?.route?.id?.split('/').some((path) => path === 'verify'));
+	let libraryInRoute = $derived($page?.route?.id?.split('/').some((path) => path === 'library'));
+	let splitPath = $derived($page?.route?.id?.split('/') ?? []);
+	let userProfilePageInRoute =
+		$derived(splitPath[splitPath?.length - 1] === '[slug]' && splitPath[splitPath?.length - 2] === 'users');
+	let themeString = $derived($themeDataStore?.theme?.join(' '));
 </script>
 
 <div
@@ -55,7 +62,7 @@
 	class:sideBarOpen={$sideBarState}
 	style="{themeString} --theme-or-highlight: {$tweenedColor};"
 >
-	<slot />
+	{@render children?.()}
 </div>
 
 <style>

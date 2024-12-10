@@ -2,8 +2,7 @@
 	// @ts-nocheck
 	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
-	export let gameId;
-	export let listContent = [];
+	let { gameId, listContent = [] } = $props();
 
 	const shortenKeyTitle = (key) => {
 		switch (key) {
@@ -28,7 +27,7 @@
 		<li class="list-item-content">
 			<h3>Player</h3>
 		</li>
-		<li class="list-item-content spacer" />
+		<li class="list-item-content spacer"></li>
 		<li class="list-item-content lean-right">
 			<h3>Score</h3>
 		</li>
@@ -51,7 +50,7 @@
 					{i + 1}. @{row.username}
 				</h3>
 			</div>
-			<div class="list-item-content spacer" />
+			<div class="list-item-content spacer"></div>
 			<div class="list-item-content lean-right">
 				<span>{row.session_total_score}</span>
 			</div>

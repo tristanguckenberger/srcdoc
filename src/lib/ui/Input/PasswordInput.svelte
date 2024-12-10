@@ -1,19 +1,32 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { loginRequestPassword, registerRequestPassword } from '$lib/stores/authStore';
 
-	export let formType = 'login';
-	export let blurAction = () => {};
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} [formType]
+	 * @property {any} [blurAction]
+	 * @property {import('svelte').Snippet} [label]
+	 */
 
-	let inputText = '';
-	let labelFocused = false;
-	$: loginRequestPassword.set(inputText);
-	$: registerRequestPassword.set(inputText);
+	/** @type {Props} */
+	let { formType = 'login', blurAction = () => {}, label } = $props();
+
+	let inputText = $state('');
+	let labelFocused = $state(false);
+	run(() => {
+		loginRequestPassword.set(inputText);
+	});
+	run(() => {
+		registerRequestPassword.set(inputText);
+	});
 </script>
 
 <div class="input-container">
 	<div class="label-container" class:labelFocused={labelFocused || inputText !== ''}>
-		<slot name="label" />
+		{@render label?.()}
 	</div>
 	<div class="row">
 		<!-- <slot name="icon" /> -->
@@ -21,11 +34,11 @@
 			type="password"
 			name="password"
 			bind:value={inputText}
-			on:blur={() => {
+			onblur={() => {
 				blurAction();
 			}}
-			on:focusin={() => (labelFocused = true)}
-			on:focusout={() => (labelFocused = false)}
+			onfocusin={() => (labelFocused = true)}
+			onfocusout={() => (labelFocused = false)}
 		/>
 	</div>
 </div>

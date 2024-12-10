@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import {
 		autoCompile,
@@ -15,10 +17,21 @@
 	import MonacoEditorScripts from './MonacoEditorScripts.svelte';
 	import { onDestroy, onMount, tick } from 'svelte';
 
-	export let readonly = false;
-	export let id;
-	export let code;
-	export let type;
+	/**
+	 * @typedef {Object} Props
+	 * @property {boolean} [readonly]
+	 * @property {any} id
+	 * @property {any} code
+	 * @property {any} type
+	 */
+
+	/** @type {Props} */
+	let {
+		readonly = false,
+		id,
+		code = $bindable(),
+		type
+	} = $props();
 
 	function handleKeyDown(event) {
 		// Check for Ctrl or Cmd key
@@ -32,54 +45,52 @@
 		}
 	}
 
-	$: codeType = type;
+	let codeType = $derived(type);
 
-	$: $derivedCodeData,
-		(() => {
-			try {
-				const fileIsInCodePanes2 = $codePanes2.some(
-					(pane) => pane?.fileId?.toString() === $focusedFileId?.toString()
-				);
-				const previouslyFocusedFileIsInCodePanes2 = $codePanes2.some(
-					(pane) => pane?.fileId?.toString() === $previouslyFocusedFileId?.toString()
-				);
+	run(() => {
+		$derivedCodeData,
+			(() => {
+				try {
+					const fileIsInCodePanes2 = $codePanes2.some(
+						(pane) => pane?.fileId?.toString() === $focusedFileId?.toString()
+					);
+					const previouslyFocusedFileIsInCodePanes2 = $codePanes2.some(
+						(pane) => pane?.fileId?.toString() === $previouslyFocusedFileId?.toString()
+					);
 
-				if (!$derivedCodeData?.fileId) {
-					return;
-				}
-				const derivedCodeDataId = `#split-${$derivedCodeData?.fileName}-${$derivedCodeData?.type}-${$derivedCodeData?.fileId}`;
-				const idStringSplit = id.split('-');
-				const codePaneFile = {
-					paneID: derivedCodeDataId,
-					label: $derivedCodeData?.fileName,
-					...$derivedCodeData
-				};
-
-				if ($codePanes2?.length < 2) {
-					if (derivedCodeDataId?.toString() !== id?.toString()) {
-						$codePanes2 = [codePaneFile];
+					if (!$derivedCodeData?.fileId) {
+						return;
 					}
-				} else if (!fileIsInCodePanes2 && previouslyFocusedFileIsInCodePanes2) {
-					if (
-						$previouslyFocusedFileId?.toString() ===
-						idStringSplit[idStringSplit?.length - 1]?.toString()
-					) {
-						const oldPaneIndex = $codePanes2.findIndex(
-							(pane) => pane?.fileId?.toString() === $previouslyFocusedFileId?.toString()
-						);
-						$codePanes2[oldPaneIndex] = codePaneFile;
+					const derivedCodeDataId = `#split-${$derivedCodeData?.fileName}-${$derivedCodeData?.type}-${$derivedCodeData?.fileId}`;
+					const idStringSplit = id.split('-');
+					const codePaneFile = {
+						paneID: derivedCodeDataId,
+						label: $derivedCodeData?.fileName,
+						...$derivedCodeData
+					};
+
+					if ($codePanes2?.length < 2) {
+						if (derivedCodeDataId?.toString() !== id?.toString()) {
+							$codePanes2 = [codePaneFile];
+						}
+					} else if (!fileIsInCodePanes2 && previouslyFocusedFileIsInCodePanes2) {
+						if (
+							$previouslyFocusedFileId?.toString() ===
+							idStringSplit[idStringSplit?.length - 1]?.toString()
+						) {
+							const oldPaneIndex = $codePanes2.findIndex(
+								(pane) => pane?.fileId?.toString() === $previouslyFocusedFileId?.toString()
+							);
+							$codePanes2[oldPaneIndex] = codePaneFile;
+						}
 					}
+				} catch (error) {
+					console.log('error::', error);
 				}
-			} catch (error) {
-				console.log('error::', error);
-			}
-		})();
+			})();
+	});
 
-	let options;
-
-	$: $autoCompile = readonly;
-
-	$: options = {
+	let options = $derived({
 		allowMobileSelection: false,
 		theme: 'omni-light',
 		language: codeType,
@@ -107,7 +118,13 @@
 		// formatOnType: true,
 		// formatOnPaste: true,
 		// lineNumbersMinChars: 2,
-	};
+	});
+
+	run(() => {
+		$autoCompile = readonly;
+	});
+
+	
 
 	let updateQueue = [];
 

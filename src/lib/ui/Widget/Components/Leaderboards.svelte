@@ -3,9 +3,9 @@
 	import List from '$lib/ui/List/index.svelte';
 	import { onMount } from 'svelte';
 
-	export let gameId;
+	let { gameId } = $props();
 
-	let leaderboardRes;
+	let leaderboardRes = $state();
 
 	onMount(async () => {
 		leaderboardRes = await fetch(`/api/games/${gameId}/leaderboards`);

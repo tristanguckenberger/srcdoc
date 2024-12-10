@@ -1,6 +1,6 @@
 <script>
 	import ResetPassword from '$lib/ui/Form/ResetPassword.svelte';
-	export let data;
+	let { data } = $props();
 </script>
 
 <ResetPassword token={data?.token} />

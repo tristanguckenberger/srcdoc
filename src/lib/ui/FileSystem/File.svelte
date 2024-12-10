@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import {
 		fileSystemExpanderStore,
@@ -10,13 +12,25 @@
 	} from '$lib/stores/filesStore.js';
 	import { themeDataStore } from '$lib/stores/themeStore';
 
-	export let preventOpen = false;
-	export let allFiles;
-	export let file;
-	export let isRenaming = false;
-	export let editingId = null;
+	/**
+	 * @typedef {Object} Props
+	 * @property {boolean} [preventOpen]
+	 * @property {any} allFiles
+	 * @property {any} file
+	 * @property {boolean} [isRenaming]
+	 * @property {any} [editingId]
+	 */
 
-	let fullFileName = `${file.name}.${file.type}`;
+	/** @type {Props} */
+	let {
+		preventOpen = $bindable(false),
+		allFiles,
+		file,
+		isRenaming = $bindable(false),
+		editingId = $bindable(null)
+	} = $props();
+
+	let fullFileName = $state(`${file.name}.${file.type}`);
 
 	async function handleFileUpdate(fileToUpdate) {
 		await fetch(`/api/updateFile`, {
@@ -35,12 +49,14 @@
 		});
 	}
 
-	$: isSoftSelected = file?.id === $softSelectedFileId;
-	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: file,
-		(() => {
-			const extractedFile = allFiles?.filter((f) => f.id === file.id)[0];
-		})();
+	let isSoftSelected = $derived(file?.id === $softSelectedFileId);
+	let themeString = $derived($themeDataStore?.theme?.join(' '));
+	run(() => {
+		file,
+			(() => {
+				const extractedFile = allFiles?.filter((f) => f.id === file.id)[0];
+			})();
+	});
 </script>
 
 <div class="file-line" style={`${themeString}`}>
@@ -48,7 +64,7 @@
 		<input
 			type="text"
 			bind:value={fullFileName}
-			on:blur={() => {
+			onblur={() => {
 				const [name, type] = fullFileName.split('.');
 				const fileToUpdate = renameFile(file.id, name, type ?? 'folder', allFiles);
 				handleFileUpdate(fileToUpdate);

@@ -1,18 +1,20 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	import { itemsInStack, stackStyles, stackTimeout } from '$lib/stores/modalStackStore';
 	import { page } from '$app/stores';
 	import ModalCard from '$lib/ui/ModalCard/index.svelte';
 	import { authWidthStore } from '$lib/stores/authStore';
 
-	$: {
+	run(() => {
 		if ($itemsInStack.length >= 5) {
 			setTimeout(() => {
 				itemsInStack.update((items) => items.slice(1));
 			}, 1000);
 		}
-	}
+	});
 
-	$: {
+	run(() => {
 		$itemsInStack.forEach((item, index) => {
 			console.log('Checking item', item, index);
 			// check useTimeout boolean flag on each item
@@ -27,8 +29,8 @@
 				}, $stackTimeout);
 			}
 		});
-	}
-	$: authFormWidth = $authWidthStore ? `width: ${$authWidthStore}px;` : '';
+	});
+	let authFormWidth = $derived($authWidthStore ? `width: ${$authWidthStore}px;` : '');
 </script>
 
 <div class="stack-container" style={`${authFormWidth}${$stackStyles}`}>

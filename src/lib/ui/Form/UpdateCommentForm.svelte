@@ -1,4 +1,6 @@
 <script>
+	import { run, preventDefault } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { enhance, applyAction } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
@@ -9,18 +11,30 @@
 	import CustomInput from '$lib/ui/Input/CustomInput.svelte';
 	import Button from '$lib/ui/Button/index.svelte';
 
-	export let comment;
-	export let comments;
-	export let parentCommentId;
-	export let isEditingUpdate = true;
 
 	const commentText = writable('');
 	const newCommentMaxLength = 1500;
 
-	let init = false;
-	let newCommentTotalCharacters = 0;
-	export let inputText = '';
-	let newCommentTextArea;
+	let init = $state(false);
+	let newCommentTotalCharacters = $state(0);
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} comment
+	 * @property {any} comments
+	 * @property {any} parentCommentId
+	 * @property {boolean} [isEditingUpdate]
+	 * @property {string} [inputText]
+	 */
+
+	/** @type {Props} */
+	let {
+		comment,
+		comments,
+		parentCommentId,
+		isEditingUpdate = $bindable(true),
+		inputText = $bindable('')
+	} = $props();
+	let newCommentTextArea = $state();
 	let showNewCommentActions = false;
 
 	onMount(() => {
@@ -55,8 +69,12 @@
 		newCommentTotalCharacters = textAreaCharCount;
 	}
 
-	$: comments, commentStoreComments.set(comments);
-	$: newCommentTextArea && init && autoResize();
+	run(() => {
+		comments, commentStoreComments.set(comments);
+	});
+	run(() => {
+		newCommentTextArea && init && autoResize();
+	});
 </script>
 
 <form
@@ -94,19 +112,19 @@
 		class="new-comment-input text-area-{comment?.id}"
 		name={'commentText'}
 		bind:value={inputText}
-		on:input={() => autoResize()}
-	/>
+		oninput={() => autoResize()}
+	></textarea>
 	<CustomInput inputCapture={'commentId'} inputText={comment?.id} hidden />
 	<div class="comment-action-container">
 		<Button label="Done" />
 		<button
 			class="isCancelButton"
 			formaction=""
-			on:click|preventDefault={() => {
+			onclick={preventDefault(() => {
 				inputText = '';
 				isEditingUpdate = false;
 				newCommentTextArea.style.height = 'fit-content';
-			}}>Cancel</button
+			})}>Cancel</button
 		>
 	</div>
 </form>

@@ -16,6 +16,8 @@
 		<CustomInput />
 		<CustomInput />
 
-		<button type="submit" slot="submit">Submit</button>
+		{#snippet submit()}
+				<button type="submit" >Submit</button>
+			{/snippet}
 	</Form>
 </div>

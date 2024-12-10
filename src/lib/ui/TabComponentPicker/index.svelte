@@ -4,7 +4,7 @@
 
 	const { tabs, currentTab } = getContext('settingsTabs');
 
-	$: themeString = $themeDataStore?.theme?.join(' ');
+	let themeString = $derived($themeDataStore?.theme?.join(' '));
 </script>
 
 <div class="tabComponentPickerContainer" style={themeString}>
@@ -12,7 +12,7 @@
 		<div
 			class="tabComponentPickerItem"
 			class:active={tab?.name === tabs[$currentTab]?.name}
-			on:click={() => ($currentTab = index)}
+			onclick={() => ($currentTab = index)}
 		>
 			{tab.name}
 		</div>

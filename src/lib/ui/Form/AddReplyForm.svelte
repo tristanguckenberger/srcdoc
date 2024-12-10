@@ -1,4 +1,6 @@
 <script>
+	import { run, preventDefault } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { enhance, applyAction } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
@@ -8,19 +10,31 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import { platformSession } from '$lib/stores/platformSession';
 
-	export let comment;
-	export let userId;
-	export let comments;
-	export let parentCommentId;
-	export let creatingReply = true;
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} comment
+	 * @property {any} userId
+	 * @property {any} comments
+	 * @property {any} parentCommentId
+	 * @property {boolean} [creatingReply]
+	 */
+
+	/** @type {Props} */
+	let {
+		comment,
+		userId,
+		comments,
+		parentCommentId,
+		creatingReply = $bindable(true)
+	} = $props();
 
 	const commentText = writable('');
 	const newReplyMaxLength = 1500;
 
-	let newReplyTotalCharacters = 0;
-	let inputText = '';
-	let init = false;
-	let newReplyTextArea;
+	let newReplyTotalCharacters = $state(0);
+	let inputText = $state('');
+	let init = $state(false);
+	let newReplyTextArea = $state();
 
 	function autoResize() {
 		newReplyTextArea.style.height = 'fit-content';
@@ -53,7 +67,9 @@
 		init = true;
 	});
 
-	$: newReplyTextArea && init && autoResize();
+	run(() => {
+		newReplyTextArea && init && autoResize();
+	});
 </script>
 
 <form
@@ -90,8 +106,8 @@
 		class="new-comment-input text-area-{comment?.id}"
 		name={'commentText'}
 		bind:value={inputText}
-		on:input={() => autoResize()}
-	/>
+		oninput={() => autoResize()}
+	></textarea>
 	<CustomInput inputCapture={'gameId'} inputText={comment?.game_id ?? comment?.gameId} hidden />
 	<CustomInput inputCapture={'parentCommentId'} inputText={comment?.id} hidden />
 	<div class="comment-action-container">
@@ -99,11 +115,11 @@
 		<button
 			class="isCancelButton"
 			formaction=""
-			on:click|preventDefault={() => {
+			onclick={preventDefault(() => {
 				inputText = '';
 				creatingReply = false;
 				newReplyTextArea.style.height = 'fit-content';
-			}}>Cancel</button
+			})}>Cancel</button
 		>
 	</div>
 </form>

@@ -13,25 +13,27 @@
 	} from '$lib/stores/InfoStore';
 	import { onMount } from 'svelte';
 
-	export let store;
-	export let title;
-	export let description;
-	export let slides;
+	let {
+		store,
+		title,
+		description,
+		slides
+	} = $props();
 
-	let emblaApi;
+	let emblaApi = $state();
 	let options = { loop: false, inViewThreshold: 0.7, watchDrag: false, duration: 20 };
-	let currentSlide = 0;
-	let dotsContainerWidth;
+	let currentSlide = $state(0);
+	let dotsContainerWidth = $state();
 
 	function onInit(event) {
 		emblaApi = event.detail;
 	}
 
-	$: themeString = $themeDataStore?.theme?.join(' ');
+	let themeString = $derived($themeDataStore?.theme?.join(' '));
 </script>
 
 <svelte:document
-	on:click={(e) => {
+	onclick={(e) => {
 		// if (initializing) return;
 		// if (
 		// 	!e.target.classList.contains('modal') &&
@@ -57,7 +59,7 @@
 	class:gamePageInfoModal={store === 'gamePageInfoStore'}
 	class:editorPageInfoModal={store === 'editorPageInfoStore'}
 	use:emblaCarouselSvelte={{ options }}
-	on:emblaInit={onInit}
+	onemblaInit={onInit}
 	style="--dotsContainerWidth: {dotsContainerWidth}px; {themeString}"
 >
 	<div class="modal-content embla__container">
@@ -70,7 +72,7 @@
 						disabled={currentSlide === 0}
 						class:disabled={currentSlide === 0}
 						class="prev"
-						on:click={() => {
+						onclick={() => {
 							emblaApi?.scrollPrev();
 
 							if (currentSlide > 0) {
@@ -103,7 +105,7 @@
 
 					<button
 						class="next"
-						on:click={() => {
+						onclick={() => {
 							if (currentSlide < slides?.length - 1) {
 								emblaApi?.scrollNext();
 								currentSlide += 1;

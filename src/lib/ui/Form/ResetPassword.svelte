@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import EmailInput from '$lib/ui/Input/EmailInput.svelte';
 	import PasswordInput from '$lib/ui/Input/PasswordInput.svelte';
@@ -12,14 +14,16 @@
 	import { sideBarState } from '$lib/stores/layoutStore';
 	import CustomInput from '../Input/CustomInput.svelte';
 
-	export let token;
+	let { token } = $props();
 
 	let boundInputHeight = writable(0);
-	let creating = false;
-	let message;
-	let quickHide = false;
+	let creating = $state(false);
+	let message = $state();
+	let quickHide = $state(false);
 
-	$: quickHide && setTimeout(() => (quickHide = false), 1000);
+	run(() => {
+		quickHide && setTimeout(() => (quickHide = false), 1000);
+	});
 
 	onDestroy(() => {
 		message = null;
@@ -57,17 +61,25 @@
 					{#if !message}
 						<div bind:clientHeight={$boundInputHeight}>
 							<PasswordInput>
-								<span slot="label" class="input-label">Password*</span>
-								<div slot="icon" class="input-icon">
-									{@html $icons.password}
-								</div>
+								{#snippet label()}
+																<span  class="input-label">Password*</span>
+															{/snippet}
+								{#snippet icon()}
+																<div  class="input-icon">
+										{@html $icons.password}
+									</div>
+															{/snippet}
 							</PasswordInput>
 						</div>
 						<PasswordInputValidate formType={'register'}>
-							<span slot="label" class="input-label">Confirm Password*</span>
-							<div slot="icon" class="input-icon">
-								{@html $icons.password}
-							</div>
+							{#snippet label()}
+														<span  class="input-label">Confirm Password*</span>
+													{/snippet}
+							{#snippet icon()}
+														<div  class="input-icon">
+									{@html $icons.password}
+								</div>
+													{/snippet}
 						</PasswordInputValidate>
 						<CustomInput inputCapture={'token'} inputText={token} hidden />
 						<Button

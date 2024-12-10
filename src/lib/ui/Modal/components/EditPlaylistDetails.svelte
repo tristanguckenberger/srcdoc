@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { invalidateAll } from '$app/navigation';
 	import { enhance, applyAction } from '$app/forms';
@@ -10,15 +12,29 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
-	export let playlistId;
-	export let name;
-	export let description;
-	export let isPublic;
-	export let thumbnail;
-	export let action = '?/createPlaylist';
-	export let fromLayout = false;
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} playlistId
+	 * @property {any} name
+	 * @property {any} description
+	 * @property {any} isPublic
+	 * @property {any} thumbnail
+	 * @property {string} [action]
+	 * @property {boolean} [fromLayout]
+	 */
 
-	let thumbnailPreview = thumbnail;
+	/** @type {Props} */
+	let {
+		playlistId,
+		name,
+		description,
+		isPublic = $bindable(),
+		thumbnail,
+		action = $bindable('?/createPlaylist'),
+		fromLayout = false
+	} = $props();
+
+	let thumbnailPreview = $state(thumbnail);
 
 	function handleFileChange(event) {
 		if (thumbnailPreview && thumbnailPreview.startsWith('blob:')) {
@@ -45,8 +61,10 @@
 		}
 	});
 
-	$: label = fromLayout ? 'Create Playlist' : 'Update Details';
-	$: action = fromLayout ? '?/createPlaylist' : `/playlists/${playlistId}/?/updatePlaylist`;
+	let label = $derived(fromLayout ? 'Create Playlist' : 'Update Details');
+	run(() => {
+		action = fromLayout ? '?/createPlaylist' : `/playlists/${playlistId}/?/updatePlaylist`;
+	});
 </script>
 
 <form
@@ -74,7 +92,7 @@
 				name="thumbnail"
 				id="thumbnail"
 				accept="image/*"
-				on:change={handleFileChange}
+				onchange={handleFileChange}
 				alt="Playlist Thumbnail Selection"
 			/>
 			<svg
@@ -108,10 +126,14 @@
 	<ToggleSwitch bind:value={isPublic} label="Public" design="slider" />
 	<CustomInput inputCapture={'isPublic'} inputValue={isPublic} hidden />
 	<CustomInput inputCapture={'name'} inputText={name}>
-		<span slot="label" class="input-label modal">Title</span>
+		{#snippet label()}
+				<span  class="input-label modal">Title</span>
+			{/snippet}
 	</CustomInput>
 	<CustomInput inputCapture={'description'} inputText={description}>
-		<span slot="label" class="input-label modal">Description</span>
+		{#snippet label()}
+				<span  class="input-label modal">Description</span>
+			{/snippet}
 	</CustomInput>
 	{#if playlistId}
 		<CustomInput inputCapture={'playlistId'} inputText={`${playlistId}`} hidden />

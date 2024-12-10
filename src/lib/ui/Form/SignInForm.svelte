@@ -12,7 +12,7 @@
 	import { itemsInStack, stackStyles, stackTimeout } from '$lib/stores/modalStackStore';
 
 	let boundInputHeight = writable(0);
-	let creating = false;
+	let creating = $state(false);
 </script>
 
 <h1>Welcome back</h1>
@@ -75,17 +75,25 @@
 	}}
 >
 	<EmailInput formType={'login'}>
-		<span slot="label" class="input-label">Email*</span>
-		<div slot="icon" class="input-icon">
-			{@html $icons.email}
-		</div>
+		{#snippet label()}
+				<span  class="input-label">Email*</span>
+			{/snippet}
+		{#snippet icon()}
+				<div  class="input-icon">
+				{@html $icons.email}
+			</div>
+			{/snippet}
 	</EmailInput>
 	<div bind:clientHeight={$boundInputHeight}>
 		<PasswordInput formType={'login'}>
-			<span slot="label" class="input-label">Password*</span>
-			<div slot="icon" class="input-icon">
-				{@html $icons.password}
-			</div>
+			{#snippet label()}
+						<span  class="input-label">Password*</span>
+					{/snippet}
+			{#snippet icon()}
+						<div  class="input-icon">
+					{@html $icons.password}
+				</div>
+					{/snippet}
 		</PasswordInput>
 	</div>
 	<Button

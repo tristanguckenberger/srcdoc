@@ -1,51 +1,78 @@
 <script>
 	// @ts-nocheck
+
+	import { run } from 'svelte/legacy';
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import { page } from '$app/stores';
 	import { platformSession } from '$lib/stores/platformSession';
 	import ToolTip from '$lib/ui/ToolTip/index.svelte';
 	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
-	export let label;
-	export let link;
-	export let action;
-	export let additionalClasses = '';
-	export let type = 'submit';
-	export let isRounded = false;
-	export let userName;
-	export let userAvatar;
-	export let showDropDown;
-	export let style;
-	export let formaction;
-	export let creating;
-	export let disabled;
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} label
+	 * @property {any} link
+	 * @property {any} action
+	 * @property {string} [additionalClasses]
+	 * @property {string} [type]
+	 * @property {boolean} [isRounded]
+	 * @property {any} userName
+	 * @property {any} userAvatar
+	 * @property {any} showDropDown
+	 * @property {any} style
+	 * @property {any} formaction
+	 * @property {any} creating
+	 * @property {any} disabled
+	 */
 
-	let profileControl = false;
-	let showToolTip = false;
+	/** @type {Props} */
+	let {
+		label,
+		link,
+		action,
+		additionalClasses = '',
+		type = 'submit',
+		isRounded = false,
+		userName,
+		userAvatar,
+		showDropDown,
+		style,
+		formaction,
+		creating = $bindable(),
+		disabled
+	} = $props();
 
-	$: profileControl = Boolean(userName);
+	let profileControl = $state(false);
+	let showToolTip = $state(false);
+
+	run(() => {
+		profileControl = Boolean(userName);
+	});
 
 	let close = '<-';
 
-	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: showSideBarToggle =
-		label === 'open' || label === 'close' || label === 'open-folder' || label === 'close-folder';
-	$: authBtn =
+	let themeString = $derived($themeDataStore?.theme?.join(' '));
+	let showSideBarToggle = $derived(
+		label === 'open' || label === 'close' || label === 'open-folder' || label === 'close-folder'
+	);
+	let authBtn = $derived(
 		label === 'Sign In' ||
-		label === 'Sign Up' ||
-		label?.includes('Continue') ||
-		label?.includes('Sign Up');
-	$: isHomePage = $page?.route?.id === '/';
-	$: isIcon =
+			label === 'Sign Up' ||
+			label?.includes('Continue') ||
+			label?.includes('Sign Up')
+	);
+	let isHomePage = $derived($page?.route?.id === '/');
+	let isIcon = $derived(
 		label === 'open' ||
-		label === 'close' ||
-		label === 'play' ||
-		label === 'pause' ||
-		label === 'fav' ||
-		label === 'save' ||
-		label === 'close-folder' ||
-		label === 'open-folder' ||
-		label === 'flip-layout';
+			label === 'close' ||
+			label === 'play' ||
+			label === 'pause' ||
+			label === 'fav' ||
+			label === 'save' ||
+			label === 'close-folder' ||
+			label === 'open-folder' ||
+			label === 'flip-layout'
+	);
 </script>
 
 <div style={`${themeString}`} class:authBtn>
@@ -74,7 +101,7 @@
 				{#if userAvatar}
 					<img
 						class="avatar"
-						src={`${userAvatar}` ?? 'https://picsum.photos/50'}
+						src={`${userAvatar}` || 'https://picsum.photos/50'}
 						alt="user avatar"
 					/>
 				{:else}
@@ -114,7 +141,7 @@
 			{formaction}
 			class:isRounded={isRounded || userName}
 			typeof={type}
-			on:click={() => {
+			onclick={() => {
 				action?.();
 			}}
 			class:disabled
@@ -158,13 +185,13 @@
 			{:else if label === 'flip-layout'}
 				<div
 					class="icon-tooltip-container"
-					on:mouseover={() => {
+					onmouseover={() => {
 						showToolTip = true;
 					}}
-					on:mouseleave={() => {
+					onmouseleave={() => {
 						showToolTip = false;
 					}}
-					on:click={() => {
+					onclick={() => {
 						showToolTip = false;
 					}}
 				>
@@ -232,13 +259,13 @@
 			{:else if label === 'play'}
 				<div
 					class="icon-tooltip-container"
-					on:mouseover={() => {
+					onmouseover={() => {
 						showToolTip = true;
 					}}
-					on:mouseleave={() => {
+					onmouseleave={() => {
 						showToolTip = false;
 					}}
-					on:click={() => {
+					onclick={() => {
 						showToolTip = false;
 					}}
 				>
@@ -259,13 +286,13 @@
 			{:else if label === 'save'}
 				<div
 					class="icon-tooltip-container"
-					on:mouseover={() => {
+					onmouseover={() => {
 						showToolTip = true;
 					}}
-					on:mouseleave={() => {
+					onmouseleave={() => {
 						showToolTip = false;
 					}}
-					on:click={() => {
+					onclick={() => {
 						showToolTip = false;
 					}}
 				>
@@ -308,7 +335,7 @@
 			{:else if label && !creating}
 				{label}
 			{:else if label && creating}
-				<div id="loading" />
+				<div id="loading"></div>
 			{:else if userName}
 				<a href={link} class="profile-quick-control">
 					{#if userAvatar}

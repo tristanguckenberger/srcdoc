@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { enhance } from '$app/forms';
 	import { onMount } from 'svelte';
@@ -6,15 +8,21 @@
 	import { platformSession } from '$lib/stores/platformSession';
 	import Button from '$lib/ui/Button/index.svelte';
 
-	export let userId;
-	export let isUserProfile = false;
-	let updating = false;
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} userId
+	 * @property {boolean} [isUserProfile]
+	 */
+
+	/** @type {Props} */
+	let { userId, isUserProfile = false } = $props();
+	let updating = $state(false);
 
 	const followData = getContext('followDataStore');
 
 	const { followers, following, user } = followData;
 
-	let currentUserIsFollowingProfileUser = false;
+	let currentUserIsFollowingProfileUser = $state(false);
 
 	onMount(() => {
 		currentUserIsFollowingProfileUser = $following?.some((followedUser) =>
@@ -48,7 +56,7 @@
 		}
 	};
 
-	$: {
+	run(() => {
 		if (isUserProfile) {
 			currentUserIsFollowingProfileUser = $followers?.some(
 				(followerUser) =>
@@ -59,7 +67,7 @@
 				(followedUser) => followedUser?.id?.toString() === userId?.toString()
 			);
 		}
-	}
+	});
 </script>
 
 <form

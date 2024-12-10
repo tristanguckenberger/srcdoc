@@ -9,13 +9,15 @@
 	import { drawerOpen } from '$lib/stores/drawerStore';
 	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
-	export let id = $modalProps?.id;
-	export let username = $modalProps?.username;
-	export let profile_photo = $modalProps?.profile_photo;
-	export let bio = $modalProps?.bio;
+	let {
+		id = $modalProps?.id,
+		username = $modalProps?.username,
+		profile_photo = $modalProps?.profile_photo,
+		bio = $modalProps?.bio
+	} = $props();
 
-	let profilePhotoPreview = profile_photo; // Assuming 'profile_photo' is the current photo URL
-	let fileObj;
+	let profilePhotoPreview = $state(profile_photo); // Assuming 'profile_photo' is the current photo URL
+	let fileObj = $state();
 
 	function handleFileChange(event) {
 		if (profilePhotoPreview && profilePhotoPreview.startsWith('blob:')) {
@@ -66,7 +68,7 @@
 				name="profilePhoto"
 				id="profilePhoto"
 				accept="image/*"
-				on:change={handleFileChange}
+				onchange={handleFileChange}
 				alt="Profile Avatar Selection"
 			/>
 			<svg

@@ -1,4 +1,6 @@
 <script>
+	import { run, preventDefault } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { enhance, applyAction } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
@@ -10,19 +12,21 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import { platformSession } from '$lib/stores/platformSession';
 
-	export let gameId;
-	export let userId;
-	export let comments;
-	export let parentCommentId;
+	let {
+		gameId,
+		userId,
+		comments,
+		parentCommentId
+	} = $props();
 
 	const commentText = writable('');
 	const newCommentMaxLength = 1500;
 
-	let init = false;
-	let newCommentTotalCharacters = 0;
-	let inputText = '';
-	let newCommentTextArea;
-	let showNewCommentActions = false;
+	let init = $state(false);
+	let newCommentTotalCharacters = $state(0);
+	let inputText = $state('');
+	let newCommentTextArea = $state();
+	let showNewCommentActions = $state(false);
 
 	onMount(() => {
 		init = true;
@@ -78,12 +82,16 @@
 		return threads;
 	}
 
-	$: comments, commentStoreComments.set(comments);
-	$: threadedComments = buildItemThreads(parentCommentId, $commentStoreComments ?? comments);
-	$: newCommentTextArea && init && autoResize();
-	$: commentCountLabel = `${($commentStoreComments ?? comments)?.length ?? 0} Comment${
+	run(() => {
+		comments, commentStoreComments.set(comments);
+	});
+	let threadedComments = $derived(buildItemThreads(parentCommentId, $commentStoreComments ?? comments));
+	run(() => {
+		newCommentTextArea && init && autoResize();
+	});
+	let commentCountLabel = $derived(`${($commentStoreComments ?? comments)?.length ?? 0} Comment${
 		threadedComments?.length >= 1 ? (threadedComments?.length === 1 ? '' : 's') : 's'
-	}`;
+	}`);
 </script>
 
 <form
@@ -121,19 +129,19 @@
 		class="new-comment-input"
 		name={'comment'}
 		bind:value={inputText}
-		on:focus={async () => (showNewCommentActions = true) && (await tick())}
-		on:input={() => autoResize(`text-area-root`)}
-	/>
+		onfocus={async () => (showNewCommentActions = true) && (await tick())}
+		oninput={() => autoResize(`text-area-root`)}
+	></textarea>
 	{#if showNewCommentActions}
 		<div class="comment-action-container">
 			<Button label="Done" disabled={!$platformSession?.currentUser?.id} />
 			<button
 				class="isCancelButton"
 				formaction=""
-				on:click|preventDefault={() => {
+				onclick={preventDefault(() => {
 					inputText = '';
 					showNewCommentActions = false;
-				}}>Cancel</button
+				})}>Cancel</button
 			>
 		</div>
 	{/if}

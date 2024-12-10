@@ -1,18 +1,35 @@
 <script>
+	import { run, preventDefault } from 'svelte/legacy';
+
 	// @ts-nocheck
 	// original creator credit: https://svelte.dev/repl/d65a4e9f0ae74d1eb1b08d13e428af32?version=3.35.0
 	// based on suggestions from:
 	// Inclusive Components by Heydon Pickering https://inclusive-components.design/toggle-button/
 	// On Designing and Building Toggle Switches by Sara Soueidan https://www.sarasoueidan.com/blog/toggle-switch-design/
-	// and this example by Scott O'hara https://codepen.io/scottohara/pen/zLZwNv
+	
 
-	export let label;
-	export let design = 'inner label';
-	export let options = [];
-	export let fontSize = 16;
-	export let value = false;
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} label - and this example by Scott O'hara https://codepen.io/scottohara/pen/zLZwNv
+	 * @property {string} [design]
+	 * @property {any} [options]
+	 * @property {number} [fontSize]
+	 * @property {boolean} [value]
+	 */
 
-	$: checked = value;
+	/** @type {Props} */
+	let {
+		label,
+		design = 'inner label',
+		options = [],
+		fontSize = 16,
+		value = $bindable(false)
+	} = $props();
+
+	let checked;
+	run(() => {
+		checked = value;
+	});
 
 	const uniqueID = Math.floor(Math.random() * 100);
 
@@ -43,8 +60,8 @@
 		role="switch"
 		aria-checked={checked}
 		aria-labelledby={`switch-${uniqueID}`}
-		on:click|preventDefault={handleClick}
-	/>
+		onclick={preventDefault(handleClick)}
+	></button>
 </div>
 
 <style>

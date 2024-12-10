@@ -15,7 +15,7 @@
 	import { itemsInStack, stackStyles, stackTimeout } from '$lib/stores/modalStackStore';
 
 	let boundInputHeight = writable(0);
-	let creating = false;
+	let creating = $state(false);
 </script>
 
 <h1>Sign Up</h1>
@@ -93,31 +93,47 @@
 	</div> -->
 	<div class="email-username">
 		<EmailInput formType={'register'}>
-			<span slot="label" class="input-label">Email*</span>
-			<div slot="icon" class="input-icon">
-				{@html $icons.email}
-			</div>
+			{#snippet label()}
+						<span  class="input-label">Email*</span>
+					{/snippet}
+			{#snippet icon()}
+						<div  class="input-icon">
+					{@html $icons.email}
+				</div>
+					{/snippet}
 		</EmailInput>
 		<UsernameInput formType={'register'}>
-			<span slot="label" class="input-label">Username*</span>
-			<div slot="icon" class="input-icon">
-				{@html $icons.username}
-			</div>
+			{#snippet label()}
+						<span  class="input-label">Username*</span>
+					{/snippet}
+			{#snippet icon()}
+						<div  class="input-icon">
+					{@html $icons.username}
+				</div>
+					{/snippet}
 		</UsernameInput>
 	</div>
 	<div bind:clientHeight={$boundInputHeight}>
 		<PasswordInput>
-			<span slot="label" class="input-label">Password*</span>
-			<div slot="icon" class="input-icon">
-				{@html $icons.password}
-			</div>
+			{#snippet label()}
+						<span  class="input-label">Password*</span>
+					{/snippet}
+			{#snippet icon()}
+						<div  class="input-icon">
+					{@html $icons.password}
+				</div>
+					{/snippet}
 		</PasswordInput>
 	</div>
 	<PasswordInputValidate formType={'register'}>
-		<span slot="label" class="input-label">Confirm Password*</span>
-		<div slot="icon" class="input-icon">
-			{@html $icons.password}
-		</div>
+		{#snippet label()}
+				<span  class="input-label">Confirm Password*</span>
+			{/snippet}
+		{#snippet icon()}
+				<div  class="input-icon">
+				{@html $icons.password}
+			</div>
+			{/snippet}
 	</PasswordInputValidate>
 	<Button
 		bind:creating

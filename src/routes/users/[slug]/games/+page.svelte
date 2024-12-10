@@ -2,16 +2,16 @@
 	// @ts-nocheck
 	import Card from '$lib/ui/Card/index.svelte';
 	import { gridWidth } from '$lib/stores/layoutStore.js';
-	import { afterUpdate, onMount, tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { sideBarState, sideBarWidth, appClientWidth } from '$lib/stores/layoutStore.js';
 	import { page } from '$app/stores';
 	import { gamesData } from '$lib/stores/gamesStore.js';
 	import AccountVerificationNotice from '$lib/ui/AccountVerificationNotice/index.svelte';
 	import { platformSession } from '$lib/stores/platformSession/index.js';
 
-	export let data;
+	let { data } = $props();
 
-	$: currentUserId = data?.sessionData?.id;
+	let currentUserId = $derived(data?.sessionData?.id);
 
 	onMount(() => {
 		// firstRun.set(true);
@@ -24,8 +24,8 @@
 			gamesData.set([...data?.games]);
 		}
 	});
-	$: isMobile = $appClientWidth < 768;
-	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
+	let isMobile = $derived($appClientWidth < 768);
+	let engineInRoute = $derived($page?.route?.id?.split('/').some((path) => path === 'engine'));
 </script>
 
 <div

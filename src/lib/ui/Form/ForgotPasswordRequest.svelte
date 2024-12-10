@@ -9,8 +9,8 @@
 	import { onDestroy } from 'svelte';
 
 	let boundInputHeight = writable(0);
-	let creating = false;
-	let message;
+	let creating = $state(false);
+	let message = $state();
 
 	onDestroy(() => {
 		message = null;
@@ -39,10 +39,14 @@
 >
 	{#if !message}
 		<EmailInput formType={'login'}>
-			<span slot="label" class="input-label">Email*</span>
-			<div slot="icon" class="input-icon">
-				{@html $icons.email}
-			</div>
+			{#snippet label()}
+						<span  class="input-label">Email*</span>
+					{/snippet}
+			{#snippet icon()}
+						<div  class="input-icon">
+					{@html $icons.email}
+				</div>
+					{/snippet}
 		</EmailInput>
 		<Button
 			bind:creating

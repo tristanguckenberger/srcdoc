@@ -1,11 +1,14 @@
 <script>
+	
+
 	/**
-	 * @name ToolTip
-	 * @description Used to display a tooltip on the screen.
+	 * @typedef {Object} Props
+	 * @property {string} [text]
+	 * @property {string} [position]
 	 */
 
-	export let text = '';
-	export let position = 'top';
+	/** @type {Props} */
+	let { text = '', position = 'top' } = $props();
 </script>
 
 <div

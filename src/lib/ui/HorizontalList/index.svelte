@@ -4,19 +4,35 @@
 	games, or users * * @prop {Array} items - An array of items to display * @prop {String} type - The type
 	of items to display * @prop {String} title - The title of the list * @prop {String} subtitle - The subtitle
 	of the list * @prop {String} link - The link to the full list grid */
-	import { afterUpdate, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import HorizontalListCard from '$lib/ui/HorizontalListCard/index.svelte';
 	import { platformSession } from '$lib/stores/platformSession';
 
-	export let items = [];
-	export let type = '';
-	export let title = '';
-	export let subtitle = '';
-	export let link = '';
-	export let userId = '';
-	export let limit = 10;
-	export let showViewMore = false;
-	export let viewMoreLabel = 'View More';
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} [items]
+	 * @property {string} [type]
+	 * @property {string} [title]
+	 * @property {string} [subtitle]
+	 * @property {string} [link]
+	 * @property {string} [userId]
+	 * @property {number} [limit]
+	 * @property {boolean} [showViewMore]
+	 * @property {string} [viewMoreLabel]
+	 */
+
+	/** @type {Props} */
+	let {
+		items = $bindable([]),
+		type = '',
+		title = '',
+		subtitle = '',
+		link = '',
+		userId = '',
+		limit = 10,
+		showViewMore = $bindable(false),
+		viewMoreLabel = 'View More'
+	} = $props();
 
 	const getAllCategories = async () => {
 		const response = await fetch('/api/categories/static/all', {

@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	//@ts-nocheck
 	import Output from '$lib/ui/Output/Output.svelte';
 	import MockSlider from '$lib/ui/MockSlider/index.svelte';
@@ -13,14 +15,18 @@
 	import { onMount } from 'svelte';
 	import { actionMenuOpen, gameFavorites } from '$lib/stores/gamesStore.js';
 
-	let play = false;
+	let play = $state(false);
 
 	onMount(() => {
 		$playButton = false;
 	});
 
-	$: play = $playButton;
-	$: src_build.set($srcbuild);
+	run(() => {
+		play = $playButton;
+	});
+	run(() => {
+		src_build.set($srcbuild);
+	});
 
 	const srcbuild = derived(
 		[
@@ -53,6 +59,7 @@
 
 <!-- <div class="output-play-action-overlay"> -->
 {#if play}
+	<!-- @migration-task: migrate this slot by hand, `pane-content` is an invalid identifier -->
 	<Output slot="pane-content" srcdocBuilt={$srcbuild} {play} relaxed />
 {:else}
 	<MockSlider />

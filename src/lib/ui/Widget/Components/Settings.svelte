@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { onMount, tick } from 'svelte';
 	import { sideBarState } from '$lib/stores/layoutStore';
@@ -30,19 +32,21 @@
 	import Follows from '$lib/ui/Follows/index.svelte';
 	import ColorPicker from '$lib/ui/ColorPicker/index.svelte';
 
-	export let userId;
-	export let userSettings;
-	export let action;
-	export let followers;
-	export let following;
+	let {
+		userId,
+		userSettings,
+		action,
+		followers,
+		following
+	} = $props();
 
-	let hidePopUpInfoHome = true;
-	let hidePopUpInfoGames = true;
-	let hidePopUpInfoEditor = true;
+	let hidePopUpInfoHome = $state(true);
+	let hidePopUpInfoGames = $state(true);
+	let hidePopUpInfoEditor = $state(true);
 	let darkMode = true;
-	let updating = false;
-	let themeString = '';
-	let userAccentColor;
+	let updating = $state(false);
+	let themeString = $state('');
+	let userAccentColor = $state();
 
 	const getSettings = async () => {
 		const settingsRes = await fetch(`/api/settings/byUser/get`);
@@ -84,105 +88,111 @@
 		init();
 	});
 
-	$: themeString = $themeDataStore?.theme?.join(' ');
+	run(() => {
+		themeString = $themeDataStore?.theme?.join(' ');
+	});
+
+	const SvelteComponent = $derived(tabs[$currentTab]?.component);
 </script>
 
 Settings
 
 <div class="settings-container" class:sideBarOpen={$sideBarState} style={themeString}>
 	<h1>Settings</h1>
-	<button class="close" on:click={action}>Close</button>
+	<button class="close" onclick={action}>Close</button>
 	<TabComponentPicker />
 
-	<svelte:component this={tabs[$currentTab]?.component}>
-		<div slot="tab_form_elements">
-			<CustomInput inputCapture={'darkMode'} inputValue={true} hidden />
-			{#if $currentTab === 0}
-				<form
-					class="settingsForm"
-					method="POST"
-					action="/?/updateSettings"
-					enctype="multipart/form-data"
-					use:enhance={async ({ formElement, formData, action, cancel, submitter }) => {
-						formData.set('hidePopUpInfoHome', hidePopUpInfoHome);
-						formData.set('hidePopUpInfoGames', hidePopUpInfoGames);
-						formData.set('hidePopUpInfoEditor', hidePopUpInfoEditor);
-						formData.set('darkMode', darkMode);
-						formData.set('userAccentColor', userAccentColor);
+	<SvelteComponent>
+		{#snippet tab_form_elements()}
+				<div >
+				<CustomInput inputCapture={'darkMode'} inputValue={true} hidden />
+				{#if $currentTab === 0}
+					<form
+						class="settingsForm"
+						method="POST"
+						action="/?/updateSettings"
+						enctype="multipart/form-data"
+						use:enhance={async ({ formElement, formData, action, cancel, submitter }) => {
+							formData.set('hidePopUpInfoHome', hidePopUpInfoHome);
+							formData.set('hidePopUpInfoGames', hidePopUpInfoGames);
+							formData.set('hidePopUpInfoEditor', hidePopUpInfoEditor);
+							formData.set('darkMode', darkMode);
+							formData.set('userAccentColor', userAccentColor);
 
-						updating = true;
+							updating = true;
 
-						return async ({ update, result }) => {
-							await update();
-							setTimeout(() => {
-								updating = false;
-							}, 500);
+							return async ({ update, result }) => {
+								await update();
+								setTimeout(() => {
+									updating = false;
+								}, 500);
 
-							if (result?.status === 200) {
-								await tick();
-								// homePageInfoStore.set({
-								// 	...$homePageInfoStore,
-								// 	viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_home)
-								// });
-								// gamePageInfoStore.set({
-								// 	...$gamePageInfoStore,
-								// 	viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_games)
-								// });
-								// editorPageInfoStore.set({
-								// 	...$editorPageInfoStore,
-								// 	viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_editor)
-								// });
-								await invalidateAll();
-							}
-						};
-					}}
-				>
-					<!-- <CustomInput inputCapture={'hidePopUpInfoHome'} inputValue={hidePopUpInfoHome} hidden />
-					<ToggleSwitch
-						bind:value={hidePopUpInfoHome}
-						label="Disable Home Tutorial Pop-up"
-						design="slider"
-						hidden
-					/>
-					<CustomInput inputCapture={'hidePopUpInfoGames'} inputValue={hidePopUpInfoGames} hidden />
-					<ToggleSwitch
-						bind:value={hidePopUpInfoGames}
-						label="Disable Game Tutorial Pop-up"
-						design="slider"
-						hidden
-					/>
-					<CustomInput
-						inputCapture={'hidePopUpInfoEditor'}
-						inputValue={hidePopUpInfoEditor}
-						hidden
-					/>
-					<ToggleSwitch
-						bind:value={hidePopUpInfoEditor}
-						label="Disable Editor Tutorial Pop-up"
-						design="slider"
-						hidden
-					/> -->
-					<ColorPicker bind:color={userAccentColor} />
-					<Button
-						bind:creating={updating}
-						label="Update Details"
-						isRounded
-						style="background-color: #6495ED; margin-top: 60px;"
-					/>
-				</form>
-			{:else if $currentTab === 1}
-				<!-- <Follows userId={$platformSession?.currentUser?.id} /> -->
-				<!--
-                    <ToggleSwitch bind:value={hidePopUpInfo} label="Editor" design="slider" /> -->
-				<!-- {:else if $currentTab === 2} -->
-				<!-- <ToggleSwitch bind:value={hidePopUpInfo} label="Privacy & Security" design="slider" />
-                {:else if $currentTab === 3}
-                    <ToggleSwitch bind:value={hidePopUpInfo} label="Notifications" design="slider" />
-                {:else if $currentTab === 4}
-                    <ToggleSwitch bind:value={hidePopUpInfo} label="Activity & Data" design="slider" /> -->
-			{/if}
-		</div>
-	</svelte:component>
+								if (result?.status === 200) {
+									await tick();
+									// homePageInfoStore.set({
+									// 	...$homePageInfoStore,
+									// 	viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_home)
+									// });
+									// gamePageInfoStore.set({
+									// 	...$gamePageInfoStore,
+									// 	viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_games)
+									// });
+									// editorPageInfoStore.set({
+									// 	...$editorPageInfoStore,
+									// 	viewed: Boolean(result?.data?.body?.result?.hide_pop_up_info_editor)
+									// });
+									await invalidateAll();
+								}
+							};
+						}}
+					>
+						<!-- <CustomInput inputCapture={'hidePopUpInfoHome'} inputValue={hidePopUpInfoHome} hidden />
+						<ToggleSwitch
+							bind:value={hidePopUpInfoHome}
+							label="Disable Home Tutorial Pop-up"
+							design="slider"
+							hidden
+						/>
+						<CustomInput inputCapture={'hidePopUpInfoGames'} inputValue={hidePopUpInfoGames} hidden />
+						<ToggleSwitch
+							bind:value={hidePopUpInfoGames}
+							label="Disable Game Tutorial Pop-up"
+							design="slider"
+							hidden
+						/>
+						<CustomInput
+							inputCapture={'hidePopUpInfoEditor'}
+							inputValue={hidePopUpInfoEditor}
+							hidden
+						/>
+						<ToggleSwitch
+							bind:value={hidePopUpInfoEditor}
+							label="Disable Editor Tutorial Pop-up"
+							design="slider"
+							hidden
+						/> -->
+						<ColorPicker bind:color={userAccentColor} />
+						<Button
+							bind:creating={updating}
+							label="Update Details"
+							isRounded
+							style="background-color: #6495ED; margin-top: 60px;"
+						/>
+					</form>
+				{:else if $currentTab === 1}
+					<!-- <Follows userId={$platformSession?.currentUser?.id} /> -->
+					<!--
+	                    <ToggleSwitch bind:value={hidePopUpInfo} label="Editor" design="slider" /> -->
+					<!-- {:else if $currentTab === 2} -->
+					<!-- <ToggleSwitch bind:value={hidePopUpInfo} label="Privacy & Security" design="slider" />
+	                {:else if $currentTab === 3}
+	                    <ToggleSwitch bind:value={hidePopUpInfo} label="Notifications" design="slider" />
+	                {:else if $currentTab === 4}
+	                    <ToggleSwitch bind:value={hidePopUpInfo} label="Activity & Data" design="slider" /> -->
+				{/if}
+			</div>
+			{/snippet}
+	</SvelteComponent>
 </div>
 
 <style>

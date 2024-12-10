@@ -7,9 +7,9 @@
 	import { page } from '$app/stores';
 	import { gamesData } from '$lib/stores/gamesStore.js';
 
-	export let data;
+	let { data } = $props();
 
-	$: currentUserId = data?.sessionData?.id;
+	let currentUserId = $derived(data?.sessionData?.id);
 
 	onMount(() => {
 		if ($appClientWidth && $appClientWidth < 498) {
@@ -21,8 +21,8 @@
 		}
 	});
 
-	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
-	$: isMobile = $appClientWidth < 768;
+	let engineInRoute = $derived($page?.route?.id?.split('/').some((path) => path === 'engine'));
+	let isMobile = $derived($appClientWidth < 768);
 </script>
 
 <div

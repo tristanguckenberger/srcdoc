@@ -84,7 +84,7 @@
 		}
 	}
 
-	$: themeString = $themeDataStore?.theme?.join(' ');
+	let themeString = $derived($themeDataStore?.theme?.join(' '));
 </script>
 
 <div class="tab-container" style={`${themeString}`}>

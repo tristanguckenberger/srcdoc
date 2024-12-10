@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { sideBarState } from '$lib/stores/layoutStore.js';
 	import PlaylistCard from '$lib/ui/PlaylistCard/index.svelte';
@@ -13,29 +15,31 @@
 	import { platformSession } from '$lib/stores/platformSession/index.js';
 	import AccountVerificationNotice from '$lib/ui/AccountVerificationNotice/index.svelte';
 
-	export let data;
+	let { data } = $props();
 
-	let componentOptions = [];
+	let componentOptions = $state([]);
 
 	setContext('playlistContext', {
 		mousedOverItemId: writable(null),
 		showPlayButtonStore: writable(false)
 	});
 
-	$: (() => {
-		return (componentOptions = [
-			{
-				name: 'NewPlaylist',
-				props: {
-					name: 'New Playlist',
-					description: 'New Playlist Description',
-					isPublic: false,
-					fromLayout: true
-				},
-				component: EditPlaylistDetails
-			}
-		]);
-	})();
+	run(() => {
+		(() => {
+			return (componentOptions = [
+				{
+					name: 'NewPlaylist',
+					props: {
+						name: 'New Playlist',
+						description: 'New Playlist Description',
+						isPublic: false,
+						fromLayout: true
+					},
+					component: EditPlaylistDetails
+				}
+			]);
+		})();
+	});
 </script>
 
 <div class="playlist-drawer-container">
@@ -72,7 +76,8 @@
 		</div>
 	{/if}
 	<Drawer>
-		<div slot="drawer-component" class="drawer-component">
+		<!-- @migration-task: migrate this slot by hand, `drawer-component` is an invalid identifier -->
+	<div slot="drawer-component" class="drawer-component">
 			<Widget content={data} options={componentOptions} />
 		</div>
 	</Drawer>

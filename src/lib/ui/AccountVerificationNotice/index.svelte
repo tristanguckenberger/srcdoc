@@ -5,36 +5,38 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import { enhance } from '$app/forms';
 
-	let updating = false;
+	let updating = $state(false);
 </script>
 
 <Notice title="Account Not Active" message="Please verify your email to access all features.">
-	<div slot="action" class="action-container">
-		<form
-			method="POST"
-			action={`/?/resendVerificationEmail`}
-			enctype="multipart/form-data"
-			use:enhance={async ({ formData }) => {
-				formData.set('userId', $platformSession?.currentUser?.id);
+	{#snippet action()}
+		<div  class="action-container">
+			<form
+				method="POST"
+				action={`/?/resendVerificationEmail`}
+				enctype="multipart/form-data"
+				use:enhance={async ({ formData }) => {
+					formData.set('userId', $platformSession?.currentUser?.id);
 
-				updating = true;
+					updating = true;
 
-				return async ({ update, result, action }) => {
-					if (result?.status === 200) {
-						await update();
+					return async ({ update, result, action }) => {
+						if (result?.status === 200) {
+							await update();
 
-						setTimeout(() => {
-							updating = false;
-						}, 500);
-					}
-				};
-			}}
-		>
-			<Button bind:creating={updating} label="Resend Email" isRounded />
-		</form>
+							setTimeout(() => {
+								updating = false;
+							}, 500);
+						}
+					};
+				}}
+			>
+				<Button bind:creating={updating} label="Resend Email" isRounded />
+			</form>
 
-		<Button label="Verify Now" link="/users/{$platformSession?.currentUser?.id}/verify" />
-	</div>
+			<Button label="Verify Now" link="/users/{$platformSession?.currentUser?.id}/verify" />
+		</div>
+	{/snippet}
 </Notice>
 
 <style>

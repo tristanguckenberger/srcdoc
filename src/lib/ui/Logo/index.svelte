@@ -5,13 +5,19 @@
 	import { goto } from '$app/navigation';
 	import { fade } from 'svelte/transition';
 
-	export let xDistance = 0;
+	/**
+	 * @typedef {Object} Props
+	 * @property {number} [xDistance]
+	 */
 
-	let initialized = false;
+	/** @type {Props} */
+	let { xDistance = $bindable(0) } = $props();
 
-	let dot1Height;
-	let dot2Height;
-	let dot3Height;
+	let initialized = $state(false);
+
+	let dot1Height = $state();
+	let dot2Height = $state();
+	let dot3Height = $state();
 
 	const dot1 = spring(
 		{ top: randomPercentage('dot1'), left: randomPercentage('dot1') },
@@ -69,7 +75,7 @@
 		xDistance = 0;
 	});
 
-	$: calcDistance = xDistance ? xDistance / 3 : 80 / 3;
+	let calcDistance = $derived(xDistance ? xDistance / 3 : 80 / 3);
 </script>
 
 {#if xDistance || (xDistance >= 0 && initialized)}
@@ -78,8 +84,8 @@
 		role="button"
 		tabindex="0"
 		style="left: calc(-{xDistance}px + {xDistance ? 20 : 0}px);"
-		on:click={() => goto('/games')}
-		on:keypress={(e) => e.key === 'Enter'}
+		onclick={() => goto('/games')}
+		onkeypress={(e) => e.key === 'Enter'}
 		aria-label="Platform Blob Logo: Click this to navigate to the games page."
 	>
 		<div
@@ -89,22 +95,22 @@
 				: 80}px; --calcDistance: {calcDistance}px;"
 		>
 			<div>
-				<div class="logo-blur-container" />
+				<div class="logo-blur-container"></div>
 				<div
 					class="dot color1"
 					style="top: {$dot1.top}%; left: {$dot1.left}%;"
 					bind:clientHeight={dot1Height}
-				/>
+				></div>
 				<div
 					class="dot color2"
 					style="top: {$dot2.top}%; left: {$dot2.left}%;"
 					bind:clientHeight={dot2Height}
-				/>
+				></div>
 				<div
 					class="dot color3"
 					style="top: {$dot3.top}%; left: {$dot3.left}%;"
 					bind:clientHeight={dot3Height}
-				/>
+				></div>
 			</div>
 		</div>
 	</div>

@@ -1,3 +1,5 @@
+<!-- @migration-task Error while migrating Svelte code: can't migrate `let play;` to `$derived` because there's a variable named derived.
+     Rename the variable and try again or migrate by hand. -->
 <script>
 	// @ts-nocheck
 	import Output from '$lib/ui/Output/Output.svelte';

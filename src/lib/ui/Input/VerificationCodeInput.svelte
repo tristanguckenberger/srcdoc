@@ -1,28 +1,32 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { verifactionRequestCode } from '$lib/stores/authStore';
 
-	let inputText = '';
-	let labelFocused = false;
-	$: verifactionRequestCode.set(inputText);
-	export let blurAction = () => {};
+	let inputText = $state('');
+	let labelFocused = $state(false);
+	run(() => {
+		verifactionRequestCode.set(inputText);
+	});
+	let { blurAction = () => {}, label, icon } = $props();
 </script>
 
 <div class="input-container">
 	<div class="label-container" class:labelFocused={labelFocused || inputText !== ''}>
-		<slot name="label" />
+		{@render label?.()}
 	</div>
 	<div class="row">
-		<slot name="icon" />
+		{@render icon?.()}
 		<input
 			type="text"
 			name="verificationCode"
 			bind:value={inputText}
-			on:blur={() => {
+			onblur={() => {
 				blurAction();
 			}}
-			on:focusin={() => (labelFocused = true)}
-			on:focusout={() => (labelFocused = false)}
+			onfocusin={() => (labelFocused = true)}
+			onfocusout={() => (labelFocused = false)}
 		/>
 	</div>
 </div>

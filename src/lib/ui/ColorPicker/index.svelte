@@ -1,5 +1,11 @@
 <script>
-    export let color = '#ffffff';
+  /**
+   * @typedef {Object} Props
+   * @property {string} [color]
+   */
+
+  /** @type {Props} */
+  let { color = $bindable('#ffffff') } = $props();
   </script>
   
   <div class="color-picker-container">

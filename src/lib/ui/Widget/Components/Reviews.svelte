@@ -8,12 +8,12 @@
 	import Button from '$lib/ui/Button/index.svelte';
 	import ImagePlaceHolder from '$lib/ui/ImagePlaceHolder/index.svelte';
 
-	let reviewData = [];
+	let reviewData = $state([]);
 	let newReviewTextArea;
-	let updating = false;
-	let recommended = false;
+	let updating = $state(false);
+	let recommended = $state(false);
 
-	$: slug = $page.params.slug;
+	let slug = $derived($page.params.slug);
 
 	onMount(() => {
 		const init = async () => {
@@ -54,7 +54,7 @@
 	// }
 
 	let difficultySelection;
-	let selectedOption = 0;
+	let selectedOption = $state(0);
 	let selectedRatingOption;
 	const difficultyOptions = [
 		{ title: 'Easy', value: 1 },
@@ -100,7 +100,7 @@
 	cursor: pointer;
 	width: fit-content;`;
 
-	let showNewReviewForm = false;
+	let showNewReviewForm = $state(false);
 	const toggleNewReviewForm = () => {
 		showNewReviewForm = !showNewReviewForm;
 	};
@@ -168,7 +168,7 @@
 			<div class="select-container">
 				<div>
 					<label for="rating-selection">Rating</label>
-					<select name="rating-selection" on:change={handleRatingChange}>
+					<select name="rating-selection" onchange={handleRatingChange}>
 						{#each ratingOptions as ratingOp, i}
 							<option value={i}>{ratingOp}</option>
 						{/each}
@@ -176,7 +176,7 @@
 				</div>
 				<div>
 					<label for="difficulty-selection">Difficulty</label>
-					<select name="difficulty-selection" on:change={handleDifficultyChange}>
+					<select name="difficulty-selection" onchange={handleDifficultyChange}>
 						{#each difficultyOptions as diffOp, i}
 							<option value={i}>{diffOp?.title}</option>
 						{/each}
@@ -186,9 +186,9 @@
 			<ToggleSwitch bind:value={recommended} label="Recommend" design="slider" />
 			<Button bind:creating={updating} label="Add Review" style={buttonStyle} />
 		</form>
-		<span class="cancel" on:click={toggleNewReviewForm}>Cancel</span>
+		<span class="cancel" onclick={toggleNewReviewForm}>Cancel</span>
 	{:else}
-		<button on:click={toggleNewReviewForm} style={buttonStyle}>Add Review</button>
+		<button onclick={toggleNewReviewForm} style={buttonStyle}>Add Review</button>
 	{/if}
 </div>
 <div class="reviews-container">
@@ -216,7 +216,7 @@
 									<span>{review.username}</span>
 								</div>
 							</div>
-							<div class="review-header-left-bottom" />
+							<div class="review-header-left-bottom"></div>
 						</div>
 						<div class="review-header-right">
 							<div class="recommendation">

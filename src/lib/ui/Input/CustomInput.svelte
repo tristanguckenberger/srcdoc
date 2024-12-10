@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import {
 		gameDetails,
@@ -9,51 +11,73 @@
 	} from '$lib/stores/gameDetailsStore';
 	import { modalProps } from '$lib/stores/layoutStore.js';
 
-	export let blurAction = () => {};
-	export let inputCapture;
-	export let inputText;
-	export let inputValue;
-	export let hidden = false;
-	export let placeholder = '';
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} [blurAction]
+	 * @property {any} inputCapture
+	 * @property {any} inputText
+	 * @property {any} inputValue
+	 * @property {boolean} [hidden]
+	 * @property {string} [placeholder]
+	 * @property {import('svelte').Snippet} [label]
+	 * @property {import('svelte').Snippet} [icon]
+	 */
 
-	$: checked = inputValue ? 'true' : 'false';
+	/** @type {Props} */
+	let {
+		blurAction = () => {},
+		inputCapture,
+		inputText = $bindable(),
+		inputValue = $bindable(),
+		hidden = false,
+		placeholder = '',
+		label,
+		icon
+	} = $props();
 
-	$: inputText,
-		(() => {
-			switch (inputCapture) {
-				case 'title':
-					gameTitle.set(inputText ?? $modalProps?.title);
-					inputText = $gameTitle;
-					break;
-				case 'description':
-					gameDescription.set(inputText ?? $modalProps?.description);
-					inputText = $gameDescription;
-					break;
-				case 'image':
-					gameImage.set(inputText ?? $modalProps?.image);
-					inputText = $gameImage;
-					break;
-				case 'published':
-					gameIsPublished.set(inputValue ?? $modalProps?.published);
-					inputValue = $gameIsPublished;
-					break;
-				default:
-					break;
-			}
-		})();
+	let checked;
+	run(() => {
+		checked = inputValue ? 'true' : 'false';
+	});
+
+	run(() => {
+		inputText,
+			(() => {
+				switch (inputCapture) {
+					case 'title':
+						gameTitle.set(inputText ?? $modalProps?.title);
+						inputText = $gameTitle;
+						break;
+					case 'description':
+						gameDescription.set(inputText ?? $modalProps?.description);
+						inputText = $gameDescription;
+						break;
+					case 'image':
+						gameImage.set(inputText ?? $modalProps?.image);
+						inputText = $gameImage;
+						break;
+					case 'published':
+						gameIsPublished.set(inputValue ?? $modalProps?.published);
+						inputValue = $gameIsPublished;
+						break;
+					default:
+						break;
+				}
+			})();
+	});
 </script>
 
 <div class="input-container modal">
-	<slot name="label" />
+	{@render label?.()}
 	<div class="row modal" class:hideMe={hidden}>
-		<slot name="icon" />
+		{@render icon?.()}
 		{#if inputCapture === 'image'}
 			<input
 				type="file"
 				{hidden}
 				name={inputCapture}
 				bind:value={inputText}
-				on:blur={() => {
+				onblur={() => {
 					blurAction();
 				}}
 			/>
@@ -64,7 +88,7 @@
 				type="text"
 				name={inputCapture}
 				bind:value={inputText}
-				on:blur={() => {
+				onblur={() => {
 					blurAction();
 				}}
 			/>
@@ -73,19 +97,19 @@
 				class="description-input"
 				name={inputCapture}
 				bind:value={inputText}
-				on:blur={() => {
+				onblur={() => {
 					blurAction();
 				}}
-			/>
+			></textarea>
 		{:else if inputCapture === 'profile_photo'}
 			<textarea
 				class:hideMe={hidden}
 				name={inputCapture}
 				bind:value={inputText}
-				on:blur={() => {
+				onblur={() => {
 					blurAction();
 				}}
-			/>
+			></textarea>
 		{:else if inputCapture === 'published' || inputCapture === 'hidePopUpInfoHome' || inputCapture === 'hidePopUpInfoGames' || inputCapture === 'hidePopUpInfoEditor' || inputCapture === 'darkMode'}
 			<input
 				class:hideMe={hidden}
@@ -93,7 +117,7 @@
 				{hidden}
 				name={inputCapture}
 				bind:value={checked}
-				on:blur={() => {
+				onblur={() => {
 					blurAction();
 				}}
 			/>
@@ -104,7 +128,7 @@
 				{hidden}
 				name={inputCapture}
 				bind:value={checked}
-				on:blur={() => {
+				onblur={() => {
 					blurAction();
 				}}
 			/>
@@ -114,10 +138,10 @@
 				{placeholder}
 				name={inputCapture}
 				bind:value={inputText}
-				on:blur={() => {
+				onblur={() => {
 					blurAction();
 				}}
-			/>
+			></textarea>
 		{:else if inputCapture === 'query'}
 			<input
 				class:hideMe={hidden}
@@ -127,7 +151,7 @@
 				{hidden}
 				name={inputCapture}
 				bind:value={inputText}
-				on:blur={() => {
+				onblur={() => {
 					blurAction();
 				}}
 			/>
@@ -139,7 +163,7 @@
 				{placeholder}
 				name={inputCapture}
 				bind:value={inputText}
-				on:blur={() => {
+				onblur={() => {
 					blurAction();
 				}}
 			/>

@@ -1,11 +1,17 @@
 <script>
 	import UserListCard from './UserListCard.svelte';
 	import FollowButton from '$lib/ui/FollowButton/index.svelte';
-	// import { getContext } from 'svelte';
+	
 
-	export let userList;
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} userList - import { getContext } from 'svelte'; - const { following } = getContext('followDataStore');
+	 */
 
-	// const { following } = getContext('followDataStore');
+	/** @type {Props} */
+	let { userList } = $props();
+
+	
 </script>
 
 <div class="playlist-container">
@@ -13,9 +19,11 @@
 		{#if user?.id}
 			<div class="single-playlist-container">
 				<UserListCard {user} thumbnail={user?.profile_photo}>
-					<div slot="followsButton">
-						<FollowButton userId={user?.id} />
-					</div>
+					{#snippet followsButton()}
+										<div >
+							<FollowButton userId={user?.id} />
+						</div>
+									{/snippet}
 				</UserListCard>
 			</div>
 		{/if}

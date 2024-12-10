@@ -1,6 +1,12 @@
 <script>
-	// @ts-nocheck
-	export let currentIndex;
+	
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} currentIndex
+	 */
+
+	/** @type {Props} */
+	let { currentIndex } = $props();
 </script>
 
 <div class="indicator-container" id={currentIndex}>

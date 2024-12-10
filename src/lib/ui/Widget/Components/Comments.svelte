@@ -4,13 +4,24 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 
-	export let gameId;
-	export let userId;
-	// export let comments = [];
-	export let parentCommentId;
-	export let hasChildren = false;
+	
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} gameId
+	 * @property {any} userId
+	 * @property {any} parentCommentId - export let comments = [];
+	 * @property {boolean} [hasChildren]
+	 */
 
-	let comments = [];
+	/** @type {Props} */
+	let {
+		gameId,
+		userId,
+		parentCommentId,
+		hasChildren = false
+	} = $props();
+
+	let comments = $state([]);
 
 	const slug = $page.params.slug;
 

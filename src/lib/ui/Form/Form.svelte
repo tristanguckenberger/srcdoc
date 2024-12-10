@@ -1,12 +1,19 @@
 <script>
-	// @ts-nocheck
-	export let method = 'POST';
-	export let action = '/';
+	
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} [method]
+	 * @property {string} [action]
+	 * @property {import('svelte').Snippet} [children]
+	 */
+
+	/** @type {Props} */
+	let { method = 'POST', action = '/', children } = $props();
 </script>
 
 <div class="form-container">
 	<form {method} {action}>
-		<slot />
+		{@render children?.()}
 	</form>
 </div>
 

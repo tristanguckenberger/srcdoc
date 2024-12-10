@@ -8,7 +8,7 @@
 	import { goto } from '$app/navigation';
 
 	let boundInputHeight = writable(0);
-	let updating = false;
+	let updating = $state(false);
 </script>
 
 <form
@@ -30,7 +30,9 @@
 	}}
 >	<div bind:clientHeight={$boundInputHeight}>
 		<VerificationCodeInput>
-			<span slot="label" class="input-label">Verfication Token</span>
+			{#snippet label()}
+						<span  class="input-label">Verfication Token</span>
+					{/snippet}
 			<!-- <div slot="icon" class="input-icon">
 				{@html $icons.password}
 			</div> -->

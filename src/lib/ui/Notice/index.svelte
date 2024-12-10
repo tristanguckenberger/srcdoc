@@ -1,12 +1,19 @@
 <script>
-	export let title = '';
-	export let message = '';
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} [title]
+	 * @property {string} [message]
+	 * @property {import('svelte').Snippet} [action]
+	 */
+
+	/** @type {Props} */
+	let { title = '', message = '', action } = $props();
 </script>
 
 <div class="notice-container">
 	<h3 class="notice-header">{title}</h3>
 	<p class="notice-message">{message}</p>
-	<slot name="action" />
+	{@render action?.()}
 </div>
 
 <style>

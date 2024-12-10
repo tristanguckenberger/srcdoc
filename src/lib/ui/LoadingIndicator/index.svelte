@@ -2,7 +2,7 @@
 	// @ts-nocheck
 	import { fly } from 'svelte/transition';
 	import { sideBarState, loaderState } from '$lib/stores/layoutStore';
-	import { afterUpdate, onDestroy, onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	/**
 	 * Make bars "breath" in and out,
@@ -10,8 +10,8 @@
 	 * Make bars move across the page, cascade the bars so they are not all moving at the same time
 	 * so they are staggered
 	 */
-	let showBall = false;
-	let loader;
+	let showBall = $state(false);
+	let loader = $state();
 	onMount(() => {
 		setTimeout(() => {
 			showBall = true;
@@ -36,7 +36,7 @@
 			y: 100,
 			duration: 250
 		}}
-	/>
+	></span>
 	<span
 		class="loader bottom"
 		class:showBall
@@ -48,7 +48,7 @@
 			y: 100,
 			duration: 250
 		}}
-	/>
+	></span>
 	<!-- </div> -->
 </div>
 

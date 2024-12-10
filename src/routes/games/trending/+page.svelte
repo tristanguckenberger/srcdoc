@@ -2,14 +2,14 @@
 	// @ts-nocheck
 	import Card from '$lib/ui/Card/index.svelte';
 	import { gridWidth, appClientWidth, sideBarState } from '$lib/stores/layoutStore.js';
-	import { onMount, afterUpdate } from 'svelte';
+	import { onMount, } from 'svelte';
 	import { firstRun } from '$lib/stores/filesStore.js';
 	import { page } from '$app/stores';
 	import { gamesData } from '$lib/stores/gamesStore.js';
 	import { platformSession } from '$lib/stores/platformSession/index.js';
 	import AccountVerificationNotice from '$lib/ui/AccountVerificationNotice/index.svelte';
 
-	export let data;
+	let { data } = $props();
 
 	onMount(() => {
 		firstRun.set(true);
@@ -23,18 +23,18 @@
 		}
 	});
 
-	$: isMobile = $appClientWidth < 768;
-	$: splitPath = $page?.route?.id?.split('/') ?? [];
-	$: engineInRoute = $page?.route?.id?.split('/').some((path) => path === 'engine');
-	$: currentUserId = data?.sessionData?.id;
-	$: isProfilePage =
-		splitPath[splitPath?.length - 1] === 'users' ||
-		(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main');
-	$: isBrowsePage =
-		splitPath[splitPath?.length - 1] === 'games' ||
-		(splitPath[1] === 'users' && !isProfilePage && !splitPath.some((path) => path === 'users'));
-	$: isUserGamesBrowsePage =
-		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
+	let isMobile = $derived($appClientWidth < 768);
+	let splitPath = $derived($page?.route?.id?.split('/') ?? []);
+	let engineInRoute = $derived($page?.route?.id?.split('/').some((path) => path === 'engine'));
+	let currentUserId = $derived(data?.sessionData?.id);
+	let isProfilePage =
+		$derived(splitPath[splitPath?.length - 1] === 'users' ||
+		(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main'));
+	let isBrowsePage =
+		$derived(splitPath[splitPath?.length - 1] === 'games' ||
+		(splitPath[1] === 'users' && !isProfilePage && !splitPath.some((path) => path === 'users')));
+	let isUserGamesBrowsePage =
+		$derived(splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users');
 </script>
 
 <svelte:head />

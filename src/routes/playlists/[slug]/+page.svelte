@@ -1,4 +1,6 @@
 <script>
+	import { run, preventDefault } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { browser } from '$app/environment';
 	import { writable } from 'svelte/store';
@@ -15,14 +17,14 @@
 	import EditPlaylistDetails from '$lib/ui/Modal/components/EditPlaylistDetails.svelte';
 	import { platformSession } from '$lib/stores/platformSession/index.js';
 
-	export let data;
+	let { data } = $props();
 
-	let componentOptions = [];
+	let componentOptions = $state([]);
 	let highlightTop = false;
 	let highlightBottom = false;
 	let draggedItem = null;
-	let gradientPosition = 50; // Default gradient position to the middle
-	let isOwner = false;
+	let gradientPosition = $state(50); // Default gradient position to the middle
+	let isOwner = $state(false);
 	const gamesOrder = writable([]);
 	const draggingOver = writable(false);
 	const draggingOverGameId = writable(null);
@@ -34,13 +36,18 @@
 
 	const { mousedOverItemId, showPlayButtonStore } = getContext('playlistContext');
 
-	$: playlist = data?.playlist;
-	$: games = data?.games;
-	$: isOwner = $platformSession?.currentUser?.id?.toString() === playlist?.ownerId?.toString();
-	$: {
+	let playlist = $derived(data?.playlist);
+	let games;
+	run(() => {
+		games = data?.games;
+	});
+	run(() => {
+		isOwner = $platformSession?.currentUser?.id?.toString() === playlist?.ownerId?.toString();
+	});
+	run(() => {
 		console.log('playlistOwner::', playlist?.ownerId?.toString());
 		console.log('currentUser::', $platformSession?.currentUser?.id?.toString());
-	}
+	});
 
 	onMount(() => {
 		if (games && games.length > 0) {
@@ -184,31 +191,35 @@
 
 		invalidateAll();
 	};
-	$: if ($gamesOrder && games) {
-		$gamesOrder.forEach((gameId, index) => {
-			const gameIndex = games.findIndex((game) => game.id === gameId);
-			if (gameIndex !== -1) {
-				games[gameIndex].item_order = index + 1; // +1 to start item_order from 1 instead of 0
-			}
-		});
-	}
-	$: (() => {
-		return (componentOptions = [
-			{
-				name: 'EditPlaylist',
-				props: {
-					name: playlist?.name ?? 'New Playlist',
-					description: playlist?.description ?? 'New Playlist Description',
-					isPublic: Boolean(playlist?.is_public ?? playlist?.isPublic),
-					playlistId: playlist?.id,
-					thumbnail: playlist?.thumbnail
-				},
-				component: EditPlaylistDetails
-			}
-		]);
-	})();
-	$: isPublic = Boolean(playlist?.is_public ?? playlist?.isPublic);
-	$: isSaved = Boolean(playlist?.isSaved);
+	run(() => {
+		if ($gamesOrder && games) {
+			$gamesOrder.forEach((gameId, index) => {
+				const gameIndex = games.findIndex((game) => game.id === gameId);
+				if (gameIndex !== -1) {
+					games[gameIndex].item_order = index + 1; // +1 to start item_order from 1 instead of 0
+				}
+			});
+		}
+	});
+	run(() => {
+		(() => {
+			return (componentOptions = [
+				{
+					name: 'EditPlaylist',
+					props: {
+						name: playlist?.name ?? 'New Playlist',
+						description: playlist?.description ?? 'New Playlist Description',
+						isPublic: Boolean(playlist?.is_public ?? playlist?.isPublic),
+						playlistId: playlist?.id,
+						thumbnail: playlist?.thumbnail
+					},
+					component: EditPlaylistDetails
+				}
+			]);
+		})();
+	});
+	let isPublic = $derived(Boolean(playlist?.is_public ?? playlist?.isPublic));
+	let isSaved = $derived(Boolean(playlist?.isSaved));
 </script>
 
 <svelte:head>
@@ -230,7 +241,7 @@
 		<div class="playlist-header-actions">
 			{#if isOwner}
 				<button class="btn btn-primary" disabled>Add Game</button>
-				<button class="btn btn-secondary" disabled={!isOwner} on:click|preventDefault={handleEdit}
+				<button class="btn btn-secondary" disabled={!isOwner} onclick={preventDefault(handleEdit)}
 					>Edit</button
 				>
 			{/if}
@@ -239,7 +250,7 @@
 					class:muted={!$platformSession?.currentUser?.id}
 					disabled={!$platformSession?.currentUser?.id}
 					class="btn btn-secondary"
-					on:click|preventDefault={!playlist?.isSaved ? handleAddToLibrary : () => {}}
+					onclick={preventDefault(!playlist?.isSaved ? handleAddToLibrary : () => {})}
 					>Add to Library</button
 				>
 			{:else if isOwner && isSaved}
@@ -247,28 +258,28 @@
 					class="btn btn-secondary"
 					class:muted={!$platformSession?.currentUser?.id}
 					disabled={!$platformSession?.currentUser?.id}
-					on:click|preventDefault={async () => {
+					onclick={preventDefault(async () => {
 						if (!$platformSession?.currentUser?.id) return;
 						const deltePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/delete`);
 						if (deltePlaylistRes.ok) {
 							await tick();
 							goto('/games');
 						}
-					}}>Delete</button
+					})}>Delete</button
 				>
 			{:else if !isOwner && isSaved}
 				<button
 					class="btn btn-secondary"
 					class:muted={!$platformSession?.currentUser?.id}
 					disabled={!$platformSession?.currentUser?.id}
-					on:click|preventDefault={async () => {
+					onclick={preventDefault(async () => {
 						if (!$platformSession?.currentUser?.id) return;
 						const deletePlaylistRes = await fetch(`/api/playlist/${playlist?.id}/removePlaylist`);
 						if (deletePlaylistRes.ok) {
 							await tick();
 							invalidateAll();
 						}
-					}}>Remove from Library</button
+					})}>Remove from Library</button
 				>
 			{/if}
 		</div>
@@ -283,19 +294,19 @@
 						<div class="tiny-absolute">
 							<div
 								class="play-button-container"
-								on:mouseover={(e) => handleMouseOver(e, game)}
-								on:mouseout={(e) => handleMouseOut(e, game)}
+								onmouseover={(e) => handleMouseOver(e, game)}
+								onmouseout={(e) => handleMouseOut(e, game)}
 								role="button"
 								tabindex="0"
-								on:focus={() => {}}
-								on:blur={() => {}}
+								onfocus={() => {}}
+								onblur={() => {}}
 							>
 								<a href={`/games/playlist/${playlist?.id}/${game?.id}/play`}>
 									<svg
-										on:mouseover={(e) => handleMouseOver(e, game)}
+										onmouseover={(e) => handleMouseOver(e, game)}
 										role="button"
 										tabindex="0"
-										on:focus={() => {}}
+										onfocus={() => {}}
 										class="action-button-icon"
 										width="37"
 										height="44"
@@ -315,7 +326,7 @@
 					<div
 						id={`game_${game.id}`}
 						class="game-container"
-						on:drop={(e) => drop(e, game)}
+						ondrop={(e) => drop(e, game)}
 						class:isDraggingOver={$draggingOver && $draggingOverGameId === game.id}
 						class:shouldHighlightTop={$draggingOver &&
 							$draggingOverGameId === game.id &&
@@ -326,10 +337,10 @@
 						style={`--gradient-position: ${gradientPosition}%;`}
 						role="link"
 						tabindex={i}
-						on:mouseover={(e) => handleMouseOver(e, game)}
-						on:mouseout={handleMouseOut}
-						on:blur={() => {}}
-						on:focus={() => {}}
+						onmouseover={(e) => handleMouseOver(e, game)}
+						onmouseout={handleMouseOut}
+						onblur={() => {}}
+						onfocus={() => {}}
 					>
 						<GameCard
 							{game}
@@ -349,7 +360,8 @@
 		{/await}
 	</div>
 	<Drawer>
-		<div slot="drawer-component" class="drawer-component">
+		<!-- @migration-task: migrate this slot by hand, `drawer-component` is an invalid identifier -->
+	<div slot="drawer-component" class="drawer-component">
 			<Widget content={data} options={componentOptions} />
 		</div>
 	</Drawer>

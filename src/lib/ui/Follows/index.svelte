@@ -1,14 +1,16 @@
 <script>
+	import { run, preventDefault } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { onMount, setContext, getContext } from 'svelte';
 	import { platformSession } from '$lib/stores/platformSession';
 	import UserList from '$lib/ui/UserList/index.svelte';
 	import { writable } from 'svelte/store';
 
-	export let userId;
+	let { userId, header } = $props();
 
-	let userList = [];
-	let showFollowers = true;
+	let userList = $state([]);
+	let showFollowers = $state(true);
 
 	setContext('followDataStore', { followers: writable([]), following: writable([]) });
 	const { followers, following } = getContext('followDataStore');
@@ -55,24 +57,26 @@
 		}
 	});
 
-	let currentUserIsFollowingProfileUser = false;
+	let currentUserIsFollowingProfileUser = $state(false);
 
-	$: currentUserIsFollowingProfileUser = $followers?.some(
-		(follower) => follower?.id?.toString() === $platformSession?.currentUser?.id?.toString()
-	);
+	run(() => {
+		currentUserIsFollowingProfileUser = $followers?.some(
+			(follower) => follower?.id?.toString() === $platformSession?.currentUser?.id?.toString()
+		);
+	});
 </script>
 
-<slot name="header" />
+{@render header?.()}
 <nav class="userListControl">
 	<button
 		class="swapBtn"
 		class:active={showFollowers}
-		on:click|preventDefault={() => toggleFollowsType(true)}>Followers</button
+		onclick={preventDefault(() => toggleFollowsType(true))}>Followers</button
 	>
 	<button
 		class="swapBtn"
 		class:active={!showFollowers}
-		on:click|preventDefault={() => toggleFollowsType(false)}>Following</button
+		onclick={preventDefault(() => toggleFollowsType(false))}>Following</button
 	>
 </nav>
 
