@@ -1,11 +1,11 @@
-<!-- @migration-task Error while migrating Svelte code: Can't migrate code with afterUpdate. Please migrate by hand. -->
 <script>
 	//@ts-nocheck
 	import {
 		isVertical,
 		editorContainerHeight,
 		editorOutContainerHeight,
-		editorOutContainerWidth
+		editorOutContainerWidth,
+		sideBarState
 	} from '$lib/stores/layoutStore';
 	import { hover } from '$lib/actions/hover';
 	import { fade } from 'svelte/transition';
@@ -16,7 +16,10 @@
 		paneManager,
 		protectPaneManager,
 		inputOutputContainerWidth,
-		inputOutputContainerHeight
+		inputOutputContainerHeight,
+		outputsContainerWidth,
+		outputsContainerHeight,
+		resetPanes
 	} from '$lib/stores/splitStore';
 	import {
 		focusedFileId,
@@ -25,82 +28,80 @@
 		previouslyFocusedFileId,
 		autoCompile,
 		triggerCompile,
-		fileSystemSidebarWidth
+		fileSystemSidebarWidth,
+		guiEditorSidebarOpen,
+		guiEditorSidebarWidth,
+		docsOpen
 	} from '$lib/stores/filesStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
-	import { afterUpdate, onDestroy, tick, onMount } from 'svelte';
+	import { onDestroy, tick, onMount, untrack } from 'svelte';
+	import { derived } from 'svelte/store';
 
-	/**
-	 * @type {string | string[]}
-	 */
-	export let id;
-	/**
-	 * @type {any}
-	 */
-	export let label;
+	let { id = '', label, paneInfo, paneContent, srcbuild, children } = $props();
 
-	/**
-	 * @type {HTMLElement}
-	 */
-	let split;
-	/**
-	 * @type {number}
-	 */
-	let splitClientWidth = 0;
-	/**
-	 * @type {number}
-	 */
-	let splitClientHeight = 0;
-	let showPaneOptions = false;
-	$: showOptionsObserved = showPaneOptions;
-	$: value = $isVertical;
-	$: isOutput = $editorOutContainerHeight && $editorOutContainerHeight <= 30;
-	$: isEditor = $editorContainerHeight && $editorContainerHeight <= 30;
-	$: (() => {
-		if (split) {
-			let splitModel = split?.querySelector('.slot-control-bar .container');
-			// Edge case 1: the editor is full and the output is closed
-			if (isOutput && !isEditor) {
-				split.style.minWidth = `${30}px !important`;
+	let split = $state();
+	let splitClientWidth = $state(0);
+	let splitClientHeight = $state(0);
+	let showPaneOptions = $state(false);
+	let showOptionsObserved = $derived(showPaneOptions);
+	let value = $derived($isVertical);
+	let isOutput = $derived($editorOutContainerHeight && $editorOutContainerHeight <= 30);
+	let isEditor = $derived($editorContainerHeight && $editorContainerHeight <= 30);
 
-				if (id?.includes('js') || id?.includes('css') || id?.includes('html')) {
-					if (splitClientWidth <= 45) {
-						splitModel.style.transform = 'rotate(90deg)';
-					} else {
-						splitModel.style.transform = 'rotate(0deg)';
-					}
-				}
-				// Edge case 2: the editor is closed and the output is full
-			} else if (isEditor && !isOutput) {
-				if (id?.includes('js') || id?.includes('css') || id?.includes('html')) {
-					split.style.minWidth = `${80}px`;
+	function editorHotFix() {
+		let splitModel = split?.querySelector('.slot-control-bar .container');
+		// the editor is full and the output is closed
+		if (isOutput && !isEditor) {
+			split.style.minWidth = `${30}px !important`;
+
+			if (id?.includes('js') || id?.includes('css') || id?.includes('html')) {
+				if (splitClientWidth <= 45) {
+					splitModel.style.transform = 'rotate(90deg)';
+				} else {
 					splitModel.style.transform = 'rotate(0deg)';
 				}
-				// Edge case 3: the editor and the output are both open
-			} else if (!isEditor && !isOutput) {
-				split.style.minWidth = `${30}px`;
-				if (splitClientWidth <= 45) {
-					if (!isEditor && !isOutput) {
-						splitModel.style.transform = 'rotate(90deg)';
-					}
-				} else {
-					if (!isEditor && !isOutput) {
-						splitModel.style.transform = 'rotate(0deg)';
-					}
+			}
+			// the editor is closed and the output is full
+		} else if (isEditor && !isOutput) {
+			if (id?.includes('js') || id?.includes('css') || id?.includes('html')) {
+				split.style.minWidth = `${80}px`;
+				splitModel.style.transform = 'rotate(0deg)';
+			}
+			// the editor and the output are both open
+		} else if (!isEditor && !isOutput) {
+			split.style.minWidth = `${30}px`;
+			if (splitClientWidth <= 45) {
+				if (!isEditor && !isOutput) {
+					splitModel.style.transform = 'rotate(90deg)';
+				}
+			} else {
+				if (!isEditor && !isOutput) {
+					splitModel.style.transform = 'rotate(0deg)';
 				}
 			}
 		}
-	})();
-	$: codePanesLength = $codePanes2?.length;
-	$: idSplit = id?.split('-');
-	$: fileId = idSplit[idSplit?.length - 1];
-	$: isFocused =
-		$focusedFileId?.toString() === fileId || ($codePanes2?.length < 2 && id !== 'split-output');
-	$: focusedPane = $codePanes2?.find((pane) => pane.fileId === $focusedFileId);
-	$: focusedLabel =
+	}
+
+	$effect(() => {
+		if (split) {
+			untrack(() => {
+				editorHotFix();
+			});
+		}
+	});
+	let codePanesLength = $derived($codePanes2?.length);
+	let idSplit = $derived(id?.split('-'));
+	let fileId = $derived(idSplit[idSplit?.length - 1]);
+	let isFocused = $derived(
+		$focusedFileId?.toString() === fileId ||
+			($codePanes2?.length < 2 && id !== 'split-output' && id !== 'split-file-explorer')
+	);
+	let focusedPane = $derived($codePanes2?.find((pane) => pane.fileId === $focusedFileId));
+	let focusedLabel = $derived(
 		focusedPane?.fileName && focusedPane?.type && $codePanes2?.length < 2
 			? `${focusedPane?.fileName}.${focusedPane?.type}`
-			: '';
+			: ''
+	);
 
 	const maximize = async (
 		/** @type {MouseEvent & { currentTarget: EventTarget & HTMLDivElement; }} */ currentChild,
@@ -108,8 +109,6 @@
 	) => {
 		const { target } = currentChild;
 		const selection = target.closest('section');
-
-		// get the target index
 		const targetIndex = $codePanes2?.findIndex((pane) => {
 			return pane.paneID?.includes(selection?.id);
 		});
@@ -145,27 +144,30 @@
 		}
 	};
 
-	onMount(() => {
-		// $protectPaneManager = true;
-		// $clearSplit = true;
-	});
-
-	afterUpdate(() => {
-		const idInPaneManager = $paneManager.some((pane) => {
+	let idInPaneManager = $derived.by(() =>
+		$paneManager?.some((pane) => {
 			return pane.id === id;
-		});
-		const ioInPaneManager = $paneManager.some((pane) => {
+		})
+	);
+	let ioInPaneManager = $derived.by(() =>
+		$paneManager?.some((pane) => {
 			return pane.id === 'split-input-output';
-		});
-		const isSideBarInPaneManager = $paneManager.some((pane) => {
+		})
+	);
+	let isSideBarInPaneManager = $derived.by(() =>
+		$paneManager?.some((pane) => {
 			return pane.id === 'split-file-explorer';
-		});
-		const isSplit3InPaneManager = $paneManager.some((pane) => {
+		})
+	);
+	let isSplit3InPaneManager = $derived.by(() =>
+		$paneManager?.some((pane) => {
 			return pane.id === 'split-3';
-		});
+		})
+	);
 
+	let paneManagerDerived = $derived.by(() => {
 		if (!isSplit3InPaneManager && $protectPaneManager === false) {
-			$paneManager = [
+			return [
 				...$paneManager,
 				{
 					id: 'split-3',
@@ -174,10 +176,8 @@
 					splitClientHeight: $editorOutContainerHeight
 				}
 			];
-		}
-
-		if (!ioInPaneManager && $protectPaneManager === false) {
-			$paneManager = [
+		} else if (!ioInPaneManager && $protectPaneManager === false) {
+			return [
 				...$paneManager,
 				{
 					id: 'split-input-output',
@@ -186,24 +186,22 @@
 					splitClientHeight: $inputOutputContainerHeight
 				}
 			];
-		}
-
-		if (!isSideBarInPaneManager && $protectPaneManager === false) {
-			$paneManager = [
+		} else if (!isSideBarInPaneManager && $protectPaneManager === false) {
+			return [
 				...$paneManager,
-				{ id: 'split-file-explorer', split: split, splitClientWidth: $fileSystemSidebarWidth }
+				{
+					id: 'split-file-explorer',
+					split: split,
+					splitClientWidth: $fileSystemSidebarWidth ?? $guiEditorSidebarWidth
+				}
 			];
-		}
-		if (!idInPaneManager && $protectPaneManager === false) {
-			$paneManager = [
-				...$paneManager,
-				{ id: id, split: split, splitClientWidth, splitClientHeight }
-			];
+		} else if (!idInPaneManager && $protectPaneManager === false) {
+			return [...$paneManager, { id: id, split: split, splitClientWidth, splitClientHeight }];
 		} else if (
 			$protectPaneManager === false &&
 			(idInPaneManager || isSideBarInPaneManager || ioInPaneManager)
 		) {
-			$paneManager = $paneManager.map((pane) => {
+			return $paneManager?.map((pane) => {
 				if (
 					pane.id === id &&
 					$triggerCompile === false &&
@@ -215,11 +213,11 @@
 					pane.splitClientHeight = splitClientHeight;
 				} else if (pane.id === 'split-file-explorer') {
 					pane.split = split;
-					pane.splitClientWidth = $fileSystemSidebarWidth;
+					pane.splitClientWidth = $fileSystemSidebarWidth ?? $guiEditorSidebarWidth;
 				} else if (pane.id === 'split-input-output') {
 					pane.split = split;
-					pane.splitClientWidth = $inputOutputContainerWidth;
-					pane.splitClientHeight = $inputOutputContainerHeight;
+					pane.splitClientWidth = $inputOutputContainerWidth ?? $outputsContainerWidth;
+					pane.splitClientHeight = $inputOutputContainerHeight ?? $outputsContainerHeight;
 				}
 
 				return pane;
@@ -227,22 +225,34 @@
 		}
 	});
 
+	$effect(() => {
+		$paneManager = paneManagerDerived;
+	});
+
+	onMount(() => {
+		console.log('PANE::MOUNTED');
+		console.log('PANE::ID::', id);
+		console.log('PANE::LABEL::', label);
+	});
+
 	onDestroy(() => {
-		const idInPaneManager = $paneManager.some((pane) => {
+		const idInPaneManager = $paneManager?.some((pane) => {
 			return pane.id === id;
 		});
 
 		// if the pane id that is being destroyed is in the paneManager
 		// then remove it from the paneManager
 		if (idInPaneManager) {
-			$paneManager = $paneManager.filter((pane) => pane.id !== id);
+			$paneManager = $paneManager?.filter((pane) => pane.id !== id);
 		}
 
 		$protectPaneManager = false;
 	});
 
 	// pull in the theme and join it into a string
-	$: themeString = $themeDataStore?.theme?.join(' ');
+	let themeString = $derived($themeDataStore?.theme?.join(' '));
+	let isSideBarOpen = $derived($sideBarState);
+	let isGuiEditorSidebarOpen = $derived($guiEditorSidebarOpen);
 </script>
 
 <!-- Add the theme string to sections style -->
@@ -254,15 +264,18 @@
 	bind:this={split}
 	bind:clientWidth={splitClientWidth}
 	bind:clientHeight={splitClientHeight}
-	on:click={() => setFocused()}
+	onclick={() => setFocused()}
+	onkeypress={() => {}}
+	role="tabpanel"
+	tabindex="0"
 >
 	<div
 		class="slot-control-bar"
 		role="button"
 		tabindex="0"
-		on:keyup={(e) => {}}
-		on:dblclick={(e) => {
-			// TODO: changing $isVertical might break thi
+		onkeyup={(e) => {}}
+		ondblclick={(e) => {
+			// TODO: changing $isVertical might break this
 			maximize(e, !value);
 		}}
 	>
@@ -271,8 +284,8 @@
 			role="button"
 			tabindex="0"
 			use:hover
-			on:hovered={() => (showPaneOptions = !(splitClientWidth <= 30) ? true : false)}
-			on:mouseleave={() => (showPaneOptions = false)}
+			onhovered={() => (showPaneOptions = !(splitClientWidth <= 30) ? true : false)}
+			onmouseleave={() => (showPaneOptions = false)}
 		>
 			{#if label}
 				<span class="label noSelect">
@@ -282,18 +295,10 @@
 			{#if focusedFileId && $codePanes2?.length > 1}
 				{focusedLabel}
 			{/if}
-			<!-- {#if showOptionsObserved}
-				<div
-					class="pane-options"
-					in:fade|local={{ delay: 50, duration: 100 }}
-					out:fade|local={{ delay: 0, duration: 200 }}
-				>
-					option
-				</div>
-			{/if} -->
 		</div>
 	</div>
-	<slot name="pane-content" />
+	{@render paneContent?.()}
+	{@render children?.()}
 </section>
 
 <style>
@@ -313,7 +318,6 @@
 		display: flex;
 		align-items: center;
 		color: var(--color-primary);
-		/* transition: background-color 300ms cubic-bezier(0.215, 0.610, 0.355, 1); */
 	}
 	.section-panel {
 		border-radius: 6px;
@@ -340,5 +344,28 @@
 		-ms-user-select: none; /* Internet Explorer/Edge */
 		user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
+	}
+	:global(#split-outputs) {
+		width: 100%;
+		height: 100%;
+		height: calc(100% - 4px);
+		flex: 1;
+	}
+	:global(#split-outputs) section {
+		height: 100% !important;
+	}
+	@media (min-width: 498px) {
+		:global(.engineInRoute #split-side-panel) {
+			height: calc(100% + 16px);
+			bottom: 40px;
+		}
+		:global(.engineInRoute.noOpenTabs #split-side-panel) {
+			height: calc(100% - 24px);
+			bottom: 0px;
+		}
+	}
+	/* Horizontal Split */
+	:global(.split) {
+		width: 100%;
 	}
 </style>

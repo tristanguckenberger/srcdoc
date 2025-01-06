@@ -34,11 +34,21 @@ export const softSelectedFileId = writable(null);
 // the tab or file is dbclicked
 export const openFiles = writable([]);
 
+export const areaHeight = writable(0);
+
+export const docsOpen = writable(false);
+
 // The width of the file system sidebar
 export const fileSystemSidebarWidth = writable(200);
 
+// The width of the gui editor sidebar
+export const guiEditorSidebarWidth = writable(200);
+
 // If the file system sidebar is open
 export const fileSystemSidebarOpen = writable(true);
+
+// If the gui editor sidebar is open
+export const guiEditorSidebarOpen = writable(true);
 
 // If the user selects "open in new pane" when right clicking a file
 export const openInNewPane = writable(false);

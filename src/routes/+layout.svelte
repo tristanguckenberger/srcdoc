@@ -22,6 +22,7 @@
 	import { hidePlayButtonStore } from '$lib/stores/gameControllerStore.js';
 	import {
 		fileSystemSidebarOpen,
+		guiEditorSidebarOpen,
 		triggerCompile,
 		filesToUpdate,
 		focusedFileId,
@@ -310,6 +311,7 @@
 		} else {
 			$sideBarState = !$sideBarState;
 			$fileSystemSidebarOpen = false;
+			$guiEditorSidebarOpen = false;
 		}
 	};
 
@@ -338,6 +340,7 @@
 		const addActivityData = await addActivityJSON.json();
 	};
 	const playToggle = async () => {
+		console.log('PLAY TOGGLE::');
 		const gameSessionId = $gameSessionState?.id;
 
 		if ($drawerOpen) {
@@ -371,7 +374,8 @@
 
 	// REACTIVE VARIABLES & STATEMENTS
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
-	$: engineInRoute = splitPath.some((path) => path === 'engine');
+	$: engineInRoute = splitPath.some((path) => path === 'engine' || path === 'gui-engine');
+	$: isGuiEngine = splitPath.some((path) => path === 'gui-engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isVerifyPage = splitPath[splitPath?.length - 1] === 'verify';
 	$: isHomePage = $page?.route?.id === '/';
@@ -793,6 +797,7 @@
 				class:scrollable={!engineInRoute && !playInRoute && isBrowsePage}
 				class:editor={(engineInRoute || playInRoute) && !isBrowsePage}
 				class:showSideBar={$sideBarState}
+				class:isGuiEngine
 				class:isPlayPage
 				class:isMobile
 				class:isAuthPage
@@ -1393,5 +1398,8 @@
 	.settings-button {
 		background-color: transparent;
 		height: unset !important;
+	}
+	main.isGuiEngine {
+		padding-top: unset !important;
 	}
 </style>

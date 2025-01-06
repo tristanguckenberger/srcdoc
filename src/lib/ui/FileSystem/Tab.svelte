@@ -12,7 +12,14 @@
 		filesToUpdate,
 		focusedFolderId
 	} from '$lib/stores/filesStore.js';
-	import { clearSplit, splitInstanceStore } from '$lib/stores/splitStore';
+	import {
+		clearSplit,
+		splitInstanceStore,
+		resetPanes,
+		splitStore,
+		editorSplitStore,
+		isAddingPane
+	} from '$lib/stores/splitStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
 	import { afterUpdate, tick } from 'svelte';
@@ -42,6 +49,10 @@
 			file?.id.toString() === $focusedFileId?.toString() ||
 			file?.id?.toString() === $softSelectedFileId?.toString();
 	});
+
+	const resetPanesDebounced = debounce(() => {
+		$resetPanes = true;
+	}, 100);
 
 	async function handleClose(file) {
 		// await tick();
@@ -81,10 +92,12 @@
 				return pane.paneID !== paneID;
 			})
 		);
-		splitInstanceStore.set(null);
-		triggerCompile.set(true);
+
+		if ($editorSplitStore) {
+			$isAddingPane = false;
+			resetPanesDebounced();
+		}
 		$addPaddingToEditorStore = false;
-		await invalidateAll();
 	}
 
 	const tdClose = throttle(

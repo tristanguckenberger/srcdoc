@@ -6,7 +6,7 @@
 	import { inject } from '@vercel/analytics';
 
 	// SVELTE IMPORTS
-	import { afterUpdate, onMount, tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
@@ -16,12 +16,18 @@
 	import {
 		autoCompile,
 		fileSystemSidebarOpen,
+		guiEditorSidebarOpen,
 		triggerCompile,
 		filesToUpdate,
 		focusedFileId,
 		initialDataStore
 	} from '$lib/stores/filesStore';
-	import { sideBarState, appClientWidth, isVertical } from '$lib/stores/layoutStore.js';
+	import {
+		sideBarState,
+		appClientWidth,
+		isVertical,
+		didRotation
+	} from '$lib/stores/layoutStore.js';
 	import { session } from '$lib/stores/sessionStore.js';
 	import { platformSession } from '$lib/stores/platformSession';
 	import { themeKeyStore } from '$lib/stores/themeStore';
@@ -39,19 +45,28 @@
 	import { copyData } from '$lib/platformCopy/copyData.js';
 	import { editorPageInfoStore, modalFullInfoStore } from '$lib/stores/InfoStore.js';
 	import { notifications, showNotifications } from '$lib/stores/notificationStore';
-	import { clearSplit, resetPanes } from '$lib/stores/splitStore';
+	import {
+		clearSplit,
+		editorSplitStore,
+		isAddingPane,
+		resetPanes,
+		splitStore
+	} from '$lib/stores/splitStore';
+	import { debounce } from 'lodash-es';
 
 	// Props
-	export let data;
-	export let sessionData;
+	// export let data;
+	// export let sessionData;
+
+	let { data, sessionData } = $props();
 
 	// Variables
-	let preferedThemeMode;
-	let dropDownToggle = false;
-	let isFavorited = false;
+	let preferedThemeMode = $state(null);
+	let dropDownToggle = $state(false);
+	// let isFavorited = $state(false);
 	// let mainPageElement;
-	let mainElement;
-	let hasNewNotifications = false;
+	let mainElement = $state(null);
+	let hasNewNotifications = $state(false);
 	// let showNotifications = false;
 	const showBoxShadow = writable(false);
 
@@ -66,16 +81,16 @@
 		}
 	});
 
-	afterUpdate(() => {
-		const tickThenCheckForNotifications = async () => {
-			await tick();
-			// Check for new notifications
-			hasNewNotifications =
-				$notifications?.length > 0 && $notifications?.some((notification) => notification?.id);
-		};
+	// afterUpdate(() => {
+	// 	const tickThenCheckForNotifications = async () => {
+	// 		await tick();
+	// 		// Check for new notifications
+	// 		hasNewNotifications =
+	// 			$notifications?.length > 0 && $notifications?.some((notification) => notification?.id);
+	// 	};
 
-		tickThenCheckForNotifications();
-	});
+	// 	tickThenCheckForNotifications();
+	// });
 
 	afterNavigate(() => {
 		// Reset the notifications
@@ -86,6 +101,7 @@
 	const toggleFileSystemSidebar = () => {
 		if (!playInRoute) {
 			fileSystemSidebarOpen.set(!$fileSystemSidebarOpen);
+			guiEditorSidebarOpen.set(!$guiEditorSidebarOpen);
 			$sideBarState = false;
 		}
 	};
@@ -104,6 +120,7 @@
 		} else {
 			$sideBarState = !$sideBarState;
 			$fileSystemSidebarOpen = false;
+			$guiEditorSidebarOpen = false;
 		}
 	};
 
@@ -172,15 +189,35 @@
 		}
 	};
 
+	const resetPanesDebounced = debounce(() => {
+		$resetPanes = true;
+	}, 100);
+
 	const toggleEditorLayout = async () => {
 		// if (browser) {
 		// 	await tick();
 		// 	$modalFullInfoStore = $editorPageInfoStore?.info;
 		// }
 		$isVertical = !$isVertical;
-		setTimeout(() => {
-			$resetPanes = true;
+		// $isAddingPane = true;
+		$didRotation = true;
+		// $editorSplitStore.cleanGutters();
+		resetPanesDebounced();
+		setTimeout(async () => {
+			//
 			// $clearSplit = true;
+			// not really, but dont want to remember anything when rotating the layout
+			// if ($editorSplitStore) {
+			// 	await $editorSplitStore?.reinit();
+			// if ($openFiles?.length === 0 && !$resetPanes) {
+			// 	console.log('$splitStore::', $splitStore);
+			// 	// $splitStore = null;
+			// 	$splitStore.destroy(false, false);
+			// } else if ($openFiles?.length === 2) {
+			// 	$splitStore.destroy(false, true);
+			// }
+			// $splitStore.destroy(false, true);
+			// }
 		}, 50);
 	};
 
@@ -208,30 +245,41 @@
 	};
 
 	// REACTIVE VARIABLES & STATEMENTS
-	$: splitPath = $page?.route?.id?.split('/') ?? [];
-	$: engineInRoute = splitPath.some((path) => path === 'engine');
-	$: playInRoute = splitPath.some((path) => path === 'play');
-	$: isHomePage = $page?.route?.id === '/';
-	$: playPauseLabel = $triggerCompile ? 'pause' : 'play';
-	$: isPlayPage = $page?.route?.id === '/games/[slug]/play';
-	$: isMobile = $appClientWidth < 768;
-	$: isProfilePage =
+	let splitPath = $derived($page?.route?.id?.split('/') ?? []);
+	let engineInRoute = $derived(
+		splitPath.some((path) => path === 'engine' || path === 'gui-engine')
+	);
+	let playInRoute = $derived(splitPath.some((path) => path === 'play'));
+	let isHomePage = $derived($page?.route?.id === '/');
+	let playPauseLabel = $triggerCompile ? 'pause' : 'play';
+	let isPlayPage = $page?.route?.id === '/games/[slug]/play';
+	let isMobile = $derived($appClientWidth < 768);
+	let isProfilePage = $derived(
 		splitPath[splitPath?.length - 1] === 'users' ||
-		(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main');
-	$: isBrowsePage =
+			(splitPath[1] === 'games' && splitPath[splitPath?.length - 1] === 'main')
+	);
+	let isBrowsePage = $derived(
 		splitPath[splitPath?.length - 1] === 'games' ||
-		(splitPath[1] === 'users' && !isProfilePage && !splitPath.some((path) => path === 'users'));
-	$: isUserGamesBrowsePage =
-		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users';
-	$: isUserFavoritesBrowsePage =
-		splitPath[splitPath?.length - 1] === 'favorites' && splitPath[1] === 'games';
-	$: (() => {
-		$gameFavorites?.favorites?.some((fav) => {
-			isFavorited = fav?.user_id === sessionData?.currentUser?.id ?? false;
+			(splitPath[1] === 'users' && !isProfilePage && !splitPath.some((path) => path === 'users'))
+	);
+	let isUserGamesBrowsePage = $derived(
+		splitPath[splitPath?.length - 1] === 'games' && splitPath[1] === 'users'
+	);
+	let isUserFavoritesBrowsePage = $derived(
+		splitPath[splitPath?.length - 1] === 'favorites' && splitPath[1] === 'games'
+	);
+	// let (() => {
+	// 	$gameFavorites?.favorites?.some((fav) => {
+	// 		isFavorited = fav?.user_id === sessionData?.currentUser?.id ?? false;
+	// 	});
+	// })();
+	let isFavorited = $derived.by(() => {
+		return $gameFavorites?.favorites?.some((fav) => {
+			return fav?.user_id === sessionData?.currentUser?.id ?? false;
 		});
-	})();
-	$: previousRoute = $routeHistoryStore[$routeHistoryStore.length - 2];
-	$: disableBackButton = $routeHistoryStore?.length < 2;
+	});
+	let previousRoute = $derived($routeHistoryStore[$routeHistoryStore.length - 2]);
+	let disableBackButton = $derived($routeHistoryStore?.length < 2);
 	/**
 	 * We have to reference the store to trigger the reactive statement
 	 */
@@ -262,7 +310,7 @@
 				<li class:hiddenItem={!engineInRoute}>
 					<Button
 						action={toggleFileSystemSidebar}
-						label={$fileSystemSidebarOpen ? 'close-folder' : 'open-folder'}
+						label={$fileSystemSidebarOpen || $guiEditorSidebarOpen ? 'close-folder' : 'open-folder'}
 						link={null}
 					/>
 				</li>
@@ -294,7 +342,7 @@
 								class="notifications-button"
 								class:disabled={!$platformSession?.currentUser?.id}
 								type="button"
-								on:click={toggleShowNotifications}
+								onclick={toggleShowNotifications}
 								disabled={!$platformSession?.currentUser?.id}
 								aria-disabled={!$platformSession?.currentUser?.id}
 							>

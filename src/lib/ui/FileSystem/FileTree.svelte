@@ -23,11 +23,19 @@
 		initialDataStore,
 		focusedFolderId
 	} from '$lib/stores/filesStore.js';
-	import { clearSplit, splitInstanceStore } from '$lib/stores/splitStore';
+	import {
+		clearSplit,
+		splitInstanceStore,
+		resetPanes,
+		splitStore,
+		editorSplitStore,
+		isAddingPane
+	} from '$lib/stores/splitStore';
 	import { afterUpdate, onMount, tick } from 'svelte';
 	import File from './File.svelte';
 	import { setPointerControls, DEFAULT_DELAY } from 'svelte-gestures';
 	import { invalidateAll } from '$app/navigation';
+	import { debounce } from 'lodash-es';
 
 	export let gameId;
 	export let userId;
@@ -393,9 +401,21 @@
 		});
 	}
 
-	function openNewPane(file) {
+	const resetPanesDebounced = debounce(() => {
+		$resetPanes = true;
+	}, 100);
+
+	async function openNewPane(file) {
 		handleFileDBClick(file);
 		openInNewPane.set(true);
+
+		// if ($editorSplitStore) {
+		// 	$editorSplitStore.reinit();
+		// }
+		$isAddingPane = true;
+		resetPanesDebounced();
+		// $splitStore.destroy(false, false);
+		// $resetPanes = true;
 	}
 
 	async function deleteFile(file) {

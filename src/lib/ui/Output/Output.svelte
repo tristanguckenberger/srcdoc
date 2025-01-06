@@ -2,7 +2,7 @@
 <script>
 	// @ts-nocheck
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
-	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
+	import { onDestroy, onMount, tick, untrack } from 'svelte';
 	import { src_build, currentGame, screenshot } from '$lib/stores/gamesStore';
 	import {
 		fileStoreFiles,
@@ -22,70 +22,68 @@
 	import { writable } from 'svelte/store';
 	import { gameSession } from '$lib/stores/gameSession/index.js';
 
-	export let relaxed = false;
-	export let play = false;
-	export let srcdocBuilt;
+	let { relaxed = false, play = false, srcdocBuilt } = $props();
 
-	// const gameSession = writable({});
 	const gameSessionState = writable(null);
 	const gameSessionScore = writable(0);
 
-	let id = 0;
-	let iframe;
-	let srcdoc;
-	let rootFileId;
-	let thumbnail;
-	let temporarySessionState = null;
-	let stopPropagation = false;
+	let id = $state(0);
+	let iframe = $state(null);
+	let rebuild = $state(false);
+	let clientWidth = $state(0);
+	let clientHeight = $state(0);
+	let thumbnail = $state('');
+	let stopPropagation = $state(false);
+	let iframe_srcdoc = $state(null);
+	let triggerUpdate = $state(false);
 
-	$: {
-		(async () => {
-			// Automatically find the ID of the file named 'index' with type 'html'
-			const gameName = $baseDataStore?.title;
-			const joinedGameName = gameName?.split(' ').join('_');
-			const rootFile = await $fileStoreFiles?.find((file) => {
-				return (
-					(file.name === 'root' ||
-						file.name.trim() === joinedGameName.trim() ||
-						file.name === gameName) &&
-					file.type === 'folder'
-				);
-			});
+	let rootFileId = $derived.by(() => {
+		const gameName = $baseDataStore?.title;
 
-			if (rootFile) {
-				rootFileId = rootFile.id;
-			} else {
-				console.log('No root file found! Please create a file named "index.html" and try again.');
-			}
-		})();
-	}
+		const joinedGameName = gameName?.split(' ').join('_');
+		const rootFile = $fileStoreFiles?.find((file) => {
+			return (
+				(file.name === 'root' ||
+					file.name.trim() === joinedGameName.trim() ||
+					file.name === gameName) &&
+				file.type === 'folder'
+			);
+		});
 
-	$: {
-		if (rootFileId && ($triggerCompile || $autoCompile)) {
-			srcdoc =
-				$src_build ||
-				buildDynamicSrcDoc(
-					$fileStoreFiles,
-					rootFileId,
-					{
-						width: $editorOutContainerWidth,
-						height: $editorOutContainerHeight
-					},
-					$gameControllerStore
-				);
-			setTimeout(() => {
-				$triggerCompile = false;
-			}, 400);
+		if (rootFile) {
+			return rootFile.id;
+		} else {
+			console.log('No root file found! Please create a file named "index.html" and try again.');
+		}
+	});
+
+	function buildSRCDOC() {
+		if (rootFileId || (($triggerCompile || $autoCompile) && rootFileId) || rebuild) {
+			return buildDynamicSrcDoc(
+				$fileStoreFiles,
+				rootFileId,
+				{
+					width: $editorOutContainerWidth,
+					height: $editorOutContainerHeight
+				},
+				$gameControllerStore
+			);
 		}
 	}
 
-	let triggerUpdate = false;
-
-	$: $editorOutContainerHeight,
-		$editorOutContainerWidth,
-		(() => {
-			triggerUpdate = true;
-		})();
+	let srcdoc = $derived.by(() => {
+		if (rootFileId || (($triggerCompile || $autoCompile) && rootFileId) || rebuild) {
+			return buildDynamicSrcDoc(
+				$fileStoreFiles,
+				rootFileId,
+				{
+					width: $editorOutContainerWidth,
+					height: $editorOutContainerHeight
+				},
+				$gameControllerStore
+			);
+		}
+	});
 
 	/**
 	 * Add game session activity
@@ -112,33 +110,51 @@
 		const addActivityData = await addActivityJSON.json();
 	};
 
-	const debouncedAfterUpdate = debounce(async () => {
-		$autoCompile = false;
-		if ((rootFileId && ($triggerCompile || $autoCompile || triggerUpdate)) || play) {
-			srcdoc =
-				$src_build ||
-				buildDynamicSrcDoc(
-					$fileStoreFiles,
-					rootFileId,
-					{
-						width: $editorOutContainerWidth,
-						height: $editorOutContainerHeight
-					},
-					$gameControllerStore
-				);
-			const blob = new Blob([srcdoc], { type: 'text/html' });
-			const blobUrl = URL.createObjectURL(blob);
-			iframe.src = blobUrl;
-			id++;
-			setTimeout(() => {
-				triggerCompile.set(false);
-				triggerUpdate = false;
-				play = false;
-			}, 800);
+	let blob = $derived.by(() => {
+		if (iframe_srcdoc) {
+			return new Blob([iframe_srcdoc], { type: 'text/html' });
 		}
-	}, 400);
+	});
+	let blobUrl = $derived.by(() => {
+		if (blob) {
+			return URL.createObjectURL(blob);
+		}
+	});
 
-	afterUpdate(debouncedAfterUpdate);
+	$effect(() => {
+		if ($baseDataStore?.files && $fileStoreFiles === null) {
+			untrack(() => fileStoreFiles.set($baseDataStore?.files));
+		}
+		untrack(() => {
+			if (srcdoc) {
+				iframe_srcdoc = srcdoc;
+			}
+		});
+
+		if (blobUrl && iframe?.src !== blobUrl) {
+			untrack(() => {
+				iframe.src = blobUrl;
+				id++;
+			});
+		}
+
+		if (!$editorOutContainerHeight || !$editorOutContainerWidth) {
+			untrack(() => {
+				$editorOutContainerHeight = clientHeight;
+				$editorOutContainerWidth = clientWidth;
+			});
+		}
+
+		// if (play) {
+		// 	untrack(() => {
+		// 		fileStoreFiles.set($derivedFileSystemData);
+		// 	});
+		// }
+
+		if ($triggerCompile) {
+			handleReload();
+		}
+	});
 
 	const gameInit = async () => {
 		try {
@@ -224,44 +240,85 @@
 	onMount(() => {
 		if (browser) window.addEventListener('message', receiveMessage);
 		$autoCompile = false;
+
+		if ($baseDataStore?.files) fileStoreFiles.set($baseDataStore?.files);
 	});
 
 	onDestroy(() => {
 		if (browser) window.removeEventListener('message', receiveMessage);
 		stopPropagation = false;
+
+		fileStoreFiles.set(null);
+		baseDataStore.set([]);
 	});
 
-	let clientWidth = 0;
-	let clientHeight = 0;
+	let dimensions = $derived({
+		clientWidth,
+		clientHeight,
+		editorOutContainerWidth: $editorOutContainerWidth,
+		editorOutContainerHeight: $editorOutContainerHeight
+	});
 
-	$: {
-		if (play) {
-			$editorOutContainerHeight = clientHeight;
-			$editorOutContainerWidth = clientWidth;
-			fileStoreFiles.set($derivedFileSystemData);
+	const debouncedResize = debounce(() => {
+		let prevID = id;
+		if (rootFileId) {
+			let srcdoc = buildDynamicSrcDoc(
+				$fileStoreFiles,
+				rootFileId,
+				{
+					width: $editorOutContainerWidth,
+					height: $editorOutContainerHeight
+				},
+				$gameControllerStore
+			);
+
+			const blob = new Blob([srcdoc], { type: 'text/html' });
+			const blobUrl = URL.createObjectURL(blob);
+
+			if (blobUrl && iframe?.src !== blobUrl) {
+				iframe.src = blobUrl;
+				id++;
+			}
+		}
+		$editorOutContainerWidth = clientWidth;
+		$editorOutContainerHeight = clientHeight;
+	}, 200);
+
+	function handleReload() {
+		let prevID = id;
+		if (rootFileId) {
+			let srcdoc = buildDynamicSrcDoc(
+				$fileStoreFiles,
+				rootFileId,
+				{
+					width: $editorOutContainerWidth,
+					height: $editorOutContainerHeight
+				},
+				$gameControllerStore
+			);
+
+			const blob = new Blob([srcdoc], { type: 'text/html' });
+			const blobUrl = URL.createObjectURL(blob);
+
+			if (blobUrl && iframe?.src !== blobUrl) {
+				iframe.src = blobUrl;
+				id++;
+			}
+
+			triggerCompile.set(false);
 		}
 	}
 
-	$: (() => {
-		if ($screenshot) {
-			relaxed = true;
-			setTimeout(() => {
-				try {
-					let doc = iframe?.contentDocument;
-					htmlToImage.toPng(doc?.body).then(function (dataUrl) {
-						thumbnail = dataUrl;
-					});
-					relaxed = false;
-					$screenshot = false;
-				} catch (error) {
-					console.log('error:;', error);
-				}
-			}, 1000);
-		}
-	})();
+	function handleResize(node) {
+		$effect(() => {
+			if ($editorOutContainerWidth !== clientWidth) {
+				debouncedResize();
+			}
+		});
+	}
 </script>
 
-<div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight>
+<div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight use:handleResize>
 	<iframe
 		id={`output-iframe-${id}`}
 		style="border-radius: 6px; -webkit-mask-image: -webkit-radial-gradient(white, black);"
@@ -277,7 +334,7 @@
 			'allow-modals',
 			relaxed ? 'allow-same-origin' : ''
 		].join(' ')}
-	/>
+	></iframe>
 </div>
 
 <style>

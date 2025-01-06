@@ -266,6 +266,7 @@
 						showToolTip = false;
 					}}
 					onclick={() => {
+						console.log('howdy');
 						showToolTip = false;
 					}}
 				>

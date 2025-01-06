@@ -5,6 +5,8 @@
 	import TabContainer from '$lib/ui/FileSystem/TabContainer.svelte';
 	import {
 		fileSystemSidebarWidth,
+		guiEditorSidebarWidth,
+		guiEditorSidebarOpen,
 		fileSystemSidebarOpen,
 		openFiles
 	} from '$lib/stores/filesStore.js';
@@ -20,11 +22,11 @@
 	import { addPaddingToEditorStore } from '$lib/stores/editorStore';
 
 	$: splitPath = $page?.route?.id?.split('/') ?? [];
-	$: engineInRoute = splitPath.some((path) => path === 'engine');
+	$: engineInRoute = splitPath.some((path) => path === 'engine' || path === 'gui-engine');
 	$: playInRoute = splitPath.some((path) => path === 'play');
 	$: isBrowsePage = splitPath[splitPath?.length - 1] === 'games';
 	$: themeString = $themeDataStore?.theme?.join(' ');
-	$: isSideBarOpen = $fileSystemSidebarOpen ?? $sideBarState;
+	$: isSideBarOpen = ($fileSystemSidebarOpen || $guiEditorSidebarOpen) ?? $sideBarState;
 	$: engineInRoute && sideBarState?.set(false);
 	$: isMobile = $appClientWidth < 768;
 	$: $openFiles?.length > 0
@@ -79,7 +81,7 @@
 	class:noOpenTabs={$openFiles?.length === 0}
 	class:isGamesPage
 	style="--sidebar-width: {isSideBarOpen
-		? $fileSystemSidebarWidth + 15
+		? ($fileSystemSidebarWidth ?? $guiEditorSidebarWidth) + 15
 		: 0}px; {themeString} --theme-or-highlight: {$tweenedColor};"
 >
 	{#if $openFiles?.length > 0}

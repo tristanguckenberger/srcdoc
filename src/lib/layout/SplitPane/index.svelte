@@ -1,260 +1,369 @@
-<!-- @migration-task Error while migrating Svelte code: Can't migrate code with afterUpdate. Please migrate by hand. -->
-<svelte:options accessors />
-
 <script>
 	// @ts-nocheck
-	import { afterUpdate, onDestroy, tick } from 'svelte';
+	import { page } from '$app/stores';
+	import { onDestroy, onMount, tick, untrack } from 'svelte';
 	import {
 		clearSplit,
 		splitInstanceStore,
 		editorSplit,
 		protectPaneManager,
-		resetPanes
+		resetPanes,
+		cleanGutters
 	} from '$lib/stores/splitStore';
 	import Split from 'split.js';
-	import { paneMinHeightModifier } from '$lib/stores/layoutStore';
+	import { didRotation, paneMinHeightModifier } from '$lib/stores/layoutStore';
 	import {
 		fileSystemSidebarOpen,
+		guiEditorSidebarOpen,
+		guiEditorSidebarWidth,
 		fileSystemSidebarWidth,
 		openInNewPane,
 		autoCompile,
 		triggerCompile,
-		codePanes2
+		codePanes2,
+		openFiles
 	} from '$lib/stores/filesStore';
 	import {
+		editorSplitStore,
 		splitStore,
 		paneManager,
 		inputOutputContainerWidth,
-		inputOutputContainerHeight
+		inputOutputContainerHeight,
+		outputsContainerHeight,
+		outputsContainerWidth,
+		isAddingPane
 	} from '$lib/stores/splitStore';
 
-	/**
-	 * @type {any[]}
-	 */
-	export let panes;
-
-	/**
-	 * @type {null}
-	 */
-	export let sizes = null;
-
-	/**
-	 * @type {boolean}
-	 */
-	export let vertical = false;
-
-	/**
-	 * @type {string}
-	 */
-	export let splitParent;
+	let {
+		panes = [],
+		sizes,
+		vertical = false,
+		splitParent,
+		editor,
+		output,
+		sidebar,
+		previousRoute,
+		content,
+		children
+	} = $props();
 
 	/**
 	 * @type {Split.Instance}
 	 */
-	let splitInstance;
+	let splitInstance = $state(null);
+	let waiting = $state(false);
+	let split = $state(null);
+	let firstRun = $state(true);
+	let paneIDs = $derived(panes?.map((pane) => (typeof pane === 'string' ? pane : pane?.paneID)));
+	let isSideBarOpen = $derived($fileSystemSidebarOpen ?? $guiEditorSidebarOpen);
+	let editorSplitCheck = $derived(
+		paneIDs?.includes('#split-file-explorer') && paneIDs?.includes('#split-input-output')
+	);
+	let primarySplitCheck = $derived(paneIDs?.includes('#split-2') && paneIDs?.includes('#split-3'));
+	let splitPath = $derived($page?.route?.id?.split('/') ?? []);
+	let isCodeEngine = $derived(splitPath.some((path) => path === 'engine'));
+	let isGuiEngine = $derived(splitPath.some((path) => path === 'gui-engine'));
+	let parentClassList = $derived(splitInstance?.parent?.classList);
+	let isEditorSplit = $derived(parentClassList?.contains('split-2'));
 
-	$: paneIDs = panes?.map((pane) => (typeof pane === 'string' ? pane : pane?.paneID));
+	const cleanUpGutters = async (vertical) => {
+		await tick();
+		const paneCount = paneIDs?.length;
+		const splitContainer = document.querySelector('.split-2');
+		const gutters = splitContainer?.querySelectorAll('.gutter');
+		const verticalSplitGutters = splitContainer?.querySelectorAll('.gutter.gutter-vertical');
+		const horizontalSplitGutters = splitContainer?.querySelectorAll('.gutter.gutter-horizontal');
 
-	let sizeUpdate;
-	$: $protectPaneManager === false,
-		(() => {
-			if (firstRun) {
-				return (sizeUpdate = sizes);
-			}
+		if (!splitContainer) {
+			console.warn('Split container not found for split-2.');
+			return;
+		}
 
-			const editorSplit =
-				paneIDs?.includes('#split-file-explorer') && paneIDs?.includes('#split-input-output');
-			const primarySplit = paneIDs?.includes('#split-2') && paneIDs?.includes('#split-3');
-
-			if (primarySplit) {
-				const outputPane = $paneManager?.find((pane) => pane.id === 'split-output');
-
-				return (sizeUpdate = [
-					($inputOutputContainerHeight /
-						(outputPane?.splitClientHeight + $inputOutputContainerHeight)) *
-						100,
-					(outputPane.splitClientHeight /
-						(outputPane.splitClientHeight + $inputOutputContainerHeight)) *
-						100
-				]);
-			} else if (editorSplit) {
-				return (sizeUpdate = [
-					($fileSystemSidebarWidth / ($fileSystemSidebarWidth + $inputOutputContainerWidth)) * 100,
-					($inputOutputContainerWidth / ($fileSystemSidebarWidth + $inputOutputContainerWidth)) *
-						100
-				]);
+		if (gutters?.length > paneCount - 1) {
+			if (vertical) {
+				const extraGutters = gutters.length - (paneCount - 1);
+				const guttersToDel = Array.from(verticalSplitGutters).slice(-extraGutters);
+				guttersToDel.forEach((gutter) => gutter.remove());
 			} else {
-				const outputPane = $paneManager?.find((pane) => pane.id === 'split-output');
+				const extraGutters = gutters.length - (paneCount - 1);
+				const guttersToDel = Array.from(horizontalSplitGutters).slice(-extraGutters);
+				guttersToDel.forEach((gutter) => gutter.remove());
+			}
+		}
 
-				if (paneIDs?.length >= 2) {
-					const filterSizes = $paneManager?.filter((pane) => paneIDs?.includes(`#${pane?.id}`));
+		await tick();
 
-					return (sizeUpdate = filterSizes?.map((pane) => {
-						return vertical ? pane?.splitClientHeight : pane?.splitClientWidth;
-					}));
-				} else if (paneIDs?.length === 1) {
-					const pane = $paneManager?.find((pane) => paneIDs?.includes(`#${pane?.id}`));
+		if (gutters?.length < paneCount - 1) {
+			const missingGutters = paneCount - 1 - gutters.length;
+			console.log(`Adding ${missingGutters} missing gutter(s).`);
 
-					if (pane?.id === 'split-3') {
-						return (sizeUpdate = [100]);
-					}
-
-					return (sizeUpdate = vertical
-						? [
-								(pane?.splitClientHeight /
-									(pane?.splitClientHeight + outputPane?.splitClientHeight)) *
-									100,
-								(outputPane?.splitClientHeight /
-									(pane?.splitClientHeight + outputPane?.splitClientHeight)) *
-									100
-						  ]
-						: [
-								(pane?.splitClientWidth / (pane?.splitClientWidth + outputPane?.splitClientWidth)) *
-									100,
-								(outputPane?.splitClientWidth /
-									(pane?.splitClientWidth + outputPane?.splitClientWidth)) *
-									100
-						  ]);
+			for (let i = 0; i < missingGutters; i++) {
+				const gutter = document.createElement('div');
+				gutter.className = vertical ? 'gutter gutter-vertical' : 'gutter gutter-horizontal';
+				if (vertical) {
+					gutter.style.height = '10px';
 				} else {
-					return (sizeUpdate = [100]);
+					gutter.style.width = '10px';
+				}
+
+				const panes = splitContainer.querySelectorAll('.pane');
+				if (panes[i]) {
+					panes[i].parentNode.insertBefore(gutter, panes[i].nextSibling);
 				}
 			}
-		})();
+		}
 
-	const reloadSplit = () => {
+		await tick();
+	};
+
+	let sizeUpdate = $derived.by(() => {
+		if (firstRun) {
+			return sizes;
+		}
+
+		if (primarySplitCheck) {
+			const outputPane = $paneManager?.find((pane) => pane.id === 'split-output');
+
+			return [
+				(($inputOutputContainerHeight ?? $outputsContainerHeight) /
+					(outputPane?.splitClientHeight +
+						($inputOutputContainerHeight ?? $outputsContainerHeight))) *
+					100,
+				(outputPane?.splitClientHeight /
+					(outputPane?.splitClientHeight +
+						($inputOutputContainerHeight ?? $outputsContainerHeight))) *
+					100
+			];
+		} else if (editorSplitCheck) {
+			return [
+				(($fileSystemSidebarWidth ?? $guiEditorSidebarWidth) /
+					(($fileSystemSidebarWidth ?? $guiEditorSidebarWidth) + $inputOutputContainerWidth)) *
+					100,
+				(($inputOutputContainerWidth ?? $outputsContainerWidth) /
+					(($fileSystemSidebarWidth ?? $guiEditorSidebarWidth) +
+						($inputOutputContainerWidth ?? $outputsContainerWidth))) *
+					100
+			];
+		} else {
+			const outputPane = $paneManager?.find((pane) => pane.id === 'split-output');
+
+			if (paneIDs?.length >= 2) {
+				const filterSizes = $paneManager?.filter((pane) => paneIDs?.includes(`#${pane?.id}`));
+
+				return filterSizes?.map((pane) => {
+					return vertical ? pane?.splitClientHeight : pane?.splitClientWidth;
+				});
+			} else if (paneIDs?.length === 1) {
+				const pane = $paneManager?.find((pane) => paneIDs?.includes(`#${pane?.id}`));
+
+				if (pane?.id === 'split-3') {
+					return [100];
+				}
+
+				return vertical
+					? [
+							(pane?.splitClientHeight /
+								(pane?.splitClientHeight + outputPane?.splitClientHeight)) *
+								100,
+							(outputPane?.splitClientHeight /
+								(pane?.splitClientHeight + outputPane?.splitClientHeight)) *
+								100
+						]
+					: [
+							(pane?.splitClientWidth / (pane?.splitClientWidth + outputPane?.splitClientWidth)) *
+								100,
+							(outputPane?.splitClientWidth /
+								(pane?.splitClientWidth + outputPane?.splitClientWidth)) *
+								100
+						];
+			} else {
+				return [100];
+			}
+		}
+	});
+
+	const reloadEditorSplit = async () => {
+		await tick();
+		if (!isEditorSplit) return;
+		if (!paneIDs || paneIDs.length === 0) return;
+
 		try {
-			$protectPaneManager = true;
-			// Destory existing splitInstance
-			if (splitInstance) splitInstance?.destroy(true, false);
+			if (splitInstance && isEditorSplit) {
+				if ($openFiles?.length === 0) {
+					splitInstance.destroy(false, false);
+				} else if ($openFiles?.length >= 2) {
+					if ($isAddingPane) {
+						cleanUpGutters(!vertical);
+						splitInstance.destroy(false, false);
+					} else {
+						cleanUpGutters(!vertical);
+						splitInstance.destroy(false, false);
+					}
+				}
 
-			if (!paneIDs || paneIDs?.length === 0) return;
+				splitInstance = Split(paneIDs, {
+					direction: vertical ? 'vertical' : 'horizontal',
+					gutterSize: 10,
+					sizes: sizeUpdate ?? sizes,
+					minSize: $paneMinHeightModifier
+				});
 
-			// Init a new split instance
-			splitInstance = Split(paneIDs, {
-				direction: vertical ? 'vertical' : 'horizontal',
-				gutterSize: 10,
-				// @ts-ignore
-				sizes: sizeUpdate ?? sizes,
-				minSize: $paneMinHeightModifier
-			});
+				if (isEditorSplit) {
+					editorSplitStore.set({
+						...splitInstance,
+						reinit: reloadEditorSplit,
+						cleanGutters: cleanUpGutters
+					});
+				}
 
-			splitStore.set(splitInstance);
-			$protectPaneManager = false;
+				await tick();
+			}
 		} catch (error) {
 			console.log('error::', error);
 		}
 	};
 
-	/**
-	 * @type {HTMLDivElement | null}
-	 */
-	let split;
-	let firstRun = true;
+	const reloadSplit = async () => {
+		await tick();
+		if (isEditorSplit) return;
+		if (!paneIDs || paneIDs.length === 0) return;
 
-	$: $fileSystemSidebarOpen,
-		(() => {
-			if ($autoCompile) {
-				clearSplit.set(true);
+		try {
+			$protectPaneManager = true;
+			if (splitInstance) splitInstance?.destroy(false, false);
+			if (!paneIDs || paneIDs?.length === 0) return;
+			await tick();
+
+			if (isGuiEngine) {
+				await tick();
+				splitInstance = Split(paneIDs, {
+					direction: vertical ? 'vertical' : 'horizontal',
+					gutterSize: 10,
+					sizes: sizeUpdate ?? sizes,
+					minSize: $paneMinHeightModifier
+				});
+			} else {
+				await tick();
+				splitInstance = Split(paneIDs, {
+					direction: vertical ? 'vertical' : 'horizontal',
+					gutterSize: 10,
+					sizes: sizeUpdate ?? sizes,
+					minSize: $paneMinHeightModifier
+				});
 			}
-		})();
 
-	afterUpdate(() => {
-		if ($clearSplit) {
-			reloadSplit();
-			setTimeout(() => {
-				clearSplit?.set(false);
-				openInNewPane.set(false);
-				triggerCompile.set(false);
-				firstRun = false;
-			}, 100);
+			splitInstance.setSizes(sizes);
+			splitStore.set(splitInstance);
+			await tick();
+			$protectPaneManager = false;
+			$resetPanes = false;
+			await tick();
+		} catch (error) {
+			console.log('error::', error);
 		}
+	};
+
+	onMount(() => {
+		reloadSplit();
+		// $resetPanes = true;
 	});
 
 	onDestroy(() => {
 		split = null;
-		paneIDs = null;
 		sizes = null;
 		panes = null;
 		splitInstance?.destroy();
 		clearSplit.set(true);
 	});
 
-	// Replaces functionality found in onMount
-	$: if (split && $triggerCompile) {
-		panes?.forEach(async (query) => {
-			const queryString = typeof query === 'string' ? query : query?.paneID;
-			const splitDom = await split?.querySelector(queryString);
-			splitDom?.classList?.add('pane');
-		});
-
-		// Init Split.js
-		setTimeout(() => reloadSplit(), 50);
-	}
-
-	$: if (
-		splitInstance &&
-		splitParent === 'split-input-output' &&
-		splitInstance?.getSizes()?.length >= 2
-	) {
-		const sizes = splitInstance?.getSizes();
-		if (sizes?.some((size) => size === undefined || size < 30)) {
-			const baseSizes = splitInstance?.getSizes()?.map((size) => {
-				return (size = splitInstance?.getSizes()?.length > 2 ? 30 : 50);
-			});
-			splitInstance.setSizes(baseSizes);
-
-			editorSplit.set(splitInstance);
-		} else if (sizes?.some((size) => size > 100)) {
-			const baseSizes = splitInstance?.getSizes()?.map((size) => {
-				return (size = splitInstance?.getSizes()?.length > 2 ? 30 : 50);
-			});
-			splitInstance.setSizes(baseSizes);
-			editorSplit.set(splitInstance);
-			// setTimeout(() => {
-
-			// }, 50);
-		} else {
-			editorSplit.set(splitInstance);
-		}
-	} else if (splitInstance && splitParent === 'split-input-output') {
-		setTimeout(() => {
-			splitInstance.setSizes([100]);
-			editorSplit.set(splitInstance);
-		}, 50);
-	}
-
-	$: isSideBarOpen = $fileSystemSidebarOpen;
-
-	$: (async () => {
-		if ($resetPanes) {
-			if (splitInstance) {
-				// Destroy the current instance when switching direction
-				splitInstance.destroy(false, false);
+	$effect(async () => {
+		waiting = true;
+		if (isGuiEngine) {
+			if ($resetPanes) {
+				untrack(() => {
+					reloadSplit();
+					$resetPanes = false;
+				});
 			}
-
-			// Reinitialize Split.js with the new direction (vertical or horizontal)
-			splitInstance = Split(paneIDs, {
-				direction: vertical ? 'vertical' : 'horizontal',
-				gutterSize: 10,
-				sizes: sizeUpdate ?? sizes,
-				minSize: $paneMinHeightModifier
-			});
-			await tick();
-			// Store the updated instance
-			// splitStore.set(splitInstance);
-			editorSplit.set(splitInstance);
-
-			$resetPanes = false;
 		}
-	})();
+		if (isCodeEngine) {
+			if ($resetPanes) {
+				await tick();
+				if (!paneIDs || paneIDs?.length === 0) return;
+				$protectPaneManager = true;
+				reloadEditorSplit();
+				$resetPanes = false;
+				await tick();
+				if ($splitStore && !isEditorSplit) {
+					splitInstance?.destroy(false, false);
+					await tick();
+
+					splitInstance = Split(paneIDs, {
+						direction: vertical ? 'vertical' : 'horizontal',
+						gutterSize: 10,
+						sizes: sizeUpdate ?? sizes,
+						minSize: 50
+					});
+					splitInstance.setSizes(sizes);
+					splitStore.set(splitInstance);
+				}
+
+				splitInstance?.setSizes(sizes);
+				await tick();
+				$protectPaneManager = false;
+			}
+		}
+		waiting = false;
+	});
+
+	$effect(() => {
+		if (!waiting) {
+			setTimeout(async () => {
+				if (isEditorSplit && splitParent === 'split-2') {
+					if ($isAddingPane && didRotation) {
+						await tick();
+						splitInstance.destroy(false, false);
+					} else if (!$isAddingPane && didRotation) {
+						await tick();
+						splitInstance.destroy(false, true);
+					} else {
+						splitInstance.destroy(false, true);
+					}
+
+					await tick();
+					splitInstance = Split(paneIDs, {
+						direction: vertical ? 'vertical' : 'horizontal',
+						gutterSize: 10,
+						sizes: sizeUpdate ?? sizes,
+						minSize: $paneMinHeightModifier
+					});
+
+					splitInstance.setSizes(sizes);
+
+					editorSplitStore.set({
+						...splitInstance,
+						reinit: reloadEditorSplit,
+						cleanGutters: cleanUpGutters
+					});
+
+					$isAddingPane = true;
+					splitInstance.setSizes(sizes);
+				}
+			}, 500);
+		}
+	});
 </script>
 
 <div
-	class="split {vertical ? 'vertical' : ''}"
+	class="split {vertical ? 'vertical' : ''} {splitParent}"
 	bind:this={split}
-	style="--sidebar-width: {isSideBarOpen ? $fileSystemSidebarWidth + 32 : 38}px;"
+	style="--sidebar-width: {isSideBarOpen
+		? ($fileSystemSidebarWidth ?? $guiEditorSidebarWidth) + 32
+		: 38}px;"
 >
-	<slot />
+	{@render sidebar?.()}
+	{@render content?.()}
+	{@render children?.()}
 </div>
 
 <style>
@@ -279,7 +388,6 @@
 		background-repeat: no-repeat;
 		background-position: 50%;
 		z-index: 2147483647;
-		/* transition: background-color 250ms ease; */
 	}
 	:global(.gutter:hover) {
 		background-color: #4ca5ff;
