@@ -19,6 +19,7 @@ const createWritableStore = (key, startValue) => {
 	};
 };
 export const didRotation = writable(false);
+export const isDragging = writable(false);
 export const editorOutContainerHeight = writable(null);
 export const editorOutContainerWidth = writable(null);
 export const editorContainerHeight = writable(null);

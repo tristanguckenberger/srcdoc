@@ -11,7 +11,11 @@
 		triggerCompile,
 		autoCompile
 	} from '$lib/stores/filesStore.js';
-	import { editorOutContainerWidth, editorOutContainerHeight } from '$lib/stores/layoutStore';
+	import {
+		editorOutContainerWidth,
+		editorOutContainerHeight,
+		isDragging
+	} from '$lib/stores/layoutStore';
 	import { gameControllerStore } from '$lib/stores/gameControllerStore';
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
@@ -282,7 +286,7 @@
 		}
 		$editorOutContainerWidth = clientWidth;
 		$editorOutContainerHeight = clientHeight;
-	}, 200);
+	}, 500);
 
 	function handleReload() {
 		let prevID = id;
@@ -311,30 +315,38 @@
 
 	function handleResize(node) {
 		$effect(() => {
-			if ($editorOutContainerWidth !== clientWidth) {
+			if ($editorOutContainerWidth !== clientWidth && !$isDragging) {
+				// setTimeout(() => {
+				// console.log('onDragEnd::', e);
+				// $isDragging = false;
 				debouncedResize();
+				// }, 500);
 			}
 		});
 	}
 </script>
 
 <div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight use:handleResize>
-	<iframe
-		id={`output-iframe-${id}`}
-		style="border-radius: 6px; -webkit-mask-image: -webkit-radial-gradient(white, black);"
-		title="result"
-		bind:this={iframe}
-		sandbox={[
-			'allow-popups-to-escape-sandbox',
-			'allow-scripts',
-			'allow-popups',
-			'allow-forms',
-			'allow-pointer-lock',
-			'allow-top-navigation',
-			'allow-modals',
-			relaxed ? 'allow-same-origin' : ''
-		].join(' ')}
-	></iframe>
+	{#if $isDragging}
+		<h1>Loading...</h1>
+	{:else}
+		<iframe
+			id={`output-iframe-${id}`}
+			style="border-radius: 6px; -webkit-mask-image: -webkit-radial-gradient(white, black);"
+			title="result"
+			bind:this={iframe}
+			sandbox={[
+				'allow-popups-to-escape-sandbox',
+				'allow-scripts',
+				'allow-popups',
+				'allow-forms',
+				'allow-pointer-lock',
+				'allow-top-navigation',
+				'allow-modals',
+				relaxed ? 'allow-same-origin' : ''
+			].join(' ')}
+		></iframe>
+	{/if}
 </div>
 
 <style>

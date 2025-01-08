@@ -244,7 +244,7 @@
 
 					<section
 						id="split-3"
-						class={{ withoutPanes: $paneManager?.length <= 4 }}
+						class={{ withoutPanes: $openFiles?.length === 0 }}
 						bind:clientWidth={$editorOutContainerWidth}
 						bind:clientHeight={$editorOutContainerHeight}
 					>

@@ -325,6 +325,7 @@
 		border-radius: 6px;
 		border: 2px solid #5c5c5c;
 		min-width: 30px;
+		overflow: hidden;
 	}
 	:global(.split.vertical) {
 		display: flex !important;

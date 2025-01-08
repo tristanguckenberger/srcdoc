@@ -11,7 +11,7 @@
 		cleanGutters
 	} from '$lib/stores/splitStore';
 	import Split from 'split.js';
-	import { didRotation, paneMinHeightModifier } from '$lib/stores/layoutStore';
+	import { didRotation, paneMinHeightModifier, isDragging } from '$lib/stores/layoutStore';
 	import {
 		fileSystemSidebarOpen,
 		guiEditorSidebarOpen,
@@ -33,6 +33,7 @@
 		outputsContainerWidth,
 		isAddingPane
 	} from '$lib/stores/splitStore';
+	import { debounce } from 'lodash-es';
 
 	let {
 		panes = [],
@@ -65,6 +66,20 @@
 	let isGuiEngine = $derived(splitPath.some((path) => path === 'gui-engine'));
 	let parentClassList = $derived(splitInstance?.parent?.classList);
 	let isEditorSplit = $derived(parentClassList?.contains('split-2'));
+	let dragging = $state(false);
+
+	const debouncedDrag = debounce(async (e) => {
+		await tick();
+		$isDragging = true;
+	}, 100);
+
+	const debouncedDragStart = debounce(async (e) => {
+		return;
+	}, 200);
+
+	const debouncedDragEnd = debounce(async (e) => {
+		$isDragging = false;
+	}, 200);
 
 	const cleanUpGutters = async (vertical) => {
 		await tick();
@@ -240,7 +255,10 @@
 					direction: vertical ? 'vertical' : 'horizontal',
 					gutterSize: 10,
 					sizes: sizeUpdate ?? sizes,
-					minSize: $paneMinHeightModifier
+					minSize: $paneMinHeightModifier,
+					onDrag: splitParent === 'split-input-output' ? debouncedDrag : () => {},
+					onDragStart: splitParent === 'split-input-output' ? debouncedDragStart : () => {},
+					onDragEnd: splitParent === 'split-input-output' ? debouncedDragEnd : () => {}
 				});
 			} else {
 				await tick();
@@ -248,7 +266,9 @@
 					direction: vertical ? 'vertical' : 'horizontal',
 					gutterSize: 10,
 					sizes: sizeUpdate ?? sizes,
-					minSize: $paneMinHeightModifier
+					minSize: $paneMinHeightModifier,
+					onDragStart: splitParent === 'split-input-output' ? debouncedDragStart : () => {},
+					onDragEnd: splitParent === 'split-input-output' ? debouncedDragEnd : () => {}
 				});
 			}
 
@@ -302,7 +322,9 @@
 						direction: vertical ? 'vertical' : 'horizontal',
 						gutterSize: 10,
 						sizes: sizeUpdate ?? sizes,
-						minSize: 50
+						minSize: 50,
+						onDragStart: splitParent === 'split-input-output' ? debouncedDragStart : () => {},
+						onDragEnd: splitParent === 'split-input-output' ? debouncedDragEnd : () => {}
 					});
 					splitInstance.setSizes(sizes);
 					splitStore.set(splitInstance);
@@ -317,41 +339,56 @@
 	});
 
 	$effect(() => {
-		if (!waiting) {
-			setTimeout(async () => {
-				if (isEditorSplit && splitParent === 'split-2') {
-					if ($isAddingPane && didRotation) {
+		try {
+			if (!waiting) {
+				setTimeout(async () => {
+					if (isEditorSplit && splitParent === 'split-2') {
+						if ($isAddingPane && didRotation) {
+							await tick();
+							splitInstance?.destroy(false, false);
+						} else if (!$isAddingPane && didRotation) {
+							await tick();
+							splitInstance?.destroy(false, true);
+						} else {
+							splitInstance?.destroy(false, true);
+						}
+
 						await tick();
-						splitInstance.destroy(false, false);
-					} else if (!$isAddingPane && didRotation) {
-						await tick();
-						splitInstance.destroy(false, true);
-					} else {
-						splitInstance.destroy(false, true);
+						splitInstance = Split(paneIDs, {
+							direction: vertical ? 'vertical' : 'horizontal',
+							gutterSize: 10,
+							sizes: sizeUpdate ?? sizes,
+							minSize: $paneMinHeightModifier,
+							onDragStart: debouncedDragStart,
+							onDragEnd: debouncedDragEnd
+						});
+
+						splitInstance?.setSizes(sizes);
+
+						editorSplitStore?.set({
+							...splitInstance,
+							reinit: reloadEditorSplit,
+							cleanGutters: cleanUpGutters
+						});
+						// if (!waiting && isEditorSplit && splitInstance && splitParent === 'split-2') {
+						// 	await splitInstance?.onDrag();
+
+						// 	await splitInstance?.onDragEnd();
+						// }
+						$isAddingPane = true;
+						splitInstance?.setSizes(sizes);
 					}
-
-					await tick();
-					splitInstance = Split(paneIDs, {
-						direction: vertical ? 'vertical' : 'horizontal',
-						gutterSize: 10,
-						sizes: sizeUpdate ?? sizes,
-						minSize: $paneMinHeightModifier
-					});
-
-					splitInstance.setSizes(sizes);
-
-					editorSplitStore.set({
-						...splitInstance,
-						reinit: reloadEditorSplit,
-						cleanGutters: cleanUpGutters
-					});
-
-					$isAddingPane = true;
-					splitInstance.setSizes(sizes);
-				}
-			}, 500);
+				}, 500);
+			}
+		} catch (error) {
+			console.log(error);
 		}
 	});
+
+	// $effect(() => {
+	// });
+
+	// $inspect('Is dragging?::', dragging);
 </script>
 
 <div
