@@ -19,7 +19,8 @@
 		inputOutputContainerHeight,
 		outputsContainerWidth,
 		outputsContainerHeight,
-		resetPanes
+		resetPanes,
+		editorSplitStore
 	} from '$lib/stores/splitStore';
 	import {
 		focusedFileId,
@@ -84,9 +85,9 @@
 
 	$effect(() => {
 		if (split) {
-			untrack(() => {
-				editorHotFix();
-			});
+			// untrack(() => {
+			editorHotFix();
+			// });
 		}
 	});
 	let codePanesLength = $derived($codePanes2?.length);
@@ -114,20 +115,20 @@
 		});
 
 		if (codePanesLength === 1) {
-			$editorSplit.setSizes([100]);
+			$editorSplitStore?.setSizes([100]);
 		} else if (codePanesLength === 2) {
 			if (targetIndex === 0) {
-				$editorSplit.setSizes([97, 3]);
+				$editorSplitStore?.setSizes([97, 3]);
 			} else if (targetIndex === 1) {
-				$editorSplit.setSizes([3, 97]);
+				$editorSplitStore?.setSizes([3, 97]);
 			}
 		} else if (codePanesLength === 3) {
 			if (targetIndex === 0) {
-				$editorSplit.setSizes([93.12459240436259, 3.437263361299153, 3.4381442343382815]);
+				$editorSplitStore?.setSizes([93.12459240436259, 3.437263361299153, 3.4381442343382815]);
 			} else if (targetIndex === 1) {
-				$editorSplit.setSizes([3.437263361299153, 93.12459240436259, 3.4381442343382815]);
+				$editorSplitStore?.setSizes([3.437263361299153, 93.12459240436259, 3.4381442343382815]);
 			} else if (targetIndex === 2) {
-				$editorSplit.setSizes([3.437263361299153, 3.4381442343382815, 93.12459240436259]);
+				$editorSplitStore?.setSizes([3.437263361299153, 3.4381442343382815, 93.12459240436259]);
 			}
 		}
 	};
@@ -276,6 +277,7 @@
 		onkeyup={(e) => {}}
 		ondblclick={(e) => {
 			// TODO: changing $isVertical might break this
+			console.log('::MAXIMIZE::');
 			maximize(e, !value);
 		}}
 	>
