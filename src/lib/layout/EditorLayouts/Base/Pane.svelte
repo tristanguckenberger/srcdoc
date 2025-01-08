@@ -32,14 +32,15 @@
 		fileSystemSidebarWidth,
 		guiEditorSidebarOpen,
 		guiEditorSidebarWidth,
-		docsOpen
+		docsOpen,
+		fileSystemSidebarOpen
 	} from '$lib/stores/filesStore';
 	import { themeDataStore } from '$lib/stores/themeStore';
 	import { onDestroy, tick, onMount, untrack } from 'svelte';
 	import { derived } from 'svelte/store';
+	import { page } from '$app/stores';
 
 	let { id = '', label, paneInfo, paneContent, srcbuild, children } = $props();
-
 	let split = $state();
 	let splitClientWidth = $state(0);
 	let splitClientHeight = $state(0);
@@ -48,6 +49,8 @@
 	let value = $derived($isVertical);
 	let isOutput = $derived($editorOutContainerHeight && $editorOutContainerHeight <= 30);
 	let isEditor = $derived($editorContainerHeight && $editorContainerHeight <= 30);
+	let splitPath = $derived($page?.route?.id?.split('/') ?? []);
+	let engineInRoute = $derived(splitPath.some((path) => path === 'engine'));
 
 	function editorHotFix() {
 		let splitModel = split?.querySelector('.slot-control-bar .container');
@@ -230,12 +233,6 @@
 		$paneManager = paneManagerDerived;
 	});
 
-	onMount(() => {
-		console.log('PANE::MOUNTED');
-		console.log('PANE::ID::', id);
-		console.log('PANE::LABEL::', label);
-	});
-
 	onDestroy(() => {
 		const idInPaneManager = $paneManager?.some((pane) => {
 			return pane.id === id;
@@ -259,8 +256,12 @@
 <!-- Add the theme string to sections style -->
 <section
 	{id}
-	class:isFocused
-	class="section-panel"
+	class="section-panel {isFocused ? 'isFocused' : ''} {id === 'split-input-output'
+		? 'codeEditor'
+		: ''} {engineInRoute ? 'engineInRoute' : ''} {!$fileSystemSidebarOpen &&
+	id === 'split-file-explorer'
+		? 'hidden'
+		: ''}"
 	style="overflow-x: visible; {themeString}"
 	bind:this={split}
 	bind:clientWidth={splitClientWidth}
@@ -348,6 +349,15 @@
 		user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
 	}
+	section.section-panel.codeEditor.engineInRoute {
+		border-radius: unset;
+		border: unset;
+	}
+
+	section.section-panel.hidden {
+		display: none;
+	}
+
 	:global(#split-outputs) {
 		width: 100%;
 		height: 100%;

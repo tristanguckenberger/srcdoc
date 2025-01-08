@@ -486,6 +486,7 @@
 <div
 	class="layout-container"
 	class:isBrowsePage
+	class:engineInRoute
 	style="--user-accent-color: {$settingsStore?.user_accent_color ??
 		'#4ca5ff38'}; --svg-bg: url('{bgFadedMono16}'); --screenHeight: {$screenHeight -
 		15}px; height: 100%; width: 100%; {themeString}"

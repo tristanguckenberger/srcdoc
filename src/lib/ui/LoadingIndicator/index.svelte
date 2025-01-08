@@ -49,7 +49,6 @@
 			duration: 250
 		}}
 	></span>
-	<!-- </div> -->
 </div>
 
 <style>
@@ -78,7 +77,12 @@
 			linear-gradient(#043c3f 50px, transparent 0), linear-gradient(#216f73 50px, transparent 0);
 		background-size: 8px 100%;
 		/* background-position: 0px 50px, 15px 58px, 30px 66px, 45px 78px, 60px 90px; */
-		background-position: 0px 90px, 15px 78px, 30px 66px, 45px 58px, 60px 50px;
+		background-position:
+			0px 90px,
+			15px 78px,
+			30px 66px,
+			45px 58px,
+			60px 50px;
 		animation: pillerPushUp 3s cubic-bezier(0, 0.41, 0.3, 0.33) infinite;
 		animation-direction: reverse;
 	}
@@ -114,11 +118,21 @@
 		0%,
 		40%,
 		100% {
-			background-position: 0px 90px, 15px 78px, 30px 66px, 45px 58px, 60px 50px;
+			background-position:
+				0px 90px,
+				15px 78px,
+				30px 66px,
+				45px 58px,
+				60px 50px;
 		}
 		50%,
 		90% {
-			background-position: 0px 50px, 15px 58px, 30px 66px, 45px 78px, 60px 90px;
+			background-position:
+				0px 50px,
+				15px 58px,
+				30px 66px,
+				45px 78px,
+				60px 90px;
 		}
 	}
 

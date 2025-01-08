@@ -67,18 +67,31 @@
 	let parentClassList = $derived(splitInstance?.parent?.classList);
 	let isEditorSplit = $derived(parentClassList?.contains('split-2'));
 	let dragging = $state(false);
+	let fullSize = $state(true);
 
 	const debouncedDrag = debounce(async (e) => {
-		await tick();
-		$isDragging = true;
+		// await tick();
+		console.log('dragging::e::', e);
+		// await tick();
+		isDragging.set(true);
+		// dragging = true;
+		// await tick();
 	}, 100);
 
 	const debouncedDragStart = debounce(async (e) => {
-		return;
+		// await tick();
+		console.log('drag start::e::', e);
+		isDragging.set(true);
+		// dragging = true;
+		// await tick();
 	}, 200);
 
 	const debouncedDragEnd = debounce(async (e) => {
-		$isDragging = false;
+		// await tick();
+		console.log('drag end::e::', e);
+		isDragging.set(false);
+		// dragging = false;
+		// await tick();
 	}, 200);
 
 	const cleanUpGutters = async (vertical) => {
@@ -259,6 +272,17 @@
 					onDrag: splitParent === 'split-input-output' ? debouncedDrag : () => {},
 					onDragStart: splitParent === 'split-input-output' ? debouncedDragStart : () => {},
 					onDragEnd: splitParent === 'split-input-output' ? debouncedDragEnd : () => {}
+					// elementStyle: (dimension, elementSize, gutterSize, index) => {
+					// 	console.log('ES::dimension::', dimension);
+					// 	console.log('ES::elementSize::', elementSize);
+					// 	console.log('ES::gutterSize::', gutterSize);
+					// 	console.log('ES::index::', index);
+					// 	console.log('ES::splitParent::', splitParent);
+					// 	console.log('==================================');
+					// 	return {
+					// 		width: 'calc(100% - 0px)'
+					// 	};
+					// }
 				});
 			} else {
 				await tick();
@@ -267,6 +291,7 @@
 					gutterSize: 10,
 					sizes: sizeUpdate ?? sizes,
 					minSize: $paneMinHeightModifier,
+					onDrag: splitParent === 'split-input-output' ? debouncedDrag : () => {},
 					onDragStart: splitParent === 'split-input-output' ? debouncedDragStart : () => {},
 					onDragEnd: splitParent === 'split-input-output' ? debouncedDragEnd : () => {}
 				});
@@ -377,6 +402,8 @@
 						// }
 						$isAddingPane = true;
 						splitInstance?.setSizes(sizes);
+					} else {
+						fullSize = $openFiles.length === 0;
 					}
 				}, 500);
 			}
@@ -392,7 +419,7 @@
 </script>
 
 <div
-	class="split {vertical ? 'vertical' : ''} {splitParent}"
+	class="split {vertical ? 'vertical' : ''} {splitParent} {fullSize ? 'fullSize' : ''}"
 	bind:this={split}
 	style="--sidebar-width: {isSideBarOpen
 		? ($fileSystemSidebarWidth ?? $guiEditorSidebarWidth) + 32
@@ -438,5 +465,10 @@
 	:global(.gutter.gutter-vertical) {
 		cursor: row-resize;
 		min-height: 10px;
+	}
+
+	/* Override splitjs element styles when no open files */
+	.split.fullSize :global(#split-3) {
+		width: 100% !important;
 	}
 </style>

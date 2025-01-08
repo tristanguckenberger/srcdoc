@@ -133,7 +133,13 @@
 	// });
 </script>
 
-<div id="split-main" class="main" class:isSideBarOpen class:isFileSystemSideBarOpen>
+<div
+	id="split-main"
+	class="main"
+	class:isSideBarOpen
+	class:isFileSystemSideBarOpen
+	class:hiddenSidebar={!isFileSystemSideBarOpen}
+>
 	<SplitPane
 		panes={['#split-file-explorer', '#split-input-output']}
 		sizes={[50, 50]}
@@ -142,121 +148,127 @@
 		splitParent={'split-main'}
 	>
 		{#snippet sidebar()}
-			<div
-				id="split-file-explorer"
-				class:hidden={!$fileSystemSidebarOpen}
-				class:docsOpen
-				bind:clientWidth={$fileSystemSidebarWidth}
-				bind:clientHeight={areaHeight}
-			>
-				<div class="action-row">
-					<a href={previousRoute} class="docs-button" aria-label="backbtn">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="32"
-							height="32"
-							fill="#000000"
-							viewBox="0 0 256 256"
-							><path
-								d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"
-							/></svg
-						>
-					</a>
-					<button
-						aria-label="docs"
-						class="docs-button"
-						onclick={() => {
-							// fileSystemSidebarOpen.set(false);
-							docsOpen = !docsOpen;
-							showToolTip = false;
-						}}
+			<Pane id={'split-file-explorer'}>
+				{#snippet paneContent()}
+					<div
+						class:hidden={!$fileSystemSidebarOpen}
+						class:docsOpen
+						bind:clientWidth={$fileSystemSidebarWidth}
+						bind:clientHeight={areaHeight}
 					>
-						<div
-							role="tooltip"
-							class="icon-tooltip-container"
-							onmouseover={() => {
-								showToolTip = true;
-							}}
-							onmouseleave={() => {
-								showToolTip = false;
-							}}
-							onfocus={() => {}}
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="32"
-								height="32"
-								fill="#000000"
-								viewBox="0 0 256 256"
-								><path
-									d="M213.66,66.34l-40-40A8,8,0,0,0,168,24H88A16,16,0,0,0,72,40V56H56A16,16,0,0,0,40,72V216a16,16,0,0,0,16,16H168a16,16,0,0,0,16-16V200h16a16,16,0,0,0,16-16V72A8,8,0,0,0,213.66,66.34ZM168,216H56V72h76.69L168,107.31v84.53c0,.06,0,.11,0,.16s0,.1,0,.16V216Zm32-32H184V104a8,8,0,0,0-2.34-5.66l-40-40A8,8,0,0,0,136,56H88V40h76.69L200,75.31Zm-56-32a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h48A8,8,0,0,1,144,152Zm0,32a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h48A8,8,0,0,1,144,184Z"
-								/></svg
+						<div class="action-row">
+							<a href={previousRoute} class="docs-button" aria-label="backbtn">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="32"
+									height="32"
+									fill="#000000"
+									viewBox="0 0 256 256"
+									><path
+										d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"
+									/></svg
+								>
+							</a>
+							<button
+								aria-label="docs"
+								class="docs-button"
+								onclick={() => {
+									// fileSystemSidebarOpen.set(false);
+									docsOpen = !docsOpen;
+									showToolTip = false;
+								}}
 							>
-						</div></button
-					>
-					{#if showToolTip}
-						<ToolTip text="Open/Close Editor Docs" position="bottom" />
-					{/if}
-				</div>
+								<div
+									role="tooltip"
+									class="icon-tooltip-container"
+									onmouseover={() => {
+										showToolTip = true;
+									}}
+									onmouseleave={() => {
+										showToolTip = false;
+									}}
+									onfocus={() => {}}
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="32"
+										height="32"
+										fill="#000000"
+										viewBox="0 0 256 256"
+										><path
+											d="M213.66,66.34l-40-40A8,8,0,0,0,168,24H88A16,16,0,0,0,72,40V56H56A16,16,0,0,0,40,72V216a16,16,0,0,0,16,16H168a16,16,0,0,0,16-16V200h16a16,16,0,0,0,16-16V72A8,8,0,0,0,213.66,66.34ZM168,216H56V72h76.69L168,107.31v84.53c0,.06,0,.11,0,.16s0,.1,0,.16V216Zm32-32H184V104a8,8,0,0,0-2.34-5.66l-40-40A8,8,0,0,0,136,56H88V40h76.69L200,75.31Zm-56-32a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h48A8,8,0,0,1,144,152Zm0,32a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h48A8,8,0,0,1,144,184Z"
+										/></svg
+									>
+								</div></button
+							>
+							{#if showToolTip}
+								<ToolTip text="Open/Close Editor Docs" position="bottom" />
+							{/if}
+						</div>
 
-				<hr class="sidebar-divider" />
-				{#if !docsOpen}
-					<FileTree
-						files={data?.files}
-						parentFileId={null}
-						gameId={data?.id}
-						userId={data?.userId ?? data?.user_id}
-					/>
-				{:else}
-					<Documentation parentHeight={areaHeight} />
-				{/if}
-			</div>
+						<hr class="sidebar-divider" />
+						{#if !docsOpen}
+							<FileTree
+								files={data?.files}
+								parentFileId={null}
+								gameId={data?.id}
+								userId={data?.userId ?? data?.user_id}
+							/>
+						{:else}
+							<Documentation parentHeight={areaHeight} />
+						{/if}
+					</div>
+				{/snippet}
+			</Pane>
 		{/snippet}
 		{#snippet content()}
-			<div
-				bind:clientWidth={$inputOutputContainerWidth}
-				bind:clientHeight={$inputOutputContainerHeight}
-				id="split-input-output"
-				class:fullwidth={!$fileSystemSidebarOpen}
-				class:isSideBarOpen
-				class:isFileSystemSideBarOpen
-				class:docsOpen
-				style="--file-system-sidebar-width: {isFileSystemSideBarOpen
-					? $fileSystemSidebarWidth + 18
-					: 0}px; --sidebar-width: {isSideBarOpen ? 240 : 0}px;"
-			>
-				<SplitPane
-					panes={$openFiles?.length > 0 ? ['#split-2', '#split-3'] : ['#split-3']}
-					sizes={$openFiles?.length > 0 ? [50, 50] : [100]}
-					vertical={value}
-					splitParent={'split-input-output'}
-					bind:this={$editorElement}
-				>
-					<!-- {#snippet editor($openFiles)} -->
-					<!-- Editor Content -->
-					<!-- {#if $openFiles?.length > 0} -->
-					<EditorInput />
-					<!-- {/if} -->
-					<!-- {/snippet} -->
-
-					<!-- {#snippet output()} -->
-					<!-- Output Content -->
-
-					<section
-						id="split-3"
-						class={{ withoutPanes: $openFiles?.length === 0 }}
-						bind:clientWidth={$editorOutContainerWidth}
-						bind:clientHeight={$editorOutContainerHeight}
+			<Pane id={'split-input-output'}>
+				{#snippet paneContent()}
+					<div
+						bind:clientWidth={$inputOutputContainerWidth}
+						bind:clientHeight={$inputOutputContainerHeight}
+						class:fullwidth={!$fileSystemSidebarOpen}
+						class:isSideBarOpen
+						class:isFileSystemSideBarOpen
+						class:docsOpen
+						style="--file-system-sidebar-width: {isFileSystemSideBarOpen
+							? $fileSystemSidebarWidth + 18
+							: 0}px; --sidebar-width: {isSideBarOpen ? 240 : 0}px; height: 100%; width: 100%;"
 					>
-						<Pane id={'split-output'} label={'output'}>
-							{#snippet paneContent()}
-								<Output slot="pane-content" srcdocBuilt={srcbuild} {play} relaxed />
-							{/snippet}
-						</Pane>
-					</section>
-					<!-- {/snippet} -->
-				</SplitPane>
-			</div>
+						<SplitPane
+							panes={$openFiles?.length > 0 ? ['#split-2', '#split-3'] : ['#split-3']}
+							sizes={$openFiles?.length > 0 ? [50, 50] : [100]}
+							vertical={value}
+							splitParent={'split-input-output'}
+							bind:this={$editorElement}
+						>
+							<!-- {#snippet editor($openFiles)} -->
+							<!-- Editor Content -->
+							<!-- {#if $openFiles?.length > 0} -->
+							<EditorInput />
+							<!-- {/if} -->
+							<!-- {/snippet} -->
+
+							<!-- {#snippet output()} -->
+							<!-- Output Content -->
+
+							<section
+								id="split-3"
+								class={{ withoutPanes: $openFiles?.length === 0 }}
+								bind:clientWidth={$editorOutContainerWidth}
+								bind:clientHeight={$editorOutContainerHeight}
+							>
+								<Pane id={'split-output'} label={'output'}>
+									{#snippet paneContent()}
+										<Output relaxed />
+									{/snippet}
+								</Pane>
+							</section>
+							<!-- {/snippet} -->
+						</SplitPane>
+					</div>
+				{/snippet}
+			</Pane>
 		{/snippet}
 	</SplitPane>
 </div>
@@ -268,12 +280,12 @@
 		margin: 0;
 	}
 	.main {
-		margin: 0 10px 10px 10px;
+		margin: 0 10px 0 10px;
 		max-height: unset;
 		max-height: calc(100% - 106.5px);
 	}
 	:global(#split-output) {
-		height: 100%;
+		height: calc(100% - 4px);
 		/* max-height: calc(100% - 101.5px); */
 	}
 	:global(.monaco-editor) {
@@ -388,9 +400,9 @@
 	}
 
 	:global(#editor-layout.engineInRoute) {
-		height: calc(100% - 56.5px);
+		height: calc(100% - 66.5px);
 		padding-top: 10px;
-		max-height: calc(100% - 56.5px);
+		max-height: calc(100% - 66.5px);
 	}
 
 	:global(#editor-layout.engineInRoute.showSideBar) {
@@ -484,5 +496,12 @@
 	.action-row :global(.tooltip__container.bottom) {
 		top: 51px !important;
 		bottom: unset;
+	}
+	:global(div.layout-container.engineInRoute) {
+		/* position: relative; */
+	}
+
+	#split-main.hiddenSidebar .split-main :global(div.split.split-main .gutter:first-child) {
+		display: none !important;
 	}
 </style>

@@ -286,7 +286,7 @@
 	:global(.engineInRoute #split-file-explorer) {
 		/* height: calc(100%); */
 		/* bottom: 40px; */
-		max-width: 45%;
+		/* max-width: 45%; */
 		overflow: hidden;
 	}
 </style>

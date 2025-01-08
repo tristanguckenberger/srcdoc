@@ -80,10 +80,8 @@
 <style>
 	.sidebar {
 		padding: 10px;
-		border-radius: 6px;
-		border: 2px solid #5c5c5c;
+		/* border-radius: 6px; */
 		overflow: hidden;
-		max-width: 245px;
 	}
 
 	.sidebar.docsOpen {
@@ -174,13 +172,6 @@
 	.action-row :global(.tooltip__container.bottom) {
 		top: 51px !important;
 		bottom: unset;
-	}
-	.sidebar {
-		padding: 10px;
-		border-radius: 6px;
-		border: 2px solid #5c5c5c;
-		overflow: hidden;
-		max-width: 245px;
 	}
 	.sidebar.docsOpen {
 		max-width: 50% !important;

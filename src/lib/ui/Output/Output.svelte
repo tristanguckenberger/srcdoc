@@ -21,6 +21,7 @@
 	import { page } from '$app/stores';
 	import { debounce } from 'lodash-es';
 	import { playButton } from '$lib/stores/gamesStore';
+	import LoadingIndicator from '$lib/ui/LoadingIndicator/index.svelte';
 
 	import * as htmlToImage from 'html-to-image';
 	import { writable } from 'svelte/store';
@@ -40,6 +41,7 @@
 	let stopPropagation = $state(false);
 	let iframe_srcdoc = $state(null);
 	let triggerUpdate = $state(false);
+	let loading = $state($isDragging);
 
 	let rootFileId = $derived.by(() => {
 		const gameName = $baseDataStore?.title;
@@ -125,7 +127,11 @@
 		}
 	});
 
-	$effect(() => {
+	$effect(async () => {
+		// console.log('is dragging?::', $isDragging);
+		// $isDragging = true;
+		// await tick();
+
 		if ($baseDataStore?.files && $fileStoreFiles === null) {
 			untrack(() => fileStoreFiles.set($baseDataStore?.files));
 		}
@@ -135,11 +141,13 @@
 			}
 		});
 
-		if (blobUrl && iframe?.src !== blobUrl) {
-			untrack(() => {
-				iframe.src = blobUrl;
-				id++;
-			});
+		if ($isDragging && iframe) {
+			if (blobUrl && iframe?.src !== blobUrl) {
+				untrack(() => {
+					iframe.src = blobUrl;
+					id++;
+				});
+			}
 		}
 
 		if (!$editorOutContainerHeight || !$editorOutContainerWidth) {
@@ -264,29 +272,32 @@
 	});
 
 	const debouncedResize = debounce(() => {
-		let prevID = id;
-		if (rootFileId) {
-			let srcdoc = buildDynamicSrcDoc(
-				$fileStoreFiles,
-				rootFileId,
-				{
-					width: $editorOutContainerWidth,
-					height: $editorOutContainerHeight
-				},
-				$gameControllerStore
-			);
+		if ($isDragging) return;
+		setTimeout(() => {
+			let prevID = id;
+			if (rootFileId) {
+				let srcdoc = buildDynamicSrcDoc(
+					$fileStoreFiles,
+					rootFileId,
+					{
+						width: $editorOutContainerWidth,
+						height: $editorOutContainerHeight
+					},
+					$gameControllerStore
+				);
 
-			const blob = new Blob([srcdoc], { type: 'text/html' });
-			const blobUrl = URL.createObjectURL(blob);
+				const blob = new Blob([srcdoc], { type: 'text/html' });
+				const blobUrl = URL.createObjectURL(blob);
 
-			if (blobUrl && iframe?.src !== blobUrl) {
-				iframe.src = blobUrl;
-				id++;
+				if (blobUrl && iframe?.src !== blobUrl) {
+					iframe.src = blobUrl;
+					id++;
+				}
 			}
-		}
-		$editorOutContainerWidth = clientWidth;
-		$editorOutContainerHeight = clientHeight;
-	}, 500);
+			$editorOutContainerWidth = clientWidth;
+			$editorOutContainerHeight = clientHeight;
+		}, 100);
+	}, 200);
 
 	function handleReload() {
 		let prevID = id;
@@ -315,7 +326,7 @@
 
 	function handleResize(node) {
 		$effect(() => {
-			if ($editorOutContainerWidth !== clientWidth && !$isDragging) {
+			if ($editorOutContainerWidth !== clientWidth) {
 				// setTimeout(() => {
 				// console.log('onDragEnd::', e);
 				// $isDragging = false;
@@ -327,26 +338,25 @@
 </script>
 
 <div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight use:handleResize>
-	{#if $isDragging}
-		<h1>Loading...</h1>
-	{:else}
-		<iframe
-			id={`output-iframe-${id}`}
-			style="border-radius: 6px; -webkit-mask-image: -webkit-radial-gradient(white, black);"
-			title="result"
-			bind:this={iframe}
-			sandbox={[
-				'allow-popups-to-escape-sandbox',
-				'allow-scripts',
-				'allow-popups',
-				'allow-forms',
-				'allow-pointer-lock',
-				'allow-top-navigation',
-				'allow-modals',
-				relaxed ? 'allow-same-origin' : ''
-			].join(' ')}
-		></iframe>
+	{#if loading}
+		<LoadingIndicator />
 	{/if}
+	<iframe
+		id={`output-iframe-${id}`}
+		style="border-radius: 6px; -webkit-mask-image: -webkit-radial-gradient(white, black);"
+		title="result"
+		bind:this={iframe}
+		sandbox={[
+			'allow-popups-to-escape-sandbox',
+			'allow-scripts',
+			'allow-popups',
+			'allow-forms',
+			'allow-pointer-lock',
+			'allow-top-navigation',
+			'allow-modals',
+			relaxed ? 'allow-same-origin' : ''
+		].join(' ')}
+	></iframe>
 </div>
 
 <style>
