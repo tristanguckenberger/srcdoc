@@ -257,8 +257,9 @@
 		focusedFileId.set(file.id);
 		focusedFolderId.set(null);
 		// if ($autoCompile) {
-		triggerCompile.set(true);
+		// triggerCompile.set(true);
 		// }
+		$resetPanes = true;
 	}
 	const reader = (file) =>
 		new Promise((resolve, reject) => {
