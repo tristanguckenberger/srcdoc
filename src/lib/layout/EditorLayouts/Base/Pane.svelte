@@ -51,6 +51,7 @@
 	let isEditor = $derived($editorContainerHeight && $editorContainerHeight <= 30);
 	let splitPath = $derived($page?.route?.id?.split('/') ?? []);
 	let engineInRoute = $derived(splitPath.some((path) => path === 'engine'));
+	let isGuiEngine = $derived(splitPath.some((path) => path === 'gui-engine'));
 
 	function editorHotFix() {
 		let splitModel = split?.querySelector('.slot-control-bar .container');
@@ -94,11 +95,20 @@
 		}
 	});
 	let codePanesLength = $derived($codePanes2?.length);
-	let idSplit = $derived(id?.split('-'));
-	let fileId = $derived(idSplit[idSplit?.length - 1]);
+	let idSplit = $derived.by(() => {
+		if (id?.includes('explorer') || id?.includes('output')) return [];
+		return id?.split('-');
+	});
+	let fileId = $derived.by(() => {
+		if (idSplit?.length === 0) return;
+		let foundId = idSplit[idSplit?.length - 1];
+
+		return foundId;
+	});
 	let isFocused = $derived(
-		$focusedFileId?.toString() === fileId ||
-			($codePanes2?.length < 2 && id !== 'split-output' && id !== 'split-file-explorer')
+		((fileId && $focusedFileId?.toString() === fileId) ||
+			($codePanes2?.length < 2 && id !== 'split-output' && id !== 'split-file-explorer')) &&
+			!isGuiEngine
 	);
 	let focusedPane = $derived($codePanes2?.find((pane) => pane.fileId === $focusedFileId));
 	let focusedLabel = $derived(
@@ -137,9 +147,16 @@
 	};
 
 	const setFocused = () => {
-		if ($focusedFileId?.toString() === fileId) {
+		if (
+			id === 'split-output' ||
+			id === 'split-file-explorer' ||
+			!fileId ||
+			$focusedFileId?.toString() === fileId
+		)
 			return;
-		}
+		// if ($focusedFileId?.toString() === fileId) {
+		// 	return;
+		// }
 		previouslyFocusedFileId.set($focusedFileId);
 		focusedFileId.set(fileId);
 		focusedFolderId.set(null);
@@ -229,10 +246,6 @@
 		}
 	});
 
-	$effect(() => {
-		$paneManager = paneManagerDerived;
-	});
-
 	onDestroy(() => {
 		const idInPaneManager = $paneManager?.some((pane) => {
 			return pane.id === id;
@@ -262,7 +275,7 @@
 	id === 'split-file-explorer'
 		? 'hidden'
 		: ''}"
-	style="overflow-x: visible; {themeString}"
+	style="overflow-x: visible; {themeString} --sidebar-width: {isSideBarOpen ? 240 : 0}px;"
 	bind:this={split}
 	bind:clientWidth={splitClientWidth}
 	bind:clientHeight={splitClientHeight}
@@ -278,7 +291,6 @@
 		onkeyup={(e) => {}}
 		ondblclick={(e) => {
 			// TODO: changing $isVertical might break this
-			console.log('::MAXIMIZE::');
 			maximize(e, !value);
 		}}
 	>

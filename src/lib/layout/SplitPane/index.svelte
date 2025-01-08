@@ -70,28 +70,15 @@
 	let fullSize = $state(true);
 
 	const debouncedDrag = debounce(async (e) => {
-		// await tick();
-		console.log('dragging::e::', e);
-		// await tick();
 		isDragging.set(true);
-		// dragging = true;
-		// await tick();
 	}, 100);
 
 	const debouncedDragStart = debounce(async (e) => {
-		// await tick();
-		console.log('drag start::e::', e);
 		isDragging.set(true);
-		// dragging = true;
-		// await tick();
 	}, 200);
 
 	const debouncedDragEnd = debounce(async (e) => {
-		// await tick();
-		console.log('drag end::e::', e);
 		isDragging.set(false);
-		// dragging = false;
-		// await tick();
 	}, 200);
 
 	const cleanUpGutters = async (vertical) => {
@@ -269,20 +256,18 @@
 					gutterSize: 10,
 					sizes: sizeUpdate ?? sizes,
 					minSize: $paneMinHeightModifier,
-					onDrag: splitParent === 'split-input-output' ? debouncedDrag : () => {},
-					onDragStart: splitParent === 'split-input-output' ? debouncedDragStart : () => {},
-					onDragEnd: splitParent === 'split-input-output' ? debouncedDragEnd : () => {}
-					// elementStyle: (dimension, elementSize, gutterSize, index) => {
-					// 	console.log('ES::dimension::', dimension);
-					// 	console.log('ES::elementSize::', elementSize);
-					// 	console.log('ES::gutterSize::', gutterSize);
-					// 	console.log('ES::index::', index);
-					// 	console.log('ES::splitParent::', splitParent);
-					// 	console.log('==================================');
-					// 	return {
-					// 		width: 'calc(100% - 0px)'
-					// 	};
-					// }
+					onDrag:
+						splitParent === 'split-input-output' || splitParent === 'split-main'
+							? debouncedDrag
+							: () => {},
+					onDragStart:
+						splitParent === 'split-input-output' || splitParent === 'split-main'
+							? debouncedDragStart
+							: () => {},
+					onDragEnd:
+						splitParent === 'split-input-output' || splitParent === 'split-main'
+							? debouncedDragEnd
+							: () => {}
 				});
 			} else {
 				await tick();
@@ -291,9 +276,18 @@
 					gutterSize: 10,
 					sizes: sizeUpdate ?? sizes,
 					minSize: $paneMinHeightModifier,
-					onDrag: splitParent === 'split-input-output' ? debouncedDrag : () => {},
-					onDragStart: splitParent === 'split-input-output' ? debouncedDragStart : () => {},
-					onDragEnd: splitParent === 'split-input-output' ? debouncedDragEnd : () => {}
+					onDrag:
+						splitParent === 'split-input-output' || splitParent === 'split-main'
+							? debouncedDrag
+							: () => {},
+					onDragStart:
+						splitParent === 'split-input-output' || splitParent === 'split-main'
+							? debouncedDragStart
+							: () => {},
+					onDragEnd:
+						splitParent === 'split-input-output' || splitParent === 'split-main'
+							? debouncedDragEnd
+							: () => {}
 				});
 			}
 
@@ -347,9 +341,9 @@
 						direction: vertical ? 'vertical' : 'horizontal',
 						gutterSize: 10,
 						sizes: sizeUpdate ?? sizes,
-						minSize: 50,
-						onDragStart: splitParent === 'split-input-output' ? debouncedDragStart : () => {},
-						onDragEnd: splitParent === 'split-input-output' ? debouncedDragEnd : () => {}
+						minSize: 50
+						// onDragStart: splitParent === 'split-input-output' ? debouncedDragStart : () => {},
+						// onDragEnd: splitParent === 'split-input-output' ? debouncedDragEnd : () => {}
 					});
 					splitInstance.setSizes(sizes);
 					splitStore.set(splitInstance);
@@ -383,9 +377,9 @@
 							direction: vertical ? 'vertical' : 'horizontal',
 							gutterSize: 10,
 							sizes: sizeUpdate ?? sizes,
-							minSize: $paneMinHeightModifier,
-							onDragStart: debouncedDragStart,
-							onDragEnd: debouncedDragEnd
+							minSize: $paneMinHeightModifier
+							// onDragStart: debouncedDragStart,
+							// onDragEnd: debouncedDragEnd
 						});
 
 						splitInstance?.setSizes(sizes);
@@ -411,11 +405,6 @@
 			console.log(error);
 		}
 	});
-
-	// $effect(() => {
-	// });
-
-	// $inspect('Is dragging?::', dragging);
 </script>
 
 <div

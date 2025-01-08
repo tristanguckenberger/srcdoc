@@ -120,17 +120,6 @@
 
 	// bind for fileExplorer pane height
 	let areaHeight = $state(0);
-
-	// $inspect($paneManager).with((type, value) => {
-	// 	if (type === 'update') {
-	// 		console.trace('$paneManager::updated::', value);
-	// 	}
-	// });
-	// $inspect($splitStore).with((type, value) => {
-	// 	if (type === 'update') {
-	// 		console.trace('$splitStore::updated::', value);
-	// 	}
-	// });
 </script>
 
 <div
@@ -151,6 +140,7 @@
 			<Pane id={'split-file-explorer'}>
 				{#snippet paneContent()}
 					<div
+						class="sidebar"
 						class:hidden={!$fileSystemSidebarOpen}
 						class:docsOpen
 						bind:clientWidth={$fileSystemSidebarWidth}
@@ -359,10 +349,9 @@
 		height: 100% !important;
 	}
 
-	#split-input-output.isSideBarOpen,
-	#split-input-output.isFileSystemSideBarOpen {
-		max-width: calc(100% - var(--sidebar-width) + 0px);
-		min-width: calc(100% - 275px);
+	:global(#split-input-output div.isSideBarOpen) {
+		max-width: calc(100% - var(--sidebar-width) + 10px);
+		/* min-width: calc(100% - 275px); */
 		/* max-width: calc(100% - var(--sidebar-width));
     min-width: calc(100% - var(--sidebar-width) + 40px); */
 		max-height: unset !important;
@@ -503,5 +492,8 @@
 
 	#split-main.hiddenSidebar .split-main :global(div.split.split-main .gutter:first-child) {
 		display: none !important;
+	}
+	.sidebar {
+		padding: 10px;
 	}
 </style>

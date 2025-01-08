@@ -22,6 +22,7 @@
 	import { debounce } from 'lodash-es';
 	import { playButton } from '$lib/stores/gamesStore';
 	import LoadingIndicator from '$lib/ui/LoadingIndicator/index.svelte';
+	import OutputLoader from '../LoadingIndicator/OutputLoader.svelte';
 
 	import * as htmlToImage from 'html-to-image';
 	import { writable } from 'svelte/store';
@@ -41,8 +42,7 @@
 	let stopPropagation = $state(false);
 	let iframe_srcdoc = $state(null);
 	let triggerUpdate = $state(false);
-	let loading = $state($isDragging);
-
+	let updatingIframe = $state(true);
 	let rootFileId = $derived.by(() => {
 		const gameName = $baseDataStore?.title;
 
@@ -128,11 +128,8 @@
 	});
 
 	$effect(async () => {
-		// console.log('is dragging?::', $isDragging);
-		// $isDragging = true;
-		// await tick();
-
 		if ($baseDataStore?.files && $fileStoreFiles === null) {
+			updatingIframe = true;
 			untrack(() => fileStoreFiles.set($baseDataStore?.files));
 		}
 		untrack(() => {
@@ -141,8 +138,9 @@
 			}
 		});
 
-		if ($isDragging && iframe) {
+		if (!$isDragging && iframe) {
 			if (blobUrl && iframe?.src !== blobUrl) {
+				updatingIframe = true;
 				untrack(() => {
 					iframe.src = blobUrl;
 					id++;
@@ -151,6 +149,7 @@
 		}
 
 		if (!$editorOutContainerHeight || !$editorOutContainerWidth) {
+			updatingIframe = true;
 			untrack(() => {
 				$editorOutContainerHeight = clientHeight;
 				$editorOutContainerWidth = clientWidth;
@@ -164,8 +163,12 @@
 		// }
 
 		if ($triggerCompile) {
+			updatingIframe = true;
 			handleReload();
 		}
+		setTimeout(() => {
+			updatingIframe = false;
+		}, 900);
 	});
 
 	const gameInit = async () => {
@@ -326,23 +329,25 @@
 
 	function handleResize(node) {
 		$effect(() => {
-			if ($editorOutContainerWidth !== clientWidth) {
-				// setTimeout(() => {
-				// console.log('onDragEnd::', e);
-				// $isDragging = false;
+			if ($editorOutContainerWidth !== clientWidth && !$isDragging) {
+				updatingIframe = true;
 				debouncedResize();
-				// }, 500);
 			}
 		});
 	}
+
+	let loading = $derived.by(() => {
+		return updatingIframe || $isDragging;
+	});
 </script>
 
 <div style="height: 100%; flex-grow: 1;" bind:clientWidth bind:clientHeight use:handleResize>
 	{#if loading}
-		<LoadingIndicator />
+		<OutputLoader hide={!loading} />
 	{/if}
 	<iframe
 		id={`output-iframe-${id}`}
+		class={{ hide: loading }}
 		style="border-radius: 6px; -webkit-mask-image: -webkit-radial-gradient(white, black);"
 		title="result"
 		bind:this={iframe}
@@ -365,6 +370,12 @@
 		height: 100%;
 		border: none;
 		display: block;
+	}
+
+	iframe.hide {
+		position: relative;
+		z-index: -1;
+		/* display: none; */
 	}
 	@media (max-width: 498px) {
 		iframe {

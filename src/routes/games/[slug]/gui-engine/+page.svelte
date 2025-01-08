@@ -119,7 +119,12 @@
 	});
 </script>
 
-<div class="main" class:isSideBarOpen class:isGuiEditorSidebarOpen>
+<div
+	class="main"
+	class:isSideBarOpen
+	class:isGuiEditorSidebarOpen
+	style="--sidebar-width: {isSideBarOpen ? 240 : 0}px;"
+>
 	<SplitPane
 		panes={['#split-file-explorer', '#split-input-output']}
 		sizes={[50, 50]}
@@ -288,5 +293,13 @@
 		/* bottom: 40px; */
 		/* max-width: 45%; */
 		overflow: hidden;
+	}
+	:global(div.main.isSideBarOpen #split-input-output) {
+		max-width: calc(100% - 254px + 10px);
+		/* min-width: calc(100% - 275px); */
+		/* max-width: calc(100% - var(--sidebar-width));
+    min-width: calc(100% - var(--sidebar-width) + 40px); */
+		max-height: unset !important;
+		max-height: calc(100%);
 	}
 </style>
