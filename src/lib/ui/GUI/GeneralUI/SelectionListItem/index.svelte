@@ -2,7 +2,7 @@
 	/**
 	 * Visual Indicator of selected project items in:
 	 * - screens panel
-	 * - obects panel
+	 * - objects panel
 	 * - assets panel
 	 */
 </script>

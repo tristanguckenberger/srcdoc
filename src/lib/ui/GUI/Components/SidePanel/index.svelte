@@ -1,5 +1,37 @@
 <script>
 	// @ts-nocheck
+	/**
+	 * Left sidebar panel, expandable in width
+	 * Displays Panels:
+	 * - /Panels/Assets: imports & manages images, sprites, spritesheets,
+	 * audio clips, etc.
+	 * - /Panels/ObjectEditor: Users will essentially be able to create
+	 * objects here, which will feed their input into our JSON
+	 * template, and then create object classes on the fly.
+	 * - /Panels/ObjectLogic: Custom methods, will eventually make a
+	 * drag/drop builder for this, but gonna keep it blank for now.
+	 * - /Panels/ProjectOptions: Controls all general options for a project
+	 * - /Panels/ScreenEditor: Think of a screen as a level or
+	 * game UI (like a main menu); Each Screen is essentially is own game with
+	 * it's own game loop. Screen's will be able to pass data back and forth,
+	 * which will be managed by svelte context.
+	 * - /Panels/ScreenLogic: This is essentially a panel for individual
+	 * screen(game)/level based logic.
+	 * - /Panels/Screens: This will be an editable list of screens/levels
+	 * for a game. Screens can be grouped together for ordered flow or
+	 * organizational purposes, showing what is linked. Screens and their
+	 * groups/connections and flow could look something like this:
+	 * - Screens:
+	 *   - Main Menu [UI] [1]
+	 *   - Paused Menu Overlay [UI] [Whenever]
+	 *   - Levels [LevelGroup] [2]
+	 *     - Level 1 [LVL] [2.1]
+	 *     - Level 2 [LVL] [2.2]
+	 *     - Level 3 [LVL] [2.3]
+	 *     - Level 4 [LVL] [2.4]
+	 *   - End Credits [UI] [3 or Whenever]
+	 *   - Game Over [UI] [2 && Whenever]
+	 */
 	import Documentation from '$lib/ui/Documentation/index.svelte';
 	import ToolTip from '$lib/ui/ToolTip/index.svelte';
 

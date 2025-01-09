@@ -1,33 +1,12 @@
 <script>
 	// @ts-nocheck
+	// Svelte Imports
 	import { derived } from 'svelte/store';
-	import SplitPane from '$lib/layout/SplitPane/index.svelte';
-	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
-	import SidePanel from '$lib/ui/GUI/Components/SidePanel/index.svelte';
+	import { browser } from '$app/environment';
+	import { onDestroy, onMount, tick, getContext, setContext } from 'svelte';
 
-	// Import the new components
-	// import LevelEditOutput from '$lib/ui/gui/outputs/LevelEdit.svelte'; // Placeholder for Level Edit Output
-	// import LevelDemoOutput from '$lib/ui/gui/outputs/LevelDemo.svelte'; // Placeholder for Level Demo Output
-	import Output from '$lib/ui/Output/Output.svelte';
-
-	import buildDynamicSrcDoc from '$lib/srcdoc.js';
-	import { getRootFileId } from '$lib/utils/getter.js';
+	// Stores
 	import {
-		editorOutContainerWidth,
-		editorOutContainerHeight,
-		isVertical,
-		sideBarState,
-		appClientWidth
-	} from '$lib/stores/layoutStore';
-	import {
-		guiEditorElement,
-		outputsContainerWidth,
-		outputsContainerHeight,
-		paneManager
-	} from '$lib/stores/splitStore';
-	import {
-		docsOpen,
-		areaHeight,
 		guiEditorSidebarWidth,
 		guiEditorSidebarOpen,
 		fileStoreFiles,
@@ -41,23 +20,36 @@
 		baseDataStore,
 		focusedFolderId
 	} from '$lib/stores/filesStore.js';
-	import { browser } from '$app/environment';
-	import { tick } from 'svelte';
-
-	// Expiremental
+	import {
+		editorOutContainerWidth,
+		editorOutContainerHeight,
+		isVertical,
+		sideBarState,
+		appClientWidth
+	} from '$lib/stores/layoutStore';
+	import { guiEditorElement } from '$lib/stores/splitStore';
 	import { gameControllerStore } from '$lib/stores/gameControllerStore.js';
-	import { onDestroy, onMount } from 'svelte';
 	import { routeHistoryStore } from '$lib/stores/routeStore.js';
 	import { gameSession } from '$lib/stores/gameSession/index.js';
 	import { modalFullInfoStore, editorPageInfoStore } from '$lib/stores/InfoStore.js';
+	import { getRootFileId } from '$lib/utils/getter.js';
+
+	// Utils
+	import buildDynamicSrcDoc from '$lib/srcdoc.js';
+
+	// Components
+	import SplitPane from '$lib/layout/SplitPane/index.svelte';
+	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
+	import SidePanel from '$lib/ui/GUI/Components/SidePanel/index.svelte';
+	// import LevelEditOutput from '$lib/ui/gui/outputs/LevelEdit.svelte'; // Placeholder for Level Edit Output
+	// import LevelDemoOutput from '$lib/ui/gui/outputs/LevelDemo.svelte'; // Placeholder for Level Demo Output
+	import Output from '$lib/ui/Output/Output.svelte';
 	import Documentation from '$lib/ui/Documentation/index.svelte';
 	import ToolTip from '$lib/ui/ToolTip/index.svelte';
 
 	let { data } = $props();
 
 	let play = $state(false);
-	// let showToolTip = $state(false);
-	// let areaHeight = $state(0);
 	let isEditMode = $state(true);
 	let value = $derived(!$isVertical);
 	let isSideBarOpen = $derived($sideBarState);
@@ -75,11 +67,10 @@
 		)
 	);
 
-	$effect(() => {
-		if (data && $baseDataStore === []) {
-			baseDataStore.set(data);
-		}
-	});
+	// Base Context Values
+	let selectedObject = $state(null);
+	let activeScreen = $state(null);
+	let didContextSet = $state(false);
 
 	onMount(async () => {
 		if ($appClientWidth && $appClientWidth < 498) {
@@ -116,6 +107,22 @@
 		guiEditorSidebarOpen.set(true);
 		codePanes2.set([]);
 		baseDataStore.set([]);
+	});
+
+	$effect(() => {
+		if (data && $baseDataStore === []) {
+			baseDataStore.set(data);
+
+			// Set context once, and only after data loads
+			if (!didContextSet) {
+				setContext('GUIContext', {
+					selectedObject,
+					activeScreen
+				});
+
+				didContextSet = true;
+			}
+		}
 	});
 </script>
 
@@ -161,9 +168,6 @@
 	}
 	div.main.isGuiEditorSidebarOpen :global(#split-file-explorer) {
 		display: block;
-	}
-	.widthText {
-		color: white;
 	}
 	:global(body) {
 		height: 100%;
@@ -216,77 +220,6 @@
 
 	:global(main.editor) {
 		height: calc(100% - 56.5px) !important;
-	}
-	button.docs-button {
-		background-color: var(--button-highlight) !important;
-		width: 36.5px !important;
-		height: 36.5px !important;
-		max-width: 36.5px !important;
-		max-height: 36.5px !important;
-		min-width: 36.5px !important;
-		min-height: 36.5px !important;
-		padding-block: 0;
-		color: var(--color-primary) !important;
-		border-width: 0;
-		border-radius: 4px;
-		padding: 10px;
-		text-decoration: none;
-		font-size: 1rem;
-		font-family: var(--action-font) !important;
-		text-wrap: nowrap;
-		border-style: none !important;
-		display: flex;
-		align-items: center;
-		max-height: 36.5px;
-		height: 16.5px;
-		font-weight: 500;
-	}
-	a.docs-button svg,
-	button.docs-button svg {
-		width: 23px;
-		height: 23px;
-		fill: var(--color-primary);
-	}
-	a.docs-button {
-		background-color: var(--button-highlight) !important;
-		width: 36.5px !important;
-		height: 36.5px !important;
-		max-width: 36.5px !important;
-		max-height: 36.5px !important;
-		min-width: 36.5px !important;
-		min-height: 36.5px !important;
-		padding-block: 0;
-		color: var(--color-primary) !important;
-		border-width: 0;
-		border-radius: 4px;
-		text-decoration: none;
-		font-size: 1rem;
-		font-family: var(--action-font) !important;
-		text-wrap: nowrap;
-		border-style: none !important;
-		display: flex;
-		align-items: center;
-		max-height: 36.5px;
-		height: 16.5px;
-		font-weight: 500;
-		justify-content: center;
-	}
-	div.action-row {
-		display: flex;
-		justify-content: flex-start;
-		align-items: center;
-		gap: 10px;
-	}
-	.icon-tooltip-container {
-		position: relative;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 1000000000000;
-	}
-	.action-row :global(.tooltip__container.bottom) {
-		top: 51px !important;
-		bottom: unset;
 	}
 	:global(.engineInRoute #split-file-explorer) {
 		/* height: calc(100%); */
