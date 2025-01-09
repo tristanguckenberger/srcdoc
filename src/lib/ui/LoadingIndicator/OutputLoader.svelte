@@ -22,6 +22,7 @@
 		width: 25px;
 		aspect-ratio: 1;
 		box-shadow: 0 0 0 3px inset #fff;
+		border-radius: 2px;
 		animation: l4 1.5s infinite;
 	}
 	.loader:after {

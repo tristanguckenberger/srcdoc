@@ -3,7 +3,7 @@
 	import { derived } from 'svelte/store';
 	import SplitPane from '$lib/layout/SplitPane/index.svelte';
 	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
-	import SidePanel from '$lib/ui/gui/SidePanel/index.svelte';
+	import SidePanel from '$lib/ui/GUI/Components/SidePanel/index.svelte';
 
 	// Import the new components
 	// import LevelEditOutput from '$lib/ui/gui/outputs/LevelEdit.svelte'; // Placeholder for Level Edit Output
