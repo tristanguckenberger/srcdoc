@@ -71,17 +71,13 @@
 
 	const debouncedDrag = debounce(async (e) => {
 		isDragging.set(true);
-		console.log('drag::Calling debouncedDrag');
 	}, 200);
 
 	const debouncedDragStart = debounce(async (e) => {
 		isDragging.set(true);
-		console.log('drag::Calling debouncedDragStart');
 	}, 200);
 
 	const debouncedDragEnd = debounce(async (e) => {
-		console.log('Calling drag end');
-		console.log('dragEnd::', e);
 		isDragging.set(false);
 	}, 200);
 

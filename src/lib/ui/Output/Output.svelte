@@ -92,7 +92,6 @@
 
 	let srcdoc = $derived.by(() => {
 		if (rootFileId || (($triggerCompile || $autoCompile) && rootFileId) || rebuild) {
-			console.log('BUILDING SRCDOC');
 			untrack(() => {
 				return buildDynamicSrcDoc(
 					$fileStoreFiles,

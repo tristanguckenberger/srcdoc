@@ -1,10 +1,9 @@
 <script>
-	import { run, preventDefault } from 'svelte/legacy';
-
 	// @ts-nocheck
+	import { run, preventDefault } from 'svelte/legacy';
 	import { browser } from '$app/environment';
 	import { writable } from 'svelte/store';
-	import { tick, onMount, setContext, getContext } from 'svelte';
+	import { tick, onMount, setContext, getContext, untrack } from 'svelte';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 
 	import { sideBarState } from '$lib/stores/layoutStore.js';
@@ -19,11 +18,10 @@
 
 	let { data } = $props();
 
-	let componentOptions = $state([]);
 	let highlightTop = false;
 	let highlightBottom = false;
 	let draggedItem = null;
-	let gradientPosition = $state(50); // Default gradient position to the middle
+	let gradientPosition = $state(50);
 	let isOwner = $state(false);
 	const gamesOrder = writable([]);
 	const draggingOver = writable(false);
@@ -37,19 +35,31 @@
 	const { mousedOverItemId, showPlayButtonStore } = getContext('playlistContext');
 
 	let playlist = $derived(data?.playlist);
-	let games;
-	run(() => {
-		games = data?.games;
-	});
-	run(() => {
+	let games = $state(data?.games ?? []);
+	let componentOptions = $derived([
+		{
+			name: 'EditPlaylist',
+			props: {
+				name: playlist?.name ?? 'New Playlist',
+				description: playlist?.description ?? 'New Playlist Description',
+				isPublic: Boolean(playlist?.is_public ?? playlist?.isPublic),
+				playlistId: playlist?.id,
+				thumbnail: playlist?.thumbnail
+			},
+			component: EditPlaylistDetails
+		}
+	]);
+	let isPublic = $derived(Boolean(playlist?.is_public ?? playlist?.isPublic));
+	let isSaved = $derived(Boolean(playlist?.isSaved));
+
+	$effect(() => {
 		isOwner = $platformSession?.currentUser?.id?.toString() === playlist?.ownerId?.toString();
-	});
-	run(() => {
-		console.log('playlistOwner::', playlist?.ownerId?.toString());
-		console.log('currentUser::', $platformSession?.currentUser?.id?.toString());
 	});
 
 	onMount(() => {
+		if (data?.games) {
+			games = data.games;
+		}
 		if (games && games.length > 0) {
 			const initialOrder = games.sort((a, b) => a.item_order - b.item_order).map((game) => game.id);
 			gamesOrder.set(initialOrder);
@@ -70,7 +80,7 @@
 		const targetRect = targetElement.getBoundingClientRect();
 		const relativeY = e.clientY - targetRect.top;
 		const percentage = (relativeY / targetRect.height) * 100;
-		gradientPosition = Math.min(Math.max(100 - percentage, 0), 100); // Clamp between 0 and 100
+		gradientPosition = Math.min(Math.max(100 - percentage, 0), 100);
 	}
 
 	function dragEnd() {
@@ -174,6 +184,9 @@
 			},
 			body: JSON.stringify({ gamesOrder: newOrder })
 		});
+
+		await tick();
+		updateGamesOrder();
 	};
 
 	const handleEdit = () => {
@@ -191,40 +204,20 @@
 
 		invalidateAll();
 	};
-	run(() => {
+
+	function updateGamesOrder() {
 		if ($gamesOrder && games) {
+			const updatedGames = [...games];
 			$gamesOrder.forEach((gameId, index) => {
-				const gameIndex = games.findIndex((game) => game.id === gameId);
+				const gameIndex = updatedGames.findIndex((game) => game.id === gameId);
 				if (gameIndex !== -1) {
-					games[gameIndex].item_order = index + 1; // +1 to start item_order from 1 instead of 0
+					updatedGames[gameIndex].item_order = index + 1;
 				}
 			});
+			games = updatedGames;
 		}
-	});
-	run(() => {
-		(() => {
-			return (componentOptions = [
-				{
-					name: 'EditPlaylist',
-					props: {
-						name: playlist?.name ?? 'New Playlist',
-						description: playlist?.description ?? 'New Playlist Description',
-						isPublic: Boolean(playlist?.is_public ?? playlist?.isPublic),
-						playlistId: playlist?.id,
-						thumbnail: playlist?.thumbnail
-					},
-					component: EditPlaylistDetails
-				}
-			]);
-		})();
-	});
-	let isPublic = $derived(Boolean(playlist?.is_public ?? playlist?.isPublic));
-	let isSaved = $derived(Boolean(playlist?.isSaved));
+	}
 </script>
-
-<svelte:head>
-
-</svelte:head>
 
 <div class="playlist-page-container" class:showSideBar={$sideBarState}>
 	<div class="playlist-header">
@@ -361,7 +354,7 @@
 	</div>
 	<Drawer>
 		<!-- @migration-task: migrate this slot by hand, `drawer-component` is an invalid identifier -->
-	<div slot="drawer-component" class="drawer-component">
+		<div slot="drawer-component" class="drawer-component">
 			<Widget content={data} options={componentOptions} />
 		</div>
 	</Drawer>

@@ -46,9 +46,9 @@
 	import SplitPane from '$lib/layout/SplitPane/index.svelte';
 	import Pane from '$lib/layout/EditorLayouts/Base/Pane.svelte';
 	import SidePanel from '$lib/ui/GUI/Components/SidePanel/index.svelte';
-	// import LevelEditOutput from '$lib/ui/gui/outputs/LevelEdit.svelte'; // Placeholder for Level Edit Output
+	import Output from '$lib/ui/GUI/Components/Output/LevelEditOutput/index.svelte'; // Placeholder for Level Edit Output
 	// import LevelDemoOutput from '$lib/ui/gui/outputs/LevelDemo.svelte'; // Placeholder for Level Demo Output
-	import Output from '$lib/ui/Output/Output.svelte';
+	// import Output from '$lib/ui/Output/Output.svelte';
 	import Documentation from '$lib/ui/Documentation/index.svelte';
 	import ToolTip from '$lib/ui/ToolTip/index.svelte';
 
