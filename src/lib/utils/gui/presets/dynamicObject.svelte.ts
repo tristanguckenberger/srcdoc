@@ -1,6 +1,12 @@
-// @ts-nocheck
-class DynamicObject extends GameObject {
-	constructor(props) {
+import GameObject from './gameObject.svelte';
+class DynamicObject extends GameObject implements DynamicObjectInterface {
+	type: 'dynamic';
+	velocity: { x: number; y: number };
+	acceleration: { x: number; y: number };
+	mass: number;
+	physicsEnabled: boolean;
+
+	constructor(props: Partial<DynamicObjectInterface>) {
 		super(props);
 		this.type = 'dynamic'; // Identifier for dynamic objects
 		this.velocity = { x: 0, y: 0 };
@@ -9,7 +15,7 @@ class DynamicObject extends GameObject {
 		this.physicsEnabled = props.physicsEnabled || false; // Enable/disable physics
 	}
 
-	update(deltaTime) {
+	update(deltaTime: number) {
 		if (this.physicsEnabled) {
 			this.velocity.x += this.acceleration.x * deltaTime;
 			this.velocity.y += this.acceleration.y * deltaTime;

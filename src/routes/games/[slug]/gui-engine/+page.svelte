@@ -35,7 +35,12 @@
 	import { getRootFileId } from '$lib/utils/getter.js';
 
 	// Utils
-	import buildDynamicSrcDoc from '$lib/srcdoc.js';
+	// import buildDynamicSrcDoc from '$lib/srcdoc.js';
+	import {
+		buildDynamicSrcDoc,
+		getBaseFiles,
+		generateClassFileFromJSON
+	} from '$lib/utils/gui/compilation/edit_srcdoc.svelte.ts';
 
 	// Components
 	import SplitPane from '$lib/layout/SplitPane/index.svelte';

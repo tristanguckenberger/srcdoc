@@ -1,4 +1,6 @@
 <script>
+	import { fade } from 'svelte/transition';
+
 	let { hide } = $props();
 </script>
 

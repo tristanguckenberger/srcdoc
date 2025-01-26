@@ -55,7 +55,8 @@
 		"svelte-gestures": "^1.5.2",
 		"svelte-json-tree": "^1.0.0",
 		"svelte-kit-cookie-session": "^4.0.0",
-		"svelte-preprocess": "^6.0.0"
+		"svelte-preprocess": "^6.0.0",
+		"terser": "^5.37.0"
 	},
 	"type": "module"
 }

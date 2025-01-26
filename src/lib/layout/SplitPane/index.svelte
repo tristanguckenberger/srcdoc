@@ -71,13 +71,17 @@
 
 	const debouncedDrag = debounce(async (e) => {
 		isDragging.set(true);
-	}, 100);
+		console.log('drag::Calling debouncedDrag');
+	}, 200);
 
 	const debouncedDragStart = debounce(async (e) => {
 		isDragging.set(true);
+		console.log('drag::Calling debouncedDragStart');
 	}, 200);
 
 	const debouncedDragEnd = debounce(async (e) => {
+		console.log('Calling drag end');
+		console.log('dragEnd::', e);
 		isDragging.set(false);
 	}, 200);
 
@@ -341,9 +345,19 @@
 						direction: vertical ? 'vertical' : 'horizontal',
 						gutterSize: 10,
 						sizes: sizeUpdate ?? sizes,
-						minSize: 50
-						// onDragStart: splitParent === 'split-input-output' ? debouncedDragStart : () => {},
-						// onDragEnd: splitParent === 'split-input-output' ? debouncedDragEnd : () => {}
+						minSize: 50,
+						onDrag:
+							splitParent === 'split-input-output' || splitParent === 'split-main'
+								? debouncedDrag
+								: () => {},
+						onDragStart:
+							splitParent === 'split-input-output' || splitParent === 'split-main'
+								? debouncedDragStart
+								: () => {},
+						onDragEnd:
+							splitParent === 'split-input-output' || splitParent === 'split-main'
+								? debouncedDragEnd
+								: () => {}
 					});
 					splitInstance.setSizes(sizes);
 					splitStore.set(splitInstance);
@@ -377,9 +391,19 @@
 							direction: vertical ? 'vertical' : 'horizontal',
 							gutterSize: 10,
 							sizes: sizeUpdate ?? sizes,
-							minSize: $paneMinHeightModifier
-							// onDragStart: debouncedDragStart,
-							// onDragEnd: debouncedDragEnd
+							minSize: $paneMinHeightModifier,
+							onDrag:
+								splitParent === 'split-input-output' || splitParent === 'split-main'
+									? debouncedDrag
+									: () => {},
+							onDragStart:
+								splitParent === 'split-input-output' || splitParent === 'split-main'
+									? debouncedDragStart
+									: () => {},
+							onDragEnd:
+								splitParent === 'split-input-output' || splitParent === 'split-main'
+									? debouncedDragEnd
+									: () => {}
 						});
 
 						splitInstance?.setSizes(sizes);
@@ -392,7 +416,7 @@
 						// if (!waiting && isEditorSplit && splitInstance && splitParent === 'split-2') {
 						// 	await splitInstance?.onDrag();
 
-						// 	await splitInstance?.onDragEnd();
+						// await splitInstance?.onDragEnd();
 						// }
 						$isAddingPane = true;
 						splitInstance?.setSizes(sizes);
@@ -407,6 +431,7 @@
 	});
 </script>
 
+<svelte:window ondragend={debouncedDragEnd} />
 <div
 	class="split {vertical ? 'vertical' : ''} {splitParent} {fullSize ? 'fullSize' : ''}"
 	bind:this={split}

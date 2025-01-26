@@ -1,7 +1,12 @@
 <!-- @migration-task Error while migrating Svelte code: Can't migrate code with afterUpdate. Please migrate by hand. -->
 <script>
 	// @ts-nocheck
-	import buildDynamicSrcDoc from '$lib/srcdoc.js';
+	// import buildDynamicSrcDoc from '$lib/srcdoc.js';
+	import {
+		buildDynamicSrcDoc,
+		getBaseFiles,
+		generateClassFileFromJSON
+	} from '$lib/utils/gui/compilation/edit_srcdoc.svelte.ts';
 	import { onDestroy, onMount, tick, untrack } from 'svelte';
 	import { src_build, currentGame, screenshot } from '$lib/stores/gamesStore';
 	import {
@@ -42,7 +47,7 @@
 	let stopPropagation = $state(false);
 	let iframe_srcdoc = $state(null);
 	let triggerUpdate = $state(false);
-	let updatingIframe = $state(true);
+	let updatingIframe = $state(false);
 	let rootFileId = $derived.by(() => {
 		const gameName = $baseDataStore?.title;
 
@@ -58,9 +63,17 @@
 
 		if (rootFile) {
 			return rootFile.id;
-		} else {
-			console.log('No root file found! Please create a file named "index.html" and try again.');
 		}
+	});
+	let dimensions = $derived({
+		clientWidth,
+		clientHeight,
+		editorOutContainerWidth: $editorOutContainerWidth,
+		editorOutContainerHeight: $editorOutContainerHeight
+	});
+
+	let loading = $derived.by(() => {
+		return updatingIframe || $isDragging;
 	});
 
 	function buildSRCDOC() {
@@ -79,15 +92,18 @@
 
 	let srcdoc = $derived.by(() => {
 		if (rootFileId || (($triggerCompile || $autoCompile) && rootFileId) || rebuild) {
-			return buildDynamicSrcDoc(
-				$fileStoreFiles,
-				rootFileId,
-				{
-					width: $editorOutContainerWidth,
-					height: $editorOutContainerHeight
-				},
-				$gameControllerStore
-			);
+			console.log('BUILDING SRCDOC');
+			untrack(() => {
+				return buildDynamicSrcDoc(
+					$fileStoreFiles,
+					rootFileId,
+					{
+						width: $editorOutContainerWidth,
+						height: $editorOutContainerHeight
+					},
+					$gameControllerStore
+				);
+			});
 		}
 	});
 
@@ -128,6 +144,7 @@
 	});
 
 	$effect(async () => {
+		if (loading) return;
 		if ($baseDataStore?.files && $fileStoreFiles === null) {
 			updatingIframe = true;
 			untrack(() => fileStoreFiles.set($baseDataStore?.files));
@@ -149,26 +166,17 @@
 		}
 
 		if (!$editorOutContainerHeight || !$editorOutContainerWidth) {
-			updatingIframe = true;
 			untrack(() => {
 				$editorOutContainerHeight = clientHeight;
 				$editorOutContainerWidth = clientWidth;
 			});
 		}
 
-		// if (play) {
-		// 	untrack(() => {
-		// 		fileStoreFiles.set($derivedFileSystemData);
-		// 	});
-		// }
-
 		if ($triggerCompile) {
-			updatingIframe = true;
-			handleReload();
+			untrack(() => {
+				handleReload();
+			});
 		}
-		setTimeout(() => {
-			updatingIframe = false;
-		}, 900);
 	});
 
 	const gameInit = async () => {
@@ -252,54 +260,29 @@
 		}
 	}
 
-	onMount(() => {
-		if (browser) window.addEventListener('message', receiveMessage);
-		$autoCompile = false;
-
-		if ($baseDataStore?.files) fileStoreFiles.set($baseDataStore?.files);
-	});
-
-	onDestroy(() => {
-		if (browser) window.removeEventListener('message', receiveMessage);
-		stopPropagation = false;
-
-		fileStoreFiles.set(null);
-		baseDataStore.set([]);
-	});
-
-	let dimensions = $derived({
-		clientWidth,
-		clientHeight,
-		editorOutContainerWidth: $editorOutContainerWidth,
-		editorOutContainerHeight: $editorOutContainerHeight
-	});
-
 	const debouncedResize = debounce(() => {
-		if ($isDragging) return;
-		setTimeout(() => {
-			let prevID = id;
-			if (rootFileId) {
-				let srcdoc = buildDynamicSrcDoc(
-					$fileStoreFiles,
-					rootFileId,
-					{
-						width: $editorOutContainerWidth,
-						height: $editorOutContainerHeight
-					},
-					$gameControllerStore
-				);
+		let prevID = id;
+		$editorOutContainerWidth = clientWidth;
+		$editorOutContainerHeight = clientHeight;
+		if (rootFileId) {
+			let srcdoc = buildDynamicSrcDoc(
+				$fileStoreFiles,
+				rootFileId,
+				{
+					width: $editorOutContainerWidth,
+					height: $editorOutContainerHeight
+				},
+				$gameControllerStore
+			);
 
-				const blob = new Blob([srcdoc], { type: 'text/html' });
-				const blobUrl = URL.createObjectURL(blob);
+			const blob = new Blob([srcdoc], { type: 'text/html' });
+			const blobUrl = URL.createObjectURL(blob);
 
-				if (blobUrl && iframe?.src !== blobUrl) {
-					iframe.src = blobUrl;
-					id++;
-				}
+			if (blobUrl && iframe?.src !== blobUrl) {
+				iframe.src = blobUrl;
+				id++;
 			}
-			$editorOutContainerWidth = clientWidth;
-			$editorOutContainerHeight = clientHeight;
-		}, 100);
+		}
 	}, 200);
 
 	function handleReload() {
@@ -319,6 +302,7 @@
 			const blobUrl = URL.createObjectURL(blob);
 
 			if (blobUrl && iframe?.src !== blobUrl) {
+				updatingIframe = true;
 				iframe.src = blobUrl;
 				id++;
 			}
@@ -336,8 +320,26 @@
 		});
 	}
 
-	let loading = $derived.by(() => {
-		return updatingIframe || $isDragging;
+	onMount(() => {
+		if (browser) window.addEventListener('message', receiveMessage);
+		$autoCompile = false;
+
+		if ($baseDataStore?.files) fileStoreFiles.set($baseDataStore?.files);
+
+		iframe?.addEventListener('load', () => {
+			updatingIframe = false;
+		});
+	});
+
+	onDestroy(() => {
+		if (browser) window.removeEventListener('message', receiveMessage);
+		stopPropagation = false;
+
+		fileStoreFiles.set(null);
+		baseDataStore.set([]);
+		iframe?.removeEventListener('load', () => {
+			updatingIframe = false;
+		});
 	});
 </script>
 

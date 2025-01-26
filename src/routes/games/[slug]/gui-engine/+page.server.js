@@ -1,6 +1,22 @@
 // @ts-nocheck
 import { gameData } from '$lib/mockData/gameData.js';
 
+const createGuiProject = async (token) => {
+	const response = await fetch(`${process.env.SERVER_URL}/api/games/create-gui-project`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		}
+	});
+
+	if (!response.ok) {
+		throw new Error('Failed to create GUI project');
+	}
+
+	return response.json();
+};
+
 const getSingleGame = async (slug, token) => {
 	const gameReqHeaders = new Headers();
 	const gameReqInit = {

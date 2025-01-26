@@ -1,7 +1,6 @@
 <script>
-	import { run } from 'svelte/legacy';
-
 	//@ts-nocheck
+	import { run } from 'svelte/legacy';
 	import Output from '$lib/ui/Output/Output.svelte';
 	import MockSlider from '$lib/ui/MockSlider/index.svelte';
 	import buildDynamicSrcDoc from '$lib/srcdoc.js';
