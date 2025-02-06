@@ -51,41 +51,20 @@
 	// import Output from '$lib/ui/Output/Output.svelte';
 	import Documentation from '$lib/ui/Documentation/index.svelte';
 	import ToolTip from '$lib/ui/ToolTip/index.svelte';
+	import { currentGame } from '$lib/stores/gamesStore.js';
+	import { guiGameData } from '$lib/mockData/guiGameData';
 
 	let { data } = $props();
-
-	let play = $state(false);
-	let isEditMode = $state(true);
-	let value = $derived(!$isVertical);
-	let isSideBarOpen = $derived($sideBarState);
-	let isGuiEditorSidebarOpen = $derived($guiEditorSidebarOpen);
-	let previousRoute = $derived($routeHistoryStore[$routeHistoryStore.length - 2]);
-	let srcbuild = $derived(
-		buildDynamicSrcDoc(
-			$fileStoreFiles,
-			getRootFileId($fileStoreFiles),
-			{
-				width: $editorOutContainerWidth,
-				height: $editorOutContainerHeight
-			},
-			$gameControllerStore
-		)
-	);
-
-	// Base Context Values
-	let selectedObject = $state(null);
-	let activeScreen = $state(null);
-	let didContextSet = $state(false);
 
 	onMount(async () => {
 		if ($appClientWidth && $appClientWidth < 498) {
 			sideBarState.set(false);
 		}
 
-		if (data) {
-			baseDataStore.set(data);
+		if (guiGameData) {
+			baseDataStore.set(guiGameData);
 		}
-
+		console.log('data::', data);
 		if (browser) {
 			// await tick();
 			setTimeout(() => {
@@ -114,9 +93,318 @@
 		baseDataStore.set([]);
 	});
 
+	let play = $state(false);
+	let isEditMode = $state(true);
+	let projectId = $state(data?.id);
+	let projectUserId = $state(data?.user_id);
+	let projectTitle = $state(data?.title);
+	let projectDescription = $state(data?.description);
+	let projectPublished = $state(data?.published);
+	let projectCreatedAt = $state(data?.created_at);
+	let projectUpdatedAt = $state(data?.updated_at);
+	let projectThumbnail = $state(data?.thumbnail);
+	let files = $state(data?.files);
+	let panelTitle = $state('');
+	let draggingOver = $state(false);
+	let draggingOverGameId = $state(null);
+	let value = $derived(!$isVertical);
+	let isSideBarOpen = $derived($sideBarState);
+	let didContextSet = $state(false);
+	let isGuiEditorSidebarOpen = $derived($guiEditorSidebarOpen);
+	let previousRoute = $derived($routeHistoryStore[$routeHistoryStore.length - 2]);
+	let srcbuild = $derived(
+		buildDynamicSrcDoc(guiGameData, 1, $fileStoreFiles, getRootFileId($fileStoreFiles), {
+			width: $editorOutContainerWidth,
+			height: $editorOutContainerHeight
+		})
+	);
+	/**
+	 * 
+	 * USE THESE AS A REFERENCE FOR REORDERING SCREENS
+	 * 
+	 * 
+	 * 
+	function dragStart(e, game) {
+		e.dataTransfer.effectAllowed = 'all';
+		draggedItem = game;
+	}
+
+	function dragOver(e, game) {
+		e.preventDefault();
+		$draggingOver = true;
+		$draggingOverGameId = game.id;
+
+		const targetElement = document.getElementById(`game_${game.id}`);
+		const targetRect = targetElement.getBoundingClientRect();
+		const relativeY = e.clientY - targetRect.top;
+		const percentage = (relativeY / targetRect.height) * 100;
+		gradientPosition = Math.min(Math.max(100 - percentage, 0), 100);
+	}
+
+	function dragEnd() {
+		draggedItem = null;
+		$draggingOver = false;
+		$draggingOverGameId = null;
+	}
+	async function drop(e, game) {
+		e.preventDefault();
+		if (draggedItem === null) return;
+
+		await tick();
+
+		const draggedIndex = games.findIndex((f) => f.id === draggedItem.id);
+		const targetIndex = games.findIndex((f) => f.id === game.id);
+
+		if (draggedIndex === targetIndex) return;
+		// Determine the drop position relative to the target element's bounds
+		const targetElement = document.getElementById(`game_${game.id}`);
+		const targetRect = targetElement.getBoundingClientRect();
+		const dropPositionY = e.clientY - targetRect.top;
+		const newGames = [...games];
+		const [removedItem] = newGames.splice(draggedIndex, 1);
+
+		if (
+			e.clientY - e.target.getBoundingClientRect().top < e.target.offsetHeight / 2 ||
+			dropPositionY < targetRect.height / 2
+		) {
+			if (draggedIndex > targetIndex) {
+				// When the dragged item originally was after the target item
+				newGames.splice(targetIndex, 0, removedItem);
+			} else {
+				// When the dragged item originally was before the target item
+				newGames.splice(targetIndex, 0, removedItem);
+			}
+		} else {
+			// If drop is in the lower half
+			if (draggedIndex > targetIndex) {
+				// When the dragged item originally was after the target item
+				newGames.splice(targetIndex + 1, 0, removedItem);
+			} else {
+				// When the dragged item originally was before the target item
+				// Adjusting because the target index effectively shifts due to the removal
+				newGames.splice(targetIndex, 0, removedItem);
+			}
+		}
+
+		// games = newGames.sort((a, b) => a.item_order - b.item_order); // Re-sort games based on item_order after update
+
+		games = newGames;
+		// Update the games order after reordering
+		const newOrder = games.map((game) => game.id);
+		gamesOrder.set(newOrder);
+
+		$draggingOver = false;
+		$draggingOverGameId = null;
+
+		// Fetch Playlist API to update the item_order
+		await tick();
+		await handleUpdatePlaylistOrder(newOrder);
+	}
+	*/
+
+	let projectVersions = $state([]);
+	let projectVersioning = {
+		versions: projectVersions,
+		getVersion: () => {},
+		setVersion: () => {}
+	};
+
+	let projectInfo = {
+		id: projectId,
+		userId: projectUserId,
+		title: projectTitle,
+		description: projectDescription,
+		published: projectPublished,
+		createdAt: projectCreatedAt,
+		updatedAt: projectUpdatedAt,
+		thumbnail: projectThumbnail,
+		versioning: projectVersioning
+	};
+
+	let projectSettings = {};
+	let projectAssets = $state([]);
+	let projectGlobalAssetManager = {
+		assets: projectAssets,
+		addAsset: () => {},
+		removeAsset: () => {},
+		sortBy: () => {},
+		findAsset: () => {}
+	};
+	let projectObjects = $state([]);
+	let projectGlobalObjectManager = {
+		objects: projectObjects,
+		addObject: () => {},
+		removeObject: () => {}
+	};
+	let projectEditorIframeUtils = {
+		undo: () => {},
+		redo: () => {},
+		save: () => {},
+		saveAs: () => {},
+		export: () => {},
+		import: () => {},
+		addObject: () => {},
+		removeObject: () => {}
+	};
+	let globalObjects = $state([]);
+	let globalAssets = $state([]);
+	let globalLogic = $state({
+		startGame: () => {},
+		endGame: () => {},
+		pauseGame: () => {},
+		resumeGame: () => {}
+	});
+
+	let gameData = {
+		globalObjects,
+		globalAssets,
+		globalLogic
+	};
+
+	let screens = $state([]);
+	let currentScreen = $state(screens[0]);
+	let isRuntimeMode = $derived(!isEditMode);
+
+	// Screen Groups Manager
+	let screenGroups = $state([]);
+	let currentScreenGroup = $state(null);
+	let screenGroupManager = {
+		screenGroups,
+		currentScreenGroup: () => currentScreenGroup,
+		setCurrentScreenGroup: () => {},
+		handleScreenGroupSelect: () => {},
+		handleScreenGroupDragStart: () => {}
+	};
+
+	// Editor Manager
+	let selectedObject = $state(null);
+	let editorManager = {
+		handleRightClick: () => {},
+		handleObjectSelect: () => {},
+		undo: () => {},
+		redo: () => {},
+		save: () => {},
+		saveAs: () => {},
+		export: () => {},
+		import: () => {},
+		addObject: () => {},
+		removeObject: () => {},
+		selectedObject: () => selectedObject
+	};
+
+	let guiEditorProjectState = {
+		project: {
+			projectInfo,
+			projectSettings,
+			projectGlobalAssetManager,
+			gameData,
+			screensManager: {
+				screens,
+				currentScreen: () => currentScreen,
+				isEditMode: () => isEditMode,
+				isRuntimeMode: () => isRuntimeMode,
+				setCurrentScreen: (index) => {
+					currentScreen = screens[index];
+				},
+				handleScreenSelect: (e) => {
+					const index = screens.findIndex((screen) => screen.id === e?.detail?.screen?.id);
+					setCurrentScreen(index);
+				},
+				handleScreenDragStart: (e, screen) => {
+					e.dataTransfer.effectAllowed = 'all';
+					draggedItem = game;
+				},
+				handleScreenDragStop: (e) => {
+					handleScreenPositionChange();
+				},
+				handleDragDrop: async (e, screen) => {
+					e.preventDefault();
+					if (draggedItem === null) return;
+
+					await tick();
+
+					const draggedIndex = games.findIndex((f) => f.id === draggedItem.id);
+					const targetIndex = games.findIndex((f) => f.id === game.id);
+
+					if (draggedIndex === targetIndex) return;
+					// Determine the drop position relative to the target element's bounds
+					const targetElement = document.getElementById(`game_${game.id}`);
+					const targetRect = targetElement.getBoundingClientRect();
+					const dropPositionY = e.clientY - targetRect.top;
+					const newGames = [...games];
+					const [removedItem] = newGames.splice(draggedIndex, 1);
+
+					if (
+						e.clientY - e.target.getBoundingClientRect().top < e.target.offsetHeight / 2 ||
+						dropPositionY < targetRect.height / 2
+					) {
+						if (draggedIndex > targetIndex) {
+							// When the dragged item originally was after the target item
+							newGames.splice(targetIndex, 0, removedItem);
+						} else {
+							// When the dragged item originally was before the target item
+							newGames.splice(targetIndex, 0, removedItem);
+						}
+					} else {
+						// If drop is in the lower half
+						if (draggedIndex > targetIndex) {
+							// When the dragged item originally was after the target item
+							newGames.splice(targetIndex + 1, 0, removedItem);
+						} else {
+							// When the dragged item originally was before the target item
+							// Adjusting because the target index effectively shifts due to the removal
+							newGames.splice(targetIndex, 0, removedItem);
+						}
+					}
+
+					// games = newGames.sort((a, b) => a.item_order - b.item_order); // Re-sort games based on item_order after update
+
+					games = newGames;
+					// Update the games order after reordering
+					const newOrder = games.map((game) => game.id);
+					gamesOrder.set(newOrder);
+
+					$draggingOver = false;
+					$draggingOverGameId = null;
+
+					// Fetch Playlist API to update the item_order
+					await tick();
+					await handleUpdatePlaylistOrder(newOrder);
+				},
+				handleScreenPositionChange: () => {},
+				toggleEditMode: () => {}
+			},
+			/**
+			 * screen groups are collections of screens that are linked together,
+			 * typically for game levels or routing.
+			 *
+			 * Game levels are denoted by a screen with a type of 'lvl'
+			 * - levels are ordered by their position in the screenGroups
+			 * array. The first level is the first screen in the first
+			 * screenGroup, etc.
+			 *
+			 * UI screens are denoted by a screen with a type of 'ui':
+			 * - UI screens are typically used for menus, settings, etc.
+			 * - UI screens are not ordered by their position in the
+			 * screenGroups, but can be linked to other UI screens.
+			 */
+			screenGroupManager,
+			editorManager,
+			files,
+			focusedFileId: $focusedFileId,
+			srcbuild: () => srcbuild,
+			previousRoute: () => previousRoute,
+			play: () => play,
+			openFiles: () => openFiles
+		}
+	};
+
+	setContext('GUIContext', guiEditorProjectState);
+
 	$effect(() => {
-		if (data && $baseDataStore === []) {
-			baseDataStore.set(data);
+		if (data && !$baseDataStore) {
+			// baseDataStore.set(data); // Uncomment this line when srcdoc can be built from data
+			baseDataStore.set({ ...guiGameData?.game, files: guiGameData?.files }); // Comment this line when srcdoc can be built from data
 
 			// Set context once, and only after data loads
 			if (!didContextSet) {

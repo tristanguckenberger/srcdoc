@@ -32,6 +32,9 @@
 	import * as htmlToImage from 'html-to-image';
 	import { writable } from 'svelte/store';
 	import { gameSession } from '$lib/stores/gameSession/index.js';
+	import { guiGameData } from '$lib/mockData/guiGameData.js';
+
+	const { screens, files, currentScreen: currentScreenId = 5 } = guiGameData;
 
 	let { relaxed = false, play = false, srcdocBuilt } = $props();
 
@@ -49,7 +52,7 @@
 	let triggerUpdate = $state(false);
 	let updatingIframe = $state(false);
 	let rootFileId = $derived.by(() => {
-		const gameName = $baseDataStore?.title;
+		const gameName = guiGameData?.game?.title; //$baseDataStore?.title;
 
 		const joinedGameName = gameName?.split(' ').join('_');
 		const rootFile = $fileStoreFiles?.find((file) => {
@@ -78,30 +81,20 @@
 
 	function buildSRCDOC() {
 		if (rootFileId || (($triggerCompile || $autoCompile) && rootFileId) || rebuild) {
-			return buildDynamicSrcDoc(
-				$fileStoreFiles,
-				rootFileId,
-				{
-					width: $editorOutContainerWidth,
-					height: $editorOutContainerHeight
-				},
-				$gameControllerStore
-			);
+			return buildDynamicSrcDoc(guiGameData, currentScreenId, $fileStoreFiles, rootFileId, {
+				width: $editorOutContainerWidth,
+				height: $editorOutContainerHeight
+			});
 		}
 	}
 
 	let srcdoc = $derived.by(() => {
 		if (rootFileId || (($triggerCompile || $autoCompile) && rootFileId) || rebuild) {
 			untrack(() => {
-				return buildDynamicSrcDoc(
-					$fileStoreFiles,
-					rootFileId,
-					{
-						width: $editorOutContainerWidth,
-						height: $editorOutContainerHeight
-					},
-					$gameControllerStore
-				);
+				return buildDynamicSrcDoc(guiGameData, currentScreenId, $fileStoreFiles, rootFileId, {
+					width: $editorOutContainerWidth,
+					height: $editorOutContainerHeight
+				});
 			});
 		}
 	});
@@ -147,6 +140,9 @@
 		if ($baseDataStore?.files && $fileStoreFiles === null) {
 			updatingIframe = true;
 			untrack(() => fileStoreFiles.set($baseDataStore?.files));
+		} else if (!$baseDataStore?.files && !$fileStoreFiles) {
+			updatingIframe = true;
+			untrack(() => fileStoreFiles.set(files));
 		}
 		untrack(() => {
 			if (srcdoc) {
@@ -264,15 +260,10 @@
 		$editorOutContainerWidth = clientWidth;
 		$editorOutContainerHeight = clientHeight;
 		if (rootFileId) {
-			let srcdoc = buildDynamicSrcDoc(
-				$fileStoreFiles,
-				rootFileId,
-				{
-					width: $editorOutContainerWidth,
-					height: $editorOutContainerHeight
-				},
-				$gameControllerStore
-			);
+			let srcdoc = buildDynamicSrcDoc(guiGameData, currentScreenId, $fileStoreFiles, rootFileId, {
+				width: $editorOutContainerWidth,
+				height: $editorOutContainerHeight
+			});
 
 			const blob = new Blob([srcdoc], { type: 'text/html' });
 			const blobUrl = URL.createObjectURL(blob);
@@ -287,15 +278,10 @@
 	function handleReload() {
 		let prevID = id;
 		if (rootFileId) {
-			let srcdoc = buildDynamicSrcDoc(
-				$fileStoreFiles,
-				rootFileId,
-				{
-					width: $editorOutContainerWidth,
-					height: $editorOutContainerHeight
-				},
-				$gameControllerStore
-			);
+			let srcdoc = buildDynamicSrcDoc(guiGameData, currentScreenId, $fileStoreFiles, rootFileId, {
+				width: $editorOutContainerWidth,
+				height: $editorOutContainerHeight
+			});
 
 			const blob = new Blob([srcdoc], { type: 'text/html' });
 			const blobUrl = URL.createObjectURL(blob);
@@ -335,7 +321,7 @@
 		stopPropagation = false;
 
 		fileStoreFiles.set(null);
-		baseDataStore.set([]);
+		baseDataStore.set(null);
 		iframe?.removeEventListener('load', () => {
 			updatingIframe = false;
 		});

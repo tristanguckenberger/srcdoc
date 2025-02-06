@@ -425,20 +425,36 @@
 			console.log(error);
 		}
 	});
+
+	let error = $state(null);
+	let reset = $state(() => {});
+
+	function onerror(e, r) {
+		console.error(e);
+
+		error = e;
+		reset = r;
+	}
 </script>
 
 <svelte:window ondragend={debouncedDragEnd} />
-<div
-	class="split {vertical ? 'vertical' : ''} {splitParent} {fullSize ? 'fullSize' : ''}"
-	bind:this={split}
-	style="--sidebar-width: {isSideBarOpen
-		? ($fileSystemSidebarWidth ?? $guiEditorSidebarWidth) + 32
-		: 38}px;"
->
-	{@render sidebar?.()}
-	{@render content?.()}
-	{@render children?.()}
-</div>
+<svelte:boundary {onerror}>
+	<div
+		class="split {vertical ? 'vertical' : ''} {splitParent} {fullSize ? 'fullSize' : ''}"
+		bind:this={split}
+		style="--sidebar-width: {isSideBarOpen
+			? ($fileSystemSidebarWidth ?? $guiEditorSidebarWidth) + 32
+			: 38}px;"
+	>
+		{@render sidebar?.()}
+		{@render content?.()}
+		{@render children?.()}
+	</div>
+
+	{#snippet failed(error, reset)}
+		<button onclick={reset}>oops! try again</button>
+	{/snippet}
+</svelte:boundary>
 
 <style>
 	/* TODO: REWRITE WITH SCSS */

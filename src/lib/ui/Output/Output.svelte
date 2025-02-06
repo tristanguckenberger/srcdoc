@@ -6,7 +6,7 @@
 		buildDynamicSrcDoc,
 		getBaseFiles,
 		generateClassFileFromJSON
-	} from '$lib/utils/gui/compilation/edit_srcdoc.svelte.ts';
+	} from '$lib/utils/gui/compilation/base_mock_srcdoc.svelte.ts';
 	import { onDestroy, onMount, tick, untrack } from 'svelte';
 	import { src_build, currentGame, screenshot } from '$lib/stores/gamesStore';
 	import {

@@ -56,7 +56,7 @@ export const openInNewPane = writable(false);
 // Track current code panes
 export const codePanes = writable(['#split-html', '#split-css', '#split-js']); // one of ['#split-html', '#split-css', '#split-js'] depending on the file that's focused and it's file type
 
-export const baseDataStore = writable([]);
+export const baseDataStore = writable(null);
 
 // Initil data store for the file system, updates only when new data is fetched, i.e. after a save
 export const initialDataStore = writable([]);

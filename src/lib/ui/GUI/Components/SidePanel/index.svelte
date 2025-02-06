@@ -34,6 +34,7 @@
 	 */
 	import Documentation from '$lib/ui/Documentation/index.svelte';
 	import ToolTip from '$lib/ui/ToolTip/index.svelte';
+	import PanelInfo from '$lib/ui/GUI/Components/PanelInfo/index.svelte';
 
 	import {
 		guiEditorSidebarOpen,
@@ -43,10 +44,17 @@
 		areaHeight
 	} from '$lib/stores/filesStore.js';
 	import { routeHistoryStore } from '$lib/stores/routeStore.js';
+	import { getContext, onMount, setContext } from 'svelte';
 
-	let ctx = $props();
+	let { panelTitle = '', panelType = '', panelHeaderButtons, children } = $props();
+
+	let guiContext = getContext('GUIContext');
 	let showToolTip = $state(false);
 	let previousRoute = $derived($routeHistoryStore[$routeHistoryStore.length - 2]);
+
+	onMount(() => {
+		console.log('GUIContext::', guiContext);
+	});
 </script>
 
 <div
@@ -54,53 +62,25 @@
 	bind:clientWidth={$guiEditorSidebarWidth}
 	bind:clientHeight={$areaHeight}
 >
-	<div class="action-row">
-		<a aria-label="docs-icon" href={previousRoute} class="docs-button">
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="32"
-				height="32"
-				fill="#000000"
-				viewBox="0 0 256 256"
-				><path
-					d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"
-				/></svg
-			>
-		</a>
-		<button
-			aria-label="open docs"
-			class="docs-button"
-			onclick={() => {
-				$docsOpen = !$docsOpen;
-				showToolTip = false;
-			}}
-		>
-			<div
-				role="tooltip"
-				class="icon-tooltip-container"
-				onmouseover={() => {
-					showToolTip = true;
-				}}
-				onmouseleave={() => {
-					showToolTip = false;
-				}}
-				onfocus={() => {}}
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="32"
-					height="32"
-					fill="#000000"
-					viewBox="0 0 256 256"
-					><path
-						d="M213.66,66.34l-40-40A8,8,0,0,0,168,24H88A16,16,0,0,0,72,40V56H56A16,16,0,0,0,40,72V216a16,16,0,0,0,16,16H168a16,16,0,0,0,16-16V200h16a16,16,0,0,0,16-16V72A8,8,0,0,0,213.66,66.34ZM168,216H56V72h76.69L168,107.31v84.53c0,.06,0,.11,0,.16s0,.1,0,.16V216Zm32-32H184V104a8,8,0,0,0-2.34-5.66l-40-40A8,8,0,0,0,136,56H88V40h76.69L200,75.31Zm-56-32a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h48A8,8,0,0,1,144,152Zm0,32a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h48A8,8,0,0,1,144,184Z"
-					/></svg
+	<div class="header">
+		<div class="panel-info">
+			<div class="panel-header">
+				<div class="panel-title">{panelTitle}</div>
+				<div
+					class="panel-type
+					{panelType === 'info' ? 'info' : ''}
+					{panelType === 'warning' ? 'warning' : ''}
+					{panelType === 'error' ? 'error' : ''}
+				"
 				>
-			</div></button
-		>
-		{#if showToolTip}
-			<ToolTip text="Open/Close Editor Docs" position="bottom" />
-		{/if}
+					{panelType}
+				</div>
+				<div class="panel-header-buttons">
+					{@render panelHeaderButtons?.()}
+				</div>
+			</div>
+			<div class="additional-panel-content">{@render children?.()}</div>
+		</div>
 	</div>
 
 	<hr class="sidebar-divider" />
@@ -207,5 +187,61 @@
 	}
 	.sidebar.docsOpen {
 		max-width: 50% !important;
+	}
+	.panel-info {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		height: 100%;
+	}
+
+	.panel-header {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 16px;
+		height: 40px;
+	}
+
+	.panel-title {
+		font-size: 1.25rem;
+		font-weight: 500;
+	}
+
+	.panel-type {
+		font-size: 1rem;
+		font-weight: 500;
+		padding: 0 8px;
+		border-radius: 4px;
+	}
+
+	.info {
+		background-color: var(--color-info);
+		color: var(--color-info-text);
+	}
+
+	.warning {
+		background-color: var(--color-warning);
+		color: var(--color-warning-text);
+	}
+
+	.error {
+		background-color: var(--color-error);
+		color: var(--color-error-text);
+	}
+
+	.panel-header-buttons {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.additional-panel-content {
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: flex-start;
+		padding: 16px;
 	}
 </style>
