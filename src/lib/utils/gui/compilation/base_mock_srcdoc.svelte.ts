@@ -3,6 +3,8 @@ import GameObject from '../presets/gameObject.svelte.ts';
 import StaticObject from '../presets/staticObject.svelte.ts';
 import DynamicObject from '../presets/dynamicObject.svelte.ts';
 
+// @ts-nocheck
+
 /**
  * Serializes a function definition into a string.
  * @param funcDef - The func definition
@@ -379,17 +381,119 @@ const generateSrcDoc = (
 	  ${jsContent}
 	`;
 
+	// get all assets and build a lookup table
+	const assetLookupString = () => {
+		const assetLookup = {};
+		files?.forEach((file) => {
+			if (
+				file?.type === 'image' ||
+				file?.type === 'audio' ||
+				file?.type === 'ogg' ||
+				file?.type === 'wav' ||
+				file?.type === 'png'
+			) {
+				// @ts-ignore
+				assetLookup[`${file.name}.${file.type}`] = file?.content;
+			}
+		});
+
+		return JSON.stringify(assetLookup);
+	};
+
 	const getWidth = () => clientDimensions.width;
 	const getHeight = () => clientDimensions.height;
 
+	const getAsset = `
+	<script>
+		function getAsset(url) {
+			const assetLookup = ${assetLookupString()};
+			try {
+				const asset = assetLookup[url] || url;
+				return JSON.parse(asset);
+			} catch (error) {
+				return assetLookup[url] || url;
+			}
+		}
+	</script>
+	`;
+
+	const getClientDimensions = `
+	<script>
+		function getClientDimensions() {
+			const width = ${getWidth()};
+			const height = ${getHeight()};
+			return {
+				width,
+				height
+			} || 'nothin here';
+		}
+	</script>
+	`;
+
+	const triggerGameSessionAction = `
+	<script>
+		function triggerGameSessionAction(action) {
+			window.parent.postMessage({ event: 'start-game' }, '*');
+		}
+	</script>
+	`;
+
+	const jsContentWithCustomLoadImage = `
+		${getClientDimensions}
+		${triggerGameSessionAction}
+		${getAsset}
+		${jsContent}
+	`;
+	// @ts-ignore
+
+	// Function to sync the user's game session score with a svelte store
+	// this should be called everytime the game score changes
+	function onScoreUpdate(score) {
+		// Send message to parent window for game score to update
+		window.parent.postMessage({ event: 'update-score', value: score }, '*');
+	}
+	// @ts-ignore
+	// Function to handle game start event
+	function onGameStart(update) {
+		// Send message to parent window for game start event
+		window.parent.postMessage({ event: 'start-game', value: update }, '*');
+	}
+	// @ts-ignore
+	function onGameEnd(update) {
+		// Send message to parent window for game end event
+		window.parent.postMessage({ event: 'stop-game', value: update }, '*');
+	}
+	// @ts-ignore
+	// Function to handle game session action events
+	function onGameAction(action) {
+		// Send message to parent window for game start event
+		window.parent.postMessage({ event: action }, '*');
+	}
+	// @ts-ignore
+	// Function to handle game pause event
+	function onGamePause(update) {
+		// Send message to parent window for game pause event
+		window.parent.postMessage({ event: 'gamepause', value: update }, '*');
+	}
+
 	const srcdoc = `
 	  <!DOCTYPE html>
+	  <html style="touch-action: manipulation;">
 	  <html>
 		<head>
 		  ${cssContent}
 		</head>
 		<body style="width: ${getWidth()}px; height: ${getHeight()}px;">
-		  ${htmlContent}
+			<script>
+				// Play Engine API Actions
+				const gS = ${onGameStart};
+				const gE = ${onGameEnd};
+				const updateScore = ${onScoreUpdate};
+				const gameAction = ${onGameAction};
+				const gP = ${onGamePause};
+			</script>
+			${htmlContent}
+			${jsContentWithCustomLoadImage}
 		  <script>
 			${jsContentWithBaseClasses}
 		  </script>
